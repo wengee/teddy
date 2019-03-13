@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-02 14:43:11 +0800
  */
-namespace SlimExtra\Db\Model\Columns;
+namespace Teddy\Db\Model\Columns;
 
 use Carbon\Carbon;
 use DateTimeInterface;

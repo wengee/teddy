@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 13:43:01 +0800
  */
-namespace SlimExtra\Jwt;
+namespace Teddy\Jwt;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

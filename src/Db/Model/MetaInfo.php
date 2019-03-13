@@ -3,15 +3,15 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 17:08:36 +0800
  */
-namespace SlimExtra\Db\Model;
+namespace Teddy\Db\Model;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
 use Illuminate\Support\Str;
 use ReflectionClass;
-use SlimExtra\Db\Model;
-use SlimExtra\Db\Model\Columns\ColumnInterface;
-use SlimExtra\Exception;
+use Teddy\Db\Model;
+use Teddy\Db\Model\Columns\ColumnInterface;
+use Teddy\Exception;
 
 class MetaInfo
 {

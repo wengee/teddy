@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-02 10:44:53 +0800
  */
-namespace SlimExtra\Http;
+namespace Teddy\Http;
 
 use Exception;
 use Slim\Http\Response as SlimResponse;

@@ -3,12 +3,12 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 15:23:37 +0800
  */
-namespace SlimExtra\Swoole\Db;
+namespace Teddy\Swoole\Db;
 
-use SlimExtra\Db\QueryBuilder;
-use SlimExtra\Db\QueryInterface;
-use SlimExtra\Db\RawSQL;
-use SlimExtra\Swoole\ConnectionPool;
+use Teddy\Db\QueryBuilder;
+use Teddy\Db\QueryInterface;
+use Teddy\Db\RawSQL;
+use Teddy\Swoole\ConnectionPool;
 
 class SwooleDatabase implements QueryInterface
 {

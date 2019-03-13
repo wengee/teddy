@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 15:59:22 +0800
  */
-namespace SlimExtra\Jwt;
+namespace Teddy\Jwt;
 
 use Exception;
 use Firebase\JWT\JWT;

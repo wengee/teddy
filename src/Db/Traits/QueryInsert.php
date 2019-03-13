@@ -4,9 +4,9 @@
  * @version  2019-01-09 17:49:20 +0800
  */
 
-namespace SlimExtra\Db\Traits;
+namespace Teddy\Db\Traits;
 
-use SlimExtra\Db\Database;
+use Teddy\Db\Database;
 
 trait QueryInsert
 {

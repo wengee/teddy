@@ -4,11 +4,11 @@
  * @version  2019-03-01 15:06:21 +0800
  */
 
-namespace SlimExtra\Db\Traits;
+namespace Teddy\Db\Traits;
 
-use SlimExtra\Db\Database;
-use SlimExtra\Db\Paginator;
-use SlimExtra\Db\RawSQL;
+use Teddy\Db\Database;
+use Teddy\Db\Paginator;
+use Teddy\Db\RawSQL;
 
 trait QuerySelect
 {

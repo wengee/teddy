@@ -6,7 +6,7 @@
 /**
  * 基于雨润Guzzle-Swoole修改，来自：https://gitee.com/yurunsoft/Guzzle-Swoole
  */
-namespace SlimExtra\Swoole;
+namespace Teddy\Swoole;
 
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Response;

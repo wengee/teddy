@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-15 11:36:17 +0800
  */
-namespace SlimExtra\Swoole;
+namespace Teddy\Swoole;
 
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;

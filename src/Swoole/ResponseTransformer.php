@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-25 01:29:02 +0800
  */
-namespace SlimExtra\Swoole;
+namespace Teddy\Swoole;
 
 use Slim\Http\Response;
 use Swoole\Http\Response as SwooleResponse;

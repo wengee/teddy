@@ -4,10 +4,10 @@
  * @version  2019-01-07 17:05:22 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
-use SlimExtra\Db\Database;
-use SlimExtra\Db\RawSQL;
+use Teddy\Db\Database;
+use Teddy\Db\RawSQL;
 
 class JoinClause extends ClauseContainer
 {

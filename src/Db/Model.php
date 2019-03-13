@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-04 15:30:01 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
 abstract class Model extends Collection
 {

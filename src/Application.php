@@ -3,14 +3,14 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 15:12:29 +0800
  */
-namespace SlimExtra;
+namespace Teddy;
 
 use Pimple\ServiceProviderInterface;
 use Slim\App as SlimApp;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
-class App extends SlimApp
+class Application extends SlimApp
 {
     /**
      * @var string
@@ -42,7 +42,7 @@ class App extends SlimApp
     public static function instance()
     {
         if (!isset(static::$instance)) {
-            throw new \Exception('App is not exists.');
+            throw new Exception('Application is not exists.');
         }
 
         return static::$instance;

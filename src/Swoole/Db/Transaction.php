@@ -3,10 +3,10 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-18 17:16:40 +0800
  */
-namespace SlimExtra\Swoole\Db;
+namespace Teddy\Swoole\Db;
 
-use SlimExtra\Db\QueryBuilder;
-use SlimExtra\Db\QueryInterface;
+use Teddy\Db\QueryBuilder;
+use Teddy\Db\QueryInterface;
 
 class Transaction implements QueryInterface
 {

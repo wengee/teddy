@@ -3,10 +3,10 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-02 14:56:41 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
 use Illuminate\Support\Collection as CollectionBase;
-use SlimExtra\Db\Traits\HasAttributes;
+use Teddy\Db\Traits\HasAttributes;
 
 class Collection extends CollectionBase
 {

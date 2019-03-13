@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 15:23:59 +0800
  */
-namespace SlimExtra\Qcloud;
+namespace Teddy\Qcloud;
 
 class SCF
 {

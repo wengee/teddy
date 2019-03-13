@@ -4,7 +4,7 @@
  * @version  2019-01-05 10:26:14 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
 class LimitClause extends ClauseContainer
 {

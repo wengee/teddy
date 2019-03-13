@@ -4,7 +4,7 @@
  * @version  2019-03-02 15:01:25 +0800
  */
 
-namespace SlimExtra\Db\Traits;
+namespace Teddy\Db\Traits;
 
 use Illuminate\Support\Str;
 

@@ -3,11 +3,11 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-07 09:53:27 +0800
  */
-namespace SlimExtra\Providers;
+namespace Teddy\Providers;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use SlimExtra\Jwt\JwtHelper;
+use Teddy\Jwt\JwtHelper;
 
 class JwtProvider implements ServiceProviderInterface
 {

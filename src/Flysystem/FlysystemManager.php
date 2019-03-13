@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-08 11:35:35 +0800
  */
-namespace SlimExtra\Flysystem;
+namespace Teddy\Flysystem;
 
 use InvalidArgumentException;
 use Jacobcyl\AliOSS\Plugins\PutFile;

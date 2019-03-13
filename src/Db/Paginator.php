@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-02-13 16:04:11 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
 class Paginator
 {

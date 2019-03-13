@@ -3,18 +3,18 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-01 15:30:24 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
-use SlimExtra\Db\Clause\GroupClause;
-use SlimExtra\Db\Clause\HavingClause;
-use SlimExtra\Db\Clause\JoinClause;
-use SlimExtra\Db\Clause\LimitClause;
-use SlimExtra\Db\Clause\OrderClause;
-use SlimExtra\Db\Clause\WhereClause;
-use SlimExtra\Db\Traits\QueryDelete;
-use SlimExtra\Db\Traits\QueryInsert;
-use SlimExtra\Db\Traits\QuerySelect;
-use SlimExtra\Db\Traits\QueryUpdate;
+use Teddy\Db\Clause\GroupClause;
+use Teddy\Db\Clause\HavingClause;
+use Teddy\Db\Clause\JoinClause;
+use Teddy\Db\Clause\LimitClause;
+use Teddy\Db\Clause\OrderClause;
+use Teddy\Db\Clause\WhereClause;
+use Teddy\Db\Traits\QueryDelete;
+use Teddy\Db\Traits\QueryInsert;
+use Teddy\Db\Traits\QuerySelect;
+use Teddy\Db\Traits\QueryUpdate;
 
 class QueryBuilder
 {

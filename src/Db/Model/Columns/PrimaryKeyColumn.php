@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-02 14:44:47 +0800
  */
-namespace SlimExtra\Db\Model\Columns;
+namespace Teddy\Db\Model\Columns;
 
 /**
  * @Annotation

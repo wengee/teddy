@@ -4,9 +4,9 @@
  * @version  2019-01-07 12:45:27 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
-use SlimExtra\Db\QueryBuilder;
+use Teddy\Db\QueryBuilder;
 
 abstract class ClauseContainer
 {

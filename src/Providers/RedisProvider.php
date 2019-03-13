@@ -3,12 +3,12 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-07 09:54:20 +0800
  */
-namespace SlimExtra\Providers;
+namespace Teddy\Providers;
 
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use SlimExtra\Redis\Client as Redis;
-use SlimExtra\Swoole\Redis\Client as SwooleRedis;
+use Teddy\Redis\Client as Redis;
+use Teddy\Swoole\Redis\Client as SwooleRedis;
 
 class RedisProvider implements ServiceProviderInterface
 {

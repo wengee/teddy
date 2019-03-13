@@ -3,11 +3,11 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 15:21:31 +0800
  */
-namespace SlimExtra\Swoole;
+namespace Teddy\Swoole;
 
-use SlimExtra\Guzzle\DefaultHandler;
-use SlimExtra\Swoole\Traits\HasProcessTitle;
-use SlimExtra\Task;
+use Teddy\Guzzle\DefaultHandler;
+use Teddy\Swoole\Traits\HasProcessTitle;
+use Teddy\Task;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server as HttpServer;

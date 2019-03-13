@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 17:08:54 +0800
  */
-namespace SlimExtra\Db\Model;
+namespace Teddy\Db\Model;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Exception;

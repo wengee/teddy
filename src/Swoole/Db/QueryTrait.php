@@ -3,10 +3,10 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 15:23:20 +0800
  */
-namespace SlimExtra\Swoole\Db;
+namespace Teddy\Swoole\Db;
 
-use SlimExtra\Db\Collection;
-use SlimExtra\Db\Database as SyncDatabase;
+use Teddy\Db\Collection;
+use Teddy\Db\Database as SyncDatabase;
 
 trait QueryTrait
 {

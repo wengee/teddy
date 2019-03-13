@@ -4,10 +4,10 @@
  * @version  2019-03-04 15:28:06 +0800
  */
 
-namespace SlimExtra\Db\Traits;
+namespace Teddy\Db\Traits;
 
-use SlimExtra\Db\Database;
-use SlimExtra\Db\RawSQL;
+use Teddy\Db\Database;
+use Teddy\Db\RawSQL;
 
 trait QueryUpdate
 {

@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 15:08:12 +0800
  */
-namespace SlimExtra;
+namespace Teddy;
 
 use Slim\Router as SlimRouter;
 

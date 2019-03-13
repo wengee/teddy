@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-09 17:28:50 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
 interface QueryInterface
 {

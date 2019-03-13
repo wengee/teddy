@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-07 11:45:01 +0800
  */
-namespace SlimExtra\Flysystem;
+namespace Teddy\Flysystem;
 
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\FilesystemInterface;

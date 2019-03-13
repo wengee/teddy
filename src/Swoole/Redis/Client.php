@@ -3,11 +3,11 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 11:28:29 +0800
  */
-namespace SlimExtra\Swoole\Redis;
+namespace Teddy\Swoole\Redis;
 
-use SlimExtra\Redis\Client as SyncClient;
-use SlimExtra\Redis\Redis;
-use SlimExtra\Swoole\ConnectionPool;
+use Teddy\Redis\Client as SyncClient;
+use Teddy\Redis\Redis;
+use Teddy\Swoole\ConnectionPool;
 
 class Client extends SyncClient
 {

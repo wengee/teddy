@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-02-19 16:07:29 +0800
  */
-namespace SlimExtra\Guzzle;
+namespace Teddy\Guzzle;
 
 class DefaultHandler
 {

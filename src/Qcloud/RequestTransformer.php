@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-17 15:10:40 +0800
  */
-namespace SlimExtra\Qcloud;
+namespace Teddy\Qcloud;
 
 use Slim\Http\Environment;
 use Slim\Http\Request;

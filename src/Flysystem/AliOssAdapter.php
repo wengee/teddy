@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-08 11:44:17 +0800
  */
-namespace SlimExtra\Flysystem;
+namespace Teddy\Flysystem;
 
 use Jacobcyl\AliOSS\AliOssAdapter as JacobcylAliOssAdapter;
 use League\Flysystem\FileNotFoundException;

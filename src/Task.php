@@ -3,9 +3,10 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-02-21 16:28:48 +0800
  */
-namespace SlimExtra;
+namespace Teddy;
 
 use Interop\Container\ContainerInterface;
+use InvalidArgumentException;
 
 abstract class Task
 {
@@ -28,7 +29,7 @@ abstract class Task
     public function delay(int $delay)
     {
         if ($delay <= 0) {
-            throw new \InvalidArgumentException('The delay must be greater than 0');
+            throw new InvalidArgumentException('The delay must be greater than 0');
         }
 
         $this->delay = $delay;

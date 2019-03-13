@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 15:32:19 +0800
  */
-namespace SlimExtra\Swoole;
+namespace Teddy\Swoole;
 
 use Swoole\Coroutine\Channel;
 

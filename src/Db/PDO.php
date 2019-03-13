@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-02-13 10:36:26 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
 class PDO extends \PDO
 {

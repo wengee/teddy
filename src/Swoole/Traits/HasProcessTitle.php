@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-14 10:43:50 +0800
  */
-namespace SlimExtra\Swoole\Traits;
+namespace Teddy\Swoole\Traits;
 
 trait HasProcessTitle
 {

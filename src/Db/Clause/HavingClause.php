@@ -4,9 +4,9 @@
  * @version  2019-01-07 16:36:11 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
-use SlimExtra\Db\RawSQL;
+use Teddy\Db\RawSQL;
 
 class HavingClause extends ClauseContainer
 {

@@ -9,7 +9,7 @@ use GuzzleHttp\Handler\CurlHandler;
 use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Handler\Proxy;
 use GuzzleHttp\Handler\StreamHandler;
-use SlimExtra\Guzzle\DefaultHandler;
+use Teddy\Guzzle\DefaultHandler;
 
 /**
  * Expands a URI template

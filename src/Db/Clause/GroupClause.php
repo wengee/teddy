@@ -4,7 +4,7 @@
  * @version  2019-01-07 14:33:05 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
 class GroupClause extends ClauseContainer
 {

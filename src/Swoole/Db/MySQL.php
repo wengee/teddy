@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-18 16:51:25 +0800
  */
-namespace SlimExtra\Swoole\Db;
+namespace Teddy\Swoole\Db;
 
 use Swoole\Coroutine\MySQL as SwooleMySQL;
 

@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 11:27:46 +0800
  */
-namespace SlimExtra\Redis;
+namespace Teddy\Redis;
 
 class Client
 {

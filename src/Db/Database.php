@@ -3,9 +3,9 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 15:18:23 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
-use SlimExtra\Db\Traits\HasPdoQuery;
+use Teddy\Db\Traits\HasPdoQuery;
 
 class Database implements QueryInterface
 {

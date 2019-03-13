@@ -3,11 +3,11 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 15:18:53 +0800
  */
-namespace SlimExtra\Swoole\Db;
+namespace Teddy\Swoole\Db;
 
-use SlimExtra\Db\Database as SyncDatabase;
-use SlimExtra\Db\PDO;
-use SlimExtra\Swoole\ConnectionPool;
+use Teddy\Db\Database as SyncDatabase;
+use Teddy\Db\PDO;
+use Teddy\Swoole\ConnectionPool;
 
 class Database extends SyncDatabase
 {

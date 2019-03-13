@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-10 14:12:59 +0800
  */
-namespace SlimExtra;
+namespace Teddy;
 
 use Interop\Container\ContainerInterface;
 

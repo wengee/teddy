@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-07 16:57:57 +0800
  */
-namespace SlimExtra\Jwt;
+namespace Teddy\Jwt;
 
 interface JwtUserInterface
 {

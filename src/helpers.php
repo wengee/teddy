@@ -4,13 +4,13 @@
  * @version  2019-03-13 11:17:59 +0800
  */
 
-use SlimExtra\App;
-use SlimExtra\Db\RawSQL;
+use Teddy\Application;
+use Teddy\Db\RawSQL;
 
 if (!function_exists('app')) {
     function app(?string $service = null)
     {
-        $app = App::instance();
+        $app = Application::instance();
         if (empty($service)) {
             return $app;
         }

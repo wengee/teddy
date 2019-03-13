@@ -3,9 +3,11 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 11:16:30 +0800
  */
-namespace SlimExtra;
+namespace Teddy;
 
+use Closure;
 use Illuminate\Support\Collection;
+use LogicException;
 use Slim\Container as SlimContainer;
 
 class Container extends SlimContainer
@@ -40,8 +42,8 @@ class Container extends SlimContainer
     public function call($id)
     {
         $callable = $this->raw($id);
-        if (!($callable instanceof \Closure)) {
-            throw new \LogicException('The service must is a Closure by the method(Container::call) call.');
+        if (!($callable instanceof Closure)) {
+            throw new LogicException('The service must is a Closure by the method(Container::call) call.');
         }
 
         return $callable($this);

@@ -4,7 +4,7 @@
  * @version  2019-01-14 15:31:19 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
 class OrderClause extends ClauseContainer
 {

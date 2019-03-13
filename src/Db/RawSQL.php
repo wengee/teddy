@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-07 16:18:57 +0800
  */
-namespace SlimExtra\Db;
+namespace Teddy\Db;
 
 class RawSQL
 {

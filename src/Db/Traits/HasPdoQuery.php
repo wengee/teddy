@@ -3,11 +3,11 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-06 15:21:42 +0800
  */
-namespace SlimExtra\Db\Traits;
+namespace Teddy\Db\Traits;
 
-use SlimExtra\Db\Collection;
-use SlimExtra\Db\Database;
-use SlimExtra\Db\Transaction;
+use Teddy\Db\Collection;
+use Teddy\Db\Database;
+use Teddy\Db\Transaction;
 
 trait HasPdoQuery
 {

@@ -4,9 +4,9 @@
  * @version  2019-01-07 15:29:53 +0800
  */
 
-namespace SlimExtra\Db\Clause;
+namespace Teddy\Db\Clause;
 
-use SlimExtra\Db\RawSQL;
+use Teddy\Db\RawSQL;
 
 class WhereClause extends ClauseContainer
 {

@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-01 18:01:01 +0800
  */
-namespace SlimExtra\Db\Model\Columns;
+namespace Teddy\Db\Model\Columns;
 
 interface ColumnInterface
 {

@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-01-18 15:17:52 +0800
  */
-namespace SlimExtra\Traits;
+namespace Teddy\Traits;
 
 trait Singleton
 {

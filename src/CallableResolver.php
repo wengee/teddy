@@ -3,7 +3,7 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 14:47:38 +0800
  */
-namespace SlimExtra;
+namespace Teddy;
 
 use Interop\Container\ContainerInterface;
 use RuntimeException;

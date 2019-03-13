@@ -3,14 +3,14 @@
  * @author   Fung Wing Kit <wengee@gmail.com>
  * @version  2019-03-13 16:45:24 +0800
  */
-namespace SlimExtra\Providers;
+namespace Teddy\Providers;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Pimple\Container;
 use Pimple\ServiceProviderInterface;
-use SlimExtra\Db\Database;
-use SlimExtra\Db\Model\Manager as ModelManager;
-use SlimExtra\Swoole\Db\Database as SwooleDatabase;
+use Teddy\Db\Database;
+use Teddy\Db\Model\Manager as ModelManager;
+use Teddy\Swoole\Db\Database as SwooleDatabase;
 
 class DbProvider implements ServiceProviderInterface
 {
