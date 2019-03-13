@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-13 15:08:12 +0800
+ * @version  2019-03-13 17:53:41 +0800
  */
 namespace Teddy;
 
@@ -33,7 +33,12 @@ class Router extends SlimRouter
 
         $prefix = '';
         foreach ($this->routeGroups as $group) {
-            $namespace = \str_finish($group->getNamespace(), '\\');
+            $namespace = $group->getNamespace();
+            if (empty($namespace)) {
+                continue;
+            }
+
+            $namespace = \str_finish($namespace, '\\');
             if ($namespace{0} === '\\') {
                 $prefix = $namespace;
             } else {
