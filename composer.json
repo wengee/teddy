@@ -1,0 +1,36 @@
+{
+    "name": "fwkit/slim-extra",
+    "description": "Slim framework library",
+    "type": "library",
+    "require": {
+        "slim/slim": "^3.11",
+        "illuminate/support": "^5.7",
+        "monolog/monolog": "^1.24",
+        "vlucas/phpdotenv": "^3.3",
+        "doctrine/annotations": "^1.6",
+        "firebase/php-jwt": "^5.0",
+        "league/flysystem": "^1.0",
+        "aliyuncs/oss-sdk-php": "^2.3",
+        "jacobcyl/ali-oss-storage": "^2.1"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SlimExtra\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
+    "authors": [
+        {
+            "name": "Fung Wing Kit",
+            "email": "wengee@gmail.com"
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
