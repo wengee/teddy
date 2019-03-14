@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-13 15:59:22 +0800
+ * @version  2019-03-14 15:06:56 +0800
  */
 namespace Teddy\Jwt;
 
@@ -13,15 +13,19 @@ use RuntimeException;
 class JwtHelper
 {
     private $options = [
+        'secret' => 'This\'s a secret!',
         'secure' => true,
         'relaxed' => ['localhost', '127.0.0.1'],
         'algorithm' => ['HS256', 'HS512', 'HS384'],
         'header' => 'Authorization',
         'regexp' => "/Bearer\s+(.*)$/i",
         'cookie' => 'token',
+        'param' => 'token',
         'attribute' => 'user',
         'userClass' => null,
     ];
+
+    private $secretSuffix;
 
     public function __construct(array $options = [])
     {
@@ -33,13 +37,13 @@ class JwtHelper
         try {
             $token = $this->fetchToken($request);
         } catch (Exception $e) {
-            return $request;
+            throw $e;
         }
 
         try {
             $payload = $this->decodeToken($token);
         } catch (Exception $e) {
-            return $request;
+            throw $e;
         }
 
         $userClass = $this->options['userClass'];
@@ -58,7 +62,6 @@ class JwtHelper
     public function fetchToken(ServerRequestInterface $request): string
     {
         $header = '';
-        $message = 'Using token from request header';
 
         /* Check for token in header. */
         $headers = $request->getHeader($this->options['header']);
@@ -66,6 +69,11 @@ class JwtHelper
 
         if (preg_match($this->options['regexp'], $header, $matches)) {
             return $matches[1];
+        }
+
+        $params = $request->getParams();
+        if (isset($params[$this->options['param']])) {
+            return $params[$this->options['param']];
         }
 
         /* Token not found in header try a cookie. */
@@ -86,19 +94,19 @@ class JwtHelper
         try {
             $decoded = JWT::decode(
                 $token,
-                $this->options['secret'],
+                $this->options['secret'] . $this->secretSuffix,
                 (array) $this->options['algorithm']
             );
             return (array) $decoded;
-        } catch (Exception $exception) {
-            throw $exception;
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 
     /**
      * Encode the payload.
      */
-    public function encodeToken(array $payload, int $ttl = 0):string
+    public function encodeToken(array $payload, int $ttl = 0): string
     {
         $timestamp = time();
         $payload['iat'] = $timestamp;
@@ -106,12 +114,18 @@ class JwtHelper
             $payload['exp'] = $timestamp + $ttl;
         }
 
-        return JWT::encode($payload, $this->options['secret']);
+        $algorithm = (array) $this->options['algorithm'];
+        $alg = isset($algorithm[0]) ? $algorithm[0] : 'HS256';
+        return JWT::encode(
+            $payload,
+            $this->options['secret'] . $this->secretSuffix,
+            $alg
+        );
     }
 
-    public function setSecret(string $secret)
+    public function setSecret(?string $secret)
     {
-        $this->options['secret'] = $secret;
+        $this->secretSuffix = $secret;
         return $this;
     }
 
