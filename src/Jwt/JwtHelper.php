@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-14 15:06:56 +0800
+ * @version  2019-03-14 17:07:18 +0800
  */
 namespace Teddy\Jwt;
 
@@ -13,7 +13,7 @@ use RuntimeException;
 class JwtHelper
 {
     private $options = [
-        'secret' => 'This\'s a secret!',
+        'secret' => 'This is a secret!',
         'secure' => true,
         'relaxed' => ['localhost', '127.0.0.1'],
         'algorithm' => ['HS256', 'HS512', 'HS384'],
