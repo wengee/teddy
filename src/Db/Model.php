@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-16 16:56:09 +0800
+ * @version  2019-03-16 18:04:58 +0800
  */
 namespace Teddy\Db;
 
@@ -112,7 +112,7 @@ abstract class Model extends Collection
         return $query->first();
     }
 
-    public static function __callStatic(string $method, array $params)
+    public static function __callStatic($method, $params)
     {
         if (starts_with($method, 'fetchBy')) {
             $property = lcfirst(substr($method, 7));
