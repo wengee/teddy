@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-04 15:30:01 +0800
+ * @version  2019-03-16 16:56:09 +0800
  */
 namespace Teddy\Db;
 
@@ -100,6 +100,27 @@ abstract class Model extends Collection
     public static function raw(string $sql): RawSQL
     {
         return new RawSQL($sql);
+    }
+
+    public static function fetch(array $conditions)
+    {
+        $query = static::query();
+        foreach ($conditions as $key => $value) {
+            $query = $query->where($key, $value);
+        }
+
+        return $query->first();
+    }
+
+    public static function __callStatic(string $method, array $params)
+    {
+        if (starts_with($method, 'fetchBy')) {
+            $property = lcfirst(substr($method, 7));
+            $value = $params[0] ?? null;
+            return static::query()->where($property, $value)->first();
+        }
+
+        throw new DbException("The method '{$method}' is undefined for this class.");
     }
 
     protected function trigger(string $action, ...$args)

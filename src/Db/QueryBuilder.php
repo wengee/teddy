@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-01 15:30:24 +0800
+ * @version  2019-03-16 17:02:11 +0800
  */
 namespace Teddy\Db;
 
@@ -29,6 +29,11 @@ class QueryBuilder
      * @var string
      */
     protected $table;
+
+    /**
+     * @var callable
+     */
+    protected $callback;
 
     /**
      * @var string
@@ -107,6 +112,12 @@ class QueryBuilder
         $this->havingClause = clone $this->havingClause;
     }
 
+    public function callback(callable $callback)
+    {
+        $this->callback = $callback;
+        return $this;
+    }
+
     public function as(string $as)
     {
         $this->as = $as;
@@ -129,6 +140,11 @@ class QueryBuilder
         }
 
         return $this;
+    }
+
+    public function getSqlType(): int
+    {
+        return (int) $this->sqlType;
     }
 
     public function getSql(array &$map = []): string
@@ -198,7 +214,12 @@ class QueryBuilder
         $options['sqlType'] = $this->sqlType;
         $options['metaInfo'] = $this->metaInfo;
 
-        return $this->db->query($sql, $map, $options);
+        $ret = $this->db->query($sql, $map, $options);
+        if (is_callable($this->callback)) {
+            call_user_func($this->callback, $this);
+        }
+
+        return $ret;
     }
 
     public function __call($method, array $args = [])
