@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-16 17:02:11 +0800
+ * @version  2019-03-19 10:03:44 +0800
  */
 namespace Teddy\Db;
 
@@ -104,12 +104,12 @@ class QueryBuilder
 
     public function __clone()
     {
-        $this->whereClause = clone $this->whereClause;
-        $this->orderClause = clone $this->orderClause;
-        $this->limitClause = clone $this->limitClause;
-        $this->groupClause = clone $this->groupClause;
-        $this->joinClause = clone $this->joinClause;
-        $this->havingClause = clone $this->havingClause;
+        $this->whereClause = $this->whereClause ? clone $this->whereClause : null;
+        $this->orderClause = $this->orderClause ? clone $this->orderClause : null;
+        $this->limitClause = $this->limitClause ? clone $this->limitClause : null;
+        $this->groupClause = $this->groupClause ? clone $this->groupClause : null;
+        $this->joinClause = $this->joinClause ? clone $this->joinClause : null;
+        $this->havingClause = $this->havingClause ? clone $this->havingClause : null;
     }
 
     public function callback(callable $callback)
