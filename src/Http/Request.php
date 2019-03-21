@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-02 10:44:07 +0800
+ * @version  2019-03-21 17:00:12 +0800
  */
 namespace Teddy\Http;
 
@@ -17,6 +17,11 @@ class Request extends SlimRequest
     public function __get($key)
     {
         return $this->attributes->get($key);
+    }
+
+    public function getUploadedFile(string $field)
+    {
+        return isset($this->uploadedFiles[$field]) ? $this->uploadedFiles[$field] : null;
     }
 
     public function url(?string $path = null, array $query = []): string

@@ -1,13 +1,14 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-17 15:10:16 +0800
+ * @version  2019-03-21 17:00:23 +0800
  */
 namespace Teddy\Swoole;
 
 use Slim\Http\Body;
 use Slim\Http\Headers;
 use Slim\Http\Request;
+use Slim\Http\UploadedFile;
 use Slim\Http\Uri;
 use Swoole\Http\Request as SwooleRequest;
 
@@ -121,7 +122,7 @@ class RequestTransformer
 
             $parsed[$field] = [];
             if (!is_array($uploadedFile['error'])) {
-                $parsed[$field] = new static(
+                $parsed[$field] = new UploadedFile(
                     $uploadedFile['tmp_name'],
                     isset($uploadedFile['name']) ? $uploadedFile['name'] : null,
                     isset($uploadedFile['type']) ? $uploadedFile['type'] : null,
