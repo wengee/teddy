@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-21 17:00:12 +0800
+ * @version  2019-03-22 18:22:04 +0800
  */
 namespace Teddy\Http;
 
@@ -64,5 +64,28 @@ class Request extends SlimRequest
         }
 
         return $this->now;
+    }
+
+    public function filter(array $fields)
+    {
+        $ret = [];
+        $params = $this->getParams();
+        $filter = app('filter');
+        foreach ($fields as $key => $value) {
+            if (is_int($key)) {
+                $ret[$value] = array_get($params, $value);
+            } else {
+                $paramValue = array_get($params, $key);
+                $ret[$key] = $filter->sanitize($paramValue, $value);
+            }
+        }
+
+        return $ret;
+    }
+
+    public function validate(array $rules)
+    {
+        $input = $this->getParsedBody();
+        return app('validation')->validate($input, $rules);
     }
 }
