@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 18:22:04 +0800
+ * @version  2019-03-22 18:23:50 +0800
  */
 namespace Teddy\Http;
 
@@ -85,7 +85,7 @@ class Request extends SlimRequest
 
     public function validate(array $rules)
     {
-        $input = $this->getParsedBody();
+        $input = (array) $this->getParsedBody();
         return app('validation')->validate($input, $rules);
     }
 }
