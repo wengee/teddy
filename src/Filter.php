@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 10:26:26 +0800
+ * @version  2019-03-27 17:42:18 +0800
  */
 namespace Teddy;
 
@@ -45,6 +45,8 @@ class Filter
 
     const FILTER_SPECIAL_CHARS = 'special_chars';
 
+    const FILTER_LIST          = 'list';
+
     protected $_filters;
 
     /**
@@ -69,7 +71,7 @@ class Filter
         if (is_array($filters)) {
             if ($value !== null) {
                 foreach ($filters as $filter) {
-                    if (is_array($value) && !$noRecursive) {
+                    if ($filter !== self::FILTER_LIST && is_array($value) && !$noRecursive) {
                         $arrayValue = [];
                         foreach ($value as $itemKey => $itemValue) {
                             $arrayValue[$itemKey] = $this->_sanitize($itemValue, $filter);
@@ -83,7 +85,7 @@ class Filter
             return $value;
         }
 
-        if (is_array($value) && !$noRecursive) {
+        if ($filters !== self::FILTER_LIST && is_array($value) && !$noRecursive) {
             $arrayValue = [];
             foreach ($value as $itemKey => $itemValue) {
                 $arrayValue[$itemKey] = $this->_sanitize($itemValue, $filters);
@@ -160,6 +162,9 @@ class Filter
 
             case self::FILTER_SPECIAL_CHARS:
                 return filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+
+            case self::FILTER_LIST:
+                return array_values((array) $value);
 
             default:
                 throw new Exception('Sanitize filter "' . $filter . '" is not supported');

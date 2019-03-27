@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 18:13:12 +0800
+ * @version  2019-03-27 17:50:46 +0800
  */
 namespace Teddy\Validation;
 
@@ -47,7 +47,7 @@ class Validation
         return $this;
     }
 
-    public function validate(array $input, array $rules): array
+    public function validate(array $input, array $rules, bool $quiet = false): array
     {
         if (empty($rules)) {
             return $input;
@@ -119,15 +119,44 @@ class Validation
             }
 
             $defaultValue = array_pull($data, 'default');
-            $value = array_get($input, $field, $defaultValue);
+            $value = array_get($input, $field, value($defaultValue));
             $label = array_pull($data, 'label', ucfirst($field));
             $filters = array_pull($data, 'filter', $filters);
+            $ruleQuiet = array_pull($data, 'quiet', $quiet);
 
             if ($filter && $filters) {
                 $value = $filter->sanitize($value, $filters);
             }
 
-            $this->_validateValue($value, $data, $input, $field, $label);
+            if ($filters === 'list' && !empty($data)) {
+                $newValue = [];
+                foreach ($value as $valueItem) {
+                    try {
+                        $valueItem = $this->validate($valueItem, $data);
+                    } catch (\Exception $e) {
+                        if ($ruleQuiet) {
+                            continue;
+                        } else {
+                            throw $e;
+                        }
+                    }
+
+                    $newValue[] = $valueItem;
+                }
+
+                $value = $newValue;
+            } else {
+                try {
+                    $this->_validateValue($value, $data, $input, $field, $label);
+                } catch (\Exception $e) {
+                    if ($ruleQuiet) {
+                        continue;
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+
             array_set($ret, $field, $value);
         }
 
