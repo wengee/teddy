@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-27 14:59:53 +0800
+ * @version  2019-03-27 15:20:09 +0800
  */
 namespace Teddy\Middlewares;
 
@@ -15,8 +15,15 @@ class Cors
         'origin' => '*',
         'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
         'headers' => [
+            'Accept',
+            'Accept-Language',
+            'User-Agent',
             'X-Requested-With',
-            'Authorization'
+            'If-Modified-Since',
+            'Cache-Control',
+            'Content-Type',
+            'Range',
+            'Authorization',
         ],
     ];
 
