@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-02 15:01:25 +0800
+ * @version  2019-03-27 18:17:00 +0800
  */
 
 namespace Teddy\Db\Traits;
@@ -21,27 +21,25 @@ trait HasAttributes
 
     public function setAttribute($key, $value)
     {
-        $this->checkKey($key);
         if ($this->hasSetMutator($key)) {
             return $this->setMutatedAttributeValue($key, $value);
-        }
-
-        if ($key === null) {
-            $this->items[] = $value;
-        } else {
-            $this->items[$key] = $value;
+        } elseif ($this->hasColumn($key)) {
+            if ($key === null) {
+                $this->items[] = $value;
+            } else {
+                $this->items[$key] = $value;
+            }
         }
     }
 
     public function getAttribute($key, $default = null)
     {
-        $this->checkKey($key);
         if ($this->hasGetMutator($key)) {
             return $this->getMutatedAttributeValue($key);
-        }
-
-        if (array_key_exists($key, $this->items)) {
-            return $this->items[$key];
+        } elseif ($this->hasColumn($key)) {
+            if (array_key_exists($key, $this->items)) {
+                return $this->items[$key];
+            }
         }
 
         return $default;
@@ -67,10 +65,12 @@ trait HasAttributes
         return $this->{'get' . Str::studly($key) . 'Attribute'}();
     }
 
-    protected function checkKey($key)
+    protected function hasColumn($key)
     {
-        if (is_string($key) && $key{0} === '_') {
-            throw new \Exception('The property is not public.');
+        if (!method_exists($this, 'metaInfo')) {
+            return true;
         }
+
+        return $this->metaInfo()->hasColumn($key);
     }
 }

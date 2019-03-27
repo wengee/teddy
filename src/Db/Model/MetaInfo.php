@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-06 17:08:36 +0800
+ * @version  2019-03-27 18:08:52 +0800
  */
 namespace Teddy\Db\Model;
 
@@ -118,6 +118,11 @@ class MetaInfo
     public function getColumns(): array
     {
         return (array) $this->columns;
+    }
+
+    public function hasColumn(string $columnName): bool
+    {
+        return isset($this->columns[$columnName]);
     }
 
     public function makeInstance(array $data)
