@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-27 18:19:39 +0800
+ * @version  2019-03-28 14:38:14 +0800
  */
 namespace Teddy\Db;
 
@@ -59,7 +59,7 @@ abstract class Model extends Collection
         return true;
     }
 
-    public function delete()
+    public function delete($arg = null)
     {
         $primaryKeys = $this->metaInfo()->primaryKeys();
         if (empty($primaryKeys)) {
@@ -68,6 +68,7 @@ abstract class Model extends Collection
 
         $this->trigger('beforeDelete');
         $query = static::query($arg);
+        $attributes = $this->getDbAttributes();
         if (!$this->isNewRecord()) {
             foreach (array_only($attributes, $primaryKeys) as $key => $value) {
                 $query->where($key, $value);
