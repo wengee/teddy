@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-13 11:17:59 +0800
+ * @version  2019-04-01 17:26:53 +0800
  */
 
 use Teddy\Application;
@@ -31,7 +31,7 @@ if (!function_exists('config')) {
             $settings = app('settings');
         }
 
-        return $settings->get($key, $default);
+        return array_get($settings, $key, $default);
     }
 }
 
