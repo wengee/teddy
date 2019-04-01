@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-06 15:21:42 +0800
+ * @version  2019-04-01 18:38:13 +0800
  */
 namespace Teddy\Db\Traits;
 
@@ -105,7 +105,10 @@ trait HasPdoQuery
             $ret = $stmt->rowCount();
         }
 
-        $stmt->closeCursor();
+        if ($stmt) {
+            $stmt->closeCursor();
+        }
+
         if (array_get($options, 'release', true)) {
             $this->release($pdo);
         }
