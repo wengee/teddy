@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-14 16:31:10 +0800
+ * @version  2019-04-01 17:14:35 +0800
  */
 namespace Teddy\Jwt;
 
@@ -26,7 +26,10 @@ class Authentication
                 $request = $jwtHelper->processRequest($request);
             } catch (Exception $e) {
                 if ($this->errorHandler) {
-                    return call_user_func($this->errorHandler, $request, $response, $e);
+                    $resp = call_user_func($this->errorHandler, $request, $response, $e);
+                    if ($resp instanceof ResponseInterface) {
+                        return $resp;
+                    }
                 }
             }
         }
