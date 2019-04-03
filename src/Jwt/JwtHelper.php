@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-14 17:07:18 +0800
+ * @version  2019-04-03 11:24:22 +0800
  */
 namespace Teddy\Jwt;
 
@@ -46,6 +46,7 @@ class JwtHelper
             throw $e;
         }
 
+        $request = $request->withAttribute('jwtPayload', $payload);
         $userClass = $this->options['userClass'];
         if ($userClass && \is_subclass_of($userClass, JwtUserInterface::class)) {
             $user = $userClass::retrieveByPayload($payload);

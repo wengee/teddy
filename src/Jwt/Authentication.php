@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-01 17:14:35 +0800
+ * @version  2019-04-03 11:08:55 +0800
  */
 namespace Teddy\Jwt;
 
@@ -20,18 +20,17 @@ class Authentication
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
     {
-        $jwtHelper = app('jwt');
-        if ($jwtHelper) {
-            try {
-                $request = $jwtHelper->processRequest($request);
-            } catch (Exception $e) {
-                if ($this->errorHandler) {
-                    $resp = call_user_func($this->errorHandler, $request, $response, $e);
-                    if ($resp instanceof ResponseInterface) {
-                        return $resp;
-                    }
+        try {
+            $request = app('jwt')->processRequest($request);
+        } catch (Exception $e) {
+            if ($this->errorHandler) {
+                $resp = call_user_func($this->errorHandler, $request, $response, $e);
+                if ($resp instanceof ResponseInterface) {
+                    return $resp;
                 }
             }
+
+            $request = $request->withAttribute('authError', $e);
         }
 
         return $next($request, $response);
