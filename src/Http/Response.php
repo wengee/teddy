@@ -1,11 +1,12 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-02 10:44:53 +0800
+ * @version  2019-04-09 14:12:14 +0800
  */
 namespace Teddy\Http;
 
 use Exception;
+use JsonSerializable;
 use Slim\Http\Response as SlimResponse;
 
 class Response extends SlimResponse
@@ -16,6 +17,11 @@ class Response extends SlimResponse
     {
         $data = ['errmsg' => null, 'errcode' => -1];
         foreach ($args as $arg) {
+            if ($arg instanceof JsonSerializable) {
+                $data = $arg;
+                break;
+            }
+
             if ($arg instanceof Exception) {
                 $data['errcode'] = $arg->getCode() ?: -1;
                 $data['errmsg'] = $arg->getMessage();

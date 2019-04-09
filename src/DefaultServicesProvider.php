@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 14:26:50 +0800
+ * @version  2019-04-09 11:06:07 +0800
  */
 namespace Teddy;
 
@@ -13,6 +13,7 @@ use Monolog\Processor\MemoryUsageProcessor;
 use Monolog\Processor\PsrLogMessageProcessor;
 use Slim\DefaultServicesProvider as SlimDefaultServicesProvider;
 use Slim\Http\Headers;
+use Teddy\Handlers\Error;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
 use Teddy\Validation\Validation;
@@ -34,6 +35,12 @@ class DefaultServicesProvider extends SlimDefaultServicesProvider
             $response = new $responseClass(200, $headers);
 
             return $response->withProtocolVersion($c->get('settings')['httpVersion']);
+        };
+
+        $container['errorHandler'] = function ($container) {
+            return new Error(
+                $container->get('settings')['displayErrorDetails']
+            );
         };
 
         $container['callableResolver'] = function ($c) {

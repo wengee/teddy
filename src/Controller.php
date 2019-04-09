@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-10 14:12:59 +0800
+ * @version  2019-04-09 14:20:43 +0800
  */
 namespace Teddy;
 
@@ -37,5 +37,10 @@ abstract class Controller
     final public function __isset($name)
     {
         return $this->container->has($name);
+    }
+
+    public function serveJson(...$args)
+    {
+        throw new JsonResponse(...$args);
     }
 }

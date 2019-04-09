@@ -1,15 +1,24 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-27 15:20:09 +0800
+ * @version  2019-04-09 14:53:32 +0800
  */
 namespace Teddy\Middlewares;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Teddy\Traits\HasOptions;
+use Teddy\Traits\HasUriMatch;
 
 class Cors
 {
+    use HasOptions, HasUriMatch;
+
+    protected $conditions = [
+        'path' => null,
+        'ignore' => null,
+    ];
+
     protected $options = [
         'intercept' => true,
         'origin' => '*',
@@ -34,8 +43,6 @@ class Cors
     public function __construct(array $options = [])
     {
         $this->hydrate($options);
-        $this->methodLine = implode(',', $this->options['methods']);
-        $this->headerLine = implode(',', $this->options['headers']);
     }
 
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response, callable $next): ResponseInterface
@@ -48,22 +55,12 @@ class Cors
         return $this->acceptCors($request, $response);
     }
 
-    protected function hydrate($data = []): void
-    {
-        foreach ($data as $key => $value) {
-            $key = str_replace('.', ' ', $key);
-            $method = lcfirst(ucwords($key));
-            $method = str_replace(' ', '', $method);
-            if (method_exists($this, $method)) {
-                call_user_func([$this, $method], $value);
-            } else {
-                $this->options[$key] = $value;
-            }
-        }
-    }
-
     protected function acceptCors(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
+        if (!$this->isUriMatch($request, $this->conditions)) {
+            return $response;
+        }
+
         $origin = $request->getHeaderLine('ORIGIN');
         if ($this->checkOrigin($origin)) {
             $response = $response->withHeader('Access-Control-Allow-Origin', $origin)
@@ -92,7 +89,7 @@ class Cors
         return false;
     }
 
-    protected function methods($methods)
+    protected function setMethods($methods)
     {
         $methods = (array) $methods;
         if (array_get($methods, 'replace')) {
@@ -100,9 +97,11 @@ class Cors
         } else {
             $this->options['methods'] = array_merge($this->options['methods'], $methods);
         }
+
+        $this->methodLine = implode(',', $this->options['methods']);
     }
 
-    protected function headers($headers)
+    protected function setHeaders($headers)
     {
         $headers = (array) $headers;
         if (array_get($headers, 'replace')) {
@@ -110,5 +109,17 @@ class Cors
         } else {
             $this->options['headers'] = array_merge($this->options['headers'], $headers);
         }
+
+        $this->headerLine = implode(',', $this->options['headers']);
+    }
+
+    protected function setPath($path)
+    {
+        $this->conditions['path'] = (array) $path;
+    }
+
+    protected function setIgnore($ignore)
+    {
+        $this->conditions['ignore'] = (array) $ignore;
     }
 }

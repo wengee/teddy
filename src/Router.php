@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-13 17:53:41 +0800
+ * @version  2019-04-09 14:30:13 +0800
  */
 namespace Teddy;
 
@@ -23,6 +23,16 @@ class Router extends SlimRouter
         $group = new RouteGroup($pattern, $callable);
         array_push($this->routeGroups, $group);
         return $group;
+    }
+
+    protected function createRoute($methods, $pattern, $callable)
+    {
+        $route = new Route($methods, $pattern, $callable, $this->routeGroups, $this->routeCounter);
+        if (!empty($this->container)) {
+            $route->setContainer($this->container);
+        }
+
+        return $route;
     }
 
     protected function processNamespace(string $handler)

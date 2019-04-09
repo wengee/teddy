@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-03 11:24:22 +0800
+ * @version  2019-04-09 15:08:55 +0800
  */
 namespace Teddy\Jwt;
 
@@ -9,10 +9,13 @@ use Exception;
 use Firebase\JWT\JWT;
 use Psr\Http\Message\ServerRequestInterface;
 use RuntimeException;
+use Teddy\Traits\HasOptions;
 
 class JwtHelper
 {
-    private $options = [
+    use HasOptions;
+
+    protected $options = [
         'secret' => 'This is a secret!',
         'secure' => true,
         'relaxed' => ['localhost', '127.0.0.1'],
@@ -25,7 +28,7 @@ class JwtHelper
         'userClass' => null,
     ];
 
-    private $secretSuffix;
+    protected $secretSuffix;
 
     public function __construct(array $options = [])
     {
@@ -124,57 +127,33 @@ class JwtHelper
         );
     }
 
-    public function setSecret(?string $secret)
+    public function setSecretSuffix(?string $secretSuffix)
     {
-        $this->secretSuffix = $secret;
+        $this->secretSuffix = $secretSuffix;
         return $this;
     }
 
-    private function hydrate($data = []): void
+    protected function setSecret(string $secret): void
     {
-        foreach ($data as $key => $value) {
-            /* https://github.com/facebook/hhvm/issues/6368 */
-            $key = str_replace('.', ' ', $key);
-            $method = lcfirst(ucwords($key));
-            $method = str_replace(' ', '', $method);
-            if (method_exists($this, $method)) {
-                /* Try to use setter */
-                call_user_func([$this, $method], $value);
-            } else {
-                /* Or fallback to setting option directly */
-                $this->options[$key] = $value;
-            }
-        }
+        $this->options['secret'] = $secret;
     }
 
-    /**
-     * Set the attribute name used to attach decoded token to request.
-     */
-    private function attribute(string $attribute): void
+    protected function setAttribute(string $attribute): void
     {
         $this->options['attribute'] = $attribute;
     }
 
-    /**
-     * Set the header where token is searched from.
-     */
-    private function header(string $header): void
+    protected function setHeader(string $header): void
     {
         $this->options['header'] = $header;
     }
 
-    /**
-     * Set the regexp used to extract token from header or environment.
-     */
-    private function regexp(string $regexp): void
+    protected function setRegexp(string $regexp): void
     {
         $this->options['regexp'] = $regexp;
     }
 
-    /**
-     * Set the allowed algorithms
-     */
-    private function algorithm($algorithm): void
+    protected function setAlgorithm($algorithm): void
     {
         $this->options['algorithm'] = (array) $algorithm;
     }
