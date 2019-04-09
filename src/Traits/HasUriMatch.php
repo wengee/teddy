@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 14:39:16 +0800
+ * @version  2019-04-09 15:33:14 +0800
  */
 namespace Teddy\Traits;
 
@@ -11,27 +11,27 @@ trait HasUriMatch
 {
     protected function isUriMatch(ServerRequestInterface $request, array $options)
     {
-        if (empty($this->options['path']) && empty($this->options['ignore'])) {
+        if (empty($options['path']) && empty($options['ignore'])) {
             return true;
         }
 
         $uri = '/' . $request->getUri()->getPath();
         $uri = preg_replace('#/+#', '/', $uri);
 
-        if (!empty($this->options['ignore'])) {
-            foreach ((array) $this->options['ignore'] as $ignore) {
+        if (!empty($options['ignore'])) {
+            foreach ((array) $options['ignore'] as $ignore) {
                 if ($this->isMatch($uri, $ignore)) {
                     return false;
                 }
             }
 
-            if (empty($this->options['path'])) {
+            if (empty($options['path'])) {
                 return true;
             }
         }
 
-        if (!empty($this->options['path'])) {
-            foreach ((array) $this->options['path'] as $path) {
+        if (!empty($options['path'])) {
+            foreach ((array) $options['path'] as $path) {
                 if ($this->isMatch($uri, $path)) {
                     return true;
                 }
