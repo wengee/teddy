@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 15:16:55 +0800
+ * @version  2019-04-09 15:25:31 +0800
  */
 namespace Teddy\Jwt;
 
@@ -37,7 +37,7 @@ class Authentication
             $request = $request->withAttribute('jwtError', $e);
         }
 
-        if (!$this->isUriMatch($request, $this->conditions)) {
+        if (!$this->isUriMatch($request, $this->options)) {
             return $next($request, $response);
         } elseif ($this->callback) {
             $resp = call_user_func($this->callback, $request, $response, $exception);
