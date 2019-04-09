@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 15:33:14 +0800
+ * @version  2019-04-09 15:44:00 +0800
  */
 namespace Teddy\Traits;
 
@@ -52,7 +52,7 @@ trait HasUriMatch
         switch ($type) {
             case 'eq':
             case '=':
-                $rule = "@^{$rule}(/?\\?.*)?$@";
+                $rule = "@^{$rule}(/?(\\?.*)?)?$@";
                 break;
 
             case 're':
