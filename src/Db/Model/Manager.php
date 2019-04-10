@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-06 17:08:54 +0800
+ * @version  2019-04-10 18:43:40 +0800
  */
 namespace Teddy\Db\Model;
 
@@ -31,7 +31,7 @@ class Manager
             try {
                 $this->metaInfos[$model] = new MetaInfo($model);
             } catch (Exception $e) {
-                throw $e;
+                log_exception($e);
                 $this->metaInfos[$model] = false;
             }
         }

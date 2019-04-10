@@ -1,25 +1,27 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-13 15:21:31 +0800
+ * @version  2019-04-10 18:42:37 +0800
  */
 namespace Teddy\Swoole;
 
-use Teddy\Guzzle\DefaultHandler;
-use Teddy\Swoole\Traits\HasProcessTitle;
-use Teddy\Task;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server as HttpServer;
 use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Websocket\Server as WebsocketServer;
+use Teddy\Guzzle\DefaultHandler;
+use Teddy\Swoole\Traits\HasProcessTitle;
+use Teddy\Swoole\Traits\HasTimerProcess;
+use Teddy\Task;
+use Teddy\Utils;
 
 defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
 class Server
 {
-    use HasProcessTitle;
+    use HasProcessTitle, HasTimerProcess;
 
     /**
      * @var Swoole\Http\Server
@@ -111,11 +113,24 @@ class Server
         if ($this->enableWebsocket) {
             $this->bindWebSocketEvent();
         }
+
+        $timerCfg = array_get($config, 'timer');
+        $this->addTimerProcess($this, $timerCfg, $this->enableCoroutine);
+    }
+
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    public function getSwoole()
+    {
+        return $this->swoole;
     }
 
     public function run()
     {
-        $this->setProcessTitle(sprintf('%s master', $this->name));
+        $this->setProcessTitle('master process');
         $this->swoole->start();
     }
 
@@ -139,16 +154,8 @@ class Server
             }
         }
 
-        $app = $this->loadPhp('bootstrap/app.php');
-        if (is_callable($this->callback)) {
-            \call_user_func($this->callback, $app);
-        }
-
-        $app->getContainer()['server'] = $this;
-        $app->getContainer()['swoole'] = $this->swoole;
-        $this->app = $app;
-
-        $this->setProcessTitle(sprintf('%s %s', $this->name, $process));
+        $this->initApp();
+        $this->setProcessTitle($process);
     }
 
     public function onRequest(Request $request, Response $response)
@@ -191,27 +198,23 @@ class Server
         }
     }
 
+    public function initApp()
+    {
+        $app = $this->loadPhp('bootstrap/app.php');
+        if (is_callable($this->callback)) {
+            call_user_func($this->callback, $app);
+        }
+
+        $app->getContainer()['server'] = $this;
+        $app->getContainer()['swoole'] = $this->swoole;
+        $this->app = $app;
+    }
+
     protected function bindWebSocketEvent()
     {
         if ($this->enableWebsocket) {
             $eventHandler = function ($method, array $params) {
-                try {
-                    \call_user_func_array([$this->websocketHandler, $method], $params);
-                } catch (\Exception $e) {
-                    $logger = app('logger');
-                    if ($logger) {
-                        $logger->error(sprintf(
-                            'Uncaught exception "%s": [%d]%s called in %s:%d%s%s',
-                            get_class($e),
-                            $e->getCode(),
-                            $e->getMessage(),
-                            $e->getFile(),
-                            $e->getLine(),
-                            PHP_EOL,
-                            $e->getTraceAsString()
-                        ));
-                    }
-                }
+                Utils::callWithCatchException([$this->websocketHandler, $method], $params);
             };
 
             $this->swoole->on('open', function (...$args) use ($eventHandler) {

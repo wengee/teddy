@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-01 17:26:53 +0800
+ * @version  2019-04-10 18:34:17 +0800
  */
 
 use Teddy\Application;
@@ -46,5 +46,29 @@ if (!function_exists('fastcgi_finish_request')) {
     function fastcgi_finish_request()
     {
         return false;
+    }
+}
+
+if (!function_exists('log_exception')) {
+    function log_exception(Exception $e, $obj = null)
+    {
+        try {
+            $logger = app('logger');
+        } catch (Exception $err) {
+            return false;
+        }
+
+        $logger->error(sprintf(
+            '%sUncaught exception "%s": [%d]%s called in %s:%d%s%s',
+            $obj ? '[' . get_class($obj) . '] ' : '',
+            get_class($e),
+            $e->getCode(),
+            $e->getMessage(),
+            $e->getFile(),
+            $e->getLine(),
+            PHP_EOL,
+            $e->getTraceAsString()
+        ));
+        return true;
     }
 }
