@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-10 18:42:37 +0800
+ * @version  2019-04-11 18:01:08 +0800
  */
 namespace Teddy\Swoole;
 
@@ -115,7 +115,9 @@ class Server
         }
 
         $timerCfg = array_get($config, 'timer');
-        $this->addTimerProcess($this, $timerCfg, $this->enableCoroutine);
+        if ($timerCfg && is_array($timerCfg) && isset($timerCfg['enable'])) {
+            $this->addTimerProcess($this, $timerCfg, $this->enableCoroutine);
+        }
     }
 
     public function getName()
