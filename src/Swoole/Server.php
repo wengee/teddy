@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-11 18:01:08 +0800
+ * @version  2019-04-12 14:05:58 +0800
  */
 namespace Teddy\Swoole;
 
@@ -110,7 +110,7 @@ class Server
             $this->swoole->on('finish', [$this, 'onFinish']);
         }
 
-        if ($this->enableWebsocket) {
+        if ($this->enableWebsocket && $this->websocketHandler) {
             $this->bindWebSocketEvent();
         }
 

@@ -1,10 +1,11 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-10 18:40:26 +0800
+ * @version  2019-04-12 14:41:15 +0800
  */
 namespace Teddy\Swoole\Traits;
 
+use Illuminate\Support\Str;
 use Swoole\Process;
 use Swoole\Runtime;
 use Teddy\Swoole\Server;
@@ -15,7 +16,11 @@ trait HasTimerProcess
 {
     protected function addTimerProcess(Server $server, array $config, bool $enableCoroutine = false)
     {
-        if (empty($config['enable']) || empty($config['jobs'])) {
+        if (empty($config['enable']) || empty($config['jobs']) || !value($config['enable'])) {
+            return;
+        }
+
+        if (isset($config['host']) && !$this->isCurrentHost($config['host'])) {
             return;
         }
 
@@ -74,6 +79,7 @@ trait HasTimerProcess
                 foreach ($timerIds as $timerId) {
                     swoole_timer_clear($timerId);
                 }
+
                 swoole_timer_after($config['max_wait_time'] * 1000, function () use ($process) {
                     $process->exit(0);
                 });
@@ -84,5 +90,21 @@ trait HasTimerProcess
         if ($server->getSwoole()->addProcess($timerProcess)) {
             return $timerProcess;
         }
+    }
+
+    protected function isCurrentHost($host)
+    {
+        $thisHost = gethostname();
+        if (is_string($host)) {
+            return Str::is($host, $thisHost);
+        } elseif (is_array($host)) {
+            foreach ($host as $h) {
+                if (Str::is($h, $thisHost)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
