@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-12 14:05:58 +0800
+ * @version  2019-04-13 15:48:19 +0800
  */
 namespace Teddy\Swoole;
 
@@ -22,6 +22,11 @@ defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 class Server
 {
     use HasProcessTitle, HasTimerProcess;
+
+    /**
+     * @var boolean
+     */
+    protected $inited = false;
 
     /**
      * @var Swoole\Http\Server
@@ -77,9 +82,16 @@ class Server
     {
         $this->basePath = str_finish($basePath, '/');
         $this->callback = $callback;
+        $this->init();
+    }
 
-        $config = (array) $this->loadPhp('config/swoole.php');
-        $config += $this->getDefaultConfig();
+    public function init()
+    {
+        if ($this->inited) {
+            return;
+        }
+
+        $config = $this->loadConfig();
         $this->config = $config;
         $this->name = array_pull($config, 'name', 'slim');
         $this->enableCoroutine = array_get($config, 'enable_coroutine', true);
@@ -118,6 +130,8 @@ class Server
         if ($timerCfg && is_array($timerCfg) && isset($timerCfg['enable'])) {
             $this->addTimerProcess($this, $timerCfg, $this->enableCoroutine);
         }
+
+        $this->inited = true;
     }
 
     public function getName()
@@ -132,6 +146,10 @@ class Server
 
     public function run()
     {
+        if (!$this->inited) {
+            $this->init();
+        }
+
         $this->setProcessTitle('master process');
         $this->swoole->start();
     }
@@ -246,11 +264,10 @@ class Server
         return null;
     }
 
-    protected function getDefaultConfig(): array
+    protected function loadConfig(): array
     {
-        $cpuNum = \swoole_cpu_num();
-
-        return [
+        $cpuNum = swoole_cpu_num();
+        $defaultConfig = [
             'host' => '127.0.0.1',
             'port' => 9500,
             'enable_coroutine' => true,
@@ -261,6 +278,19 @@ class Server
             'dispatch_mode' => 1,
             'daemonize' => 0,
         ];
+
+        $config = (array) $this->loadPhp('config/swoole.php');
+        $config += $defaultConfig;
+
+        $extraConfigFile = env('SWOOLE_CONFIG', getcwd() . '/swoole.json');
+        if (is_file($extraConfigFile)) {
+            $extraConfig = json_decode(file_get_contents($extraConfigFile), true);
+            if ($extraConfig && is_array($extraConfig)) {
+                $config = array_merge($config, $extraConfig);
+            }
+        }
+
+        return $config;
     }
 
     protected function setGuzzleHandler()
