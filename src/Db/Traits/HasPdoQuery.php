@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-11 18:28:00 +0800
+ * @version  2019-04-13 12:06:05 +0800
  */
 namespace Teddy\Db\Traits;
 
@@ -142,7 +142,7 @@ trait HasPdoQuery
     protected function canResetPDO(PDOException $e)
     {
         $errorInfo = (array) $e->errorInfo;
-        if (issest($errorInfo[1]) && ($errorInfo[1] === 1461 || $errorInfo[1] === 2006)) {
+        if (isset($errorInfo[1]) && ($errorInfo[1] === 1461 || $errorInfo[1] === 2006)) {
             return true;
         }
 
