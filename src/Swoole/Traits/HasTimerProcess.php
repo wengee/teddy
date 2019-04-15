@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-12 14:41:15 +0800
+ * @version  2019-04-15 17:33:32 +0800
  */
 namespace Teddy\Swoole\Traits;
 

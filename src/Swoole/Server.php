@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-13 15:48:19 +0800
+ * @version  2019-04-15 17:33:54 +0800
  */
 namespace Teddy\Swoole;
 
@@ -12,6 +12,7 @@ use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Websocket\Server as WebsocketServer;
 use Teddy\Guzzle\DefaultHandler;
+use Teddy\Swoole\Traits\HasInotifyProcess;
 use Teddy\Swoole\Traits\HasProcessTitle;
 use Teddy\Swoole\Traits\HasTimerProcess;
 use Teddy\Task;
@@ -21,7 +22,7 @@ defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
 class Server
 {
-    use HasProcessTitle, HasTimerProcess;
+    use HasProcessTitle, HasTimerProcess, HasInotifyProcess;
 
     /**
      * @var boolean
@@ -59,6 +60,11 @@ class Server
     protected $config;
 
     /**
+     * @var array
+     */
+    protected $timerCfg;
+
+    /**
      * @var bool
      */
     protected $enableCoroutine = true;
@@ -77,6 +83,10 @@ class Server
      * @var string
      */
     protected $websocketHandler;
+
+    protected $timerProcess;
+
+    protected $inotifyProcess;
 
     public function __construct(string $basePath, ?callable $callback = null)
     {
@@ -126,9 +136,15 @@ class Server
             $this->bindWebSocketEvent();
         }
 
-        $timerCfg = array_get($config, 'timer');
+        $timerCfg = array_pull($config, 'timer');
         if ($timerCfg && is_array($timerCfg) && isset($timerCfg['enable'])) {
-            $this->addTimerProcess($this, $timerCfg, $this->enableCoroutine);
+            $this->timerCfg = $timerCfg;
+            $this->timerProcess = $this->addTimerProcess($this, $timerCfg, $this->enableCoroutine);
+        }
+
+        $inotifyCfg = array_pull($config, 'inotify');
+        if ($inotifyCfg && is_array($inotifyCfg) && isset($inotifyCfg['enable'])) {
+            $this->inotifyProcess = $this->addInotifyProcess($this, $inotifyCfg);
         }
 
         $this->inited = true;
@@ -142,6 +158,11 @@ class Server
     public function getSwoole()
     {
         return $this->swoole;
+    }
+
+    public function getBasePath()
+    {
+        return $this->basePath;
     }
 
     public function run()
