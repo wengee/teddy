@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-15 11:24:00 +0800
+ * @version  2019-04-15 11:36:56 +0800
  */
 namespace Teddy;
 
@@ -53,6 +53,7 @@ class PharBuilder
         $this->phar->stopBuffering();
         $elapsed = sprintf('%.3f', microtime(true) - $s);
 
+        file_put_contents($pharFile . '.md5sum', md5_file($pharFile));
         chmod($pharFile, 0755);
         echo "Finished {$pharFile}, Total files: {$total}, Elapsed time: {$elapsed}s\n";
     }
