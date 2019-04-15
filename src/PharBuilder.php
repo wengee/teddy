@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-15 11:36:56 +0800
+ * @version  2019-04-15 14:21:25 +0800
  */
 namespace Teddy;
 
@@ -39,6 +39,11 @@ class PharBuilder
             return false;
         }
 
+        if ($this->options['clear']) {
+            Utils::clearDir($this->options['dist']);
+        }
+
+        $this->publishPublic();
         $s = microtime(true);
         $pharFile = $this->joinPaths($this->options['dist'], $this->options['output']);
         if (file_exists($pharFile)) {
@@ -174,14 +179,16 @@ class PharBuilder
     protected function getDefaultOptions(): array
     {
         return [
-            'dist' => $this->joinPaths($this->basePath, 'dist'),
-            'main' => 'index.php',
-            'output' => 'app.phar',
-            'directories' => [],
-            'files' => [],
-            'rules' => [],
-            'exclude' => [],
-            'shebang' => true,
+            'dist'          => $this->joinPaths($this->basePath, 'dist'),
+            'main'          => 'index.php',
+            'output'        => 'app.phar',
+            'directories'   => [],
+            'files'         => [],
+            'rules'         => [],
+            'exclude'       => [],
+            'shebang'       => true,
+            'clear'         => false,
+            'public'        => [],
         ];
     }
 
@@ -198,6 +205,25 @@ class PharBuilder
         }, $args);
         $paths = array_filter($paths);
         return $firstArg . implode(DIRECTORY_SEPARATOR, $paths);
+    }
+
+    protected function publishPublic()
+    {
+        if (empty($this->options['public'])) {
+            return;
+        }
+
+        $public = (array) $this->options['public'];
+        foreach ($public as $key => $value) {
+            $dest = $this->joinPaths($this->options['dist'], $value);
+            if (is_int($key)) {
+                $source = $this->joinPaths($this->basePath, $value);
+            } else {
+                $source = $this->joinPaths($this->basePath, $key);
+            }
+
+            Utils::xcopy($source, $dest);
+        }
     }
 
     protected function setDist(string $value)
