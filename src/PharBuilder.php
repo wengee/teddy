@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-15 14:21:25 +0800
+ * @version  2019-04-16 14:34:31 +0800
  */
 namespace Teddy;
 
@@ -43,7 +43,7 @@ class PharBuilder
             Utils::clearDir($this->options['dist']);
         }
 
-        $this->publishPublic();
+        $this->copyFiles();
         $s = microtime(true);
         $pharFile = $this->joinPaths($this->options['dist'], $this->options['output']);
         if (file_exists($pharFile)) {
@@ -55,9 +55,10 @@ class PharBuilder
 
         $total = $this->addFiles();
         $this->setStub();
+        $this->compressFiles();
+
         $this->phar->stopBuffering();
         $elapsed = sprintf('%.3f', microtime(true) - $s);
-
         file_put_contents($pharFile . '.md5sum', md5_file($pharFile));
         chmod($pharFile, 0755);
         echo "Finished {$pharFile}, Total files: {$total}, Elapsed time: {$elapsed}s\n";
@@ -101,6 +102,25 @@ class PharBuilder
 
                 closedir($dh);
             }
+        }
+    }
+
+    protected function compressFiles()
+    {
+        switch ($this->options['compress']) {
+            case 'gz':
+            case 'gzip':
+                $this->phar->compressFiles(Phar::GZ);
+                break;
+
+            case 'bz2':
+            case 'bzip2':
+                $this->phar->compressFiles(Phar::BZ2);
+                break;
+
+            default:
+                $this->phar->compressFiles(Phar::NONE);
+                break;
         }
     }
 
@@ -188,7 +208,8 @@ class PharBuilder
             'exclude'       => [],
             'shebang'       => true,
             'clear'         => false,
-            'public'        => [],
+            'copy'          => [],
+            'compress'      => 'none',
         ];
     }
 
@@ -207,14 +228,14 @@ class PharBuilder
         return $firstArg . implode(DIRECTORY_SEPARATOR, $paths);
     }
 
-    protected function publishPublic()
+    protected function copyFiles()
     {
-        if (empty($this->options['public'])) {
+        if (empty($this->options['copy'])) {
             return;
         }
 
-        $public = (array) $this->options['public'];
-        foreach ($public as $key => $value) {
+        $files = (array) $this->options['copy'];
+        foreach ($files as $key => $value) {
             $dest = $this->joinPaths($this->options['dist'], $value);
             if (is_int($key)) {
                 $source = $this->joinPaths($this->basePath, $value);
