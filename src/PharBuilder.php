@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-16 14:34:31 +0800
+ * @version  2019-04-16 14:53:08 +0800
  */
 namespace Teddy;
 
@@ -53,15 +53,15 @@ class PharBuilder
         $this->phar = new Phar($pharFile, 0, $this->options['output']);
         $this->phar->startBuffering();
 
+        $this->compressFiles();
         $total = $this->addFiles();
         $this->setStub();
-        $this->compressFiles();
 
         $this->phar->stopBuffering();
         $elapsed = sprintf('%.3f', microtime(true) - $s);
-        file_put_contents($pharFile . '.md5sum', md5_file($pharFile));
+        $filesize = Utils::humanFilesize(filesize($pharFile));
         chmod($pharFile, 0755);
-        echo "Finished {$pharFile}, Total files: {$total}, Elapsed time: {$elapsed}s\n";
+        echo "Finished {$pharFile}, Size: {$filesize}, Total files: {$total}, Elapsed time: {$elapsed}s\n";
     }
 
     protected function addFiles()
@@ -119,7 +119,6 @@ class PharBuilder
                 break;
 
             default:
-                $this->phar->compressFiles(Phar::NONE);
                 break;
         }
     }

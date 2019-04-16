@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-15 14:13:06 +0800
+ * @version  2019-04-16 14:52:17 +0800
  */
 namespace Teddy;
 
@@ -63,5 +63,14 @@ class Utils
         }
 
         closedir($dir);
+    }
+
+    public static function humanFilesize(int $bytes, int $decimals = 3)
+    {
+        $factor = floor((strlen($bytes) - 1) / 3);
+        if ($factor > 0) {
+            $sz = 'KMGT';
+        }
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor - 1] . 'B';
     }
 }
