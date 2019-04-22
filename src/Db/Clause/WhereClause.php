@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-07 15:29:53 +0800
+ * @version  2019-04-22 14:26:05 +0800
  */
 
 namespace Teddy\Db\Clause;
@@ -10,6 +10,40 @@ use Teddy\Db\RawSQL;
 
 class WhereClause extends ClauseContainer
 {
+    public function search($match, string $against, int $mode = 3, string $chainType = 'AND')
+    {
+        $match = array_map(function ($c) {
+            return $this->query->toDbColumn($c);
+        }, (array) $match);
+        $match = implode(', ', $match);
+
+        $modeSQL = ' IN NATURAL LANGUAGE MODE';
+        switch ($mode) {
+            case 4:
+                $modeSQL = ' WITH QUERY EXPANSION';
+                break;
+
+            case 3:
+                $modeSQL = ' IN BOOLEAN MODE';
+                break;
+
+            case 2:
+                $modeSQL = ' IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION';
+                break;
+
+            default:
+                $modeSQL = ' IN NATURAL LANGUAGE MODE';
+        }
+        $sql = "MATCH({$match}) AGAINST(?{$modeSQL})";
+        $column = new RawSQL($sql, $against);
+        $this->container[] = [$column, null, null, $chainType];
+    }
+
+    public function orSearch($match, string $against, int $mode = 3)
+    {
+        $this->search($match, $against, $booleanMode, 'OR');
+    }
+
     public function where($column, $operator = null, $value = null, string $chainType = 'AND')
     {
         if ($column instanceof RawSQL) {

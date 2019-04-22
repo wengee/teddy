@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-01 15:06:21 +0800
+ * @version  2019-04-22 14:38:17 +0800
  */
 
 namespace Teddy\Db\Traits;
@@ -96,6 +96,11 @@ trait QuerySelect
         $sql = 'COUNT(' . $this->toDbColumn($column) . ')';
         $this->columns = [new RawSQL($sql)];
         return $this->fetchColumn();
+    }
+
+    public function exists(): bool
+    {
+        return $this->count() > 0;
     }
 
     protected function setColumns(...$columns)

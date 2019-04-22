@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-19 10:03:44 +0800
+ * @version  2019-04-22 14:18:32 +0800
  */
 namespace Teddy\Db;
 
@@ -226,6 +226,8 @@ class QueryBuilder
     {
         $clause = null;
         switch ($method) {
+            case 'search':
+            case 'orSearch':
             case 'where':
             case 'orWhere':
             case 'whereBetween':

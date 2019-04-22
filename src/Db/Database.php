@@ -33,6 +33,14 @@ class Database implements QueryInterface
 
     const FETCH_COLUMN = 3;
 
+    const FULL_TEXT_NATURAL_LANGUAGE = 1;
+
+    const FULL_TEXT_NATURAL_LANGUAGE_WITH_QUERY = 2;
+
+    const FULL_TEXT_BOOLEAN = 3;
+
+    const FULL_TEXT_WITH_QUERY = 4;
+
     /**
      * @var array
      */
