@@ -1,14 +1,11 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-02-19 16:09:04 +0800
+ * @version  2019-04-30 14:44:49 +0800
  */
 namespace GuzzleHttp;
 
-use GuzzleHttp\Handler\CurlHandler;
-use GuzzleHttp\Handler\CurlMultiHandler;
 use GuzzleHttp\Handler\Proxy;
-use GuzzleHttp\Handler\StreamHandler;
 use Teddy\Guzzle\DefaultHandler;
 
 /**
@@ -115,28 +112,7 @@ function set_default_handler($handler)
  */
 function choose_handler()
 {
-    $handler = null;
-    $defaultHandler = DefaultHandler::getDefaultHandler();
-    if (is_callable($defaultHandler)) {
-        $handler = $defaultHandler;
-    } elseif (function_exists('curl_multi_exec') && function_exists('curl_exec')) {
-        $handler = Proxy::wrapSync(new CurlMultiHandler(), new CurlHandler());
-    } elseif (function_exists('curl_exec')) {
-        $handler = new CurlHandler();
-    } elseif (function_exists('curl_multi_exec')) {
-        $handler = new CurlMultiHandler();
-    }
-
-    if (ini_get('allow_url_fopen')) {
-        $handler = $handler
-            ? Proxy::wrapStreaming($handler, new StreamHandler())
-            : new StreamHandler();
-    } elseif (!$handler) {
-        throw new \RuntimeException('GuzzleHttp requires cURL, the '
-            . 'allow_url_fopen ini setting, or a custom HTTP handler.');
-    }
-
-    return $handler;
+    return DefaultHandler::getDefaultHandler();
 }
 
 /**

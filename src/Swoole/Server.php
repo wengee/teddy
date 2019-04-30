@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-15 17:33:54 +0800
+ * @version  2019-04-30 14:42:41 +0800
  */
 namespace Teddy\Swoole;
 
@@ -185,13 +185,11 @@ class Server
             $process = 'task worker';
             if ($this->enableTaskCoroutine) {
                 Runtime::enableCoroutine(true);
-                $this->setGuzzleHandler();
             }
         } else {
             $process = 'worker';
             if ($this->enableCoroutine) {
                 Runtime::enableCoroutine(true);
-                $this->setGuzzleHandler();
             }
         }
 
@@ -241,6 +239,7 @@ class Server
 
     public function initApp()
     {
+        $this->setGuzzleHandler();
         $app = $this->loadPhp('bootstrap/app.php');
         if (is_callable($this->callback)) {
             call_user_func($this->callback, $app);
@@ -316,14 +315,16 @@ class Server
 
     protected function setGuzzleHandler()
     {
-        DefaultHandler::setDefaultHandler(GuzzleHandler::class);
-        if (!function_exists('\\GuzzleHttp\\set_default_handler')) {
-            if (!function_exists('\\GuzzleHttp\\choose_handler')) {
-                include_once __DIR__ . '/../Guzzle/functions.php';
-            } elseif (extension_loaded('runkit')) {
-                runkit_function_redefine('\\GuzzleHttp\\choose_handler', function () {
-                    return DefaultHandler::getDefaultHandler();
-                });
+        if ($this->enableCoroutine) {
+            DefaultHandler::setDefaultHandler(GuzzleHandler::class);
+            if (!function_exists('\\GuzzleHttp\\set_default_handler')) {
+                if (!function_exists('\\GuzzleHttp\\choose_handler')) {
+                    include_once __DIR__ . '/../Guzzle/functions.php';
+                } elseif (extension_loaded('runkit')) {
+                    runkit_function_redefine('\\GuzzleHttp\\choose_handler', function () {
+                        return DefaultHandler::getDefaultHandler();
+                    });
+                }
             }
         }
     }
