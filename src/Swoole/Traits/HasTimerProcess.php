@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-30 15:59:42 +0800
+ * @version  2019-04-30 16:52:26 +0800
  */
 namespace Teddy\Swoole\Traits;
 
@@ -25,15 +25,11 @@ trait HasTimerProcess
         }
 
         $startTimer = function (Process $process) use ($server, $config, $enableCoroutine) {
-            if ($enableCoroutine) {
-                Runtime::enableCoroutine(true);
-            }
-
             if (!empty($config['pid_file'])) {
                 file_put_contents($config['pid_file'], $process->pid);
             }
 
-            $server->initApp();
+            $server->initApp($enableCoroutine);
             $server->setProcessTitle('timer process');
 
             $timerIds = [];
@@ -55,8 +51,20 @@ trait HasTimerProcess
                     continue;
                 }
 
-                $runProcess = function () use ($job) {
-                    Utils::callWithCatchException([$job, 'run']);
+                $runProcess = function () use ($job, $enableCoroutine) {
+                    $runCallback = function () use ($job, $enableCoroutine) {
+                        if ($enableCoroutine) {
+                            Runtime::enableCoroutine(true);
+                        }
+
+                        Utils::callWithCatchException([$job, 'run']);
+                    };
+
+                    if ($enableCoroutine) {
+                        go($runCallback);
+                    } else {
+                        $runCallback();
+                    }
                 };
 
                 $timerId = swoole_timer_tick($job->interval(), $runProcess);

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-30 14:42:41 +0800
+ * @version  2019-04-30 16:52:09 +0800
  */
 namespace Teddy\Swoole;
 
@@ -183,14 +183,8 @@ class Server
     {
         if ($workerId >= $this->config['worker_num']) {
             $process = 'task worker';
-            if ($this->enableTaskCoroutine) {
-                Runtime::enableCoroutine(true);
-            }
         } else {
             $process = 'worker';
-            if ($this->enableCoroutine) {
-                Runtime::enableCoroutine(true);
-            }
         }
 
         $this->initApp();
@@ -237,9 +231,9 @@ class Server
         }
     }
 
-    public function initApp()
+    public function initApp(?bool $enableCoroutine = null)
     {
-        $this->setGuzzleHandler();
+        $this->initCoroutine($enableCoroutine);
         $app = $this->loadPhp('bootstrap/app.php');
         if (is_callable($this->callback)) {
             call_user_func($this->callback, $app);
@@ -313,9 +307,14 @@ class Server
         return $config;
     }
 
-    protected function setGuzzleHandler()
+    protected function initCoroutine(?bool $enableCoroutine = null)
     {
-        if ($this->enableCoroutine) {
+        if ($enableCoroutine === null) {
+            $enableCoroutine = $this->enableCoroutine;
+        }
+
+        if ($enableCoroutine) {
+            Runtime::enableCoroutine(true);
             DefaultHandler::setDefaultHandler(GuzzleHandler::class);
             if (!function_exists('\\GuzzleHttp\\set_default_handler')) {
                 if (!function_exists('\\GuzzleHttp\\choose_handler')) {

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-16 14:52:17 +0800
+ * @version  2019-04-30 16:51:52 +0800
  */
 namespace Teddy;
 
@@ -12,7 +12,7 @@ class Utils
     public static function callWithCatchException(callable $func, array $params = [])
     {
         try {
-            call_user_func_array($func, $params);
+            $func(...$params);
         } catch (Exception $e) {
             log_exception($e);
             return false;
