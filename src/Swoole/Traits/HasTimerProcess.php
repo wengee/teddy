@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-30 16:52:26 +0800
+ * @version  2019-04-30 17:35:31 +0800
  */
 namespace Teddy\Swoole\Traits;
 
@@ -86,7 +86,7 @@ trait HasTimerProcess
             });
         };
 
-        $timerProcess = new Process($startTimer, false, 0, $enableCoroutine);
+        $timerProcess = new Process($startTimer, false, 0);
         if ($server->getSwoole()->addProcess($timerProcess)) {
             return $timerProcess;
         }
