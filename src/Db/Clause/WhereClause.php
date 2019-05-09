@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-22 14:26:05 +0800
+ * @version  2019-05-09 14:10:17 +0800
  */
 
 namespace Teddy\Db\Clause;
@@ -51,7 +51,7 @@ class WhereClause extends ClauseContainer
             $this->container[] = [$column, null, null, $chainType];
         } else {
             $column = $this->query->toDbColumn($column);
-            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'])) {
+            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
                 $chainType = $value ?: $chainType;
                 $value = $operator;
                 $operator = '=';

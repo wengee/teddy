@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-07 16:36:11 +0800
+ * @version  2019-05-09 14:10:34 +0800
  */
 
 namespace Teddy\Db\Clause;
@@ -17,7 +17,7 @@ class HavingClause extends ClauseContainer
             $this->container[] = [$column, null, null, $chainType];
         } else {
             $column = $this->query->toDbColumn($column);
-            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'])) {
+            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
                 $chainType = $value ?: $chainType;
                 $value = $operator;
                 $operator = '=';

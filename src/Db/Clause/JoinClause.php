@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-07 17:05:22 +0800
+ * @version  2019-05-09 14:10:38 +0800
  */
 
 namespace Teddy\Db\Clause;
@@ -13,7 +13,7 @@ class JoinClause extends ClauseContainer
 {
     public function join($table, $first, $operator = null, $second = null, int $joinType = Database::INNER_JOIN)
     {
-        if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'])) {
+        if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
             $operator = '=';
         }
 

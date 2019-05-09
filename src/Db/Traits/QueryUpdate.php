@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-04 15:28:06 +0800
+ * @version  2019-05-09 14:10:45 +0800
  */
 
 namespace Teddy\Db\Traits;
@@ -14,7 +14,7 @@ trait QueryUpdate
     public function set(string $column, $operator, $value = null)
     {
         $column = $this->toDbColumn($column);
-        if (in_array($operator, ['+', '-', '*', '/'])) {
+        if (in_array($operator, ['+', '-', '*', '/'], true)) {
             $this->data[] = new RawSQL("$column = $column $operator ?", $value);
         } else {
             $this->data[$column] = $operator;
