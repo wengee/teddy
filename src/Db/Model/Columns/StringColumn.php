@@ -11,9 +11,16 @@ namespace Teddy\Db\Model\Columns;
  */
 class StringColumn extends Column
 {
+    protected $length = 0;
+
     public function dbValue($value)
     {
-        return (string) $value;
+        $value = strval($value);
+        if ($this->length > 0) {
+            $value = substr($value, 0, $this->length);
+        }
+
+        return $value;
     }
 
     public function value($value)

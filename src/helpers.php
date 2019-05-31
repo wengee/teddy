@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-10 18:34:17 +0800
+ * @version  2019-05-11 14:18:25 +0800
  */
 
 use Teddy\Application;
@@ -70,5 +70,19 @@ if (!function_exists('log_exception')) {
             $e->getTraceAsString()
         ));
         return true;
+    }
+}
+
+if (!function_exists('base64url_encode')) {
+    function base64url_encode($data)
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+}
+
+if (!function_exists('base64url_decode')) {
+    function base64url_decode($data)
+    {
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 }
