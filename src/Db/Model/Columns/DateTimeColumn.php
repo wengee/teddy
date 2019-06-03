@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-03 18:09:03 +0800
+ * @version  2019-06-03 18:11:51 +0800
  */
 namespace Teddy\Db\Model\Columns;
 
@@ -19,6 +19,10 @@ class DateTimeColumn extends Column
 
     public function dbValue($value)
     {
+        if (empty($value)) {
+            return null;
+        }
+
         try {
             $t = $this->asDateTime($value);
         } catch (Exception $e) {
@@ -30,7 +34,15 @@ class DateTimeColumn extends Column
 
     public function value($value)
     {
-        return $this->asDateTime($value);
+        if (empty($value)) {
+            return null;
+        }
+
+        try {
+            $value = $this->asDateTime($value);
+        } catch (Exception $e) {
+            return null;
+        }
     }
 
     public function defaultValue()
