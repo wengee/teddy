@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-30 16:52:09 +0800
+ * @version  2019-06-03 09:33:04 +0800
  */
 namespace Teddy\Swoole;
 
@@ -11,7 +11,6 @@ use Swoole\Http\Server as HttpServer;
 use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Websocket\Server as WebsocketServer;
-use Teddy\Guzzle\DefaultHandler;
 use Teddy\Swoole\Traits\HasInotifyProcess;
 use Teddy\Swoole\Traits\HasProcessTitle;
 use Teddy\Swoole\Traits\HasTimerProcess;
@@ -315,16 +314,6 @@ class Server
 
         if ($enableCoroutine) {
             Runtime::enableCoroutine(true);
-            DefaultHandler::setDefaultHandler(GuzzleHandler::class);
-            if (!function_exists('\\GuzzleHttp\\set_default_handler')) {
-                if (!function_exists('\\GuzzleHttp\\choose_handler')) {
-                    include_once __DIR__ . '/../Guzzle/functions.php';
-                } elseif (extension_loaded('runkit')) {
-                    runkit_function_redefine('\\GuzzleHttp\\choose_handler', function () {
-                        return DefaultHandler::getDefaultHandler();
-                    });
-                }
-            }
         }
     }
 }
