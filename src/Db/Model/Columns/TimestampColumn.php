@@ -1,9 +1,11 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-02 14:43:05 +0800
+ * @version  2019-06-03 18:08:34 +0800
  */
 namespace Teddy\Db\Model\Columns;
+
+use Exception;
 
 /**
  * @Annotation
@@ -20,9 +22,16 @@ class TimestampColumn extends DateTimeColumn
         } else {
             if (is_int($value)) {
                 return $value;
+            } elseif (empty($value)) {
+                return 0;
             }
 
-            $t = $this->asDateTime($value);
+            try {
+                $t = $this->asDateTime($value);
+            } catch (Exception $e) {
+                return 0;
+            }
+
             return $t->getTimestamp();
         }
     }

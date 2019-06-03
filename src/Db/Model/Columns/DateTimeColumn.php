@@ -1,12 +1,13 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-02 14:43:11 +0800
+ * @version  2019-06-03 18:09:03 +0800
  */
 namespace Teddy\Db\Model\Columns;
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use Exception;
 
 /**
  * @Annotation
@@ -18,7 +19,12 @@ class DateTimeColumn extends Column
 
     public function dbValue($value)
     {
-        $t = $this->asDateTime($value);
+        try {
+            $t = $this->asDateTime($value);
+        } catch (Exception $e) {
+            return null;
+        }
+
         return $t->format($this->format);
     }
 
