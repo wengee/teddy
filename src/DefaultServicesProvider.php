@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 11:06:07 +0800
+ * @version  2019-06-05 15:13:17 +0800
  */
 namespace Teddy;
 
@@ -16,7 +16,6 @@ use Slim\Http\Headers;
 use Teddy\Handlers\Error;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
-use Teddy\Validation\Validation;
 
 class DefaultServicesProvider extends SlimDefaultServicesProvider
 {
@@ -87,7 +86,6 @@ class DefaultServicesProvider extends SlimDefaultServicesProvider
         };
 
         $container['filter'] = new Filter;
-        $container['validation'] = new Validation;
 
         parent::register($container);
     }
