@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 15:16:39 +0800
+ * @version  2019-06-05 15:19:31 +0800
  */
 namespace Teddy\Validation;
 
@@ -14,6 +14,7 @@ class Validation
         'alpha'     => Validators\Alpha::class,
         'alphaNum'  => Validators\AlphaNum::class,
         'before'    => Validators\Before::class,
+        'boolean'   => Validators\Boolean::class,
         'callback'  => Validators\Callback::class,
         'datetime'  => Validators\DateTime::class,
         'digit'     => Validators\Digit::class,
@@ -35,6 +36,7 @@ class Validation
         'trim'      => Validators\Trim::class,
         'url'       => Validators\Url::class,
 
+        'bool'      => Validators\Boolean::class,
         'date'      => Validators\DateTime::class,
         'int'       => Validators\Integer::class,
         'same'      => Validators\Equal::class,
