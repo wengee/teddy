@@ -1,33 +1,84 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 18:05:14 +0800
+ * @version  2019-06-05 10:26:37 +0800
  */
 namespace Teddy\Validation\Validators;
 
+use Teddy\Traits\HasOptions;
 use Teddy\Validation\Exception;
 use Teddy\Validation\ValidatorInterface;
 
 abstract class ValidatorBase implements ValidatorInterface
 {
-    protected function error(string $message, array $options = [])
+    use HasOptions;
+
+    protected $field;
+
+    protected $label;
+
+    protected $message = [];
+
+    protected $customMessage = [];
+
+    protected $formatedMessage = [];
+
+    public static function make(...$args)
     {
-        $message = array_pull($options, 'message') ?: $message;
+        return new static(...$args);
+    }
 
-        $data = [];
-        foreach ($options as $key => $value) {
-            if (is_array($value)) {
-                $value = implode(', ', $value);
-            }
+    public function setName(string $name)
+    {
+        $this->field = $name;
+        $this->label = $this->label ?: ucfirst($name);
+        return $this;
+    }
 
-            if (is_string($value) || is_numeric($value)) {
-                $data[':' . $key] = $value;
-            }
+    public function setLabel(string $label)
+    {
+        $this->label = $label;
+        return $this;
+    }
+
+    public function setMessage($message, ?string $key = null)
+    {
+        if (is_array($message)) {
+            $this->customMessage = array_merge($this->customMessage, $message);
+        } else {
+            $key = $key ?: 'default';
+            $this->customMessage[$key] = strval($message);
         }
 
-        $message = strtr($message, $data);
+        return $this;
+    }
+
+    protected function throwMessage(?string $key = null)
+    {
+        $key = $key ?: 'default';
+        if (isset($this->customMessage[$key])) {
+            $message = $this->customMessage[$key];
+        } elseif (isset($this->formatedMessage[$key])) {
+            $message = $this->formatedMessage[$key];
+        } else {
+            $message = isset($this->message[$key]) ?
+                $this->message[$key] :
+                (isset($this->message['default']) ?
+                    $this->message['default'] :
+                    ':label 不合法');
+
+            $properties = get_object_vars($this);
+            $data = [];
+            foreach ($properties as $k => $v) {
+                $data[':' . $k] = $v;
+            }
+
+            $message = strtr($message ?: ':label 不合法', $data);
+            $this->formatedMessage[$key] = $message;
+        }
+
         throw new Exception($message);
     }
 
-    abstract public function validate($value, array $options = []);
+    abstract public function validate($value, array $data);
 }

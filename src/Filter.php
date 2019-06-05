@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-27 17:42:18 +0800
+ * @version  2019-06-04 10:10:35 +0800
  */
 namespace Teddy;
 
@@ -9,43 +9,45 @@ use DateTime;
 
 class Filter
 {
-    const FILTER_BOOL          = 'bool';
+    const FILTER_BOOL           = 'bool';
 
-    const FILTER_BOOLEAN       = 'boolean';
+    const FILTER_BOOLEAN        = 'boolean';
 
-    const FILTER_EMAIL         = 'email';
+    const FILTER_EMAIL          = 'email';
 
-    const FILTER_ABSINT        = 'absint';
+    const FILTER_ABSINT         = 'absint';
 
-    const FILTER_INT           = 'int';
+    const FILTER_INT            = 'int';
 
-    const FILTER_INT_CAST      = 'int!';
+    const FILTER_INT_CAST       = 'int!';
 
-    const FILTER_STRING        = 'string';
+    const FILTER_STRING         = 'string';
 
-    const FILTER_FLOAT         = 'float';
+    const FILTER_FLOAT          = 'float';
 
-    const FILTER_FLOAT_CAST    = 'float!';
+    const FILTER_FLOAT_CAST     = 'float!';
 
-    const FILTER_DOUBLE        = 'double';
+    const FILTER_DOUBLE         = 'double';
 
-    const FILTER_DOUBLE_CAST   = 'double!';
+    const FILTER_DOUBLE_CAST    = 'double!';
 
-    const FILTER_ALPHANUM      = 'alphanum';
+    const FILTER_ALPHANUM       = 'alphanum';
 
-    const FILTER_TRIM          = 'trim';
+    const FILTER_TRIM           = 'trim';
 
-    const FILTER_STRIPTAGS     = 'striptags';
+    const FILTER_STRIPTAGS      = 'striptags';
 
-    const FILTER_LOWER         = 'lower';
+    const FILTER_LOWER          = 'lower';
 
-    const FILTER_UPPER         = 'upper';
+    const FILTER_UPPER          = 'upper';
 
-    const FILTER_URL           = 'url';
+    const FILTER_URL            = 'url';
 
-    const FILTER_SPECIAL_CHARS = 'special_chars';
+    const FILTER_SPECIAL_CHARS  = 'special_chars';
 
-    const FILTER_LIST          = 'list';
+    const FILTER_LIST           = 'list';
+
+    const FILTER_TIMESTAMP      = 'timestamp';
 
     protected $_filters;
 
@@ -165,6 +167,15 @@ class Filter
 
             case self::FILTER_LIST:
                 return array_values((array) $value);
+
+            case self::FILTER_TIMESTAMP:
+                if (is_numeric($value)) {
+                    return intval($value);
+                } elseif (empty($value)) {
+                    return null;
+                }
+
+                return strtotime((string) $value);
 
             default:
                 throw new Exception('Sanitize filter "' . $filter . '" is not supported');

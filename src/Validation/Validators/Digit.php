@@ -1,16 +1,22 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 17:53:51 +0800
+ * @version  2019-06-05 14:22:32 +0800
  */
 namespace Teddy\Validation\Validators;
 
 class Digit extends ValidatorBase
 {
-    public function validate($value, array $options = [])
+    protected $message = [
+        'default' => ':label只能包含数字',
+    ];
+
+    public function validate($value, array $data)
     {
         if (!is_int($value) && !ctype_digit($value)) {
-            $this->error('Field :label must be numeric', $options);
+            $this->throwMessage();
         }
+
+        return $value;
     }
 }

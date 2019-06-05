@@ -1,16 +1,22 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 17:59:30 +0800
+ * @version  2019-06-05 10:43:14 +0800
  */
 namespace Teddy\Validation\Validators;
 
 class Url extends ValidatorBase
 {
-    public function validate($value, array $options = [])
+    protected $message = [
+        'default' => ':label不是一个合法的URL',
+    ];
+
+    public function validate($value, array $data)
     {
         if (!filter_var($value, FILTER_VALIDATE_URL)) {
-            $this->error('Field :label must be a url', $options);
+            $this->throwMessage();
         }
+
+        return $value;
     }
 }

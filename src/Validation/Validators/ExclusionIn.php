@@ -1,25 +1,32 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 17:57:52 +0800
+ * @version  2019-06-04 11:58:24 +0800
  */
 namespace Teddy\Validation\Validators;
 
 class ExclusionIn extends ValidatorBase
 {
-    public function validate($value, array $options = [])
+    protected $domain = [];
+
+    protected $strict = false;
+
+    protected $message = [
+        'default' => ':label不在有效范围内',
+    ];
+
+    public function __construct(array $domain, bool $strict = false)
     {
-        $domain = array_get($options, 'domain');
-        if (!is_array($domain)) {
-            $this->error('Option "domain" must be an array.');
+        $this->domain = $domain;
+        $this->strict = $strict;
+    }
+
+    public function validate($value, array $data)
+    {
+        if (in_array($value, $this->domain, $this->strict)) {
+            $this->throwMessage();
         }
 
-        $strict = (bool) array_get($options, 'strict', false);
-        if (in_array($value, $domain, $strict)) {
-            $this->error(
-                'Field :label must not be a part of list: :domain',
-                $options
-            );
-        }
+        return $value;
     }
 }

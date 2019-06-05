@@ -1,21 +1,19 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 10:42:27 +0800
+ * @version  2019-06-05 10:54:04 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Required extends ValidatorBase
+class AlphaNum extends ValidatorBase
 {
     protected $message = [
-        'default' => ':label不能为空',
+        'default' => ':label只能是字母和数字',
     ];
 
     public function validate($value, array $data)
     {
-        if ($value === null ||
-            (is_string($value) && strlen($value) === 0) ||
-            (is_array($value) && count($value) === 0)) {
+        if (!ctype_alnum($value)) {
             $this->throwMessage();
         }
 

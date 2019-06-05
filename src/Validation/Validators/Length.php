@@ -1,28 +1,38 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 17:57:46 +0800
+ * @version  2019-06-05 10:27:52 +0800
  */
 namespace Teddy\Validation\Validators;
 
 class Length extends ValidatorBase
 {
-    public function validate($value, array $options = [])
-    {
-        $min = (int) array_get($options, 'min', 0);
-        $max = array_get($options, 'max');
+    protected $minLen = 0;
 
+    protected $maxLen;
+
+    protected $message = [
+        'min' => ':label长度不能小于 :minLen',
+        'max' => ':label长度不能超过 :maxLen',
+    ];
+
+    public function __construct(int $minLen, ?int $maxLen = null)
+    {
+        $this->minLen = $minLen;
+        $this->maxLen = $maxLen;
+    }
+
+    public function validate($value, array $data)
+    {
         $len = is_array($value) ? count($value) : strlen((string) $value);
-        if ($len < $min) {
-            $this->error(
-                'Field :label must be at least :min characters long',
-                $options
-            );
-        } elseif ($max !== null && $len > $max) {
-            $this->error(
-                'Field :label must not exceed :max characters long',
-                $options
-            );
+        if ($len < $this->minLen) {
+            $this->throwMessage('min');
         }
+
+        if ($this->maxLen !== null && $len > $this->maxLen) {
+            $this->throwMessage('max');
+        }
+
+        return $value;
     }
 }

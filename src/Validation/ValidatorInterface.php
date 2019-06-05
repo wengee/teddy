@@ -1,11 +1,13 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 16:29:32 +0800
+ * @version  2019-06-05 10:02:48 +0800
  */
 namespace Teddy\Validation;
 
 interface ValidatorInterface
 {
-    public function validate($value, array $options = []);
+    public function setName(string $name);
+
+    public function validate($value, array $data);
 }
