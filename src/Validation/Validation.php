@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 15:01:05 +0800
+ * @version  2019-06-05 15:16:39 +0800
  */
 namespace Teddy\Validation;
 
@@ -32,6 +32,7 @@ class Validation
         'required'  => Validators\Required::class,
         'string'    => Validators\Str::class,
         'timestamp' => Validators\Timestamp::class,
+        'trim'      => Validators\Trim::class,
         'url'       => Validators\Url::class,
 
         'date'      => Validators\DateTime::class,
