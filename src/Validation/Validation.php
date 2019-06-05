@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 15:19:31 +0800
+ * @version  2019-06-05 15:40:36 +0800
  */
 namespace Teddy\Validation;
 
@@ -121,6 +121,10 @@ class Validation
             }
 
             $value = array_get($data, $key);
+            if ($list instanceof ValidatorInterface) {
+                $list = [$list];
+            }
+
             foreach ($list as $rule) {
                 if (is_callable($rule)) {
                     $rule = new Callback($rule);
