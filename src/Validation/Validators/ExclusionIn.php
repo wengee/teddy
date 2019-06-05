@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-04 11:58:24 +0800
+ * @version  2019-06-05 18:01:58 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -21,12 +21,12 @@ class ExclusionIn extends ValidatorBase
         $this->strict = $strict;
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         if (in_array($value, $this->domain, $this->strict)) {
             $this->throwMessage();
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

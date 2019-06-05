@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 10:41:37 +0800
+ * @version  2019-06-05 18:03:28 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -19,7 +19,7 @@ class Regex extends ValidatorBase
         $this->pattern = $pattern;
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         if (!$this->pattern) {
             $this->throwMessage('param');
@@ -30,6 +30,6 @@ class Regex extends ValidatorBase
             $this->throwMessage();
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

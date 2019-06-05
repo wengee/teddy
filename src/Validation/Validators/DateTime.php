@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 14:44:14 +0800
+ * @version  2019-06-05 18:00:44 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -18,25 +18,33 @@ class DateTime extends ValidatorBase
         $this->format = $format ?: $this->format;
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         if ($value === null) {
-            return null;
+            return $next($value, $data);
         }
 
-        if ($value instanceof \DateTime) {
-            return $value->format($this->format);
-        } elseif (is_int($value)) {
-            return date($this->format, $value);
-        } elseif (is_string($value)) {
-            $timestamp = strtotime($value);
-            if ($timestamp === false) {
-                $this->throwMessage();
+        $value = $this->formatTime($value);
+        if ($value === false) {
+            $this->throwMessage();
+        }
+
+        return $next($value, $data);
+    }
+
+    protected function formatTime($t)
+    {
+        if ($t instanceof \DateTime) {
+            return $t->format($this->format);
+        } elseif (is_int($t)) {
+            return date($this->format, $t);
+        } elseif (is_string($t)) {
+            $timestamp = strtotime($t);
+            if ($timestamp !== false) {
+                return date($this->format, $timestamp);
             }
-
-            return date($this->format, $timestamp);
         }
 
-        $this->throwMessage();
+        return false;
     }
 }

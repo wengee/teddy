@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 14:30:06 +0800
+ * @version  2019-06-05 18:02:52 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -22,12 +22,12 @@ class LessThan extends ValidatorBase
         $this->includeEq = $includeEq;
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         if ($value > $this->value || (!$this->includeEq && $value >= $this->value)) {
             $this->throwMessage($this->includeEq ? 'lte' : 'lt');
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

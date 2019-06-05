@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 10:42:27 +0800
+ * @version  2019-06-05 18:03:36 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -11,7 +11,7 @@ class Required extends ValidatorBase
         'default' => ':label不能为空',
     ];
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         if ($value === null ||
             (is_string($value) && strlen($value) === 0) ||
@@ -19,6 +19,6 @@ class Required extends ValidatorBase
             $this->throwMessage();
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 14:31:46 +0800
+ * @version  2019-06-05 18:01:45 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -18,7 +18,7 @@ class Equal extends ValidatorBase
         $this->otherField = $otherField;
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         $val1 = array_get($data, $this->field);
         $val2 = array_get($data, $this->otherField);
@@ -27,6 +27,6 @@ class Equal extends ValidatorBase
             $this->throwMessage();
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

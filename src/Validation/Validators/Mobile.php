@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 10:44:44 +0800
+ * @version  2019-06-05 18:03:00 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -13,13 +13,13 @@ class Mobile extends ValidatorBase
         'default' => ':label不是一个合法的手机号码',
     ];
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         $value = trim(strval($value));
         if (!preg_match(self::REGEX, $value)) {
             $this->throwMessage();
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

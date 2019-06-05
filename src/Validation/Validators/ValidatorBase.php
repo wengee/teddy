@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 10:26:37 +0800
+ * @version  2019-06-05 17:21:48 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -22,6 +22,11 @@ abstract class ValidatorBase implements ValidatorInterface
     protected $customMessage = [];
 
     protected $formatedMessage = [];
+
+    public function __invoke($value, array $data, callable $next)
+    {
+        return $this->validate($value, $data, $next);
+    }
 
     public static function make(...$args)
     {
@@ -80,5 +85,5 @@ abstract class ValidatorBase implements ValidatorInterface
         throw new Exception($message);
     }
 
-    abstract public function validate($value, array $data);
+    abstract public function validate($value, array $data, callable $next);
 }

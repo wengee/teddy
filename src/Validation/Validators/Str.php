@@ -29,18 +29,18 @@ class Str extends ValidatorBase
         $this->hydrate($options);
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         $value = strval($value);
         if ($this->trim) {
             $value = trim($value);
         }
 
-        if ($this->required && strlen($value) === 0) {
+        $strLen = strlen($value);
+        if ($this->required && $strLen === 0) {
             $this->throwMessage('required');
         }
 
-        $strLen = strlen($value);
         if ($strLen < $this->minLen) {
             $this->throwMessage('min');
         }
@@ -53,7 +53,7 @@ class Str extends ValidatorBase
             $this->throwMessage('pattern');
         }
 
-        return $value;
+        return $next($value, $data);
     }
 
     protected function setTrim(bool $trim)

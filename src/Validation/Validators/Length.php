@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 10:27:52 +0800
+ * @version  2019-06-05 18:02:46 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -22,7 +22,7 @@ class Length extends ValidatorBase
         $this->maxLen = $maxLen;
     }
 
-    public function validate($value, array $data)
+    public function validate($value, array $data, callable $next)
     {
         $len = is_array($value) ? count($value) : strlen((string) $value);
         if ($len < $this->minLen) {
@@ -33,6 +33,6 @@ class Length extends ValidatorBase
             $this->throwMessage('max');
         }
 
-        return $value;
+        return $next($value, $data);
     }
 }

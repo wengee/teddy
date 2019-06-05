@@ -1,49 +1,12 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 15:40:36 +0800
+ * @version  2019-06-05 18:52:45 +0800
  */
 namespace Teddy\Validation;
 
-use Teddy\Validation\Validators\Callback;
-
 class Validation
 {
-    const VALIDATORS = [
-        'after'     => Validators\After::class,
-        'alpha'     => Validators\Alpha::class,
-        'alphaNum'  => Validators\AlphaNum::class,
-        'before'    => Validators\Before::class,
-        'boolean'   => Validators\Boolean::class,
-        'callback'  => Validators\Callback::class,
-        'datetime'  => Validators\DateTime::class,
-        'digit'     => Validators\Digit::class,
-        'float'     => Validators\Double::class,
-        'email'     => Validators\Email::class,
-        'eq'        => Validators\Equal::class,
-        'notIn'     => Validators\ExclusionIn::class,
-        'gt'        => Validators\GreatThan::class,
-        'in'        => Validators\InclusionIn::class,
-        'integer'   => Validators\Integer::class,
-        'length'    => Validators\Length::class,
-        'lt'        => Validators\LessThan::class,
-        'mobile'    => Validators\Mobile::class,
-        'number'    => Validators\Numericality::class,
-        'regex'     => Validators\Regex::class,
-        'required'  => Validators\Required::class,
-        'string'    => Validators\Str::class,
-        'timestamp' => Validators\Timestamp::class,
-        'trim'      => Validators\Trim::class,
-        'url'       => Validators\Url::class,
-
-        'bool'      => Validators\Boolean::class,
-        'date'      => Validators\DateTime::class,
-        'int'       => Validators\Integer::class,
-        'same'      => Validators\Equal::class,
-        'str'       => Validators\Str::class,
-
-    ];
-
     protected static $instances = [];
 
     protected $rules = [];
@@ -73,16 +36,10 @@ class Validation
 
     public function add(string $field, string $label, $rule, ...$args)
     {
-        if (is_string($rule) && isset(self::VALIDATORS[$rule])) {
-            $className = self::VALIDATORS[$rule];
-            $rule = new $className(...$args);
-        } elseif (is_callable($rule)) {
-            $rule = new Callback($rule);
-        }
-
+        $rule = Validator::make($rule, ...$args);
         if ($rule instanceof ValidatorInterface) {
             if (empty($this->rules[$field])) {
-                $this->rules[$field] = [];
+                $this->rules[$field] = new Validator($field);
             }
 
             $rule->setName($field);
@@ -90,7 +47,7 @@ class Validation
                 $rule->setLabel($label);
             }
 
-            $this->rules[$field][] = $rule;
+            $this->rules[$field]->add($rule);
         } elseif (is_array($rule)) {
             foreach ($rule as $r) {
                 if (is_array($r)) {
@@ -112,32 +69,25 @@ class Validation
 
     public function validate(array $data, array $rules = [])
     {
-        $rules = array_merge($this->rules, $rules);
-
-        $ret = [];
-        foreach ($rules as $key => $list) {
-            if (!is_string($key)) {
-                continue;
-            }
-
-            $value = array_get($data, $key);
-            if ($list instanceof ValidatorInterface) {
-                $list = [$list];
-            }
-
-            foreach ($list as $rule) {
-                if (is_callable($rule)) {
-                    $rule = new Callback($rule);
+        if (!empty($rules)) {
+            foreach ($rules as $key => $item) {
+                if (!is_array($item)) {
+                    $item = [$item];
                 }
 
-                if ($rule instanceof ValidatorInterface) {
-                    $value = $rule->validate($value, $data);
-                }
+                $rules[$key] = new Validator($key, $item);
             }
 
-            array_set($ret, $key, $value);
+            $rules = array_merge($this->rules, $rules);
+        } else {
+            $rules = $this->rules;
         }
 
-        return $ret;
+        $filtered = [];
+        foreach ($rules as $validator) {
+            $filtered = $validator->validate($data, $filtered);
+        }
+
+        return $filtered;
     }
 }
