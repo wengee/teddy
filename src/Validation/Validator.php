@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 17:49:52 +0800
+ * @version  2019-06-06 18:35:30 +0800
  */
 namespace Teddy\Validation;
 
@@ -116,6 +116,8 @@ class Validator
                 $this->condition['value'] = $args[0];
             }
         }
+
+        return $this;
     }
 
     public function add($rule, ...$args)
