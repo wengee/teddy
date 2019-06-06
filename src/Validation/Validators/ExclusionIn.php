@@ -1,27 +1,26 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:01:58 +0800
+ * @version  2019-06-06 17:12:12 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class ExclusionIn extends ValidatorBase
+class ExclusionIn extends ValidatorRuleBase
 {
     protected $domain = [];
 
-    protected $strict = false;
+    protected $strict = true;
 
-    protected $message = [
-        'default' => ':label不在有效范围内',
-    ];
+    protected $message = ':label不在有效范围内';
 
-    public function __construct(array $domain, bool $strict = false)
+    public function __construct(array $domain, bool $strict = true, ?string $message = null)
     {
         $this->domain = $domain;
         $this->strict = $strict;
+        $this->message = $message ?: $this->message;
     }
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         if (in_array($value, $this->domain, $this->strict)) {
             $this->throwMessage();

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 15:13:17 +0800
+ * @version  2019-06-06 15:36:57 +0800
  */
 namespace Teddy;
 
@@ -84,8 +84,6 @@ class DefaultServicesProvider extends SlimDefaultServicesProvider
 
             return new Logger($name, $handlerObjs, $processors);
         };
-
-        $container['filter'] = new Filter;
 
         parent::register($container);
     }

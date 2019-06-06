@@ -1,30 +1,24 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:03:28 +0800
+ * @version  2019-06-06 17:11:38 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Regex extends ValidatorBase
+class Regex extends ValidatorRuleBase
 {
     protected $pattern;
 
-    protected $message = [
-        'default'   => ':label不符合指定规则',
-        'param'     => '参数(pattern)不能为空',
-    ];
+    protected $message = ':label不符合指定规则';
 
-    public function __construct(string $pattern = '')
+    public function __construct(string $pattern, ?string $message = null)
     {
         $this->pattern = $pattern;
+        $this->message = $message ?: $this->message;
     }
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
-        if (!$this->pattern) {
-            $this->throwMessage('param');
-        }
-
         $value = strval($value);
         if (!preg_match($this->pattern, $value)) {
             $this->throwMessage();

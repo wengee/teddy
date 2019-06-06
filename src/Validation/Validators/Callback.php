@@ -1,11 +1,13 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 17:57:07 +0800
+ * @version  2019-06-06 16:12:36 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Callback extends ValidatorBase
+use Exception;
+
+class Callback extends ValidatorRuleBase
 {
     protected $func;
 
@@ -14,7 +16,7 @@ class Callback extends ValidatorBase
         $this->func = $func;
     }
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         $value = call_user_func($this->func, $value, $data);
         return $next($value, $data);

@@ -1,24 +1,23 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:01:45 +0800
+ * @version  2019-06-06 17:11:33 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Equal extends ValidatorBase
+class Same extends ValidatorRuleBase
 {
     protected $otherField;
 
-    protected $message = [
-        'default' => ':label与确认字段不一致',
-    ];
+    protected $message = ':label与确认字段不一致';
 
-    public function __construct(string $otherField)
+    public function __construct(string $otherField, ?string $message = null)
     {
         $this->otherField = $otherField;
+        $this->message = $message ?: $this->message;
     }
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         $val1 = array_get($data, $this->field);
         $val2 = array_get($data, $this->otherField);

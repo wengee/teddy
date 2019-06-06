@@ -1,17 +1,15 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:00:55 +0800
+ * @version  2019-06-06 17:12:22 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Digit extends ValidatorBase
+class Digit extends ValidatorRuleBase
 {
-    protected $message = [
-        'default' => ':label只能包含数字',
-    ];
+    protected $message = ':label只能包含数字';
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         if (!is_int($value) && !ctype_digit($value)) {
             $this->throwMessage();

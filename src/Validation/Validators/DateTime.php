@@ -1,24 +1,23 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:00:44 +0800
+ * @version  2019-06-06 17:12:25 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class DateTime extends ValidatorBase
+class DateTime extends ValidatorRuleBase
 {
     protected $format = 'Y-m-d H:i:s';
 
-    protected $message = [
-        'default' => ':label不是合法的日期时间格式',
-    ];
+    protected $message = ':label不是合法的日期时间格式';
 
-    public function __construct(string $format = '')
+    public function __construct(string $format = '', ?string $message = null)
     {
         $this->format = $format ?: $this->format;
+        $this->message = $message ?: $this->message;
     }
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         if ($value === null) {
             return $next($value, $data);

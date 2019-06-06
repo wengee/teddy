@@ -1,17 +1,15 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:04:34 +0800
+ * @version  2019-06-06 17:11:30 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Timestamp extends ValidatorBase
+class Timestamp extends ValidatorRuleBase
 {
-    protected $message = [
-        'default' => ':label不是有效的时间戳',
-    ];
+    protected $message = ':label不是有效的时间戳';
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         if ($value === null) {
             return null;

@@ -1,11 +1,12 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 18:52:45 +0800
+ * @version  2019-06-06 17:50:07 +0800
  */
 namespace Teddy\Validation;
 
 use Teddy\Traits\Singleton;
+use Teddy\Validation\ValidatorRuleInterface;
 
 class Validation
 {
@@ -31,49 +32,30 @@ class Validation
         return self::instance()->validate($data, $rules);
     }
 
-    public function add(string $field, string $label, $rule, ...$args)
+    public function add(string $field, Validator $validator)
     {
-        $rule = Validator::make($rule, ...$args);
-        if ($rule instanceof ValidatorInterface) {
-            if (empty($this->rules[$field])) {
-                $this->rules[$field] = new Validator($field);
-            }
-
-            $rule->setName($field);
-            if ($label !== null) {
-                $rule->setLabel($label);
-            }
-
-            $this->rules[$field]->add($rule);
-        } elseif (is_array($rule)) {
-            foreach ($rule as $r) {
-                if (is_array($r)) {
-                    $this->add($field, $label, ...$r);
-                } else {
-                    $this->add($field, $label, $r);
-                }
-            }
-        }
-
+        $this->rules[$field] = $validator;
         return $this;
     }
 
-    public function replace(string $field, $rule, ?string $label = null)
+    public function append(string $field, $rule, ...$args)
     {
-        $this->rules[$field] = [];
-        return $this->add($field, $rule, $label);
+        if (!($rule instanceof ValidatorRuleInterface)) {
+            $rule = Validator::rule($rule, ...$args);
+        }
+
+        if (isset($this->rules[$field]) && ($rule instanceof ValidatorRuleInterface)) {
+            $this->rules[$field]->push($rule);
+        }
+        return $this;
     }
 
     public function validate(array $data, array $rules = [])
     {
         if (!empty($rules)) {
-            foreach ($rules as $key => $item) {
-                if (!is_array($item)) {
-                    $item = [$item];
-                }
-
-                $rules[$key] = new Validator($key, $item);
-            }
+            $rules = array_filter($rules, function ($item) {
+                return $item instanceof Validator;
+            });
 
             $rules = array_merge($this->rules, $rules);
         } else {

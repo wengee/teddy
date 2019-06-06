@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-22 14:24:12 +0800
+ * @version  2019-06-06 16:57:54 +0800
  */
 namespace Teddy\Validation;
 

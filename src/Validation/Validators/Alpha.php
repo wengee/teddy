@@ -1,17 +1,15 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-05 17:55:51 +0800
+ * @version  2019-06-06 17:12:40 +0800
  */
 namespace Teddy\Validation\Validators;
 
-class Alpha extends ValidatorBase
+class Alpha extends ValidatorRuleBase
 {
-    protected $message = [
-        'default' => ':label只能是字母',
-    ];
+    protected $message = ':label只能是字母';
 
-    public function validate($value, array $data, callable $next)
+    protected function validate($value, array $data, callable $next)
     {
         if (preg_match('/[^[:alpha:]]/imu', $value)) {
             $this->throwMessage();

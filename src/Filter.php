@@ -1,14 +1,17 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-04 10:10:35 +0800
+ * @version  2019-06-06 17:22:04 +0800
  */
 namespace Teddy;
 
 use DateTime;
+use Teddy\Traits\Singleton;
 
 class Filter
 {
+    use Singleton;
+
     const FILTER_BOOL           = 'bool';
 
     const FILTER_BOOLEAN        = 'boolean';
@@ -47,6 +50,8 @@ class Filter
 
     const FILTER_LIST           = 'list';
 
+    const FILTER_ARRAY          = 'array';
+
     const FILTER_TIMESTAMP      = 'timestamp';
 
     protected $_filters;
@@ -67,7 +72,7 @@ class Filter
     /**
      * Sanitizes a value with a specified single or set of filters
      */
-    public function sanitize($value, $filters, bool $noRecursive = false)
+    public function sanitize($value, $filters, bool $noRecursive = true)
     {
         $filters = (is_string($filters) && strpos($filters, ',') !== false) ? explode(',', $filters) : $filters;
         if (is_array($filters)) {
@@ -142,7 +147,7 @@ class Filter
                 return preg_replace('/[^A-Za-z0-9]/', '', $value);
 
             case self::FILTER_TRIM:
-                return trim($value);
+                return trim(strval($value));
 
             case self::FILTER_STRIPTAGS:
                 return strip_tags($value);
@@ -167,6 +172,13 @@ class Filter
 
             case self::FILTER_LIST:
                 return array_values((array) $value);
+
+            case self::FILTER_ARRAY:
+                if ($value === null || $value === '') {
+                    return [];
+                }
+
+                return is_array($value) ? $value : [$value];
 
             case self::FILTER_TIMESTAMP:
                 if (is_numeric($value)) {
