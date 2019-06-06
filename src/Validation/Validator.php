@@ -1,10 +1,11 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 18:35:30 +0800
+ * @version  2019-06-06 18:43:45 +0800
  */
 namespace Teddy\Validation;
 
+use Closure;
 use RuntimeException;
 use Teddy\Filter;
 use Teddy\Validation\Validators\Callback;
@@ -100,7 +101,8 @@ class Validator
 
     public function if($condition, ...$args)
     {
-        if (is_callable($condition)) {
+        $this->condition['type'] = 0;
+        if ($condition instanceof Closure) {
             $this->condition['type'] = 2;
             $this->condition['func'] = $condition;
         } elseif (is_string($condition)) {
@@ -110,7 +112,6 @@ class Validator
             }
 
             $this->condition['field'] = $condition;
-
             if (count($args)) {
                 $this->condition['type'] = 1;
                 $this->condition['value'] = $args[0];

@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 17:12:09 +0800
+ * @version  2019-06-06 18:42:07 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -21,7 +21,7 @@ class GreatThan extends ValidatorRuleBase
     {
         if (!$this->checkCondition($value)) {
             $this->throwMessage([
-                ':value' => $value,
+                ':value' => $this->value,
             ]);
         }
 
