@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-18 15:17:52 +0800
+ * @version  2019-06-06 10:26:07 +0800
  */
 namespace Teddy\Traits;
 
@@ -12,12 +12,16 @@ trait Singleton
     public static function instance()
     {
         $className = \get_called_class();
-        return isset(static::$instances[$className]) ? static::$instances[$className] : new $className;
+        if (!isset(self::$instances[$className])) {
+            self::$instances[$className] = new $className;
+        }
+
+        return self::$instances[$className];
     }
 
     protected function pushInstance($instance)
     {
         $className = \get_class($instance);
-        static::$instances[$className] = $instance;
+        self::$instances[$className] = $instance;
     }
 }

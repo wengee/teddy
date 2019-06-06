@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-03-13 15:12:29 +0800
+ * @version  2019-06-06 10:31:01 +0800
  */
 namespace Teddy;
 
@@ -24,7 +24,7 @@ class Application extends SlimApp
 
     public function __construct(string $basePath, $defaultServicesProvider = null)
     {
-        static::$instance = $this;
+        self::$instance = $this;
         $this->basePath = $basePath = str_finish($basePath, '/');
         $container = [];
 
@@ -41,11 +41,11 @@ class Application extends SlimApp
 
     public static function instance()
     {
-        if (!isset(static::$instance)) {
+        if (!isset(self::$instance)) {
             throw new Exception('Application is not exists.');
         }
 
-        return static::$instance;
+        return self::$instance;
     }
 
     public function runWithRequest(Request $request): Response

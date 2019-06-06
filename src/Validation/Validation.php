@@ -5,9 +5,11 @@
  */
 namespace Teddy\Validation;
 
+use Teddy\Traits\Singleton;
+
 class Validation
 {
-    protected static $instances = [];
+    use Singleton;
 
     protected $rules = [];
 
@@ -26,12 +28,7 @@ class Validation
 
     public static function check(array $data, array $rules = [])
     {
-        $className = get_called_class();
-        if (!isset(self::$instances[$className])) {
-            self::$instances[$className] = new $className;
-        }
-
-        return self::$instances[$className]->validate($data, $rules);
+        return self::instance()->validate($data, $rules);
     }
 
     public function add(string $field, string $label, $rule, ...$args)
