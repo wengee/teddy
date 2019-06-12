@@ -1,12 +1,11 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 17:50:07 +0800
+ * @version  2019-06-12 09:52:12 +0800
  */
 namespace Teddy\Validation;
 
 use Teddy\Traits\Singleton;
-use Teddy\Validation\ValidatorRuleInterface;
 
 class Validation
 {
@@ -32,10 +31,18 @@ class Validation
         return self::instance()->validate($data, $rules);
     }
 
-    public function add(string $field, Validator $validator)
+    public function add(string $field, $validator = null)
     {
-        $this->rules[$field] = $validator;
-        return $this;
+        if (is_string($validator) || $validator === null) {
+            $validator = Validator::make($field, $validator);
+        }
+
+        if ($validator instanceof Validator) {
+            $this->rules[$field] = $validator;
+            return $validator;
+        }
+
+        return null;
     }
 
     public function append(string $field, $rule, ...$args)
