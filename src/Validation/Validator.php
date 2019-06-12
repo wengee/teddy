@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 18:43:45 +0800
+ * @version  2019-06-12 10:20:52 +0800
  */
 namespace Teddy\Validation;
 
@@ -99,6 +99,11 @@ class Validator
         return $this;
     }
 
+    public function when($condition, ...$args)
+    {
+        return $this->if($condition, ...$args);
+    }
+
     public function if($condition, ...$args)
     {
         $this->condition['type'] = 0;
@@ -122,6 +127,11 @@ class Validator
     }
 
     public function add($rule, ...$args)
+    {
+        return $this->then($rule, ...$args);
+    }
+
+    public function then($rule, ...$args)
     {
         $rule = self::rule($rule, ...$args);
         if ($rule instanceof ValidatorRuleInterface) {
