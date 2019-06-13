@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-12 09:52:12 +0800
+ * @version  2019-06-13 14:05:07 +0800
  */
 namespace Teddy\Validation;
 
@@ -59,6 +59,10 @@ class Validation
 
     public function validate(array $data, array $rules = [])
     {
+        if (method_exists($this, 'beforeValidate')) {
+            $this->beforeValidate($data);
+        }
+
         if (!empty($rules)) {
             $rules = array_filter($rules, function ($item) {
                 return $item instanceof Validator;
@@ -72,6 +76,10 @@ class Validation
         $filtered = [];
         foreach ($rules as $validator) {
             $filtered = $validator->validate($data, $filtered);
+        }
+
+        if (method_exists($this, 'afterValidate')) {
+            $this->afterValidate($filtered);
         }
 
         return $filtered;
