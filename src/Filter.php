@@ -54,6 +54,10 @@ class Filter
 
     const FILTER_TIMESTAMP      = 'timestamp';
 
+    const FILTER_JSON_DECODE    = 'json_decode';
+
+    const FILTER_JSON_ENCODE    = 'json_encode';
+
     protected $_filters;
 
     /**
@@ -188,6 +192,12 @@ class Filter
                 }
 
                 return strtotime((string) $value);
+
+            case self::FILTER_JSON_DECODE:
+                return json_decode($value, true);
+
+            case self::FILTER_JSON_ENCODE:
+                return json_encode($value);
 
             default:
                 throw new Exception('Sanitize filter "' . $filter . '" is not supported');

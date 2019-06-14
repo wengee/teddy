@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-12 10:20:52 +0800
+ * @version  2019-06-14 14:07:45 +0800
  */
 namespace Teddy\Validation;
 
@@ -30,6 +30,7 @@ class Validator
         'lte'       => Validators\LessThanOrEqual::class,
         'mobile'    => Validators\Mobile::class,
         'number'    => Validators\Number::class,
+        'optional'  => Validators\Optional::class,
         'regex'     => Validators\Regex::class,
         'required'  => Validators\Required::class,
         'same'      => Validators\Same::class,
