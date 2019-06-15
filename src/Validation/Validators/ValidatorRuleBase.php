@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 17:17:06 +0800
+ * @version  2019-06-15 16:50:29 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -36,7 +36,7 @@ abstract class ValidatorRuleBase implements ValidatorRuleInterface
         return $this;
     }
 
-    public function validateValue($value, array $data)
+    public function validateValue($value, array $data = [])
     {
         return $this->validate($value, $data, function ($value, array $data) {
             return $value;
