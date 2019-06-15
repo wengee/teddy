@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-13 14:07:26 +0800
+ * @version  2019-06-15 16:55:40 +0800
  */
 namespace Teddy\Validation\Validators;
 
@@ -22,7 +22,9 @@ class After extends Timestamp
         $timestamp = $this->getTimestamp($value);
         $myTimestamp = $this->getTimestamp($this->value);
         if ($timestamp === false || $timestamp < $myTimestamp) {
-            $this->throwMessage();
+            $this->throwMessage([
+                ':value' => $this->value,
+            ]);
         }
 
         return $next($value, $data);
