@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-03 18:11:51 +0800
+ * @version  2019-06-17 14:42:40 +0800
  */
 namespace Teddy\Db\Model\Columns;
 
@@ -43,6 +43,8 @@ class DateTimeColumn extends Column
         } catch (Exception $e) {
             return null;
         }
+
+        return $value;
     }
 
     public function defaultValue()
