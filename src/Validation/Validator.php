@@ -1,7 +1,7 @@
 <?php
 /**
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-14 14:07:45 +0800
+ * @version  2019-07-04 18:12:49 +0800
  */
 namespace Teddy\Validation;
 
@@ -24,6 +24,7 @@ class Validator
         'notIn'     => Validators\ExclusionIn::class,
         'gt'        => Validators\GreatThan::class,
         'gte'       => Validators\GreatThanOrEqual::class,
+        'idcard'    => Validators\IdCard::class,
         'in'        => Validators\InclusionIn::class,
         'length'    => Validators\Length::class,
         'lt'        => Validators\LessThan::class,
