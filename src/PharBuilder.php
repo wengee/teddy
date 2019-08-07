@@ -1,18 +1,18 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-16 14:53:08 +0800
+ * @version  2019-08-07 18:08:20 +0800
  */
+
 namespace Teddy;
 
 use ArrayIterator;
 use Phar;
-use Teddy\Traits\HasOptions;
 
 class PharBuilder
 {
-    use HasOptions;
-
     protected $phar;
 
     protected $basePath;
@@ -22,10 +22,19 @@ class PharBuilder
     public function __construct(string $basePath, array $extraOptions = [])
     {
         $this->basePath = $basePath;
-        $options = $this->loadJsonOptions();
-        $options += $this->getDefaultOptions();
-        $options = array_merge($options, $extraOptions);
-        $this->hydrate($options);
+        $this->options = (new Options([
+            'dist'          => $this->joinPaths($basePath, 'dist'),
+            'main'          => 'index.php',
+            'output'        => 'app.phar',
+            'directories'   => [],
+            'files'         => [],
+            'rules'         => [],
+            'exclude'       => [],
+            'shebang'       => true,
+            'clear'         => false,
+            'copy'          => [],
+            'compress'      => 'none',
+        ], true))->update($extraOptions);
     }
 
     public static function build(string $basePath, array $extraOptions = [])
@@ -35,8 +44,12 @@ class PharBuilder
 
     public function run()
     {
-        if (empty($this->options['directories']) || empty($this->options['files'])) {
+        if (!$this->options['directories'] || !$this->options['files']) {
             return false;
+        }
+
+        if (!file_exists($this->options['dist'])) {
+            mkdir($this->options['dist'], 0755);
         }
 
         if ($this->options['clear']) {
@@ -180,36 +193,6 @@ class PharBuilder
         }
 
         return false;
-    }
-
-    protected function loadJsonOptions(): array
-    {
-        $jsonFile = $this->joinPaths($this->basePath, 'build.json');
-        if (is_file($jsonFile)) {
-            $options = @\json_decode(\file_get_contents($jsonFile), true);
-            if ($options && is_array($options)) {
-                return $options;
-            }
-        }
-
-        return [];
-    }
-
-    protected function getDefaultOptions(): array
-    {
-        return [
-            'dist'          => $this->joinPaths($this->basePath, 'dist'),
-            'main'          => 'index.php',
-            'output'        => 'app.phar',
-            'directories'   => [],
-            'files'         => [],
-            'rules'         => [],
-            'exclude'       => [],
-            'shebang'       => true,
-            'clear'         => false,
-            'copy'          => [],
-            'compress'      => 'none',
-        ];
     }
 
     protected function joinPaths(...$args): string

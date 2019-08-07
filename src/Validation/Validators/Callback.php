@@ -1,11 +1,12 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 16:12:36 +0800
+ * @version  2019-08-07 18:00:27 +0800
  */
-namespace Teddy\Validation\Validators;
 
-use Exception;
+namespace Teddy\Validation\Validators;
 
 class Callback extends ValidatorRuleBase
 {

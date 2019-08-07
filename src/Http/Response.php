@@ -1,19 +1,62 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 14:12:14 +0800
+ * @version  2019-08-07 10:01:53 +0800
  */
+
 namespace Teddy\Http;
 
-use Exception;
-use JsonSerializable;
-use Slim\Http\Response as SlimResponse;
+use Fig\Http\Message\StatusCodeInterface;
+use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
+use Slim\Psr7\Response as SlimResponse;
+use Slim\Psr7\Stream;
 
 class Response extends SlimResponse
 {
     protected $cookies = [];
 
-    public function json(...$args)
+    public function write($data): ResponseInterface
+    {
+        $this->getBody()->write($data);
+        return $this;
+    }
+
+    public function withJson($data, $status = null, $encodingOptions = 0): ResponseInterface
+    {
+        $response = $this->withBody(new Stream(fopen('php://temp', 'r+')));
+        $response->body->write($json = json_encode($data, $encodingOptions));
+
+        // Ensure that the json encoding passed successfully
+        if ($json === false) {
+            throw new RuntimeException(json_last_error_msg(), json_last_error());
+        }
+
+        $responseWithJson = $response->withHeader('Content-Type', 'application/json');
+        if (isset($status)) {
+            return $responseWithJson->withStatus($status);
+        }
+        return $responseWithJson;
+    }
+
+    public function redirect($url, $status = null): ResponseInterface
+    {
+        $responseWithRedirect = $this->withHeader('Location', (string) $url);
+
+        if ($status === null && $this->getStatusCode() === StatusCodeInterface::STATUS_OK) {
+            $status = StatusCodeInterface::STATUS_FOUND;
+        }
+
+        if ($status !== null) {
+            return $responseWithRedirect->withStatus($status);
+        }
+
+        return $responseWithRedirect;
+    }
+
+    public function json(...$args): ResponseInterface
     {
         $data = ['errmsg' => null, 'errcode' => -1];
         foreach ($args as $arg) {
@@ -37,7 +80,7 @@ class Response extends SlimResponse
         return $this->withJson($data, 200);
     }
 
-    public function setCookie(string $name, ?string $value = null, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httponly = true)
+    public function setCookie(string $name, ?string $value = null, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httponly = true): ResponseInterface
     {
         if ($value === null) {
             $expire = 1;
@@ -49,7 +92,7 @@ class Response extends SlimResponse
         return $clone;
     }
 
-    public function getHeaders()
+    public function getHeaders(): array
     {
         $headers = (array) parent::getHeaders();
         if ($this->cookies) {
@@ -62,7 +105,7 @@ class Response extends SlimResponse
         return $headers;
     }
 
-    public function getCookies()
+    public function getCookies(): array
     {
         return $this->cookies;
     }

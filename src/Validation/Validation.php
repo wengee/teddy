@@ -1,10 +1,14 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-13 14:05:07 +0800
+ * @version  2019-08-07 17:59:36 +0800
  */
+
 namespace Teddy\Validation;
 
+use Teddy\Interfaces\ValidatorRuleInterface;
 use Teddy\Traits\Singleton;
 
 class Validation

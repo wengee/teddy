@@ -1,68 +1,49 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 15:37:04 +0800
+ * @version  2019-08-07 09:55:26 +0800
  */
+
 namespace Teddy\Http;
 
-use Carbon\Carbon;
-use Slim\Http\Request as SlimRequest;
+use Slim\Psr7\Request as SlimRequest;
 
 class Request extends SlimRequest
 {
-    private $timestamp;
+    protected $clientIp;
 
-    private $now;
-
-    public function __get($key)
+    public function getUserAgent()
     {
-        return $this->attributes->get($key);
+        return $this->getHeaderLine('User-Agent') ?: null;
     }
 
-    public function getUploadedFile(string $field)
+    public function getClientIp()
     {
-        return isset($this->uploadedFiles[$field]) ? $this->uploadedFiles[$field] : null;
-    }
-
-    public function url(?string $path = null, array $query = []): string
-    {
-        if (preg_match('#^https?://.+$#', $path)) {
-            return $path;
+        if (isset($this->clientIp)) {
+            return $this->clientIp;
         }
 
-        $uri = $this->getUri();
-        if (empty($path) && empty($query)) {
-            return (string) $uri;
-        } else {
-            if ($path) {
-                $uri = $uri->withPath($path);
+        $ip = $this->getServerParam('REMOTE_ADDR');
+
+        $httpClientIp = $this->getServerParam('HTTP_CLIENT_IP');
+        if ($httpClientIp && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $httpClientIp) && !preg_match('#^(127|10|172\.16|192\.168)\.#', $httpClientIp)) {
+            $ip = $httpClientIp;
+        }
+
+        $forwards = $this->getServerParam('HTTP_X_FORWARDED_FOR');
+        if ($forwards && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $forwards, $matches)) {
+            foreach ($matches[0] as $xip) {
+                if (!preg_match('#^(127|10|172\.16|192\.168)\.#', $xip)) {
+                    $ip = $xip;
+                    break;
+                }
             }
-
-            $query = $query ? http_build_query($query) : '';
-            $uri = $uri->withQuery($query);
-            return (string) $uri;
-        }
-    }
-
-    public function timestamp(bool $asFloat = false)
-    {
-        if (!$this->timestamp) {
-            $timestamp = $asFloat ?
-                $this->getServerParam('REQUEST_TIME_FLOAT') :
-                $this->getServerParam('REQUEST_TIME');
-
-            $this->timestamp = $timestamp ?: time();
         }
 
-        return $this->timestamp;
-    }
-
-    public function now(): Carbon
-    {
-        if (!$this->now) {
-            $this->now = Carbon::createFromTimestamp($this->timestamp());
-        }
-
-        return $this->now;
+        $ip = $ip == '::1' ? '127.0.0.1' : $ip;
+        $this->clientIp = $ip;
+        return $ip;
     }
 }

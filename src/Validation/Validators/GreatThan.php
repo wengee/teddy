@@ -1,8 +1,11 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 18:42:07 +0800
+ * @version  2019-08-07 18:00:53 +0800
  */
+
 namespace Teddy\Validation\Validators;
 
 class GreatThan extends ValidatorRuleBase

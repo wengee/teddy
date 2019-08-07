@@ -1,8 +1,11 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-06 17:32:14 +0800
+ * @version  2019-08-07 18:00:31 +0800
  */
+
 namespace Teddy\Validation\Validators;
 
 use Teddy\Validation\Validator;

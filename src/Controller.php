@@ -1,46 +1,21 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 14:20:43 +0800
+ * @version  2019-08-06 15:05:42 +0800
  */
-namespace Teddy;
 
-use Interop\Container\ContainerInterface;
+namespace Teddy;
 
 abstract class Controller
 {
-    protected $container;
-
-    final public function __construct(ContainerInterface $container)
+    final public function __construct()
     {
-        $this->container = $container;
-        if (method_exists($this, 'initialize')) {
-            $this->initialize();
-        }
     }
 
-    /**
-     * Bridge container get.
-     *
-     * @param string $name
-     */
     final public function __get($name)
     {
-        return $this->container->get($name);
-    }
-
-    /**
-     * Bridge container has.
-     *
-     * @param string $name
-     */
-    final public function __isset($name)
-    {
-        return $this->container->has($name);
-    }
-
-    public function serveJson(...$args)
-    {
-        throw new JsonResponse(...$args);
+        return app($name);
     }
 }

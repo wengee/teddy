@@ -1,24 +1,30 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-30 16:51:52 +0800
+ * @version  2019-08-06 15:37:39 +0800
  */
-namespace Teddy;
 
-use Exception;
+namespace Teddy;
 
 class Utils
 {
-    public static function callWithCatchException(callable $func, array $params = [])
+    public static function setProcessTitle(string $title, ?string $prefix = null)
     {
-        try {
-            $func(...$params);
-        } catch (Exception $e) {
-            log_exception($e);
-            return false;
+        if (PHP_OS === 'Darwin') {
+            return;
         }
 
-        return true;
+        if ($prefix) {
+            $title = $prefix . ': ' . $title;
+        }
+
+        if (function_exists('swoole_set_process_name')) {
+            swoole_set_process_name($title);
+        } elseif (function_exists('cli_set_process_title')) {
+            cli_set_process_title($title);
+        }
     }
 
     public static function xcopy(string $source, string $dest, int $permissions = 0755)

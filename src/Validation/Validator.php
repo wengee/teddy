@@ -1,13 +1,17 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-07-04 18:12:49 +0800
+ * @version  2019-08-07 17:59:28 +0800
  */
+
 namespace Teddy\Validation;
 
 use Closure;
 use RuntimeException;
 use Teddy\Filter;
+use Teddy\Interfaces\ValidatorRuleInterface;
 use Teddy\Validation\Validators\Callback;
 
 class Validator

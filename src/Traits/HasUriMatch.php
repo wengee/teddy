@@ -1,15 +1,18 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-04-09 15:44:00 +0800
+ * @version  2019-08-07 18:11:44 +0800
  */
+
 namespace Teddy\Traits;
 
 use Psr\Http\Message\ServerRequestInterface;
 
 trait HasUriMatch
 {
-    protected function isUriMatch(ServerRequestInterface $request, array $options)
+    protected function isUriMatch(ServerRequestInterface $request, array $options): bool
     {
         if (empty($options['path']) && empty($options['ignore'])) {
             return true;

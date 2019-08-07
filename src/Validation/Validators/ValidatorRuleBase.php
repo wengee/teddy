@@ -1,12 +1,15 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-06-15 16:50:29 +0800
+ * @version  2019-08-07 18:01:55 +0800
  */
+
 namespace Teddy\Validation\Validators;
 
+use Teddy\Interfaces\ValidatorRuleInterface;
 use Teddy\Validation\Exception;
-use Teddy\Validation\ValidatorRuleInterface;
 
 abstract class ValidatorRuleBase implements ValidatorRuleInterface
 {
