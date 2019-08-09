@@ -3,15 +3,20 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 17:15:56 +0800
+ * @version  2019-08-08 10:16:48 +0800
  */
 
-namespace Teddy\Crontab;
+namespace Teddy\Schedule;
 
 class Parser
 {
+    protected $formatedDates = [];
+
     public static function parse(string $crontabStr, int $time = 0)
     {
+        $crontabStr = trim($crontabStr);
+        $date = isset(self::$formatedDates[$crontabStr]) ? self::$formatedDates[$crontabStr] : null;
+
         if (preg_match('/^(((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+)?((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)$/i', trim($crontabStr), $m)) {
             $date = [
                 'second' => (empty($m[2])) ? [0 => 0] : self::parseCronNum($m[2], 0, 59),
@@ -21,7 +26,9 @@ class Parser
                 'month' => self::parseCronNum($m[14], 1, 12),
                 'week' => self::parseCronNum($m[17], 0, 6),
             ];
+        }
 
+        if ($date !== null) {
             $time = $time > 0 ? $time : time();
             if (
                 isset($date['minutes'][intval(date('i', $time))]) &&
@@ -32,8 +39,6 @@ class Parser
             ) {
                 return $date['second'];
             }
-
-            return false;
         }
 
         return false;

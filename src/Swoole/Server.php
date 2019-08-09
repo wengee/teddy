@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 17:54:29 +0800
+ * @version  2019-08-08 10:03:06 +0800
  */
 
 namespace Teddy\Swoole;
@@ -14,9 +14,9 @@ use Swoole\Http\Server as HttpServer;
 use Swoole\Process;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Websocket\Server as WebsocketServer;
-use Teddy\Crontab\CrontabProcess;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
+use Teddy\Schedule\ScheduleProcess;
 use Teddy\Task;
 use Teddy\Utils;
 
@@ -41,6 +41,7 @@ class Server
     public function __construct($app, array $config = [])
     {
         $this->app = $app;
+        $this->name = $app->getName();
 
         $config += $this->getDefaultConfig();
         $this->init($config);
@@ -180,12 +181,11 @@ class Server
     {
         $this->config = $config;
 
-        $this->name = array_pull($config, 'name', 'Teddy App');
         $this->enableCoroutine = array_get($config, 'enable_coroutine', true);
         $this->enableTaskCoroutine = $this->enableCoroutine && (version_compare(swoole_version(), '4.3.0') >= 0);
         $config['task_enable_coroutine'] = $this->enableTaskCoroutine;
 
-        $crontab = array_pull($config, 'crontab');
+        $schedule = array_pull($config, 'schedule');
         $processes = array_pull($config, 'processes');
         $enableWebsocket = array_pull($config, 'websocket.enable', false);
         $websocketHandler = array_pull($config, 'websocket.handler');
@@ -219,8 +219,8 @@ class Server
             }
         }
 
-        if ($crontab && is_array($crontab)) {
-            $this->addProcess(new CrontabProcess($crontab));
+        if ($schedule && is_array($schedule)) {
+            $this->addProcess(new ScheduleProcess($schedule));
         }
 
         if ($processes && is_array($processes)) {

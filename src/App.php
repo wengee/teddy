@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 18:35:28 +0800
+ * @version  2019-08-09 17:50:04 +0800
  */
 
 namespace Teddy;
@@ -21,11 +21,16 @@ use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
+use Teddy\Database\Manager as DatabaseManager;
 use Teddy\Factory\ResponseFactory;
 use Teddy\Factory\ServerRequestFactory;
+use Teddy\Flysystem\Manager as FlysystemManager;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
-use Teddy\Providers\Jwt;
+use Teddy\Jwt\Manager as JwtManager;
+use Teddy\Logger\Logger;
+use Teddy\Model\Manager as ModelManager;
+use Teddy\Redis\Manager as RedisManager;
 use Teddy\Routing\RouteCollectorProxy;
 use Teddy\Swoole\Server;
 
@@ -40,6 +45,8 @@ class App extends Container implements RequestHandlerInterface
     protected $middlewareDispatcher;
 
     protected $router;
+
+    protected $config;
 
     public function __construct(string $basePath)
     {
@@ -71,6 +78,11 @@ class App extends Container implements RequestHandlerInterface
     public static function create(string $basePath = '')
     {
         return new static($basePath);
+    }
+
+    public function getName(): string
+    {
+        return $this->get('config')->get('app.name') ?: 'Teddy App';
     }
 
     public function setBasePath(string $basePath): self
@@ -144,7 +156,24 @@ class App extends Container implements RequestHandlerInterface
         $this->instance('app', $this);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
-        $this->bind('jwt', Jwt::class);
+        $this->bind('logger', Logger::class);
+
+        if ($this->config->has('database')) {
+            $this->bind('db', DatabaseManager::class);
+            $this->bind('modelManager', ModelManager::class);
+        }
+
+        if ($this->config->has('redis')) {
+            $this->bind('redis', RedisManager::class);
+        }
+
+        if ($this->config->has('jwt')) {
+            $this->bind('jwt', JwtManager::class);
+        }
+
+        if ($this->config->has('flysystem')) {
+            $this->bind('fs', FlysystemManager::class);
+        }
     }
 
     protected function loadConfigure(): void
@@ -163,6 +192,8 @@ class App extends Container implements RequestHandlerInterface
                 }
             }
         }
+
+        $this->config = $config;
     }
 
     protected function loadEnvironments(string $file = '.env'): void

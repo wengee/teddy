@@ -3,22 +3,21 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 18:34:47 +0800
+ * @version  2019-08-09 14:15:07 +0800
  */
 
-namespace Teddy\Providers;
+namespace Teddy\Jwt;
 
 use Exception;
-use Firebase\JWT\JWT as JwtEncoder;
+use Firebase\JWT\JWT;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Teddy\Interfaces\JwtUserInterface;
 use Teddy\Options;
 
-class Jwt
+class Manager
 {
     protected $options;
-
-    protected $secretSuffix;
 
     public function __construct()
     {
@@ -49,15 +48,14 @@ class Jwt
         }
 
         try {
-            $payload = $this->decodeToken($token);
+            $payload = $this->decode($token);
         } catch (Exception $e) {
             throw $e;
         }
 
         $request = $request->withAttribute('jwtPayload', $payload);
-        $userClass = $this->options['userClass'];
-        if ($userClass && \is_subclass_of($userClass, JwtUserInterface::class)) {
-            $user = $userClass::retrieveByPayload($payload);
+        if (app()->has(JwtUserInterface::class)) {
+            $user = make(JwtUserInterface::class)->retrieveByPayload($payload);
         } else {
             $user = $payload;
         }
@@ -98,12 +96,12 @@ class Jwt
     /**
      * Decode the token.
      */
-    public function decodeToken(string $token): array
+    public function decode(string $token): array
     {
         try {
-            $decoded = JwtEncoder::decode(
+            $decoded = JWT::decode(
                 $token,
-                $this->options['secret'] . $this->secretSuffix,
+                $this->options['secret'],
                 (array) $this->options['algorithm']
             );
             return (array) $decoded;
@@ -115,7 +113,7 @@ class Jwt
     /**
      * Encode the payload.
      */
-    public function encodeToken(array $payload, int $ttl = 0): string
+    public function encode(array $payload, int $ttl = 0): string
     {
         $timestamp = time();
         $payload['iat'] = $timestamp;
@@ -125,16 +123,10 @@ class Jwt
 
         $algorithm = (array) $this->options['algorithm'];
         $alg = isset($algorithm[0]) ? $algorithm[0] : 'HS256';
-        return JwtEncoder::encode(
+        return JWT::encode(
             $payload,
-            $this->options['secret'] . $this->secretSuffix,
+            $this->options['secret'],
             $alg
         );
-    }
-
-    public function setSecretSuffix(?string $secretSuffix)
-    {
-        $this->secretSuffix = $secretSuffix;
-        return $this;
     }
 }

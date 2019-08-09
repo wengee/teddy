@@ -3,16 +3,15 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 17:35:59 +0800
+ * @version  2019-08-08 10:17:05 +0800
  */
 
 return [
-    'name' => 'Example',
     'websocket' => [
-        'enable' => true,
+        'enable' => false,
         'handler' => App\WebsocketHandler::class,
     ],
-    'crontab' => [
+    'schedule' => [
         ['*/2 * * * * 2', App\Tasks\Demo::class],
     ],
 

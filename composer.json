@@ -5,16 +5,17 @@
     "require": {
         "php": ">=7.3.0",
         "ext-swoole": ">=4.4.0",
-        "slim/slim": "^4.0",
+        "slim/slim": "^4.1",
+        "slim/psr7": "^0.4.0",
         "illuminate/support": "^5.8",
         "illuminate/config": "^5.8",
-        "illuminate/container": "^5.8",
         "vlucas/phpdotenv": "^3.4",
         "monolog/monolog": "^1.24",
         "doctrine/annotations": "^1.6",
         "firebase/php-jwt": "^5.0",
         "league/flysystem": "^1.0",
-        "slim/psr7": "^0.4.0"
+        "aliyuncs/oss-sdk-php": "^2.3",
+        "jacobcyl/ali-oss-storage": "^2.1"
     },
     "license": "MIT",
     "autoload": {

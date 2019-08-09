@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 11:46:43 +0800
+ * @version  2019-08-09 10:12:03 +0800
  */
 
 use Illuminate\Support\Str;
@@ -37,6 +37,24 @@ if (!function_exists('app')) {
         }
 
         return Container::getInstance()->make($make);
+    }
+}
+
+if (!function_exists('db')) {
+    /**
+     * Get a database connection.
+     *
+     * @param  string  $connection
+     * @return Teddy\Database\Database|null
+     */
+    function db(string $connection = 'default')
+    {
+        $db = app('db');
+        if (!$db) {
+            return null;
+        }
+
+        return $db->connection($connection);
     }
 }
 
