@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 16:42:36 +0800
+ * @version  2019-08-09 18:56:02 +0800
  */
 
 namespace Teddy\Redis;
@@ -28,7 +28,6 @@ class Connection implements ConnectionInterface
 
     public function __call(string $method, array $args)
     {
-        echo $method . PHP_EOL;
         $redis = $this->connect();
         if (method_exists($redis, $method)) {
             return $redis->{$method}(...$args);
