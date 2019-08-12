@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 11:24:41 +0800
+ * @version  2019-08-12 16:19:27 +0800
  */
 
 namespace Teddy\Database;
@@ -32,7 +32,7 @@ class Database extends Pool implements DbConnectionInterface
         parent::__construct(isset($config['pool']) ? $config['pool'] : []);
         $this->initConfig($config);
 
-        $this->readChannel = new Channel($this->options['maxConnections']);
+        $this->readChannel = new Channel($this->poolOptions['maxConnections']);
     }
 
     public function get(bool $readOnly = false): ConnectionInterface
@@ -53,7 +53,7 @@ class Database extends Pool implements DbConnectionInterface
         $num = $this->getReadConnectionsInChannel();
 
         try {
-            if ($num === 0 && $this->currentReadConnections < $this->options['maxConnections']) {
+            if ($num === 0 && $this->currentReadConnections < $this->poolOptions['maxConnections']) {
                 ++$this->currentReadConnections;
                 return $this->createReadConnection();
             }
@@ -62,7 +62,7 @@ class Database extends Pool implements DbConnectionInterface
             throw $throwable;
         }
 
-        return $this->readChannel->pop($this->options['waitTimeout']);
+        return $this->readChannel->pop($this->poolOptions['waitTimeout']);
     }
 
     public function getWriteConnecction(): ConnectionInterface
@@ -90,7 +90,7 @@ class Database extends Pool implements DbConnectionInterface
 
         $num = $this->getReadConnectionsInChannel();
         if ($num > 0) {
-            while ($this->currentReadConnections > $this->options['minConnections'] && $conn = $this->readChannel->pop($this->options['waitTimeout'])) {
+            while ($this->currentReadConnections > $this->poolOptions['minConnections'] && $conn = $this->readChannel->pop($this->poolOptions['waitTimeout'])) {
                 $conn->close();
                 --$this->currentReadConnections;
             }
@@ -173,14 +173,15 @@ class Database extends Pool implements DbConnectionInterface
     protected function initConfig(array $config, ?bool $readOnly = null): void
     {
         $defaultConf = [
-            'engine'    => array_get($config, 'engine', 'mysql'),
-            'host'      => array_get($config, 'host', '127.0.0.1'),
-            'port'      => array_get($config, 'port', 3306),
-            'name'      => array_get($config, 'name', ''),
-            'user'      => array_get($config, 'user', ''),
-            'password'  => array_get($config, 'password', ''),
-            'charset'   => array_get($config, 'charset', 'utf8mb4'),
-            'options'   => array_get($config, 'options', []),
+            'engine'        => array_get($config, 'engine', 'mysql'),
+            'host'          => array_get($config, 'host', '127.0.0.1'),
+            'port'          => array_get($config, 'port', 3306),
+            'name'          => array_get($config, 'name', ''),
+            'user'          => array_get($config, 'user', ''),
+            'password'      => array_get($config, 'password', ''),
+            'charset'       => array_get($config, 'charset', 'utf8mb4'),
+            'options'       => array_get($config, 'options', []),
+            'idleTimeout'   => $this->poolOptions['maxIdleTime'],
         ];
 
         if ($readOnly === null) {

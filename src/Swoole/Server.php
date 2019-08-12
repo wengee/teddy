@@ -3,15 +3,18 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-08 10:03:06 +0800
+ * @version  2019-08-12 18:05:10 +0800
  */
 
 namespace Teddy\Swoole;
 
+use Exception;
+use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Http\Server as HttpServer;
 use Swoole\Process;
+use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Websocket\Server as WebsocketServer;
 use Teddy\Interfaces\ProcessInterface;
@@ -33,6 +36,8 @@ class Server
     protected $enableCoroutine = true;
 
     protected $enableTaskCoroutine = true;
+
+    protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
     protected $enableWebsocket = false;
 
@@ -71,8 +76,18 @@ class Server
     {
         if ($workerId >= $this->config['worker_num']) {
             $process = 'task worker';
+            if ($this->enableTaskCoroutine) {
+                Runtime::enableCoroutine(true, $this->coroutineFlags);
+            } else {
+                Runtime::enableCoroutine(false);
+            }
         } else {
             $process = 'worker';
+            if ($this->enableCoroutine) {
+                Runtime::enableCoroutine(true, $this->coroutineFlags);
+            } else {
+                Runtime::enableCoroutine(false);
+            }
         }
 
         Utils::setProcessTitle($process, $this->name);
@@ -80,7 +95,13 @@ class Server
 
     public function onRequest(Request $request, Response $response)
     {
-        $this->app->run($request, $response);
+        try {
+            $this->app->run($request, $response);
+        } catch (Exception $e) {
+            log_exception($e);
+            $response->status(500);
+            $response->end('Internal Server Error');
+        }
     }
 
     public function onCoTask(HttpServer $server, SwooleTask $task)
@@ -112,12 +133,52 @@ class Server
         }
     }
 
+    public function stats(): array
+    {
+        $serverStats = $this->swoole->stats();
+        $coroutineStats = Coroutine::stats();
+        return [
+            'hostname'                  => gethostname(),
+            'currentWorkPid'            => getmypid(),
+            'phpVersion'                => PHP_VERSION,
+            'swooleVersion'             => SWOOLE_VERSION,
+            'server' => [
+                'startTime'             => $serverStats['start_time'] ?? null,
+                'connectionNum'         => $serverStats['connection_num'] ?? null,
+                'acceptCount'           => $serverStats['accept_count'] ?? null,
+                'closeCount'            => $serverStats['close_count'] ?? null,
+                'workerNum'             => $serverStats['worker_num'] ?? null,
+                'idleWorkerNum'         => $serverStats['idle_worker_num'] ?? null,
+                'taskingNum'            => $serverStats['tasking_num'] ?? null,
+                'requestCount'          => $serverStats['request_count'] ?? null,
+                'workerRequestCount'    => $serverStats['worker_request_count'] ?? null,
+                'workerDispatchCount'   => $serverStats['worker_dispatch_count'] ?? null,
+                'taskIdleWorkerNum'     => $serverStats['task_idle_worker_num'] ?? null,
+                'coroutineNum'          => $serverStats['coroutine_num'] ?? null,
+            ],
+            'memory' => [
+                'usage'                 => memory_get_usage(),
+                'allotUsage'            => memory_get_usage(true),
+                'peakUsage'             => memory_get_peak_usage(),
+                'peakAllotUsage'        => memory_get_peak_usage(true),
+            ],
+            'coroutine' => [
+                'eventNum'              => $coroutineStats['event_num'] ?? null,
+                'signalListenerNum'     => $coroutineStats['signal_listener_num'] ?? null,
+                'aioTaskNum'            => $coroutineStats['aio_task_num'] ?? null,
+                'coroutineNum'          => $coroutineStats['coroutine_num'] ?? null,
+                'coroutinePeakNum'      => $coroutineStats['coroutine_peak_num'] ?? null,
+            ],
+        ];
+    }
+
     protected function addProcess(ProcessInterface $process): void
     {
         $swoole = $this->swoole;
         $appName = $this->getName();
         $enableCoroutine = $this->enableCoroutine;
-        $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine) {
+        $coroutineFlags = $this->coroutineFlags;
+        $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags) {
             $name = $process->getName() ?: 'custom';
             Utils::setProcessTitle($name, $appName);
 
@@ -131,7 +192,13 @@ class Server
                 safe_call([$process, 'handle'], [$swoole, $worker]);
             };
 
-            $enableCoroutine ? go($runProcess) : $runProcess();
+            if ($process->enableCoroutine() && $enableCoroutine) {
+                Runtime::enableCoroutine(true, $coroutineFlags);
+                go($runProcess);
+            } else {
+                Runtime::enableCoroutine(false);
+                $runProcess();
+            }
         };
 
         $customProcess = new Process($processHandler, false, 0);
@@ -183,6 +250,9 @@ class Server
 
         $this->enableCoroutine = array_get($config, 'enable_coroutine', true);
         $this->enableTaskCoroutine = $this->enableCoroutine && (version_compare(swoole_version(), '4.3.0') >= 0);
+        $this->coroutineFlags = array_pull($config, 'coroutine_flags', SWOOLE_HOOK_ALL);
+
+        $config['enable_coroutine'] = $this->enableCoroutine;
         $config['task_enable_coroutine'] = $this->enableTaskCoroutine;
 
         $schedule = array_pull($config, 'schedule');

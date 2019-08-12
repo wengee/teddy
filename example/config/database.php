@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-08 17:55:36 +0800
+ * @version  2019-08-12 17:10:18 +0800
  */
 
 return [
@@ -16,5 +16,8 @@ return [
         'password'  => env('DB_PASSWORD', 'toor'),
         'charset'   => env('DB_CHARSET', 'utf8mb4'),
         'options'   => [],
+        'pool'      => [
+            'maxConnections' => 2,
+        ],
     ],
 ];

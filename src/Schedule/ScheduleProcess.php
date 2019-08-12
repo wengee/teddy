@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-08 15:16:26 +0800
+ * @version  2019-08-12 15:56:52 +0800
  */
 namespace Teddy\Schedule;
 
@@ -26,6 +26,11 @@ class ScheduleProcess implements ProcessInterface
     public function getName(): string
     {
         return 'schedule';
+    }
+
+    public function enableCoroutine(): bool
+    {
+        return true;
     }
 
     public function handle(Server $swoole, Process $process)

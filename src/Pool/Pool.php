@@ -15,13 +15,13 @@ abstract class Pool
 {
     protected $channel;
 
-    protected $options;
+    protected $poolOptions;
 
     protected $currentConnections = 0;
 
     public function __construct(array $options = [])
     {
-        $this->options = (new Options([
+        $this->poolOptions = (new Options([
             'minConnections' => 1,
             'maxConnections' => 10,
             'connectTimeout' => 10.0,
@@ -30,7 +30,7 @@ abstract class Pool
             'maxIdleTime' => 900,
         ], true))->update($options);
 
-        $this->channel = new Channel($this->options['maxConnections']);
+        $this->channel = new Channel($this->poolOptions['maxConnections']);
     }
 
     public function get(): ConnectionInterface
@@ -38,7 +38,7 @@ abstract class Pool
         $num = $this->getConnectionsInChannel();
 
         try {
-            if ($num === 0 && $this->currentConnections < $this->options['maxConnections']) {
+            if ($num === 0 && $this->currentConnections < $this->poolOptions['maxConnections']) {
                 ++$this->currentConnections;
                 return $this->createConnection();
             }
@@ -47,7 +47,7 @@ abstract class Pool
             throw $throwable;
         }
 
-        return $this->channel->pop($this->options['waitTimeout']);
+        return $this->channel->pop($this->poolOptions['waitTimeout']);
     }
 
     public function release(ConnectionInterface $connection): void
@@ -60,7 +60,7 @@ abstract class Pool
         $num = $this->getConnectionsInChannel();
 
         if ($num > 0) {
-            while ($this->currentConnections > $this->options['minConnections'] && $conn = $this->channel->pop($this->options['waitTimeout'])) {
+            while ($this->currentConnections > $this->poolOptions['minConnections'] && $conn = $this->channel->pop($this->poolOptions['waitTimeout'])) {
                 $conn->close();
                 --$this->currentConnections;
             }

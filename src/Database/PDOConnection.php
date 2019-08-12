@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 16:19:43 +0800
+ * @version  2019-08-12 17:04:11 +0800
  */
 
 namespace Teddy\Database;
@@ -20,6 +20,8 @@ class PDOConnection implements ConnectionInterface
     protected $pdo;
 
     protected $config;
+
+    protected $idleTimeout = 0;
 
     protected $readOnly = false;
 
@@ -38,9 +40,10 @@ class PDOConnection implements ConnectionInterface
         $dsn        = $engine . ':host=' . $host . ';port=' . $port . ';dbname=' . $name . ';charset=' . $charset;
 
         $options    = $options + $this->getDefaultOptions();
-        $this->config = compact('dsn', 'user', 'password', 'options');
-        $this->pdo = $this->createPDOConnection();
+        $this->config = compact('engine', 'dsn', 'user', 'password', 'options');
         $this->readOnly = $readOnly;
+        $this->idleTimeout = (int) array_get($config, 'idleTimeout', 0);
+        $this->pdo = $this->createPDOConnection();
     }
 
     public function connect()
@@ -166,12 +169,19 @@ class PDOConnection implements ConnectionInterface
 
     protected function createPDOConnection(): PDO
     {
-        return new PDO(
+        $pdo = new PDO(
             $this->config['dsn'],
             $this->config['user'],
             $this->config['password'],
             $this->config['options']
         );
+
+        if ($this->idleTimeout > 0 && $this->config['engine'] === 'mysql') {
+            $pdo->query("SET SESSION interactive_timeout = {$this->idleTimeout};");
+            $pdo->query("SET SESSION wait_timeout = {$this->idleTimeout};");
+        }
+
+        return $pdo;
     }
 
     protected function getDefaultOptions(bool $persistent = false): array

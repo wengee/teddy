@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 17:50:04 +0800
+ * @version  2019-08-12 16:59:15 +0800
  */
 
 namespace Teddy;
@@ -16,6 +16,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Middleware\ErrorMiddleware;
 use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteResolver;
 use Slim\Routing\RouteRunner;
@@ -48,9 +49,10 @@ class App extends Container implements RequestHandlerInterface
 
     protected $config;
 
-    public function __construct(string $basePath)
+    public function __construct(string $basePath, string $envFile = '.env')
     {
         static::setInstance($this);
+        $this->loadEnvironments($envFile);
 
         $this->setBasePath($basePath);
         $this->responseFactory = new ResponseFactory;
@@ -69,13 +71,12 @@ class App extends Container implements RequestHandlerInterface
         );
         $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $this);
 
-        $this->loadEnvironments();
         $this->loadConfigure();
         $this->bootstrapContainer();
         $this->loadRoutes();
     }
 
-    public static function create(string $basePath = '')
+    public static function create(string $basePath = ''): self
     {
         return new static($basePath);
     }
@@ -151,6 +152,22 @@ class App extends Container implements RequestHandlerInterface
         (new Server($this, $config))->start();
     }
 
+    public function addErrorMiddleware(
+        bool $displayErrorDetails,
+        bool $logErrors,
+        bool $logErrorDetails
+    ): ErrorMiddleware {
+        $errorMiddleware = new ErrorMiddleware(
+            $this->callableResolver,
+            $this->responseFactory,
+            $displayErrorDetails,
+            $logErrors,
+            $logErrorDetails
+        );
+        $this->add($errorMiddleware);
+        return $errorMiddleware;
+    }
+
     protected function bootstrapContainer(): void
     {
         $this->instance('app', $this);
@@ -198,14 +215,8 @@ class App extends Container implements RequestHandlerInterface
 
     protected function loadEnvironments(string $file = '.env'): void
     {
-        $paths = [
-            $this->getRuntimePath(),
-            getcwd(),
-            getenv('HOME') ?: '/'
-        ];
-
         try {
-            Dotenv::create($paths, $file)->load();
+            Dotenv::create([$this->getRuntimePath()], $file)->load();
         } catch (Exception $e) {
         }
     }
