@@ -1,12 +1,15 @@
 <?php
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-02-21 16:28:48 +0800
+ * @version  2019-08-13 14:46:02 +0800
  */
 namespace Teddy;
 
-use Interop\Container\ContainerInterface;
+use Exception;
 use InvalidArgumentException;
+use Swoole\Timer;
 
 abstract class Task
 {
@@ -15,7 +18,17 @@ abstract class Task
      */
     protected $delay = 0;
 
-    public function delay(int $delay): Task
+    /**
+     * @var integer
+     */
+    protected $executionTime = 600;
+
+    /**
+     * @var bool
+     */
+    protected $exclusive = true;
+
+    public function delay(int $delay): self
     {
         if ($delay <= 0) {
             throw new InvalidArgumentException('The delay must be greater than 0');
@@ -30,21 +43,67 @@ abstract class Task
         return $this->delay;
     }
 
-    public function send(?int $delay = null)
+    public function send(int $delay = 0)
     {
-        if ($delay !== null) {
+        if ($delay > 0) {
             $this->delay($delay);
         }
 
         return static::deliver($this);
     }
 
-    abstract public function handle();
+    public function setExclusive(int $executionTime)
+    {
+        if ($executionTime > 0) {
+            $this->executionTime = $executionTime;
+            $this->exclusive = true;
+        } else {
+            $this->exclusive = false;
+        }
+    }
 
     final public function safeRun()
     {
-        safe_call([$this, 'handle']);
+        safe_call([$this, 'run']);
     }
+
+    final public function run()
+    {
+        if ($this->tryLock()) {
+            try {
+                $ret = $this->handle();
+            } catch (Exception $e) {
+                $this->tryLock(true);
+                throw $e;
+            }
+
+            $this->tryLock(true);
+            return $ret;
+        }
+    }
+
+    protected function tryLock(bool $unlock = false): bool
+    {
+        $redis = app('redis');
+        if (!$redis || !$this->exclusive) {
+            return true;
+        }
+
+        $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
+        if ($unlock) {
+            $redis->delete($cacheKey);
+            return true;
+        } else {
+            if ($redis->exists($cacheKey)) {
+                return false;
+            } else {
+                $redis->set($cacheKey, true, $this->executionTime);
+                return true;
+            }
+        }
+    }
+
+    abstract protected function handle();
 
     public static function deliver(Task $task)
     {
@@ -56,8 +115,7 @@ abstract class Task
         };
 
         if (defined('IN_SWOOLE') && IN_SWOOLE && $task->getDelay() > 0) {
-            swoole_timer_after($task->getDelay() * 1000, $deliver);
-            return true;
+            return Timer::after($task->getDelay() * 1000, $deliver);
         } else {
             return $deliver();
         }

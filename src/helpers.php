@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 10:12:03 +0800
+ * @version  2019-08-13 17:46:33 +0800
  */
 
 use Illuminate\Support\Str;
@@ -159,6 +159,18 @@ if (!function_exists('env')) {
         }
 
         return $value;
+    }
+}
+
+if (!function_exists('event')) {
+    /**
+     * @param string|League\Event\EventInterface $event
+     * @param mixed $args
+     * @return mixed
+     */
+    function event($event, ...$args)
+    {
+        return app('events')->emit($event, ...$args);
     }
 }
 

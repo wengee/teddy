@@ -36,8 +36,14 @@ class ScheduleProcess implements ProcessInterface
     public function handle(Server $swoole, Process $process)
     {
         $this->timerId = Timer::tick(1000, function () {
-            $time = time();
-            $second = intval(date('s', $time));
+            $timestamp = time();
+            $second = (int) date('s', $timestamp);
+            $minutes = (int) date('i', $timestamp);
+            $hours = (int) date('G', $timestamp);
+            $day = (int) date('j', $timestamp);
+            $month = (int) date('n', $timestamp);
+            $week = (int) date('w', $timestamp);
+
             foreach ($this->scheduleList as $item) {
                 $timeCfg = isset($item[0]) ? $item[0] : null;
                 $taskCls = isset($item[1]) ? $item[1] : null;
@@ -46,7 +52,7 @@ class ScheduleProcess implements ProcessInterface
                     continue;
                 }
 
-                $seconds = Parser::parse($timeCfg, $time);
+                $seconds = Parser::check($timeCfg, $minutes, $hours, $day, $month, $week);
                 if (!$seconds || !isset($seconds[$second])) {
                     continue;
                 }

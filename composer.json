@@ -15,7 +15,8 @@
         "firebase/php-jwt": "^5.0",
         "league/flysystem": "^1.0",
         "aliyuncs/oss-sdk-php": "^2.3",
-        "jacobcyl/ali-oss-storage": "^2.1"
+        "jacobcyl/ali-oss-storage": "^2.1",
+        "league/event": "^2.2"
     },
     "license": "MIT",
     "autoload": {

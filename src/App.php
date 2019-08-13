@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 16:59:15 +0800
+ * @version  2019-08-13 18:12:16 +0800
  */
 
 namespace Teddy;
@@ -11,6 +11,8 @@ namespace Teddy;
 use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
+use League\Event\Emitter as EventEmitter;
+use League\Event\ListenerInterface;
 use Phar;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -168,12 +170,32 @@ class App extends Container implements RequestHandlerInterface
         return $errorMiddleware;
     }
 
+    public function addEventListeners(array $list)
+    {
+        $emitter = $this->get('events');
+        foreach ($list as $event => $listeners) {
+            if (!is_array($listeners)) {
+                $listeners = [$listeners];
+            }
+
+            foreach ($listeners as $listener) {
+                if (is_string($listener) &&
+                    is_subclass_of($listener, ListenerInterface::class)) {
+                    $listener = new $listener;
+                }
+
+                $emitter->addListener($event, $listener);
+            }
+        }
+    }
+
     protected function bootstrapContainer(): void
     {
         $this->instance('app', $this);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
         $this->bind('logger', Logger::class);
+        $this->bind('events', EventEmitter::class);
 
         if ($this->config->has('database')) {
             $this->bind('db', DatabaseManager::class);

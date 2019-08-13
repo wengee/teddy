@@ -162,7 +162,7 @@ class Container implements ContainerInterface, ArrayAccess
 
         $concrete = $this->getConcrete($abstract);
         $object = $this->build($concrete, $parameters ?: []);
-        if ($parameters === null) {
+        if ($object !== null && $parameters === null) {
             $this->instances[$abstract] = $object;
         }
 
