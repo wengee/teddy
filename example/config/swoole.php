@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 17:44:40 +0800
+ * @version  2019-08-13 14:37:25 +0800
  */
 
 return [
@@ -15,7 +15,7 @@ return [
         'handler' => App\WebsocketHandler::class,
     ],
     'schedule' => [
-        ['*/2 * * * * 2', App\Tasks\Demo::class],
+        ['*/2 * * * * 1', App\Tasks\Demo::class],
     ],
 
     'dispatch_mode' => 1,
