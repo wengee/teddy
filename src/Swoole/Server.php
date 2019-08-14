@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 18:46:01 +0800
+ * @version  2019-08-14 22:44:01 +0800
  */
 
 namespace Teddy\Swoole;
@@ -115,7 +115,7 @@ class Server
 
         if ($data instanceof Task) {
             $data->safeRun();
-            if (method_exists($data, 'finish')) {
+            if ($data->isWaiting()) {
                 $task->finish($data->finish());
             }
         }
@@ -125,7 +125,7 @@ class Server
     {
         if ($data instanceof Task) {
             $data->safeRun();
-            if (method_exists($data, 'finish')) {
+            if ($data->isWaiting()) {
                 return $data;
             }
         }
@@ -134,7 +134,7 @@ class Server
     public function onFinish(HttpServer $server, int $taskId, $data)
     {
         if ($data instanceof Task) {
-            $data->finish();
+            return $data->finish();
         }
     }
 
@@ -295,11 +295,11 @@ class Server
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
         $this->swoole->on('request', [$this, 'onRequest']);
-        $this->swoole->on('finish', [$this, 'onFinish']);
         if ($this->enableTaskCoroutine) {
             $this->swoole->on('task', [$this, 'onCoTask']);
         } else {
             $this->swoole->on('task', [$this, 'onTask']);
+            $this->swoole->on('finish', [$this, 'onFinish']);
         }
 
         if ($enableWebsocket) {

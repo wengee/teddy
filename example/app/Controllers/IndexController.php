@@ -23,7 +23,7 @@ class IndexController extends Controller
         $b = $a->save();
         $c = [md5('哈哈'), '中华人民共和国'];
         $d = app('redis')->keys('*');
-        $e = (new Demo)->result();
+        $e = (new Demo)->sendWait();
 
         return $response->json(0, compact(['a', 'b', 'c', 'd', 'e']));
     }

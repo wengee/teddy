@@ -3,32 +3,43 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 19:01:04 +0800
+ * @version  2019-08-14 22:44:50 +0800
  */
 namespace Teddy;
 
 use Exception;
 use InvalidArgumentException;
 use Swoole\Timer;
+use Teddy\Swoole\Coroutine;
 
 abstract class Task
 {
     /**
-     * @var integer
+     * @var float
      */
-    protected $delay = 0;
+    private $delay = 0;
+
+    /**
+     * @var float
+     */
+    private $waitTimeout = 0;
 
     /**
      * @var integer
      */
-    protected $executionTime = 600;
+    private $executionTime = 600;
 
     /**
      * @var bool
      */
-    protected $exclusive = true;
+    private $exclusive = true;
 
-    public function delay(int $delay): self
+    /**
+     * @var mixed
+     */
+    private $result = false;
+
+    final public function delay(float $delay): self
     {
         if ($delay <= 0) {
             throw new InvalidArgumentException('The delay must be greater than 0');
@@ -38,12 +49,17 @@ abstract class Task
         return $this;
     }
 
-    public function getDelay(): int
+    final public function wait(float $waitTimeout = 3.0): self
     {
-        return $this->delay;
+        if ($waitTimeout <= 0) {
+            throw new InvalidArgumentException('The waitTimeout must be greater than 0');
+        }
+
+        $this->waitTimeout = $waitTimeout;
+        return $this;
     }
 
-    public function setExclusive(int $executionTime)
+    final public function exclusive(int $executionTime): self
     {
         if ($executionTime > 0) {
             $this->executionTime = $executionTime;
@@ -51,29 +67,38 @@ abstract class Task
         } else {
             $this->exclusive = false;
         }
+
+        return $this;
     }
 
-    final public function send(int $delay = 0): void
+    final public function isWaiting(): bool
     {
-        $deliver = function () {
-            app('swoole')->task($this);
-        };
+        return $this->waitTimeout > 0;
+    }
 
-        if ($delay <= 0) {
-            $delay = $this->getDelay();
-        }
-
-        if (defined('IN_SWOOLE') && IN_SWOOLE && $delay > 0) {
-            Timer::after($delay * 1000, $deliver);
+    final public function sendWait(float $waitTimeout = 3.0)
+    {
+        $this->wait($waitTimeout);
+        if (Coroutine::id() > 0) {
+            $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
+            return $ret && isset($ret[0]) ? $ret[0] : false;
         } else {
-            $deliver();
+            return app('swoole')->taskwait($this, $this->waitTimeout);
         }
     }
 
-    final public function result(float $timeout = 3.0)
+    final public function send()
     {
-        $ret = app('swoole')->taskCo([$this], $timeout);
-        return isset($ret[0]) ? $ret[0] : false;
+        if ($this->isWaiting()) {
+            return $this->sendWait();
+        } else {
+            $this->deliver();
+        }
+    }
+
+    final public function finish()
+    {
+        return $this->result;
     }
 
     final public function safeRun()
@@ -88,13 +113,16 @@ abstract class Task
                 $ret = $this->handle();
             } catch (Exception $e) {
                 $this->tryLock(true);
+                $this->result = false;
                 throw $e;
             }
 
             $this->tryLock(true);
+            $this->result = $ret;
             return $ret;
         }
 
+        $this->result = false;
         throw new Exception('Task is running.');
     }
 
@@ -116,6 +144,23 @@ abstract class Task
                 $redis->set($cacheKey, true, $this->executionTime);
                 return true;
             }
+        }
+    }
+
+    protected function deliver()
+    {
+        $deliver = function () {
+            app('swoole')->task($this);
+        };
+
+        if ($delay <= 0) {
+            $delay = $this->delay;
+        }
+
+        if (defined('IN_SWOOLE') && IN_SWOOLE && $delay > 0) {
+            return Timer::after($delay * 1000, $deliver);
+        } else {
+            $deliver();
         }
     }
 
