@@ -3,15 +3,17 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 15:29:21 +0800
+ * @version  2019-08-14 15:23:27 +0800
  */
 
 namespace Teddy\Model;
 
 use ArrayAccess;
+use Exception;
 use Illuminate\Support\Str;
 use JsonSerializable;
 use Teddy\Database\DbConnectionInterface;
+use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
 use Teddy\Database\RawSQL;
 use Teddy\Interfaces\ArrayableInterface;
@@ -77,9 +79,14 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $this->isNewRecord;
     }
 
-    public function setConnection(DbConnectionInterface $connection): self
+    public function setConnection($connection): self
     {
-        $this->connection = $connection;
+        if ($connection instanceof DbConnectionInterface) {
+            $this->connection = $connection;
+        } elseif (is_string($connection)) {
+            $this->connection = db($connection);
+        }
+
         return $this;
     }
 
@@ -92,67 +99,44 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $this;
     }
 
-    public function save()
+    public function save(bool $quiet = true)
     {
-        $metaInfo = $this->metaInfo();
-        $primaryKeys = $metaInfo->primaryKeys();
-        if (empty($primaryKeys)) {
-            throw new DbException('Primary keys is not defined.');
+        try {
+            $this->doSave();
+        } catch (Exception $e) {
+            if ($quiet) {
+                return false;
+            } else {
+                throw $e;
+            }
         }
 
-        $this->trigger('beforeSave');
-        $query = static::query($this->connection);
-        $attributes = $this->getDbAttributes();
-
-        if ($this->isNewRecord()) {
-            $this->trigger('beforeInsert');
-            $id = $query->insert($attributes, true);
-
-            $autoIncrement = $metaInfo->autoIncrement();
-            if ($autoIncrement && $id > 0) {
-                $this->setAttribute($autoIncrement, (int) $id);
-            }
-
-            $this->trigger('afterInsert');
-            $this->isNewRecord = false;
-        } else {
-            $this->trigger('beforeUpdate');
-            foreach (array_only($attributes, $primaryKeys) as $key => $value) {
-                $query->where($key, $value);
-            }
-
-            $data = array_except($attributes, $primaryKeys);
-            $query->limit(1)->update((array) $data);
-            $this->trigger('afterUpdate');
-        }
-
-        $this->trigger('afterSave');
+        return true;
     }
 
-    public function delete()
+    public function delete(bool $quiet = true)
     {
-        $primaryKeys = $this->metaInfo()->primaryKeys();
-        if (empty($primaryKeys)) {
-            throw new DbException('Primary keys is not defined.');
-        }
-
-        $this->trigger('beforeDelete');
-        $query = static::query($this->connection);
-        $attributes = $this->getDbAttributes();
-        if (!$this->isNewRecord()) {
-            foreach (array_only($attributes, $primaryKeys) as $key => $value) {
-                $query->where($key, $value);
+        try {
+            $this->doDelete();
+        } catch (Exception $e) {
+            if ($quiet) {
+                return false;
+            } else {
+                throw $e;
             }
-
-            $query->limit(1)->delete();
         }
 
-        $this->trigger('afterDelete');
+        return true;
     }
 
     public static function query(?DbConnectionInterface $db = null): QueryBuilder
     {
-        return new QueryBuilder($db ?: db(), static::class);
+        if ($db === null) {
+            $connectionName = app('modelManager')->metaInfo(static::class)->connectionName();
+            return new QueryBuilder(db($connectionName), static::class);
+        }
+
+        return new QueryBuilder($db, static::class);
     }
 
     public static function raw(string $sql): RawSQL
@@ -278,6 +262,76 @@ abstract class Model implements ArrayAccess, JsonSerializable
             if (isset($columns[$key])) {
                 $this->items[$key] = $columns[$key]->value($value);
             }
+        }
+    }
+
+    protected function doSave()
+    {
+        $metaInfo = $this->metaInfo();
+        $primaryKeys = $metaInfo->primaryKeys();
+        if (empty($primaryKeys)) {
+            throw new DbException('Primary keys is not defined.');
+        }
+
+        $this->trigger('beforeSave');
+
+        $query = $this->buildQuery();
+        $attributes = $this->getDbAttributes();
+        if ($this->isNewRecord()) {
+            $this->trigger('beforeInsert');
+            $id = $query->insert($attributes, true);
+
+            $autoIncrement = $metaInfo->autoIncrement();
+            if ($autoIncrement && $id > 0) {
+                $this->setAttribute($autoIncrement, (int) $id);
+            }
+
+            $this->trigger('afterInsert');
+            $this->isNewRecord = false;
+        } else {
+            $this->trigger('beforeUpdate');
+            foreach (array_only($attributes, $primaryKeys) as $key => $value) {
+                $query->where($key, $value);
+            }
+
+            $data = array_except($attributes, $primaryKeys);
+            $query->limit(1)->update((array) $data);
+            $this->trigger('afterUpdate');
+        }
+
+        $this->trigger('afterSave');
+    }
+
+    protected function doDelete()
+    {
+        $metaInfo = $this->metaInfo();
+        $primaryKeys = $metaInfo->primaryKeys();
+        if (empty($primaryKeys)) {
+            throw new DbException('Primary keys is not defined.');
+        }
+
+        $this->trigger('beforeDelete');
+
+        $query = $this->buildQuery();
+        $attributes = $this->getDbAttributes();
+        if (!$this->isNewRecord()) {
+            foreach (array_only($attributes, $primaryKeys) as $key => $value) {
+                $query->where($key, $value);
+            }
+
+            $query->limit(1)->delete();
+        }
+
+        $this->trigger('afterDelete');
+    }
+
+    protected function buildQuery(): QueryBuilder
+    {
+        if ($this->connection) {
+            return static::query($this->connection);
+        } else {
+            $connectionName = $this->metaInfo()->connectionName();
+            return static::query(db($connectionName));
         }
     }
 }

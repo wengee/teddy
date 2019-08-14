@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 16:19:27 +0800
+ * @version  2019-08-14 14:39:31 +0800
  */
 
 namespace Teddy\Database;
@@ -68,11 +68,6 @@ class Database extends Pool implements DbConnectionInterface
     public function getWriteConnecction(): ConnectionInterface
     {
         return parent::get();
-    }
-
-    public function inTransaction(): bool
-    {
-        return false;
     }
 
     public function release(ConnectionInterface $connection): void

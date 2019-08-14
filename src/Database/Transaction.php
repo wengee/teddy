@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 11:26:55 +0800
+ * @version  2019-08-14 14:39:23 +0800
  */
 
 namespace Teddy\Database;
@@ -32,10 +32,5 @@ class Transaction implements DbConnectionInterface
     public function getWriteConnecction(): ConnectionInterface
     {
         return $this->pdoConnection;
-    }
-
-    public function inTransaction(): bool
-    {
-        return true;
     }
 }

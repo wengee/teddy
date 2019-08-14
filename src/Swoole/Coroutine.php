@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-08 11:27:11 +0800
+ * @version  2019-08-14 16:28:29 +0800
  */
 
 namespace Teddy\Swoole;
@@ -15,7 +15,7 @@ class Coroutine
 {
     public static function __callStatic($name, $arguments)
     {
-        if (! method_exists(SwooleCoroutine::class, $name)) {
+        if (!method_exists(SwooleCoroutine::class, $name)) {
             throw new BadMethodCallException(sprintf('Call to undefined method %s.', $name));
         }
         return SwooleCoroutine::$name(...$arguments);

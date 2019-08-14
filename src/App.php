@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-13 18:12:16 +0800
+ * @version  2019-08-14 16:00:00 +0800
  */
 
 namespace Teddy;
@@ -187,6 +187,16 @@ class App extends Container implements RequestHandlerInterface
                 $emitter->addListener($event, $listener);
             }
         }
+    }
+
+    public function emitEvent($event, ...$args)
+    {
+        $emitter = $this->get('events');
+        if ($emitter) {
+            return $emitter->emit($event, ...$args);
+        }
+
+        return false;
     }
 
     protected function bootstrapContainer(): void

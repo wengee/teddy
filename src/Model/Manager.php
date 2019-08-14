@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 15:14:29 +0800
+ * @version  2019-08-14 14:53:45 +0800
  */
 
 namespace Teddy\Model;
@@ -24,7 +24,7 @@ class Manager
         $this->reader = new AnnotationReader;
     }
 
-    public function metaInfo($model)
+    public function metaInfo($model): ?MetaInfo
     {
         if (is_object($model)) {
             $model = get_class($model);
@@ -36,7 +36,7 @@ class Manager
             try {
                 $this->metaInfos[$model] = new MetaInfo($model);
             } catch (Exception $e) {
-                $this->metaInfos[$model] = false;
+                $this->metaInfos[$model] = null;
             }
         }
 

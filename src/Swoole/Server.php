@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 18:05:10 +0800
+ * @version  2019-08-14 16:02:21 +0800
  */
 
 namespace Teddy\Swoole;
@@ -70,19 +70,24 @@ class Server
 
     public function onStart(HttpServer $server)
     {
+        $this->app->emitEvent('server.onStart');
     }
 
     public function onWorkerStart(HttpServer $server, int $workerId)
     {
         if ($workerId >= $this->config['worker_num']) {
-            $process = 'task worker';
+            $this->app->emitEvent('server.onTaskWorkerStart');
+
+            $processName = 'task worker';
             if ($this->enableTaskCoroutine) {
                 Runtime::enableCoroutine(true, $this->coroutineFlags);
             } else {
                 Runtime::enableCoroutine(false);
             }
         } else {
-            $process = 'worker';
+            $this->app->emitEvent('server.onWorkerStart');
+
+            $processName = 'worker';
             if ($this->enableCoroutine) {
                 Runtime::enableCoroutine(true, $this->coroutineFlags);
             } else {
@@ -90,7 +95,7 @@ class Server
             }
         }
 
-        Utils::setProcessTitle($process, $this->name);
+        Utils::setProcessTitle($processName, $this->name);
     }
 
     public function onRequest(Request $request, Response $response)
@@ -172,13 +177,19 @@ class Server
         ];
     }
 
-    protected function addProcess(ProcessInterface $process): void
+    public function addProcess(ProcessInterface $process): Process
     {
         $swoole = $this->swoole;
         $appName = $this->getName();
-        $enableCoroutine = $this->enableCoroutine;
+        $enableCoroutine = $this->enableCoroutine && $process->enableCoroutine();
         $coroutineFlags = $this->coroutineFlags;
         $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags) {
+            if ($enableCoroutine) {
+                Runtime::enableCoroutine(true, $coroutineFlags);
+            } else {
+                Runtime::enableCoroutine(false);
+            }
+
             $name = $process->getName() ?: 'custom';
             Utils::setProcessTitle($name, $appName);
 
@@ -187,38 +198,47 @@ class Server
                 $process->onReload($swoole, $worker);
             });
 
-            $runProcess = function () use ($name, $process, $swoole, $worker) {
-                log_message('info', 'Run the process %s [pid=%d].', [$name, $worker->pid]);
-                safe_call([$process, 'handle'], [$swoole, $worker]);
-            };
-
-            if ($process->enableCoroutine() && $enableCoroutine) {
-                Runtime::enableCoroutine(true, $coroutineFlags);
-                go($runProcess);
-            } else {
-                Runtime::enableCoroutine(false);
-                $runProcess();
-            }
+            log_message('info', 'Run the process %s [pid=%d].', [$name, $worker->pid]);
+            safe_call([$process, 'handle'], [$swoole, $worker]);
         };
 
-        $customProcess = new Process($processHandler, false, 0);
+        $customProcess = new Process($processHandler, false, 0, $enableCoroutine);
         $swoole->addProcess($customProcess);
+        return $customProcess;
     }
 
     protected function addProcesses(array $processes): void
     {
-        foreach ($processes as $item) {
-            $processCls = isset($item[0]) ? $item[0] : null;
-            if (!$processCls || !class_exists($processCls)) {
+        foreach ($processes as $key => $item) {
+            $className = null;
+            $args = [];
+            $total = 1;
+
+            if (is_integer($key)) {
+                if (is_string($item)) {
+                    $className = $item;
+                } elseif (is_array($item)) {
+                    $className = array_get($item, 'class');
+                    $args = array_get($item, 'parameters', []);
+                    $total = array_get($item, 'total', 1);
+                }
+            } elseif (is_string($key)) {
+                $className = $key;
+                if (is_array($item)) {
+                    $args = $item;
+                } elseif (is_integer($item)) {
+                    $total = $item;
+                }
+            }
+
+            if (!$className || !class_exists($className) || $total < 1) {
                 continue;
             }
 
-            $args = isset($item[1]) ? $item[1] : [];
-            if (!is_array($args)) {
-                $args = [$args];
+            $args = is_array($args) ? $args : [$args];
+            for ($i = 0; $i < $total; $i ++) {
+                $this->addProcess(new $className(...$args));
             }
-
-            $this->addProcess(new $processCls(...$args));
         }
     }
 

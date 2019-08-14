@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-13 17:46:33 +0800
+ * @version  2019-08-14 17:03:02 +0800
  */
 
 use Illuminate\Support\Str;
@@ -181,16 +181,14 @@ if (!function_exists('log_message')) {
      * @param string|int $level
      * @param string $message
      * @param array $data
-     * @return bool
+     * @return void
      */
-    function log_message($level, string $message, array $data = [])
+    function log_message($level, string $message, array $data = []): void
     {
         $logger = app('logger');
         if (!$logger) {
-            return false;
+            $logger->log($level, sprintf($message, ...$data));
         }
-
-        return $logger->log($level, sprintf($message, ...$data));
     }
 }
 
@@ -199,27 +197,24 @@ if (!function_exists('log_exception')) {
      * Write the exception to logger.
      *
      * @param  Exception  $e
-     * @return bool
+     * @return void
      */
-    function log_exception(Exception $e, string $prefix = '')
+    function log_exception(Exception $e, string $prefix = ''): void
     {
         $logger = app('logger');
         if (!$logger) {
-            return false;
+            $logger->error(sprintf(
+                '%sUncaught exception "%s": [%d]%s called in %s:%d%s%s',
+                $prefix,
+                get_class($e),
+                $e->getCode(),
+                $e->getMessage(),
+                $e->getFile(),
+                $e->getLine(),
+                PHP_EOL,
+                $e->getTraceAsString()
+            ));
         }
-
-        $logger->error(sprintf(
-            '%sUncaught exception "%s": [%d]%s called in %s:%d%s%s',
-            $prefix,
-            get_class($e),
-            $e->getCode(),
-            $e->getMessage(),
-            $e->getFile(),
-            $e->getLine(),
-            PHP_EOL,
-            $e->getTraceAsString()
-        ));
-        return true;
     }
 }
 
@@ -251,7 +246,7 @@ if (!function_exists('base64url_encode')) {
      * @param  string $data
      * @return string
      */
-    function base64url_encode(string $data)
+    function base64url_encode(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
@@ -264,8 +259,34 @@ if (!function_exists('base64url_decode')) {
      * @param  string $data
      * @return string
      */
-    function base64url_decode(string $data)
+    function base64url_decode(string $data): string
     {
         return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
+    }
+}
+
+if (!function_exists('base64url_serialize')) {
+    /**
+     * Serialize a php variable to URL-safe base64.
+     *
+     * @param  mixed $data
+     * @return string
+     */
+    function base64url_serialize($data): string
+    {
+        return base64url_encode(serialize($data));
+    }
+}
+
+if (!function_exists('base64url_unserialize')) {
+    /**
+     * Unserialize the URL-safe base64 string.
+     *
+     * @param  string $data
+     * @return mixed
+     */
+    function base64url_unserialize(string $data)
+    {
+        return unserialize(base64url_decode($data));
     }
 }

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 15:09:11 +0800
+ * @version  2019-08-14 14:51:07 +0800
  */
 
 namespace Teddy\Model;
@@ -18,6 +18,8 @@ use Teddy\Model\Columns\ColumnInterface;
 class MetaInfo
 {
     private $className;
+
+    private $connectionName;
 
     private $tableName;
 
@@ -57,6 +59,8 @@ class MetaInfo
         foreach ($annotations as $annotation) {
             if ($annotation instanceof Table) {
                 $this->tableName = $annotation->name;
+            } elseif ($annotation instanceof Connection) {
+                $this->connectionName = $annotation->name;
             } elseif ($annotation instanceof ColumnInterface) {
                 $propertyName = $annotation->getName();
 
@@ -81,6 +85,11 @@ class MetaInfo
         if (empty($this->tableName)) {
             $this->tableName = Str::snake($reflection->getShortName());
         }
+    }
+
+    public function connectionName(): string
+    {
+        return $this->connectionName ?: 'default';
     }
 
     public function tableName(): string

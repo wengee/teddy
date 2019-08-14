@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 11:24:15 +0800
+ * @version  2019-08-14 14:39:19 +0800
  */
 
 namespace Teddy\Database;
@@ -15,6 +15,4 @@ interface DbConnectionInterface
     public function getReadConnection(): ConnectionInterface;
 
     public function getWriteConnecction(): ConnectionInterface;
-
-    public function inTransaction(): bool;
 }
