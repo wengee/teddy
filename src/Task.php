@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-13 14:46:02 +0800
+ * @version  2019-08-14 19:01:04 +0800
  */
 namespace Teddy;
 
@@ -43,15 +43,6 @@ abstract class Task
         return $this->delay;
     }
 
-    public function send(int $delay = 0)
-    {
-        if ($delay > 0) {
-            $this->delay($delay);
-        }
-
-        return static::deliver($this);
-    }
-
     public function setExclusive(int $executionTime)
     {
         if ($executionTime > 0) {
@@ -60,6 +51,29 @@ abstract class Task
         } else {
             $this->exclusive = false;
         }
+    }
+
+    final public function send(int $delay = 0): void
+    {
+        $deliver = function () {
+            app('swoole')->task($this);
+        };
+
+        if ($delay <= 0) {
+            $delay = $this->getDelay();
+        }
+
+        if (defined('IN_SWOOLE') && IN_SWOOLE && $delay > 0) {
+            Timer::after($delay * 1000, $deliver);
+        } else {
+            $deliver();
+        }
+    }
+
+    final public function result(float $timeout = 3.0)
+    {
+        $ret = app('swoole')->taskCo([$this], $timeout);
+        return isset($ret[0]) ? $ret[0] : false;
     }
 
     final public function safeRun()
@@ -80,6 +94,8 @@ abstract class Task
             $this->tryLock(true);
             return $ret;
         }
+
+        throw new Exception('Task is running.');
     }
 
     protected function tryLock(bool $unlock = false): bool
@@ -104,20 +120,4 @@ abstract class Task
     }
 
     abstract protected function handle();
-
-    public static function deliver(Task $task)
-    {
-        $deliver = function () use ($task) {
-            $swoole = app('swoole');
-            if ($swoole) {
-                return $swoole->task($task);
-            }
-        };
-
-        if (defined('IN_SWOOLE') && IN_SWOOLE && $task->getDelay() > 0) {
-            return Timer::after($task->getDelay() * 1000, $deliver);
-        } else {
-            return $deliver();
-        }
-    }
 }

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 16:02:21 +0800
+ * @version  2019-08-14 18:46:01 +0800
  */
 
 namespace Teddy\Swoole;
@@ -295,11 +295,11 @@ class Server
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
         $this->swoole->on('request', [$this, 'onRequest']);
+        $this->swoole->on('finish', [$this, 'onFinish']);
         if ($this->enableTaskCoroutine) {
             $this->swoole->on('task', [$this, 'onCoTask']);
         } else {
             $this->swoole->on('task', [$this, 'onTask']);
-            $this->swoole->on('finish', [$this, 'onFinish']);
         }
 
         if ($enableWebsocket) {
