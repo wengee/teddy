@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 22:44:50 +0800
+ * @version  2019-08-15 09:50:31 +0800
  */
 namespace Teddy;
 
@@ -17,27 +17,27 @@ abstract class Task
     /**
      * @var float
      */
-    private $delay = 0;
+    protected $delay = 0;
 
     /**
      * @var float
      */
-    private $waitTimeout = 0;
+    protected $waitTimeout = 0;
 
     /**
      * @var integer
      */
-    private $executionTime = 600;
+    protected $executionTime = 600;
 
     /**
      * @var bool
      */
-    private $exclusive = true;
+    protected $exclusive = true;
 
     /**
      * @var mixed
      */
-    private $result = false;
+    protected $result = false;
 
     final public function delay(float $delay): self
     {
