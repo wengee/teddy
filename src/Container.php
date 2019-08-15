@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 16:34:35 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy;
@@ -112,7 +112,7 @@ class Container implements ContainerInterface, ArrayAccess
         return static::$instance;
     }
 
-    public static function setInstance($container)
+    public static function setInstance($container): void
     {
         static::$instance = $container;
     }
@@ -127,14 +127,14 @@ class Container implements ContainerInterface, ArrayAccess
         return $this->make($key);
     }
 
-    public function offsetSet($key, $value)
+    public function offsetSet($key, $value): void
     {
         $this->bind($key, $value instanceof Closure ? $value : function () use ($value) {
             return $value;
         });
     }
 
-    public function offsetUnset($key)
+    public function offsetUnset($key): void
     {
         unset($this->bindings[$key], $this->instances[$key]);
     }

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 11:09:20 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -13,7 +13,7 @@ use Teddy\Database\SQL;
 
 class JoinClause extends ClauseContainer
 {
-    public function join($table, $first, $operator = null, $second = null, int $joinType = SQL::INNER_JOIN)
+    public function join($table, $first, $operator = null, $second = null, int $joinType = SQL::INNER_JOIN): void
     {
         if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
             $operator = '=';
@@ -40,17 +40,17 @@ class JoinClause extends ClauseContainer
         $this->container[] = [$table, $on, $joinType];
     }
 
-    public function leftJoin($table, $first, $operator = null, $second = null)
+    public function leftJoin($table, $first, $operator = null, $second = null): void
     {
         $this->join($table, $first, $operator, $second, SQL::LEFT_JOIN);
     }
 
-    public function rightJoin($table, $first, $operator = null, $second = null)
+    public function rightJoin($table, $first, $operator = null, $second = null): void
     {
         $this->join($table, $first, $operator, $second, SQL::RIGHT_JOIN);
     }
 
-    public function fullJoin($table, $first, $operator = null, $second = null)
+    public function fullJoin($table, $first, $operator = null, $second = null): void
     {
         $this->join($table, $first, $operator, $second, SQL::FULL_JOIN);
     }

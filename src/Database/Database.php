@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 14:39:31 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Database;
@@ -29,7 +29,7 @@ class Database extends Pool implements DbConnectionInterface
 
     public function __construct(array $config = [])
     {
-        parent::__construct(isset($config['pool']) ? $config['pool'] : []);
+        parent::__construct($config['pool'] ?? []);
         $this->initConfig($config);
 
         $this->readChannel = new Channel($this->poolOptions['maxConnections']);
@@ -92,7 +92,7 @@ class Database extends Pool implements DbConnectionInterface
         }
     }
 
-    public function transaction(callable $callback)
+    public function transaction(callable $callback): void
     {
         $firstRun = true;
         $pdoConnection = $this->getWriteConnecction();

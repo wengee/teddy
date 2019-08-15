@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 17:04:11 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Database;
@@ -61,7 +61,7 @@ class PDOConnection implements ConnectionInterface
         return $this->pdo;
     }
 
-    public function close()
+    public function close(): void
     {
         $this->pdo = null;
     }
@@ -90,19 +90,19 @@ class PDOConnection implements ConnectionInterface
         return $this->readOnly;
     }
 
-    public function beginTransaction()
+    public function beginTransaction(): void
     {
         $this->connect()->beginTransaction();
         $this->stick = true;
     }
 
-    public function rollBack()
+    public function rollBack(): void
     {
         $this->stick = false;
         $this->connect()->rollBack();
     }
 
-    public function commit()
+    public function commit(): void
     {
         $this->stick = false;
         $this->connect()->commit();
@@ -200,7 +200,7 @@ class PDOConnection implements ConnectionInterface
         return $options;
     }
 
-    protected function bindValues(PDOStatement $statement, array $bindings)
+    protected function bindValues(PDOStatement $statement, array $bindings): void
     {
         foreach ($bindings as $key => $value) {
             $dataType = PDO::PARAM_STR;

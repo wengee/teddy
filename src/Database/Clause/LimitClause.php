@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-01-05 10:26:14 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -12,7 +14,7 @@ class LimitClause extends ClauseContainer
 
     private $offset = 0;
 
-    public function limit(int $number, int $offset = 0)
+    public function limit(int $number, int $offset = 0): void
     {
         if ($offset >= 0) {
             $this->offset = intval($offset);
@@ -21,7 +23,7 @@ class LimitClause extends ClauseContainer
         $this->limit = intval($number);
     }
 
-    public function offset(int $number = 0)
+    public function offset(int $number = 0): void
     {
         if ($number >= 0) {
             $this->offset = intval($number);

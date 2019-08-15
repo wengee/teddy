@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 18:01:55 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -46,7 +46,7 @@ abstract class ValidatorRuleBase implements ValidatorRuleInterface
         });
     }
 
-    protected function throwMessage(array $data = [])
+    protected function throwMessage(array $data = []): void
     {
         $data[':label'] = $this->label ?: '';
         throw new Exception(strtr($this->message, $data));

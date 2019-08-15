@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 17:16:55 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Middleware;
@@ -99,7 +99,7 @@ class CORSMiddleware implements MiddlewareInterface
         return false;
     }
 
-    protected function setMethods($methods)
+    protected function setMethods($methods): void
     {
         $methods = (array) $methods;
         if (array_get($methods, 'replace')) {
@@ -109,7 +109,7 @@ class CORSMiddleware implements MiddlewareInterface
         }
     }
 
-    protected function setHeaders($headers)
+    protected function setHeaders($headers): void
     {
         $headers = (array) $headers;
         if (array_get($headers, 'replace')) {
@@ -119,12 +119,12 @@ class CORSMiddleware implements MiddlewareInterface
         }
     }
 
-    protected function setPath($path)
+    protected function setPath($path): void
     {
         $this->conditions['path'] = (array) $path;
     }
 
-    protected function setIgnore($ignore)
+    protected function setIgnore($ignore): void
     {
         $this->conditions['ignore'] = (array) $ignore;
     }

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 17:59:28 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Validation;
@@ -16,7 +16,7 @@ use Teddy\Validation\Validators\Callback;
 
 class Validator
 {
-    const DEFAULT_VALIDATORS = [
+    public const DEFAULT_VALIDATORS = [
         'after'     => Validators\After::class,
         'alpha'     => Validators\Alpha::class,
         'alphaNum'  => Validators\AlphaNum::class,
@@ -164,7 +164,7 @@ class Validator
         return $filterd;
     }
 
-    protected function seedHandlerStack()
+    protected function seedHandlerStack(): void
     {
         if (!is_null($this->tip)) {
             throw new RuntimeException('HandlerStack can only be seeded once.');

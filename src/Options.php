@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 18:22:55 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy;
@@ -93,7 +93,7 @@ class Options implements ArrayAccess
         return array_key_exists($key, $this->data);
     }
 
-    public function remove(string $key)
+    public function remove(string $key): void
     {
         if (array_key_exists($key, $this->data)) {
             unset($this->data[$key]);

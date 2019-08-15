@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-09 14:15:07 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Jwt;
@@ -72,7 +72,7 @@ class Manager
 
         /* Check for token in header. */
         $headers = $request->getHeader($this->options['header']);
-        $header = isset($headers[0]) ? $headers[0] : '';
+        $header = $headers[0] ?? '';
 
         if (preg_match($this->options['regexp'], $header, $matches)) {
             return $matches[1];
@@ -122,7 +122,7 @@ class Manager
         }
 
         $algorithm = (array) $this->options['algorithm'];
-        $alg = isset($algorithm[0]) ? $algorithm[0] : 'HS256';
+        $alg = $algorithm[0] ?? 'HS256';
         return JWT::encode(
             $payload,
             $this->options['secret'],

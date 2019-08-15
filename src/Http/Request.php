@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 15:46:13 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Http;
@@ -81,7 +81,7 @@ class Request extends SlimRequest implements ArrayAccess
     public function getServerParam($key, $default = null)
     {
         $serverParams = $this->getServerParams();
-        return isset($serverParams[$key]) ? $serverParams[$key] : $default;
+        return $serverParams[$key] ?? $default;
     }
 
     public function getUploadedFile(string $field)

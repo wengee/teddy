@@ -1,7 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
+ * This file is part of Teddy Framework.
+ *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-05-09 14:10:34 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -10,7 +12,7 @@ use Teddy\Database\RawSQL;
 
 class HavingClause extends ClauseContainer
 {
-    public function having($column, $operator, $value = null, string $chainType = 'AND')
+    public function having($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         if ($column instanceof RawSQL) {
             $chainType = $operator ?: $chainType;
@@ -27,40 +29,40 @@ class HavingClause extends ClauseContainer
         }
     }
 
-    public function orHaving($column, $operator, $value = null)
+    public function orHaving($column, $operator, $value = null): void
     {
         $this->having($column, $operator, $value, 'OR');
     }
 
-    public function havingCount($column, $operator, $value = null, string $chainType = 'AND')
+    public function havingCount($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
         $sql = "COUNT($column) $operator ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
-    public function havingMax($column, $operator, $value = null, string $chainType = 'AND')
+    public function havingMax($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
         $sql = "MAX($column) $operator ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
-    public function havingMin($column, $operator, $value = null, string $chainType = 'AND')
+    public function havingMin($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
         $sql = "MIN($column) $operator ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
-    public function havingAvg($column, $operator, $value = null, string $chainType = 'AND')
+    public function havingAvg($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
         $sql = "AVG($column) $operator ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
-    public function havingSum($column, $operator, $value = null, string $chainType = 'AND')
+    public function havingSum($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
         $sql = "SUM($column) $operator ?";

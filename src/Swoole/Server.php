@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 22:44:01 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Swoole;
@@ -62,18 +62,18 @@ class Server
         return $this->swoole;
     }
 
-    public function start()
+    public function start(): void
     {
         Utils::setProcessTitle('master process', $this->name);
         $this->swoole->start();
     }
 
-    public function onStart(HttpServer $server)
+    public function onStart(HttpServer $server): void
     {
         $this->app->emitEvent('server.onStart');
     }
 
-    public function onWorkerStart(HttpServer $server, int $workerId)
+    public function onWorkerStart(HttpServer $server, int $workerId): void
     {
         if ($workerId >= $this->config['worker_num']) {
             $this->app->emitEvent('server.onTaskWorkerStart');
@@ -98,7 +98,7 @@ class Server
         Utils::setProcessTitle($processName, $this->name);
     }
 
-    public function onRequest(Request $request, Response $response)
+    public function onRequest(Request $request, Response $response): void
     {
         try {
             $this->app->run($request, $response);
@@ -109,7 +109,7 @@ class Server
         }
     }
 
-    public function onCoTask(HttpServer $server, SwooleTask $task)
+    public function onCoTask(HttpServer $server, SwooleTask $task): void
     {
         $data = $task->data;
 
@@ -183,7 +183,7 @@ class Server
         $appName = $this->getName();
         $enableCoroutine = $this->enableCoroutine && $process->enableCoroutine();
         $coroutineFlags = $this->coroutineFlags;
-        $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags) {
+        $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
                 Runtime::enableCoroutine(true, $coroutineFlags);
             } else {
@@ -193,7 +193,7 @@ class Server
             $name = $process->getName() ?: 'custom';
             Utils::setProcessTitle($name, $appName);
 
-            Process::signal(SIGUSR1, function ($signo) use ($name, $process, $worker, $swoole) {
+            Process::signal(SIGUSR1, function ($signo) use ($name, $process, $worker, $swoole): void {
                 log_message('info', 'Reloading the process %s [pid=%d].', [$name, $worker->pid]);
                 $process->onReload($swoole, $worker);
             });
@@ -244,19 +244,19 @@ class Server
 
     protected function bindWebSocketEvent(WebsocketHandlerInterface $websocketHandler): void
     {
-        $eventHandler = function ($method, array $params) use ($websocketHandler) {
+        $eventHandler = function ($method, array $params) use ($websocketHandler): void {
             safe_call([$websocketHandler, $method], $params);
         };
 
-        $this->swoole->on('open', function (...$args) use ($eventHandler) {
+        $this->swoole->on('open', function (...$args) use ($eventHandler): void {
             $eventHandler('onOpen', $args);
         });
 
-        $this->swoole->on('message', function (...$args) use ($eventHandler) {
+        $this->swoole->on('message', function (...$args) use ($eventHandler): void {
             $eventHandler('onMessage', $args);
         });
 
-        $this->swoole->on('close', function (WebsocketServer $server, int $fd, int $reactorId) use ($eventHandler) {
+        $this->swoole->on('close', function (WebsocketServer $server, int $fd, int $reactorId) use ($eventHandler): void {
             $clientInfo = $server->getClientInfo($fd);
             if (isset($clientInfo['websocket_status']) && $clientInfo['websocket_status'] === \WEBSOCKET_STATUS_FRAME) {
                 $eventHandler('onClose', func_get_args());

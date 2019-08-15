@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 17:56:49 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy;
@@ -15,51 +15,51 @@ class Filter
 {
     use Singleton;
 
-    const FILTER_BOOL           = 'bool';
+    public const FILTER_BOOL           = 'bool';
 
-    const FILTER_BOOLEAN        = 'boolean';
+    public const FILTER_BOOLEAN        = 'boolean';
 
-    const FILTER_EMAIL          = 'email';
+    public const FILTER_EMAIL          = 'email';
 
-    const FILTER_ABSINT         = 'absint';
+    public const FILTER_ABSINT         = 'absint';
 
-    const FILTER_INT            = 'int';
+    public const FILTER_INT            = 'int';
 
-    const FILTER_INT_CAST       = 'int!';
+    public const FILTER_INT_CAST       = 'int!';
 
-    const FILTER_STRING         = 'string';
+    public const FILTER_STRING         = 'string';
 
-    const FILTER_FLOAT          = 'float';
+    public const FILTER_FLOAT          = 'float';
 
-    const FILTER_FLOAT_CAST     = 'float!';
+    public const FILTER_FLOAT_CAST     = 'float!';
 
-    const FILTER_DOUBLE         = 'double';
+    public const FILTER_DOUBLE         = 'double';
 
-    const FILTER_DOUBLE_CAST    = 'double!';
+    public const FILTER_DOUBLE_CAST    = 'double!';
 
-    const FILTER_ALPHANUM       = 'alphanum';
+    public const FILTER_ALPHANUM       = 'alphanum';
 
-    const FILTER_TRIM           = 'trim';
+    public const FILTER_TRIM           = 'trim';
 
-    const FILTER_STRIPTAGS      = 'striptags';
+    public const FILTER_STRIPTAGS      = 'striptags';
 
-    const FILTER_LOWER          = 'lower';
+    public const FILTER_LOWER          = 'lower';
 
-    const FILTER_UPPER          = 'upper';
+    public const FILTER_UPPER          = 'upper';
 
-    const FILTER_URL            = 'url';
+    public const FILTER_URL            = 'url';
 
-    const FILTER_SPECIAL_CHARS  = 'special_chars';
+    public const FILTER_SPECIAL_CHARS  = 'special_chars';
 
-    const FILTER_LIST           = 'list';
+    public const FILTER_LIST           = 'list';
 
-    const FILTER_ARRAY          = 'array';
+    public const FILTER_ARRAY          = 'array';
 
-    const FILTER_TIMESTAMP      = 'timestamp';
+    public const FILTER_TIMESTAMP      = 'timestamp';
 
-    const FILTER_JSON_DECODE    = 'json_decode';
+    public const FILTER_JSON_DECODE    = 'json_decode';
 
-    const FILTER_JSON_ENCODE    = 'json_encode';
+    public const FILTER_JSON_ENCODE    = 'json_encode';
 
     protected $_filters;
 

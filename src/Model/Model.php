@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 15:23:27 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Model;
@@ -243,14 +243,14 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
         $attributes = $this->items;
         foreach ($columns as $key => $column) {
-            $value = isset($attributes[$key]) ? $attributes[$key] : $column->defaultValue();
+            $value = $attributes[$key] ?? $column->defaultValue();
             $attributes[$key] = $column->dbValue($value);
         }
 
         return $attributes;
     }
 
-    protected function setDbAttributes(array $data)
+    protected function setDbAttributes(array $data): void
     {
         $this->items = [];
         $this->isNewRecord = false;
@@ -265,7 +265,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         }
     }
 
-    protected function doSave()
+    protected function doSave(): void
     {
         $metaInfo = $this->metaInfo();
         $primaryKeys = $metaInfo->primaryKeys();
@@ -302,7 +302,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $this->trigger('afterSave');
     }
 
-    protected function doDelete()
+    protected function doDelete(): void
     {
         $metaInfo = $this->metaInfo();
         $primaryKeys = $metaInfo->primaryKeys();

@@ -1,10 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-12 15:56:52 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
+
 namespace Teddy\Schedule;
 
 use Swoole\Http\Server;
@@ -33,9 +34,9 @@ class ScheduleProcess implements ProcessInterface
         return true;
     }
 
-    public function handle(Server $swoole, Process $process)
+    public function handle(Server $swoole, Process $process): void
     {
-        $this->timerId = Timer::tick(1000, function () {
+        $this->timerId = Timer::tick(1000, function (): void {
             $timestamp = time();
             $second = (int) date('s', $timestamp);
             $minutes = (int) date('i', $timestamp);
@@ -45,9 +46,9 @@ class ScheduleProcess implements ProcessInterface
             $week = (int) date('w', $timestamp);
 
             foreach ($this->scheduleList as $item) {
-                $timeCfg = isset($item[0]) ? $item[0] : null;
-                $taskCls = isset($item[1]) ? $item[1] : null;
-                $taskArgs = isset($item[2]) ? $item[2] : [];
+                $timeCfg = $item[0] ?? null;
+                $taskCls = $item[1] ?? null;
+                $taskArgs = $item[2] ?? [];
                 if (!$timeCfg || !$taskCls) {
                     continue;
                 }
@@ -66,7 +67,7 @@ class ScheduleProcess implements ProcessInterface
         });
     }
 
-    public function onReload(Server $swoole, Process $process)
+    public function onReload(Server $swoole, Process $process): void
     {
         if ($this->timerId !== null) {
             Timer::clear($this->timerId);

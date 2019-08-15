@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-14 16:00:00 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy;
@@ -148,7 +148,7 @@ class App extends Container implements RequestHandlerInterface
         return $response;
     }
 
-    public function listen()
+    public function listen(): void
     {
         $config = $this->get('config')->get('swoole', []);
         (new Server($this, $config))->start();
@@ -170,7 +170,7 @@ class App extends Container implements RequestHandlerInterface
         return $errorMiddleware;
     }
 
-    public function addEventListeners(array $list)
+    public function addEventListeners(array $list): void
     {
         $emitter = $this->get('events');
         foreach ($list as $event => $listeners) {
@@ -260,7 +260,7 @@ class App extends Container implements RequestHandlerInterface
             $this->router->group([
                 'pattern' => '',
                 'namespace' => 'App\Controllers',
-            ], function ($router) use ($dir) {
+            ], function ($router) use ($dir): void {
                 $handle = opendir($dir);
                 while (false !== ($file = readdir($handle))) {
                     $filepath = $dir . $file;

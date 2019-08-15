@@ -1,16 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-06 15:37:39 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy;
 
 class Utils
 {
-    public static function setProcessTitle(string $title, ?string $prefix = null)
+    public static function setProcessTitle(string $title, ?string $prefix = null): void
     {
         if (PHP_OS === 'Darwin') {
             return;
@@ -54,7 +54,7 @@ class Utils
         return true;
     }
 
-    public static function clearDir(string $src)
+    public static function clearDir(string $src): void
     {
         $dir = opendir($src);
         while (false !== ($file = readdir($dir))) {
@@ -77,6 +77,6 @@ class Utils
         if ($factor > 0) {
             $sz = 'KMGT';
         }
-        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor - 1] . 'B';
+        return sprintf("%.{$decimals}f", $bytes / 1024** $factor) . @$sz[$factor - 1] . 'B';
     }
 }

@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 18:08:20 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy;
@@ -118,7 +118,7 @@ class PharBuilder
         }
     }
 
-    protected function compressFiles()
+    protected function compressFiles(): void
     {
         switch ($this->options['compress']) {
             case 'gz':
@@ -136,7 +136,7 @@ class PharBuilder
         }
     }
 
-    protected function setStub()
+    protected function setStub(): void
     {
         if (is_string($this->options['main'])) {
             $stub = $this->phar->createDefaultStub($this->options['main']);
@@ -210,7 +210,7 @@ class PharBuilder
         return $firstArg . implode(DIRECTORY_SEPARATOR, $paths);
     }
 
-    protected function copyFiles()
+    protected function copyFiles(): void
     {
         if (empty($this->options['copy'])) {
             return;
@@ -229,7 +229,7 @@ class PharBuilder
         }
     }
 
-    protected function setDist(string $value)
+    protected function setDist(string $value): void
     {
         if (!is_dir($value)) {
             mkdir($value, 0755);

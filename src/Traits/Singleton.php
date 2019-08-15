@@ -1,9 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-07 17:55:32 +0800
+ * @version  2019-08-15 10:31:42 +0800
  */
 
 namespace Teddy\Traits;
@@ -22,7 +22,7 @@ trait Singleton
         return self::$instances[$className];
     }
 
-    protected function pushInstance($instance)
+    protected function pushInstance($instance): void
     {
         $className = get_class($instance);
         self::$instances[$className] = $instance;
