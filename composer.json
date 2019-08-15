@@ -32,10 +32,5 @@
             "name": "Fung Wing Kit",
             "email": "wengee@gmail.com"
         }
-    ],
-    "extra": {
-        "branch-alias": {
-            "dev-master": "1.0.x-dev"
-        }
-    }
+    ]
 }
