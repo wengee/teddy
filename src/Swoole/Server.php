@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-20 10:58:14 +0800
  */
 
 namespace Teddy\Swoole;
@@ -104,6 +104,9 @@ class Server
             $this->app->run($request, $response);
         } catch (Exception $e) {
             log_exception($e);
+            $response->detach();
+
+            $response = Response::create($request->fd);
             $response->status(500);
             $response->end('Internal Server Error');
         }
