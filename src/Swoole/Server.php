@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-20 10:58:14 +0800
+ * @version  2019-08-26 16:28:11 +0800
  */
 
 namespace Teddy\Swoole;
@@ -33,22 +33,13 @@ class Server
 
     protected $config;
 
-    protected $enableCoroutine = true;
-
-    protected $enableTaskCoroutine = true;
-
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
-
-    protected $enableWebsocket = false;
-
-    protected $websocketHandler;
 
     public function __construct($app, array $config = [])
     {
         $this->app = $app;
         $this->name = $app->getName();
 
-        $config += $this->getDefaultConfig();
         $this->init($config);
     }
 
@@ -75,24 +66,17 @@ class Server
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
-        if ($workerId >= $this->config['worker_num']) {
+        $workerNum = array_get($this->config, 'options.worker_num', 1);
+        if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
 
-            $processName = 'task worker';
-            if ($this->enableTaskCoroutine) {
-                Runtime::enableCoroutine(true, $this->coroutineFlags);
-            } else {
-                Runtime::enableCoroutine(false);
-            }
+            $processName = 'task worker process';
+            Runtime::enableCoroutine(true, $this->coroutineFlags);
         } else {
             $this->app->emitEvent('server.onWorkerStart');
 
-            $processName = 'worker';
-            if ($this->enableCoroutine) {
-                Runtime::enableCoroutine(true, $this->coroutineFlags);
-            } else {
-                Runtime::enableCoroutine(false);
-            }
+            $processName = 'worker process';
+            Runtime::enableCoroutine(true, $this->coroutineFlags);
         }
 
         Utils::setProcessTitle($processName, $this->name);
@@ -112,7 +96,7 @@ class Server
         }
     }
 
-    public function onCoTask(HttpServer $server, SwooleTask $task): void
+    public function onTask(HttpServer $server, SwooleTask $task): void
     {
         $data = $task->data;
 
@@ -121,23 +105,6 @@ class Server
             if ($data->isWaiting()) {
                 $task->finish($data->finish());
             }
-        }
-    }
-
-    public function onTask(HttpServer $server, int $taskId, int $srcWorkerId, $data)
-    {
-        if ($data instanceof Task) {
-            $data->safeRun();
-            if ($data->isWaiting()) {
-                return $data;
-            }
-        }
-    }
-
-    public function onFinish(HttpServer $server, int $taskId, $data)
-    {
-        if ($data instanceof Task) {
-            return $data->finish();
         }
     }
 
@@ -184,7 +151,7 @@ class Server
     {
         $swoole = $this->swoole;
         $appName = $this->getName();
-        $enableCoroutine = $this->enableCoroutine && $process->enableCoroutine();
+        $enableCoroutine = $process->enableCoroutine();
         $coroutineFlags = $this->coroutineFlags;
         $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
@@ -269,41 +236,33 @@ class Server
 
     protected function init(array $config): void
     {
-        $this->config = $config;
+        $config = $this->parseConfig($config);
 
-        $this->enableCoroutine = array_get($config, 'enable_coroutine', true);
-        $this->enableTaskCoroutine = $this->enableCoroutine && (version_compare(swoole_version(), '4.3.0') >= 0);
-        $this->coroutineFlags = array_pull($config, 'coroutine_flags', SWOOLE_HOOK_ALL);
-
-        $config['enable_coroutine'] = $this->enableCoroutine;
-        $config['task_enable_coroutine'] = $this->enableTaskCoroutine;
-
-        $schedule = array_pull($config, 'schedule');
-        $processes = array_pull($config, 'processes');
         $enableWebsocket = array_pull($config, 'websocket.enable', false);
         $websocketHandler = array_pull($config, 'websocket.handler');
 
-        $host = array_pull($config, 'host', '127.0.0.1');
-        $port = array_pull($config, 'port', 9500);
+        $host = $config['host'] ?: '127.0.0.1';
+        $port = $config['port'] ?: 9500;
         if ($enableWebsocket) {
             $this->swoole = new WebsocketServer($host, $port);
         } else {
             $this->swoole = new HttpServer($host, $port);
         }
 
-        $this->swoole->set($config);
+        $options = $config['options'];
+        $this->coroutineFlags = array_pull($options, 'coroutine_flags', SWOOLE_HOOK_ALL);
+
+        $options['enable_coroutine'] = true;
+        $options['task_enable_coroutine'] = true;
+        $this->swoole->set($options);
+
         $this->app->instance('server', $this);
         $this->app->instance('swoole', $this->swoole);
 
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
         $this->swoole->on('request', [$this, 'onRequest']);
-        if ($this->enableTaskCoroutine) {
-            $this->swoole->on('task', [$this, 'onCoTask']);
-        } else {
-            $this->swoole->on('task', [$this, 'onTask']);
-            $this->swoole->on('finish', [$this, 'onFinish']);
-        }
+        $this->swoole->on('task', [$this, 'onTask']);
 
         if ($enableWebsocket) {
             if (is_subclass_of($websocketHandler, WebsocketHandlerInterface::class)) {
@@ -312,28 +271,48 @@ class Server
             }
         }
 
-        if ($schedule && is_array($schedule)) {
-            $this->addProcess(new ScheduleProcess($schedule));
+        if ($config['schedule'] && is_array($config['schedule'])) {
+            $this->addProcess(new ScheduleProcess($config['schedule']));
         }
 
-        if ($processes && is_array($processes)) {
-            $this->addProcesses($processes);
+        if ($config['processes'] && is_array($config['processes'])) {
+            $this->addProcesses($config['processes']);
         }
     }
 
-    protected function getDefaultConfig(): array
+    protected function parseConfig(array $config = []): array
     {
         $cpuNum = swoole_cpu_num();
-        return [
-            'host' => '127.0.0.1',
-            'port' => 9500,
-            'enable_coroutine' => true,
-
+        $options = [
             'reactor_num' => $cpuNum * 2,
             'worker_num' => $cpuNum * 2,
             'task_worker_num' => $cpuNum * 2,
             'dispatch_mode' => 1,
             'daemonize' => 0,
         ];
+
+        if (isset($config['options']) && is_array($config['options'])) {
+            $options = $config['options'] + $options;
+        }
+
+        $config = $config + [
+            'host' => '127.0.0.1',
+            'port' => 9500,
+
+            'schedule' => null,
+            'processes' => null,
+
+            'options' => [
+                'reactor_num' => $cpuNum * 2,
+                'worker_num' => $cpuNum * 2,
+                'task_worker_num' => $cpuNum * 2,
+                'dispatch_mode' => 1,
+                'daemonize' => 0,
+            ],
+        ];
+
+        $config['options'] = $options;
+        $this->config = $config;
+        return $config;
     }
 }

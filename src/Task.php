@@ -80,12 +80,8 @@ abstract class Task
     final public function sendWait(float $waitTimeout = 3.0)
     {
         $this->wait($waitTimeout);
-        if (Coroutine::id() > 0) {
-            $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
-            return $ret && isset($ret[0]) ? $ret[0] : false;
-        } else {
-            return app('swoole')->taskwait($this, $this->waitTimeout);
-        }
+        $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
+        return $ret && isset($ret[0]) ? $ret[0] : false;
     }
 
     final public function send()
