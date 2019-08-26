@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 14:20:17 +0800
  */
 
 namespace Teddy;
@@ -12,18 +12,14 @@ use ArrayAccess;
 
 class Options implements ArrayAccess
 {
-    protected $attributes = null;
+    protected $strict = true;
 
     protected $data = [];
 
-    public function __construct(?array $attributes = null, bool $initialize = false)
+    public function __construct(array $data = [], bool $strict = true)
     {
-        if ($attributes && $initialize) {
-            $this->attributes = array_keys($attributes);
-            $this->data = $attributes;
-        } else {
-            $this->attributes = $attributes;
-        }
+        $this->data = $data;
+        $this->strict = $strict;
     }
 
     public function update(array $data, array ...$args): self
@@ -83,7 +79,7 @@ class Options implements ArrayAccess
 
     public function set(string $key, $value)
     {
-        if (!$this->attributes || in_array($key, $this->attributes)) {
+        if (!$this->strict || array_key_exists($key, $this->data)) {
             return $this->data[$key] = $value;
         }
     }

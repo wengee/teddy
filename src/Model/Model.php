@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 14:35:17 +0800
  */
 
 namespace Teddy\Model;
@@ -12,6 +12,7 @@ use ArrayAccess;
 use Exception;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Serializable;
 use Teddy\Database\DbConnectionInterface;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
@@ -19,7 +20,7 @@ use Teddy\Database\RawSQL;
 use Teddy\Interfaces\ArrayableInterface;
 use Teddy\Interfaces\JsonableInterface;
 
-abstract class Model implements ArrayAccess, JsonSerializable
+abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 {
     protected $items = [];
 
@@ -74,6 +75,21 @@ abstract class Model implements ArrayAccess, JsonSerializable
         }, ARRAY_FILTER_USE_KEY));
     }
 
+    public function serialize(): string
+    {
+        return serialize([
+            'items' => $this->items,
+            'isNewRecord' => $this->isNewRecord,
+        ]);
+    }
+
+    public function unserialize($serialized): void
+    {
+        $data = (array) unserialize($serialized);
+        $this->items = $data['items'] ?? [];
+        $this->isNewRecord = $data['isNewRecord'] ?? false;
+    }
+
     public function isNewRecord(): bool
     {
         return $this->isNewRecord;
@@ -99,7 +115,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $this;
     }
 
-    public function save(bool $quiet = true)
+    public function save(bool $quiet = true): bool
     {
         try {
             $this->doSave();
@@ -114,7 +130,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return true;
     }
 
-    public function delete(bool $quiet = true)
+    public function delete(bool $quiet = true): bool
     {
         try {
             $this->doDelete();
@@ -218,14 +234,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $this->metaInfo()->hasColumn($key);
     }
 
-    protected function trigger(string $action, ...$args): void
-    {
-        if (method_exists($this, $action)) {
-            $this->{$action}(...$args);
-        }
-    }
-
-    protected function metaInfo()
+    protected function metaInfo(): ?MetaInfo
     {
         if (!$this->metaInfo) {
             $this->metaInfo = app('modelManager')->metaInfo($this);
@@ -262,6 +271,13 @@ abstract class Model implements ArrayAccess, JsonSerializable
             if (isset($columns[$key])) {
                 $this->items[$key] = $columns[$key]->value($value);
             }
+        }
+    }
+
+    protected function trigger(string $action, ...$args): void
+    {
+        if (method_exists($this, $action)) {
+            $this->{$action}(...$args);
         }
     }
 

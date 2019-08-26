@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 11:50:58 +0800
  */
 
 namespace Teddy;
@@ -113,12 +113,12 @@ abstract class Task
             try {
                 $ret = $this->handle();
             } catch (Exception $e) {
-                $this->tryLock(true);
+                $this->unLock();
                 $this->result = false;
                 throw $e;
             }
 
-            $this->tryLock(true);
+            $this->unLock();
             $this->result = $ret;
             return $ret;
         }
@@ -127,7 +127,7 @@ abstract class Task
         throw new Exception('Task is running.');
     }
 
-    protected function tryLock(bool $unlock = false): bool
+    protected function tryLock(): bool
     {
         $redis = app('redis');
         if (!$redis || !$this->exclusive) {
@@ -135,17 +135,24 @@ abstract class Task
         }
 
         $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
-        if ($unlock) {
-            $redis->delete($cacheKey);
-            return true;
+        if ($redis->exists($cacheKey)) {
+            return false;
         } else {
-            if ($redis->exists($cacheKey)) {
-                return false;
-            } else {
-                $redis->set($cacheKey, true, $this->executionTime);
-                return true;
-            }
+            $redis->set($cacheKey, true, $this->executionTime);
+            return true;
         }
+    }
+
+    protected function unLock(): bool
+    {
+        $redis = app('redis');
+        if (!$redis || !$this->exclusive) {
+            return true;
+        }
+
+        $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
+        $redis->delete($cacheKey);
+        return true;
     }
 
     protected function deliver()
@@ -154,12 +161,8 @@ abstract class Task
             app('swoole')->task($this);
         };
 
-        if ($delay <= 0) {
-            $delay = $this->delay;
-        }
-
-        if (defined('IN_SWOOLE') && IN_SWOOLE && $delay > 0) {
-            return Timer::after($delay * 1000, $deliver);
+        if (defined('IN_SWOOLE') && IN_SWOOLE && $this->delay > 0) {
+            return Timer::after($this->delay * 1000, $deliver);
         } else {
             $deliver();
         }

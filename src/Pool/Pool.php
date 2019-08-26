@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 14:20:59 +0800
  */
 
 namespace Teddy\Pool;
@@ -29,7 +29,7 @@ abstract class Pool
             'waitTimeout' => 3.0,
             'heartbeat' => 0,
             'maxIdleTime' => 900,
-        ], true))->update($options);
+        ]))->update($options);
 
         $this->channel = new Channel($this->poolOptions['maxConnections']);
     }

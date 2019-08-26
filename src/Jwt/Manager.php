@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 14:20:39 +0800
  */
 
 namespace Teddy\Jwt;
@@ -21,7 +21,7 @@ class Manager
 
     public function __construct()
     {
-        $this->options = (new Options([
+        $this->options = new Options([
             'secret'    => 'This is a secret!',
             'secure'    => true,
             'relaxed'   => ['localhost', '127.0.0.1'],
@@ -31,7 +31,7 @@ class Manager
             'cookie'    => 'token',
             'param'     => 'token',
             'attribute' => 'user',
-        ], true));
+        ]);
 
         $config = config('jwt');
         if ($config && is_array($config)) {

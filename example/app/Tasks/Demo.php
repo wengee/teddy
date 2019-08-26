@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:53 +0800
+ * @version  2019-08-26 11:31:01 +0800
  */
 
 namespace App\Tasks;
@@ -16,7 +16,7 @@ class Demo extends Task
 
     protected function handle()
     {
-        // echo 'task handle' . PHP_EOL;
+        echo 'task handle' . PHP_EOL;
         // sleep(1);
         return 'result ok';
     }

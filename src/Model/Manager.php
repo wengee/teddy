@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 11:40:12 +0800
  */
 
 namespace Teddy\Model;
@@ -43,22 +43,12 @@ class Manager
         return $this->metaInfos[$model];
     }
 
-    protected function registerLoader()
+    protected function registerLoader(): void
     {
-        if (!class_exists('\\Composer\\Autoload\\ClassLoader')) {
-            return false;
+        $loaderFile = vendor_path('autoload.php');
+        if ($loaderFile && is_file($loaderFile)) {
+            $loader = require $loaderFile;
+            AnnotationRegistry::registerLoader([$loader, 'loadClass']);
         }
-
-        $loaders = spl_autoload_functions();
-        foreach ($loaders as $loader) {
-            if (!is_array($loader)) {
-                continue;
-            } elseif (isset($loader[0]) && ($loader[0] instanceof \Composer\Autoload\ClassLoader)) {
-                AnnotationRegistry::registerLoader($loader);
-                return true;
-            }
-        }
-
-        return false;
     }
 }

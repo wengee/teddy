@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 14:20:49 +0800
  */
 
 namespace Teddy\Middleware;
@@ -48,7 +48,7 @@ class CORSMiddleware implements MiddlewareInterface
                 'Range',
                 'Authorization',
             ],
-        ], true);
+        ]);
 
         $this->setOptions($options);
         $this->init();

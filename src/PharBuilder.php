@@ -34,7 +34,7 @@ class PharBuilder
             'clear'         => false,
             'copy'          => [],
             'compress'      => 'none',
-        ], true))->update($extraOptions);
+        ]))->update($extraOptions);
     }
 
     public static function build(string $basePath, array $extraOptions = [])

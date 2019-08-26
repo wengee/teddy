@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 11:27:06 +0800
  */
 
 use Illuminate\Support\Str;
@@ -58,6 +58,24 @@ if (!function_exists('db')) {
     }
 }
 
+if (!function_exists('path_join')) {
+    /**
+     * Join the paths
+     *
+     * @param string ...$paths
+     * @return string
+     */
+    function path_join(string $basePath, string ...$args)
+    {
+        $basePath = rtrim($basePath, '/\\');
+        $args = array_map(function ($arg) {
+            return trim($arg, '/\\');
+        }, $args);
+
+        return $basePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
+    }
+}
+
 if (!function_exists('base_path')) {
     /**
      * Get the app path.
@@ -76,13 +94,13 @@ if (!function_exists('base_path')) {
             return $basePath;
         }
 
-        return rtrim($basePath, '/') . '/' . ltrim($path, '/');
+        return rtrim($basePath, '/\\') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
     }
 }
 
 if (!function_exists('runtime_path')) {
     /**
-     * Get the runtime_path path.
+     * Get the runtime path.
      *
      * @param string|null $path
      * @return string
@@ -98,7 +116,39 @@ if (!function_exists('runtime_path')) {
             return $runtimePath;
         }
 
-        return rtrim($runtimePath, '/') . '/' . ltrim($path, '/');
+        return rtrim($runtimePath, '/\\') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+    }
+}
+
+if (!function_exists('vendor_path')) {
+    /**
+     * Get the vendor path.
+     *
+     * @param string|null $path
+     * @return string
+     */
+    function vendor_path(?string $path = null): string
+    {
+        if (!class_exists('\\Composer\\Autoload\\ClassLoader')) {
+            return '';
+        }
+
+        static $vendorPath;
+        if ($vendorPath === null) {
+            $refCls = new ReflectionClass('\\Composer\\Autoload\\ClassLoader');
+            $fileName = $refCls->getFileName();
+            if ($fileName) {
+                $vendorPath = dirname($fileName, 2);
+            } else {
+                $vendorPath = '';
+            }
+        }
+
+        if (!$path) {
+            return $vendorPath;
+        }
+
+        return rtrim($vendorPath, '/\\') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
     }
 }
 
