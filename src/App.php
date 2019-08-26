@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 15:08:50 +0800
  */
 
 namespace Teddy;
@@ -71,7 +71,11 @@ class App extends Container implements RequestHandlerInterface
             $routeResolver,
             $this->router->getRouteCollector()->getRouteParser()
         );
-        $this->middlewareDispatcher = new MiddlewareDispatcher($routeRunner, $this);
+        $this->middlewareDispatcher = new MiddlewareDispatcher(
+            $routeRunner,
+            $this->callableResolver,
+            $this
+        );
 
         $this->loadConfigure();
         $this->bootstrapContainer();
