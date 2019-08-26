@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\MiddlewareDispatcher;
 use Slim\Routing\RouteResolver;
@@ -156,6 +157,13 @@ class App extends Container implements RequestHandlerInterface
     {
         $config = $this->get('config')->get('swoole', []);
         (new Server($this, $config))->start();
+    }
+
+    public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
+    {
+        $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
+        $this->add($bodyParsingMiddleware);
+        return $bodyParsingMiddleware;
     }
 
     public function addErrorMiddleware(

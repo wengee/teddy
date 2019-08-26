@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-08-26 17:21:56 +0800
  */
 
 namespace Teddy\Http;
@@ -78,10 +78,71 @@ class Request extends SlimRequest implements ArrayAccess
         return $ip;
     }
 
+    public function getParam($key, $default = null)
+    {
+        $postParams = $this->getParsedBody();
+        $getParams = $this->getQueryParams();
+        $result = $default;
+        if (is_array($postParams) && isset($postParams[$key])) {
+            $result = $postParams[$key];
+        } elseif (is_object($postParams) && property_exists($postParams, $key)) {
+            $result = $postParams->$key;
+        } elseif (isset($getParams[$key])) {
+            $result = $getParams[$key];
+        }
+
+        return $result;
+    }
+
+    public function getParams(array $only = null)
+    {
+        $params = $this->getQueryParams();
+        $postParams = $this->getParsedBody();
+        if ($postParams) {
+            $params = array_replace($params, (array) $postParams);
+        }
+
+        if ($only) {
+            $onlyParams = [];
+            foreach ($only as $key) {
+                if (array_key_exists($key, $params)) {
+                    $onlyParams[$key] = $params[$key];
+                }
+            }
+            return $onlyParams;
+        }
+
+        return $params;
+    }
+
     public function getServerParam($key, $default = null)
     {
         $serverParams = $this->getServerParams();
         return $serverParams[$key] ?? $default;
+    }
+
+    public function getQueryParam($key, $default = null)
+    {
+        $getParams = $this->getQueryParams();
+        $result = $default;
+        if (isset($getParams[$key])) {
+            $result = $getParams[$key];
+        }
+
+        return $result;
+    }
+
+    public function getParsedBodyParam($key, $default = null)
+    {
+        $postParams = $this->getParsedBody();
+        $result = $default;
+        if (is_array($postParams) && isset($postParams[$key])) {
+            $result = $postParams[$key];
+        } elseif (is_object($postParams) && property_exists($postParams, $key)) {
+            $result = $postParams->$key;
+        }
+
+        return $result;
     }
 
     public function getUploadedFile(string $field)
