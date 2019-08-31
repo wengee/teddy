@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 15:08:50 +0800
+ * @version  2019-08-31 10:38:45 +0800
  */
 
 namespace Teddy;
@@ -18,6 +18,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Interfaces\RouteCollectorProxyInterface;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\MiddlewareDispatcher;
@@ -61,11 +62,13 @@ class App extends Container implements RequestHandlerInterface
         $this->responseFactory = new ResponseFactory;
         $this->callableResolver = new CallableResolver($this);
 
-        $this->router = new RouteCollectorProxy(
+        $router = new RouteCollectorProxy(
             $this->responseFactory,
             $this->callableResolver,
             $this
         );
+        $router->setNamespace('App\\Controllers');
+        $this->router = $router;
 
         $routeResolver = new RouteResolver($this->router->getRouteCollector());
         $routeRunner = new RouteRunner(
@@ -269,18 +272,14 @@ class App extends Container implements RequestHandlerInterface
     {
         $dir = $this->basePath . 'routes/';
         if (is_dir($dir)) {
-            $this->router->group([
-                'pattern' => '',
-                'namespace' => 'App\Controllers',
-            ], function ($router) use ($dir): void {
-                $handle = opendir($dir);
-                while (false !== ($file = readdir($handle))) {
-                    $filepath = $dir . $file;
-                    if (ends_with($file, '.php') && is_file($filepath)) {
-                        require $filepath;
-                    }
+            $router = $this->getRouter();
+            $handle = opendir($dir);
+            while (false !== ($file = readdir($handle))) {
+                $filepath = $dir . $file;
+                if (ends_with($file, '.php') && is_file($filepath)) {
+                    require $filepath;
                 }
-            });
+            }
         }
     }
 }
