@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-02 18:51:00 +0800
+ * @version  2019-09-02 23:00:21 +0800
  */
 
 namespace Teddy;
@@ -104,10 +104,8 @@ class App extends Container
         return $this;
     }
 
-    public function run(
-        SwooleRequest $swooleRequest,
-        SwooleResponse $swooleResponse
-    ): void {
+    public function run(SwooleRequest $swooleRequest, SwooleResponse $swooleResponse): void
+    {
         $request = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
         $response = $this->slimApp->handle($request);
         $responseEmitter = new ResponseEmitter($swooleResponse);
