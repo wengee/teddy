@@ -68,7 +68,7 @@ class App extends Container
 
     public function getName(): string
     {
-        return $this->get('config')->get('app.name') ?: 'Teddy App';
+        return $this->config->get('app.name') ?: 'Teddy App';
     }
 
     public function setBasePath(string $basePath): self
@@ -116,7 +116,7 @@ class App extends Container
 
     public function listen(): void
     {
-        $config = $this->get('config')->get('swoole', []);
+        $config = $this->config->get('swoole', []);
         (new Server($this, $config))->start();
     }
 
@@ -218,6 +218,7 @@ class App extends Container
         $dir = $this->basePath . 'routes/';
         if (is_dir($dir)) {
             $this->slimApp->getRouteCollector()->group([
+                'pattern' => $this->config->get('app.urlPrefix', ''),
                 'namespace' => 'App\\Controllers',
             ], function ($router) use ($dir): void {
                 $handle = opendir($dir);
