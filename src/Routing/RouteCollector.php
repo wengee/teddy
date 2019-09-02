@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-02 18:36:45 +0800
  */
 
 namespace Teddy\Routing;
@@ -41,7 +41,7 @@ class RouteCollector extends SlimRouteCollector
         $this->routeGroups[] = $routeGroup;
 
         $routeGroup->collectRoutes();
-        array_shift($this->routeGroups);
+        array_pop($this->routeGroups);
 
         return $routeGroup;
     }

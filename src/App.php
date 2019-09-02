@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-31 10:38:45 +0800
+ * @version  2019-09-02 18:51:00 +0800
  */
 
 namespace Teddy;
@@ -14,16 +14,10 @@ use Illuminate\Config\Repository as ConfigRepository;
 use League\Event\Emitter as EventEmitter;
 use League\Event\ListenerInterface;
 use Phar;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Interfaces\RouteCollectorProxyInterface;
+use Slim\App as SlimApp;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
-use Slim\MiddlewareDispatcher;
-use Slim\Routing\RouteResolver;
-use Slim\Routing\RouteRunner;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Teddy\Database\Manager as DatabaseManager;
@@ -36,51 +30,32 @@ use Teddy\Jwt\Manager as JwtManager;
 use Teddy\Logger\Logger;
 use Teddy\Model\Manager as ModelManager;
 use Teddy\Redis\Manager as RedisManager;
-use Teddy\Routing\RouteCollectorProxy;
+use Teddy\Routing\RouteCollector;
 use Teddy\Swoole\Server;
 
-class App extends Container implements RequestHandlerInterface
+class App extends Container
 {
     protected $basePath = '';
 
-    protected $responseFactory;
-
-    protected $callableResolver;
-
-    protected $middlewareDispatcher;
-
-    protected $router;
+    protected $slimApp;
 
     protected $config;
 
     public function __construct(string $basePath, string $envFile = '.env')
     {
+        $responseFactory = new ResponseFactory;
+        $callableResolver = new CallableResolver($this);
+        $routeCollector = new RouteCollector($responseFactory, $callableResolver, $this);
+        $this->slimApp = new SlimApp(
+            $responseFactory,
+            $this,
+            $callableResolver,
+            $routeCollector
+        );
+
         static::setInstance($this);
         $this->loadEnvironments($envFile);
-
         $this->setBasePath($basePath);
-        $this->responseFactory = new ResponseFactory;
-        $this->callableResolver = new CallableResolver($this);
-
-        $router = new RouteCollectorProxy(
-            $this->responseFactory,
-            $this->callableResolver,
-            $this
-        );
-        $router->setNamespace('App\\Controllers');
-        $this->router = $router;
-
-        $routeResolver = new RouteResolver($this->router->getRouteCollector());
-        $routeRunner = new RouteRunner(
-            $routeResolver,
-            $this->router->getRouteCollector()->getRouteParser()
-        );
-        $this->middlewareDispatcher = new MiddlewareDispatcher(
-            $routeRunner,
-            $this->callableResolver,
-            $this
-        );
-
         $this->loadConfigure();
         $this->bootstrapContainer();
         $this->loadRoutes();
@@ -117,20 +92,15 @@ class App extends Container implements RequestHandlerInterface
         return $this->getBasePath();
     }
 
-    public function getRouter(): RouteCollectorProxyInterface
-    {
-        return $this->router;
-    }
-
     public function add($middleware): self
     {
-        $this->middlewareDispatcher->add($middleware);
+        $this->slimApp->add($middleware);
         return $this;
     }
 
     public function addMiddleware(MiddlewareInterface $middleware): self
     {
-        $this->middlewareDispatcher->addMiddleware($middleware);
+        $this->slimApp->addMiddleware($middleware);
         return $this;
     }
 
@@ -139,21 +109,9 @@ class App extends Container implements RequestHandlerInterface
         SwooleResponse $swooleResponse
     ): void {
         $request = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
-        $response = $this->handle($request);
+        $response = $this->slimApp->handle($request);
         $responseEmitter = new ResponseEmitter($swooleResponse);
         $responseEmitter->emit($response);
-    }
-
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        $response = $this->middlewareDispatcher->handle($request);
-        $method = strtoupper($request->getMethod());
-        if ($method === 'HEAD') {
-            $emptyBody = $this->responseFactory->createResponse()->getBody();
-            return $response->withBody($emptyBody);
-        }
-
-        return $response;
     }
 
     public function listen(): void
@@ -164,25 +122,12 @@ class App extends Container implements RequestHandlerInterface
 
     public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
     {
-        $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
-        $this->add($bodyParsingMiddleware);
-        return $bodyParsingMiddleware;
+        return $this->slimApp->addBodyParsingMiddleware($bodyParsers);
     }
 
-    public function addErrorMiddleware(
-        bool $displayErrorDetails,
-        bool $logErrors,
-        bool $logErrorDetails
-    ): ErrorMiddleware {
-        $errorMiddleware = new ErrorMiddleware(
-            $this->callableResolver,
-            $this->responseFactory,
-            $displayErrorDetails,
-            $logErrors,
-            $logErrorDetails
-        );
-        $this->add($errorMiddleware);
-        return $errorMiddleware;
+    public function addErrorMiddleware(bool $displayErrorDetails, bool $logErrors, bool $logErrorDetails): ErrorMiddleware
+    {
+        return $this->slimApp->addErrorMiddleware($displayErrorDetails, $logErrors, $logErrorDetails);
     }
 
     public function addEventListeners(array $list): void
@@ -272,14 +217,17 @@ class App extends Container implements RequestHandlerInterface
     {
         $dir = $this->basePath . 'routes/';
         if (is_dir($dir)) {
-            $router = $this->getRouter();
-            $handle = opendir($dir);
-            while (false !== ($file = readdir($handle))) {
-                $filepath = $dir . $file;
-                if (ends_with($file, '.php') && is_file($filepath)) {
-                    require $filepath;
+            $this->slimApp->getRouteCollector()->group([
+                'namespace' => 'App\\Controllers',
+            ], function ($router) use ($dir): void {
+                $handle = opendir($dir);
+                while (false !== ($file = readdir($handle))) {
+                    $filepath = $dir . $file;
+                    if (ends_with($file, '.php') && is_file($filepath)) {
+                        require $filepath;
+                    }
                 }
-            }
+            });
         }
     }
 }
