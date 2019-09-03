@@ -3,21 +3,19 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-02 23:00:21 +0800
+ * @version  2019-09-03 10:23:27 +0800
  */
 
 namespace Teddy;
 
+use BadMethodCallException;
 use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
 use League\Event\Emitter as EventEmitter;
 use League\Event\ListenerInterface;
 use Phar;
-use Psr\Http\Server\MiddlewareInterface;
 use Slim\App as SlimApp;
-use Slim\Middleware\BodyParsingMiddleware;
-use Slim\Middleware\ErrorMiddleware;
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
 use Teddy\Database\Manager as DatabaseManager;
@@ -37,23 +35,23 @@ class App extends Container
 {
     protected $basePath = '';
 
-    protected $slimApp;
+    protected $slimInstance;
 
     protected $config;
 
     public function __construct(string $basePath, string $envFile = '.env')
     {
+        static::setInstance($this);
         $responseFactory = new ResponseFactory;
         $callableResolver = new CallableResolver($this);
         $routeCollector = new RouteCollector($responseFactory, $callableResolver, $this);
-        $this->slimApp = new SlimApp(
+        $this->slimInstance = new SlimApp(
             $responseFactory,
             $this,
             $callableResolver,
             $routeCollector
         );
 
-        static::setInstance($this);
         $this->loadEnvironments($envFile);
         $this->setBasePath($basePath);
         $this->loadConfigure();
@@ -61,9 +59,18 @@ class App extends Container
         $this->loadRoutes();
     }
 
-    public static function create(string $basePath = ''): self
+    public static function create(string $basePath = '', string $envFile = '.env'): self
     {
-        return new static($basePath);
+        return new static($basePath, $envFile);
+    }
+
+    public function __call(string $method, array $args = [])
+    {
+        if (method_exists($this->slimInstance, $method)) {
+            return $this->slimInstance->{$method}(...$args);
+        }
+
+        throw new BadMethodCallException("Call to undefined method: $method");
     }
 
     public function getName(): string
@@ -92,22 +99,10 @@ class App extends Container
         return $this->getBasePath();
     }
 
-    public function add($middleware): self
-    {
-        $this->slimApp->add($middleware);
-        return $this;
-    }
-
-    public function addMiddleware(MiddlewareInterface $middleware): self
-    {
-        $this->slimApp->addMiddleware($middleware);
-        return $this;
-    }
-
     public function run(SwooleRequest $swooleRequest, SwooleResponse $swooleResponse): void
     {
         $request = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
-        $response = $this->slimApp->handle($request);
+        $response = $this->slimInstance->handle($request);
         $responseEmitter = new ResponseEmitter($swooleResponse);
         $responseEmitter->emit($response);
     }
@@ -116,16 +111,6 @@ class App extends Container
     {
         $config = $this->config->get('swoole', []);
         (new Server($this, $config))->start();
-    }
-
-    public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
-    {
-        return $this->slimApp->addBodyParsingMiddleware($bodyParsers);
-    }
-
-    public function addErrorMiddleware(bool $displayErrorDetails, bool $logErrors, bool $logErrorDetails): ErrorMiddleware
-    {
-        return $this->slimApp->addErrorMiddleware($displayErrorDetails, $logErrors, $logErrorDetails);
     }
 
     public function addEventListeners(array $list): void
@@ -160,6 +145,7 @@ class App extends Container
     protected function bootstrapContainer(): void
     {
         $this->instance('app', $this);
+        $this->instance('slim', $this->slimInstance);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
         $this->bind('logger', Logger::class);
@@ -186,8 +172,6 @@ class App extends Container
     protected function loadConfigure(): void
     {
         $config = new ConfigRepository;
-        $this->instance('config', $config);
-
         $dir = $this->basePath . 'config/';
         if (is_dir($dir)) {
             $handle = opendir($dir);
@@ -201,6 +185,7 @@ class App extends Container
         }
 
         $this->config = $config;
+        $this->instance('config', $config);
     }
 
     protected function loadEnvironments(string $file = '.env'): void
@@ -215,7 +200,7 @@ class App extends Container
     {
         $dir = $this->basePath . 'routes/';
         if (is_dir($dir)) {
-            $this->slimApp->getRouteCollector()->group([
+            $this->slimInstance->getRouteCollector()->group([
                 'pattern' => $this->config->get('app.urlPrefix', ''),
                 'namespace' => 'App\\Controllers',
             ], function ($router) use ($dir): void {

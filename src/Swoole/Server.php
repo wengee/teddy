@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 16:28:11 +0800
+ * @version  2019-09-03 09:50:59 +0800
  */
 
 namespace Teddy\Swoole;
@@ -17,6 +17,7 @@ use Swoole\Process;
 use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Websocket\Server as WebsocketServer;
+use Teddy\App;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
 use Teddy\Schedule\ScheduleProcess;
@@ -27,7 +28,7 @@ defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
 class Server
 {
-    protected $name = 'Teddy App';
+    protected $name = 'Teddy Server';
 
     protected $swoole;
 
@@ -35,7 +36,7 @@ class Server
 
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
-    public function __construct($app, array $config = [])
+    public function __construct(App $app, array $config = [])
     {
         $this->app = $app;
         $this->name = $app->getName();
