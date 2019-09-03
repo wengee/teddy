@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 14:35:17 +0800
+ * @version  2019-09-03 15:14:29 +0800
  */
 
 namespace Teddy\Model;
@@ -59,6 +59,11 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
     }
 
     public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    public function toArray(): array
     {
         return array_map(function ($value) {
             if ($value instanceof JsonSerializable) {
