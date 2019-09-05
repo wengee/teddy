@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-05 14:23:48 +0800
  */
 
 namespace Teddy\Validation;
 
 use Closure;
+use Exception;
 use RuntimeException;
 use Teddy\Filter;
 use Teddy\Interfaces\ValidatorRuleInterface;
@@ -147,7 +148,7 @@ class Validator
         return $this;
     }
 
-    public function validate(array $data, array $filterd = [])
+    public function validate(array $data, array $filterd = [], bool $quiet = false)
     {
         if (is_null($this->tip)) {
             $this->seedHandlerStack();
@@ -156,8 +157,17 @@ class Validator
         $start = $this->tip;
         $value = array_get($data, $this->field);
         if ($this->checkCondition($value, $data)) {
-            $value = $this->filterValue($value);
-            $value = $start($value, $data);
+            try {
+                $value = $this->filterValue($value);
+                $value = $start($value, $data);
+            } catch (Exception $e) {
+                if ($quiet) {
+                    $value = null;
+                } else {
+                    throw $e;
+                }
+            }
+
             array_set($filterd, $this->field, $value);
         }
 

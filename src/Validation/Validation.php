@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-05 14:24:58 +0800
  */
 
 namespace Teddy\Validation;
@@ -28,11 +28,6 @@ class Validation
     public static function make(array $rules = [])
     {
         return new self($rules);
-    }
-
-    public static function check(array $data, array $rules = [])
-    {
-        return self::instance()->validate($data, $rules);
     }
 
     public function add(string $field, $validator = null)
@@ -61,7 +56,7 @@ class Validation
         return $this;
     }
 
-    public function validate(array $data, array $rules = [])
+    public function validate(array $data, array $rules = [], bool $quiet = false)
     {
         if (method_exists($this, 'beforeValidate')) {
             $this->beforeValidate($data);
@@ -79,7 +74,7 @@ class Validation
 
         $filtered = [];
         foreach ($rules as $validator) {
-            $filtered = $validator->validate($data, $filtered);
+            $filtered = $validator->validate($data, $filtered, $quiet);
         }
 
         if (method_exists($this, 'afterValidate')) {
@@ -87,5 +82,10 @@ class Validation
         }
 
         return $filtered;
+    }
+
+    public function check(array $data, array $rules = [])
+    {
+        return $this->validate($data, $rules, true);
     }
 }
