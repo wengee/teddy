@@ -3,12 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-05 11:28:01 +0800
  */
 
 namespace Teddy\Http;
 
+use Exception;
 use Fig\Http\Message\StatusCodeInterface;
+use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Slim\Psr7\Response as SlimResponse;
