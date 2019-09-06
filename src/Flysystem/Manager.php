@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-06 18:29:05 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -32,7 +32,7 @@ class Manager
 
     public function __construct()
     {
-        $config = config('jwt');
+        $config = config('flysystem');
         if ($config && is_array($config)) {
             $this->config = $config;
         }
