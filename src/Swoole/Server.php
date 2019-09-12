@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-03 09:50:59 +0800
+ * @version  2019-09-12 10:15:20 +0800
  */
 
 namespace Teddy\Swoole;
@@ -38,6 +38,14 @@ class Server
 
     public function __construct(App $app, array $config = [])
     {
+        if (version_compare(PHP_VERSION, '7.3.0') < 0) {
+            throw new Exception('Teddy require PHP 7.3 or newer.');
+        }
+
+        if (version_compare(SWOOLE_VERSION, '4.4.0') < 0) {
+            throw new Exception('Teddy require swoole 4.4.0 or newer.');
+        }
+
         $this->app = $app;
         $this->name = $app->getName();
 
