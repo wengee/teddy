@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-05 14:23:48 +0800
+ * @version  2019-09-16 16:36:33 +0800
  */
 
 namespace Teddy\Validation;
@@ -199,7 +199,7 @@ class Validator
         $ret = false;
         switch ($this->condition['type']) {
             case 2:
-                $ret = (bool) value($this->condition['func']);
+                $ret = (bool) call_user_func($this->condition['func'], $data);
                 break;
 
             case 1:
