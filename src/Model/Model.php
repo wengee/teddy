@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-17 17:19:15 +0800
+ * @version  2019-09-17 17:19:36 +0800
  */
 
 namespace Teddy\Model;
@@ -65,7 +65,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         return (object) $this->toArray($this->hidden, true);
     }
 
-    public function toArray(array $keys = [], bool $exclude = false): array
+    public function toArray(array $keys = [], bool $except = false): array
     {
         $values = array_map(function ($value) {
             if ($value instanceof ArrayableInterface) {
@@ -82,7 +82,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         }, ARRAY_FILTER_USE_KEY));
 
         if ($keys) {
-            $values = $exclude ? array_except($values, $keys) : array_only($values, $keys);
+            $values = $except ? array_except($values, $keys) : array_only($values, $keys);
         }
 
         return $values;
