@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-12 09:46:47 +0800
+ * @version  2019-09-17 17:19:15 +0800
  */
 
 namespace Teddy\Model;
@@ -23,6 +23,8 @@ use Teddy\Interfaces\JsonableInterface;
 abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 {
     protected $items = [];
+
+    protected $hidden = [];
 
     protected $isNewRecord = true;
 
@@ -60,24 +62,30 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
     public function jsonSerialize(): object
     {
-        return (object) $this->toArray();
+        return (object) $this->toArray($this->hidden, true);
     }
 
-    public function toArray(): array
+    public function toArray(array $keys = [], bool $exclude = false): array
     {
-        return array_map(function ($value) {
-            if ($value instanceof JsonSerializable) {
+        $values = array_map(function ($value) {
+            if ($value instanceof ArrayableInterface) {
+                return $value->toArray();
+            } elseif ($value instanceof JsonSerializable) {
                 return $value->jsonSerialize();
             } elseif ($value instanceof JsonableInterface) {
                 return json_decode($value->toJson(), true);
-            } elseif ($value instanceof ArrayableInterface) {
-                return $value->toArray();
             }
 
             return $value;
         }, array_filter($this->items, function ($key) {
             return !is_string($key) || $key{0} !== '_';
         }, ARRAY_FILTER_USE_KEY));
+
+        if ($keys) {
+            $values = $exclude ? array_except($values, $keys) : array_only($values, $keys);
+        }
+
+        return $values;
     }
 
     public function serialize(): string
