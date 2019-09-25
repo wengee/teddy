@@ -10,6 +10,7 @@
         "illuminate/support": "^5.8",
         "illuminate/config": "^5.8",
         "vlucas/phpdotenv": "^3.4",
+        "phpoption/phpoption": "^1.5",
         "monolog/monolog": "^1.24",
         "doctrine/annotations": "^1.6",
         "firebase/php-jwt": "^5.0",

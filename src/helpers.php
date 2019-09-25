@@ -3,10 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 11:27:06 +0800
+ * @version  2019-09-25 23:31:21 +0800
  */
 
-use Illuminate\Support\Str;
+use Dotenv\Environment\Adapter\EnvConstAdapter;
+use Dotenv\Environment\Adapter\PutenvAdapter;
+use Dotenv\Environment\Adapter\ServerConstAdapter;
+use Dotenv\Environment\DotenvFactory;
+use PhpOption\Option;
 use Teddy\Container;
 
 if (!function_exists('make')) {
@@ -170,45 +174,81 @@ if (!function_exists('config')) {
     }
 }
 
-if (!function_exists('env')) {
+if (!function_exists('env_get')) {
     /**
      * Gets the value of an environment variable. Supports boolean, empty and null.
      *
      * @param  string|null  $key
      * @param  mixed  $default
+     * @param  string|array  $options
      * @return mixed
      */
-    function env($key, $default = null)
+    function env_get($key, $default = null, $options = null)
     {
-        $value = getenv($key);
+        static $variables;
 
-        if ($value === false) {
-            return value($default);
+        if ($variables === null) {
+            $variables = (new DotenvFactory([new EnvConstAdapter, new PutenvAdapter, new ServerConstAdapter]))->createImmutable();
         }
 
-        switch (strtolower($value)) {
-            case 'true':
-            case '(true)':
-                return true;
+        return Option::fromValue($variables->get($key))
+            ->map(function ($value) use ($options) {
+                $filter = null;
+                $separator = ',';
 
-            case 'false':
-            case '(false)':
-                return false;
+                if (is_string($options)) {
+                    $filter = $options;
+                } elseif (is_array($options)) {
+                    if (isset($options['separator'])) {
+                        $separator = $options['separator'];
+                        $filter = 'list';
+                    } else {
+                        $filter = $options['filter'] ?? $filter;
+                    }
+                }
 
-            case 'empty':
-            case '(empty)':
-                return '';
+                if ($filter) {
+                    switch ($filter) {
+                        case 'int':
+                        case 'integer':
+                            return intval($value);
 
-            case 'null':
-            case '(null)':
-                return;
-        }
+                        case 'float':
+                        case 'double':
+                            return floatval($value);
 
-        if (Str::startsWith($value, '"') && Str::endsWith($value, '"')) {
-            return substr($value, 1, -1);
-        }
+                        case 'json':
+                            return json_decode($value, true);
 
-        return $value;
+                        case 'list':
+                            return explode($separator, $value);
+                    }
+                }
+
+                switch (strtolower($value)) {
+                    case 'true':
+                    case '(true)':
+                        return true;
+                    case 'false':
+                    case '(false)':
+                        return false;
+                    case 'empty':
+                    case '(empty)':
+                        return '';
+                    case 'null':
+                    case '(null)':
+                        return;
+                }
+
+                if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
+                    return $matches[2];
+                }
+
+                return $value;
+            })
+            ->getOrCall(function () use ($default) {
+                return value($default);
+            });
     }
 }
 
