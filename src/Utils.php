@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-26 12:59:55 +0800
  */
 
 namespace Teddy;
@@ -73,10 +73,10 @@ class Utils
 
     public static function humanFilesize(int $bytes, int $decimals = 3)
     {
-        $factor = floor((strlen($bytes) - 1) / 3);
+        $factor = floor((strlen(strval($bytes)) - 1) / 3);
         if ($factor > 0) {
             $sz = 'KMGT';
         }
-        return sprintf("%.{$decimals}f", $bytes / 1024** $factor) . @$sz[$factor - 1] . 'B';
+        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor) . @$sz[$factor - 1] . 'B';
     }
 }
