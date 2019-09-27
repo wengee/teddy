@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-27 14:09:09 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -23,6 +23,10 @@ class JsonColumn extends Column
 
     public function value($value)
     {
-        return json_decode($value, !$this->asObject);
+        if (is_string($value) && $value) {
+            return json_decode($value, !$this->asObject);
+        }
+
+        return null;
     }
 }
