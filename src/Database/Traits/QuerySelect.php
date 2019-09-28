@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-09-28 11:44:47 +0800
  */
 
 namespace Teddy\Database\Traits;
@@ -93,9 +93,37 @@ trait QuerySelect
         return new Paginator($items, $total, $pageSize, $page);
     }
 
-    public function count(string $column = '*', string $as = null)
+    public function count(string $column = '*')
     {
         $sql = 'COUNT(' . $this->toDbColumn($column) . ')';
+        $this->columns = [new RawSQL($sql)];
+        return $this->fetchColumn();
+    }
+
+    public function max(string $column)
+    {
+        $sql = 'MAX(' . $this->toDbColumn($column) . ')';
+        $this->columns = [new RawSQL($sql)];
+        return $this->fetchColumn();
+    }
+
+    public function min(string $column)
+    {
+        $sql = 'MIN(' . $this->toDbColumn($column) . ')';
+        $this->columns = [new RawSQL($sql)];
+        return $this->fetchColumn();
+    }
+
+    public function avg(string $column)
+    {
+        $sql = 'AVG(' . $this->toDbColumn($column) . ')';
+        $this->columns = [new RawSQL($sql)];
+        return $this->fetchColumn();
+    }
+
+    public function sum(string $column)
+    {
+        $sql = 'SUM(' . $this->toDbColumn($column) . ')';
         $this->columns = [new RawSQL($sql)];
         return $this->fetchColumn();
     }
