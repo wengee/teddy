@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 17:21:56 +0800
+ * @version  2019-09-28 10:44:04 +0800
  */
 
 namespace Teddy\Http;
@@ -119,6 +119,17 @@ class Request extends SlimRequest implements ArrayAccess
     {
         $serverParams = $this->getServerParams();
         return $serverParams[$key] ?? $default;
+    }
+
+    public function getCookieParam($key, $default = null)
+    {
+        $cookieParams = $this->getCookieParams();
+        $result = $default;
+        if (isset($cookieParams[$key])) {
+            $result = $cookieParams[$key];
+        }
+
+        return $result;
     }
 
     public function getQueryParam($key, $default = null)

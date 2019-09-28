@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-05 11:28:01 +0800
+ * @version  2019-09-28 10:42:49 +0800
  */
 
 namespace Teddy\Http;
@@ -89,7 +89,7 @@ class Response extends SlimResponse
         }
 
         $clone = clone $this;
-        $domain = $domain ?: config('cookie.domain');
+        $domain = $domain ?: config('cookie.domain', '');
         $clone->cookies[$name] = compact('value', 'expire', 'path', 'domain', 'secure', 'httponly');
         return $clone;
     }
