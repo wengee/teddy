@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-07 15:14:14 +0800
+ * @version  2019-10-07 15:26:53 +0800
  */
 
 use Dotenv\Environment\Adapter\EnvConstAdapter;
@@ -277,7 +277,7 @@ if (!function_exists('log_message')) {
     {
         $logger = app('logger');
         if ($logger) {
-            $logger->log($level, sprintf($message, ...$data));
+            $logger->log($level, $data ? sprintf($message, ...$data) : $message);
         }
     }
 }
