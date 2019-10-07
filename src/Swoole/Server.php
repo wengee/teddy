@@ -173,11 +173,11 @@ class Server
             Utils::setProcessTitle($name, $appName);
 
             Process::signal(SIGUSR1, function ($signo) use ($name, $process, $worker, $swoole): void {
-                log_message('info', 'Reloading the process %s [pid=%d].', [$name, $worker->pid]);
+                log_message('info', 'Reloading the process %s [pid=%d].', $name, $worker->pid);
                 $process->onReload($swoole, $worker);
             });
 
-            log_message('info', 'Run the process %s [pid=%d].', [$name, $worker->pid]);
+            log_message('info', 'Run the process %s [pid=%d].', $name, $worker->pid);
             safe_call([$process, 'handle'], [$swoole, $worker]);
         };
 
