@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-25 23:31:21 +0800
+ * @version  2019-10-07 15:14:14 +0800
  */
 
 use Dotenv\Environment\Adapter\EnvConstAdapter;
@@ -273,10 +273,10 @@ if (!function_exists('log_message')) {
      * @param array $data
      * @return void
      */
-    function log_message($level, string $message, array $data = []): void
+    function log_message($level, string $message, ...$data): void
     {
         $logger = app('logger');
-        if (!$logger) {
+        if ($logger) {
             $logger->log($level, sprintf($message, ...$data));
         }
     }
@@ -292,7 +292,7 @@ if (!function_exists('log_exception')) {
     function log_exception(Exception $e, string $prefix = ''): void
     {
         $logger = app('logger');
-        if (!$logger) {
+        if ($logger) {
             $logger->error(sprintf(
                 '%sUncaught exception "%s": [%d]%s called in %s:%d%s%s',
                 $prefix,
