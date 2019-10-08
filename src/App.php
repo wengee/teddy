@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 17:54:15 +0800
+ * @version  2019-10-08 22:25:38 +0800
  */
 
 namespace Teddy;
@@ -55,11 +55,11 @@ class App extends Container
             $routeCollector
         );
 
-        $this->loadEnvironments($envFile);
         $this->setBasePath($basePath);
+        $this->loadEnvironments($envFile);
         $this->loadConfigure();
-        $this->bootstrapContainer();
         $this->loadRoutes();
+        $this->bootstrap();
     }
 
     public static function create(string $basePath = '', string $envFile = '.env'): self
@@ -162,30 +162,30 @@ class App extends Container
         return false;
     }
 
-    protected function bootstrapContainer(): void
+    public function bootstrap(): void
     {
         $this->instance('app', $this);
         $this->instance('slim', $this->slimInstance);
+        $this->instance('logger', new Logger);
+        $this->instance('events', new EventEmitter);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
-        $this->bind('logger', Logger::class);
-        $this->bind('events', EventEmitter::class);
 
         if ($this->config->has('database')) {
-            $this->bind('db', DatabaseManager::class);
-            $this->bind('modelManager', ModelManager::class);
+            $this->instance('db', new DatabaseManager);
+            $this->instance('modelManager', new ModelManager);
         }
 
         if ($this->config->has('redis')) {
-            $this->bind('redis', RedisManager::class);
+            $this->instance('redis', new RedisManager);
         }
 
         if ($this->config->has('jwt')) {
-            $this->bind('jwt', JwtManager::class);
+            $this->instance('jwt', new JwtManager);
         }
 
         if ($this->config->has('flysystem')) {
-            $this->bind('fs', FlysystemManager::class);
+            $this->instance('fs', new FlysystemManager);
         }
     }
 

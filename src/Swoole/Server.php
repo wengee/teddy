@@ -77,6 +77,7 @@ class Server
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
+        $this->app->bootstrap();
         $workerNum = array_get($this->config, 'options.worker_num', 1);
         if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
