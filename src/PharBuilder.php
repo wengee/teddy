@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-10-08 15:32:53 +0800
  */
 
 namespace Teddy;
@@ -34,6 +34,7 @@ class PharBuilder
             'clear'         => false,
             'copy'          => [],
             'compress'      => 'none',
+            'extensions'    => [],
         ]))->update($extraOptions);
     }
 
@@ -101,7 +102,11 @@ class PharBuilder
 
         $realpath = $this->joinPaths($this->basePath, $path);
         if (is_file($realpath)) {
-            $files[$path] = $realpath;
+            $pos = strrpos($realpath, '.');
+            $ext = ($pos === false) ? false : substr($realpath, $pos + 1);
+            if ($ext === 'php' || in_array($ext, $this->options['extensions'])) {
+                $files[$path] = $realpath;
+            }
         } elseif (is_dir($realpath)) {
             if ($dh = opendir($realpath)) {
                 while (($file = readdir($dh)) !== false) {

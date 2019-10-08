@@ -11,6 +11,7 @@ namespace Teddy\Model;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Exception;
+use Teddy\App;
 
 class Manager
 {
@@ -45,9 +46,8 @@ class Manager
 
     protected function registerLoader(): void
     {
-        $loaderFile = vendor_path('autoload.php');
-        if ($loaderFile && is_file($loaderFile)) {
-            $loader = require $loaderFile;
+        $loader = App::getLoader();
+        if ($loader) {
             AnnotationRegistry::registerLoader([$loader, 'loadClass']);
         }
     }
