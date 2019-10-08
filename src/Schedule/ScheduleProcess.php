@@ -26,7 +26,7 @@ class ScheduleProcess implements ProcessInterface
 
     public function getName(): string
     {
-        return 'schedule';
+        return 'schedule process';
     }
 
     public function enableCoroutine(): bool

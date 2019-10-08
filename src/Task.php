@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 11:50:58 +0800
+ * @version  2019-10-08 23:43:40 +0800
  */
 
 namespace Teddy;
@@ -11,7 +11,6 @@ namespace Teddy;
 use Exception;
 use InvalidArgumentException;
 use Swoole\Timer;
-use Teddy\Swoole\Coroutine;
 
 abstract class Task
 {
@@ -39,6 +38,24 @@ abstract class Task
      * @var mixed
      */
     protected $result = false;
+
+    final public static function deliver(Task $task): void
+    {
+        $deliver = function () use ($task): void {
+            app('swoole')->task($task);
+        };
+
+        if (defined('IN_SWOOLE') && IN_SWOOLE && $task->getDelay() > 0) {
+            Timer::after($task->getDelay() * 1000, $deliver);
+        } else {
+            $deliver();
+        }
+    }
+
+    final public function getDelay(): float
+    {
+        return (float) $this->delay;
+    }
 
     final public function delay(float $delay): self
     {
@@ -89,7 +106,7 @@ abstract class Task
         if ($this->isWaiting()) {
             return $this->sendWait();
         } else {
-            $this->deliver();
+            static::deliver($this);
         }
     }
 
@@ -149,19 +166,6 @@ abstract class Task
         $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
         $redis->delete($cacheKey);
         return true;
-    }
-
-    protected function deliver()
-    {
-        $deliver = function (): void {
-            app('swoole')->task($this);
-        };
-
-        if (defined('IN_SWOOLE') && IN_SWOOLE && $this->delay > 0) {
-            return Timer::after($this->delay * 1000, $deliver);
-        } else {
-            $deliver();
-        }
     }
 
     abstract protected function handle();

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 22:55:29 +0800
+ * @version  2019-10-08 23:31:50 +0800
  */
 
 namespace Teddy\Swoole;
@@ -30,8 +30,6 @@ class Server
 {
     protected $name = 'Teddy Server';
 
-    protected $basePath;
-
     protected $swoole;
 
     protected $app;
@@ -50,8 +48,9 @@ class Server
             throw new Exception('Teddy require swoole 4.4.0 or newer.');
         }
 
+        $this->app = $app;
         $this->name = $app->getName();
-        $this->basePath = $app->getBasePath();
+
         $this->init($config);
     }
 
@@ -73,24 +72,21 @@ class Server
 
     public function onStart(HttpServer $server): void
     {
+        $this->app->emitEvent('server.onStart');
     }
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
-        $this->initApp();
         $workerNum = array_get($this->config, 'options.worker_num', 1);
         if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
-
             $processName = 'task worker process';
-            Runtime::enableCoroutine(true, $this->coroutineFlags);
         } else {
             $this->app->emitEvent('server.onWorkerStart');
-
             $processName = 'worker process';
-            Runtime::enableCoroutine(true, $this->coroutineFlags);
         }
 
+        Runtime::enableCoroutine(true, $this->coroutineFlags);
         Utils::setProcessTitle($processName, $this->name);
     }
 
@@ -161,7 +157,6 @@ class Server
 
     public function addProcess(ProcessInterface $process): Process
     {
-        $this->initApp();
         $swoole = $this->swoole;
         $appName = $this->getName();
         $enableCoroutine = $process->enableCoroutine();
@@ -269,6 +264,9 @@ class Server
         $options['task_enable_coroutine'] = true;
         $this->swoole->set($options);
 
+        $this->app->instance('server', $this);
+        $this->app->instance('swoole', $this->swoole);
+
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
         $this->swoole->on('request', [$this, 'onRequest']);
@@ -299,6 +297,8 @@ class Server
             'task_worker_num' => $cpuNum * 2,
             'dispatch_mode' => 1,
             'daemonize' => 0,
+            'enable_coroutine' => true,
+            'task_enable_coroutine' => true,
         ];
 
         if (isset($config['options']) && is_array($config['options'])) {
@@ -312,31 +312,11 @@ class Server
             'schedule' => null,
             'processes' => null,
 
-            'options' => [
-                'reactor_num' => $cpuNum * 2,
-                'worker_num' => $cpuNum * 2,
-                'task_worker_num' => $cpuNum * 2,
-                'dispatch_mode' => 1,
-                'daemonize' => 0,
-            ],
+            'options' => $options,
         ];
 
         $config['options'] = $options;
         $this->config = $config;
         return $config;
-    }
-
-    protected function initApp(): void
-    {
-        $bootstrapFile = rtrim($this->basePath, '\\/') . DIRECTORY_SEPARATOR . 'bootstrap/app.php';
-        if (file_exists($bootstrapFile)) {
-            $app = require $bootstrapFile;
-        } else {
-            $app = App::create($this->basePath);
-        }
-
-        $this->app = $app;
-        $this->app->instance('server', $this);
-        $this->app->instance('swoole', $this->swoole);
     }
 }
