@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 16:07:32 +0800
+ * @version  2019-10-08 22:32:06 +0800
  */
 
 namespace Teddy\Swoole;
@@ -77,7 +77,6 @@ class Server
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
-        $this->app->bootstrap();
         $workerNum = array_get($this->config, 'options.worker_num', 1);
         if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
