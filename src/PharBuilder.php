@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 15:32:53 +0800
+ * @version  2019-10-08 18:47:55 +0800
  */
 
 namespace Teddy;
@@ -61,15 +61,15 @@ class PharBuilder
         $s = microtime(true);
         $pharFile = $this->joinPaths($this->options['dist'], $this->options['output']);
         if (file_exists($pharFile)) {
-            @unlink($pharFile);
+            Phar::unlinkArchive($pharFile);
         }
 
         $this->phar = new Phar($pharFile, 0, $this->options['output']);
         $this->phar->startBuffering();
 
-        $this->compressFiles();
         $total = $this->addFiles();
         $this->setStub();
+        $this->compressFiles();
 
         $this->phar->stopBuffering();
         $elapsed = sprintf('%.3f', microtime(true) - $s);
@@ -80,7 +80,7 @@ class PharBuilder
 
     protected function addFiles()
     {
-        $files = [];
+        $files = new ArrayIterator;
         foreach ($this->options['directories'] as $dir) {
             $this->addFile($dir, $files);
         }
@@ -89,12 +89,11 @@ class PharBuilder
             $this->addFile($file, $files);
         }
 
-        $files = new ArrayIterator($files);
         $this->phar->buildFromIterator($files);
         return $files->count();
     }
 
-    protected function addFile(string $path, array &$files = [])
+    protected function addFile(string $path, ArrayIterator $files)
     {
         if (!$this->checkPath($path)) {
             return false;
@@ -143,14 +142,10 @@ class PharBuilder
 
     protected function setStub(): void
     {
-        if (is_string($this->options['main'])) {
-            $stub = $this->phar->createDefaultStub($this->options['main']);
-        } elseif (is_array($this->options['main'])) {
-            $args = array_values($this->options['main']);
-            $stub = $this->phar->createDefaultStub(...$args);
-        } else {
-            $stub = $this->phar->createDefaultStub('index.php');
-        }
+        $stub = file_get_contents(__DIR__ . '/phar-cli-stub.php');
+        $stub = strtr($stub, [
+            '{INDEX_FILE}' => $this->options['main'],
+        ]);
 
         if ($this->options['shebang']) {
             $stub = "#!/usr/bin/env php\n" . $stub;

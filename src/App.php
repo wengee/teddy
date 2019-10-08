@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 17:03:33 +0800
+ * @version  2019-10-08 17:54:15 +0800
  */
 
 namespace Teddy;
@@ -34,6 +34,8 @@ use Teddy\Swoole\Server;
 
 class App extends Container
 {
+    protected static $loader;
+
     protected $basePath = '';
 
     protected $slimInstance;
@@ -65,15 +67,21 @@ class App extends Container
         return new static($basePath, $envFile);
     }
 
+    public static function setLoader(ClassLoader $loader): void
+    {
+        self::$loader = $loader;
+    }
+
     public static function getLoader(): ?ClassLoader
     {
-        $loaderFile = vendor_path('autoload.php');
-        if ($loaderFile && is_file($loaderFile)) {
-            $loader = require $loaderFile;
-            return $loader;
+        if (!isset(self::$loader)) {
+            $loaderFile = vendor_path('autoload.php');
+            if ($loaderFile && is_file($loaderFile)) {
+                self::$loader = require $loaderFile;
+            }
         }
 
-        return null;
+        return self::$loader;
     }
 
     public function __call(string $method, array $args = [])
