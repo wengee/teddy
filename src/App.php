@@ -166,26 +166,26 @@ class App extends Container
     {
         $this->instance('app', $this);
         $this->instance('slim', $this->slimInstance);
-        $this->instance('logger', new Logger);
-        $this->instance('events', new EventEmitter);
+        $this->bind('logger', Logger::class);
+        $this->bind('events', EventEmitter::class);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
 
         if ($this->config->has('database')) {
-            $this->instance('db', new DatabaseManager);
-            $this->instance('modelManager', new ModelManager);
+            $this->bind('db', DatabaseManager::class);
+            $this->bind('modelManager', ModelManager::class);
         }
 
         if ($this->config->has('redis')) {
-            $this->instance('redis', new RedisManager);
+            $this->bind('redis', RedisManager::class);
         }
 
         if ($this->config->has('jwt')) {
-            $this->instance('jwt', new JwtManager);
+            $this->bind('jwt', JwtManager::class);
         }
 
         if ($this->config->has('flysystem')) {
-            $this->instance('fs', new FlysystemManager);
+            $this->bind('fs', FlysystemManager::class);
         }
     }
 

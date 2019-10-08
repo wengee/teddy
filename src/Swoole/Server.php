@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 22:32:06 +0800
+ * @version  2019-10-08 22:55:29 +0800
  */
 
 namespace Teddy\Swoole;
@@ -30,6 +30,8 @@ class Server
 {
     protected $name = 'Teddy Server';
 
+    protected $basePath;
+
     protected $swoole;
 
     protected $app;
@@ -48,9 +50,8 @@ class Server
             throw new Exception('Teddy require swoole 4.4.0 or newer.');
         }
 
-        $this->app = $app;
         $this->name = $app->getName();
-
+        $this->basePath = $app->getBasePath();
         $this->init($config);
     }
 
@@ -72,11 +73,11 @@ class Server
 
     public function onStart(HttpServer $server): void
     {
-        $this->app->emitEvent('server.onStart');
     }
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
+        $this->initApp();
         $workerNum = array_get($this->config, 'options.worker_num', 1);
         if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
@@ -160,6 +161,7 @@ class Server
 
     public function addProcess(ProcessInterface $process): Process
     {
+        $this->initApp();
         $swoole = $this->swoole;
         $appName = $this->getName();
         $enableCoroutine = $process->enableCoroutine();
@@ -267,9 +269,6 @@ class Server
         $options['task_enable_coroutine'] = true;
         $this->swoole->set($options);
 
-        $this->app->instance('server', $this);
-        $this->app->instance('swoole', $this->swoole);
-
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
         $this->swoole->on('request', [$this, 'onRequest']);
@@ -325,5 +324,19 @@ class Server
         $config['options'] = $options;
         $this->config = $config;
         return $config;
+    }
+
+    protected function initApp(): void
+    {
+        $bootstrapFile = rtrim($this->basePath, '\\/') . DIRECTORY_SEPARATOR . 'bootstrap/app.php';
+        if (file_exists($bootstrapFile)) {
+            $app = require $bootstrapFile;
+        } else {
+            $app = App::create($this->basePath);
+        }
+
+        $this->app = $app;
+        $this->app->instance('server', $this);
+        $this->app->instance('swoole', $this->swoole);
     }
 }
