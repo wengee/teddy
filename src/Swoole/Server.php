@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-12 10:15:20 +0800
+ * @version  2019-10-08 16:05:16 +0800
  */
 
 namespace Teddy\Swoole;
@@ -28,15 +28,19 @@ defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
 class Server
 {
-    protected $name = 'Teddy Server';
+    protected $name;
+
+    protected $basePath;
 
     protected $swoole;
+
+    protected $app;
 
     protected $config;
 
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
-    public function __construct(App $app, array $config = [])
+    public function __construct(string $basePath)
     {
         if (version_compare(PHP_VERSION, '7.3.0') < 0) {
             throw new Exception('Teddy require PHP 7.3 or newer.');
@@ -46,10 +50,14 @@ class Server
             throw new Exception('Teddy require swoole 4.4.0 or newer.');
         }
 
-        $this->app = $app;
-        $this->name = $app->getName();
-
+        $this->basePath = $basePath;
+        $config = $this->loadConfig();
         $this->init($config);
+    }
+
+    public static function run(string $basePath): void
+    {
+        (new self($basePath))->start();
     }
 
     public function getName(): string
@@ -75,6 +83,7 @@ class Server
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
+        $this->app = $this->loadApp();
         $workerNum = array_get($this->config, 'options.worker_num', 1);
         if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
@@ -158,6 +167,7 @@ class Server
 
     public function addProcess(ProcessInterface $process): Process
     {
+        $this->app = $this->loadApp();
         $swoole = $this->swoole;
         $appName = $this->getName();
         $enableCoroutine = $process->enableCoroutine();
@@ -245,8 +255,6 @@ class Server
 
     protected function init(array $config): void
     {
-        $config = $this->parseConfig($config);
-
         $enableWebsocket = array_pull($config, 'websocket.enable', false);
         $websocketHandler = array_pull($config, 'websocket.handler');
 
@@ -264,9 +272,6 @@ class Server
         $options['enable_coroutine'] = true;
         $options['task_enable_coroutine'] = true;
         $this->swoole->set($options);
-
-        $this->app->instance('server', $this);
-        $this->app->instance('swoole', $this->swoole);
 
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
@@ -289,8 +294,15 @@ class Server
         }
     }
 
-    protected function parseConfig(array $config = []): array
+    protected function loadConfig(): array
     {
+        $configFile = rtrim($this->basePath, '\\/') . DIRECTORY_SEPARATOR . 'config/swoole.php';
+        if (is_file($configFile)) {
+            $config = require $configFile;
+        } else {
+            $config = [];
+        }
+
         $cpuNum = swoole_cpu_num();
         $options = [
             'reactor_num' => $cpuNum * 2,
@@ -322,6 +334,22 @@ class Server
 
         $config['options'] = $options;
         $this->config = $config;
+        $this->name = $config['name'] ?? 'Teddy Server';
         return $config;
+    }
+
+    protected function loadApp(): App
+    {
+        $bootstrapFile = rtrim($this->basePath, '\\/') . DIRECTORY_SEPARATOR . 'bootstrap/app.php';
+        if (is_file($bootstrapFile)) {
+            $app = require $bootstrapFile;
+        } else {
+            $app = App::create($this->basePath);
+        }
+
+        $app->instance('server', $this);
+        $app->instance('swoole', $this->swoole);
+
+        return $app;
     }
 }
