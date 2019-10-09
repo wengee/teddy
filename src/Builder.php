@@ -96,8 +96,9 @@ class Builder
 
         $this->setStub($phar);
         $this->compressFiles($phar);
-
         $phar->stopBuffering();
+
+        file_put_contents($pharFile . '.md5sum', md5_file($pharFile));
         $filesize = Utils::humanFilesize(filesize($pharFile));
         $filesTotal = $files->count();
         chmod($pharFile, 0755);
