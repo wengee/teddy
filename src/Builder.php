@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-09 10:35:50 +0800
+ * @version  2019-10-09 10:55:08 +0800
  */
 
 namespace Teddy;
@@ -170,14 +170,18 @@ class Builder
         $stubFile = $this->options['stub'];
         if ($stubFile) {
             $stubFile = $this->joinPaths($this->basePath, $stubFile);
+            $stub = file_get_contents($stubFile);
         } else {
-            $stubFile = __DIR__ . '/phar-cli-stub.php';
-        }
+            $stub = <<<EOD
+                #!/usr/bin/env php
+                <?php
 
-        $stub = file_get_contents($stubFile);
-        $stub = strtr($stub, [
-            '{INDEX_FILE}' => $this->options['main'],
-        ]);
+                Phar::mapPhar();
+                include 'phar://' . __FILE__ . '/{$this->options['main']}';
+
+                __HALT_COMPILER();
+                EOD;
+        }
 
         $phar->setStub($stub);
     }
