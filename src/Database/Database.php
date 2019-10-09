@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-10-09 20:12:42 +0800
  */
 
 namespace Teddy\Database;
@@ -190,7 +190,7 @@ class Database extends Pool implements DbConnectionInterface
             $this->hasReadOnly = true;
             if (is_array($defaultConf['host'])) {
                 foreach ($defaultConf['host'] as $host) {
-                    $this->readConf[] = ['host' => $host] + $defaultConf;
+                    $this->readConf[] = $this->splitHost($host) + $defaultConf;
                 }
             } else {
                 $this->readConf[] = $defaultConf;
@@ -198,11 +198,24 @@ class Database extends Pool implements DbConnectionInterface
         } elseif ($readOnly === false) {
             if (is_array($defaultConf['host'])) {
                 foreach ($defaultConf['host'] as $host) {
-                    $this->writeConf[] = ['host' => $host] + $defaultConf;
+                    $this->writeConf[] = $this->splitHost($host) + $defaultConf;
                 }
             } else {
                 $this->writeConf[] = $defaultConf;
             }
         }
+    }
+
+    protected function splitHost(string $host): array
+    {
+        $ret = [];
+        if (strpos($host, ':') === false) {
+            $ret['host'] = $host;
+        }
+
+        $arr = explode(':', $host, 2);
+        $ret['host'] = $arr[0];
+        $ret['port'] = intval($arr[1]);
+        return $ret;
     }
 }

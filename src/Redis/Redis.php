@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-09 16:50:18 +0800
+ * @version  2019-10-09 20:13:33 +0800
  */
 
 namespace Teddy\Redis;
@@ -59,10 +59,23 @@ class Redis extends Pool
 
         if (is_array($defaultConf['host'])) {
             foreach ($defaultConf['host'] as $host) {
-                $this->config[] = ['host' => $host] + $defaultConf;
+                $this->config[] = $this->splitHost($host) + $defaultConf;
             }
         } else {
             $this->config[] = $defaultConf;
         }
+    }
+
+    protected function splitHost(string $host): array
+    {
+        $ret = [];
+        if (strpos($host, ':') === false) {
+            $ret['host'] = $host;
+        }
+
+        $arr = explode(':', $host, 2);
+        $ret['host'] = $arr[0];
+        $ret['port'] = intval($arr[1]);
+        return $ret;
     }
 }
