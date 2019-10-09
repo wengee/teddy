@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-09 10:55:08 +0800
+ * @version  2019-10-09 11:04:16 +0800
  */
 
 namespace Teddy;
@@ -69,7 +69,7 @@ class Builder
         }
 
         $elapsed = sprintf('%.3f', microtime(true) - $s);
-        echo "Elapsed time: {$elapsed}s\n";
+        echo "Elapsed time: {$elapsed}s" . PHP_EOL;
     }
 
     protected function makeCopy(ArrayIterator $files): void
