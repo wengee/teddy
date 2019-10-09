@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-26 12:59:55 +0800
+ * @version  2019-10-09 10:41:35 +0800
  */
 
 namespace Teddy;
@@ -27,31 +27,32 @@ class Utils
         }
     }
 
-    public static function xcopy(string $source, string $dest, int $permissions = 0755)
+    public static function xcopy(string $source, string $dest, int $permissions = 0755): void
     {
         if (is_link($source)) {
-            return symlink(readlink($source), $dest);
-        }
-
-        if (is_file($source)) {
-            return copy($source, $dest);
-        }
-
-        if (!is_dir($dest)) {
-            mkdir($dest, $permissions);
-        }
-
-        $dir = dir($source);
-        while (false !== ($entry = $dir->read())) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
+            symlink(readlink($source), $dest);
+        } elseif (is_file($source)) {
+            $destDir = dirname($dest);
+            if (!is_dir($destDir)) {
+                mkdir($destDir, $permissions, true);
             }
 
-            self::xcopy("{$source}/{$entry}", "{$dest}/{$entry}", $permissions);
-        }
+            copy($source, $dest);
+        } elseif (is_dir($source)) {
+            if (!is_dir($dest)) {
+                mkdir($dest, $permissions, true);
+            }
 
-        $dir->close();
-        return true;
+            $dir = dir($source);
+            while (false !== ($entry = $dir->read())) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
+
+                static::xcopy("{$source}/{$entry}", "{$dest}/{$entry}", $permissions);
+            }
+            $dir->close();
+        }
     }
 
     public static function clearDir(string $src): void

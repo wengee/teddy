@@ -33,6 +33,7 @@ return PhpCsFixer\Config::create()
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->exclude('/vendor/*')
+            ->exclude('/src/phar-cli-stub.php')
             ->in(__DIR__)
     )
     ->setUsingCache(false);

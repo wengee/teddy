@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 18:47:55 +0800
+ * @version  2019-10-09 10:35:50 +0800
  */
 
 namespace Teddy;
@@ -11,7 +11,7 @@ namespace Teddy;
 use ArrayIterator;
 use Phar;
 
-class PharBuilder
+class Builder
 {
     protected $phar;
 
@@ -30,8 +30,7 @@ class PharBuilder
             'files'         => [],
             'rules'         => [],
             'exclude'       => [],
-            'shebang'       => true,
-            'clear'         => false,
+            'stub'          => null,
             'copy'          => [],
             'compress'      => 'none',
             'extensions'    => [],
@@ -40,7 +39,7 @@ class PharBuilder
 
     public static function build(string $basePath, array $extraOptions = [])
     {
-        return (new self($basePath, $extraOptions))->run();
+        return (new static($basePath, $extraOptions))->run();
     }
 
     public function run()
@@ -57,30 +56,57 @@ class PharBuilder
             Utils::clearDir($this->options['dist']);
         }
 
-        $this->copyFiles();
         $s = microtime(true);
+        if ($this->options['copy']) {
+            $this->copyFiles($this->options['copy']);
+        }
+
+        $files = $this->addFiles();
+        if ($this->options['output']) {
+            $this->makePhar($files);
+        } else {
+            $this->makeCopy($files);
+        }
+
+        $elapsed = sprintf('%.3f', microtime(true) - $s);
+        echo "Elapsed time: {$elapsed}s\n";
+    }
+
+    protected function makeCopy(ArrayIterator $files): void
+    {
+        foreach ($files as $key => $source) {
+            $dest = $this->joinPaths($this->options['dist'], $key);
+            Utils::xcopy($source, $dest);
+        }
+
+        $filesTotal = $files->count();
+        echo "Copy finished, Total files: {$filesTotal}, ";
+    }
+
+    protected function makePhar(ArrayIterator $files): void
+    {
         $pharFile = $this->joinPaths($this->options['dist'], $this->options['output']);
         if (file_exists($pharFile)) {
             Phar::unlinkArchive($pharFile);
         }
 
-        $this->phar = new Phar($pharFile, 0, $this->options['output']);
-        $this->phar->startBuffering();
+        $phar = new Phar($pharFile, 0, $this->options['output']);
+        $phar->startBuffering();
+        $phar->buildFromIterator($files);
 
-        $total = $this->addFiles();
-        $this->setStub();
-        $this->compressFiles();
+        $this->setStub($phar);
+        $this->compressFiles($phar);
 
-        $this->phar->stopBuffering();
-        $elapsed = sprintf('%.3f', microtime(true) - $s);
+        $phar->stopBuffering();
         $filesize = Utils::humanFilesize(filesize($pharFile));
+        $filesTotal = $files->count();
         chmod($pharFile, 0755);
-        echo "Finished {$pharFile}, Size: {$filesize}, Total files: {$total}, Elapsed time: {$elapsed}s\n";
+        echo "Finished {$pharFile}, Size: {$filesize}, Total files: {$filesTotal}, ";
     }
 
-    protected function addFiles()
+    protected function addFiles(?ArrayIterator $files = null): ArrayIterator
     {
-        $files = new ArrayIterator;
+        $files = $files ?: new ArrayIterator;
         foreach ($this->options['directories'] as $dir) {
             $this->addFile($dir, $files);
         }
@@ -89,8 +115,7 @@ class PharBuilder
             $this->addFile($file, $files);
         }
 
-        $this->phar->buildFromIterator($files);
-        return $files->count();
+        return $files;
     }
 
     protected function addFile(string $path, ArrayIterator $files)
@@ -122,17 +147,17 @@ class PharBuilder
         }
     }
 
-    protected function compressFiles(): void
+    protected function compressFiles(Phar $phar): void
     {
         switch ($this->options['compress']) {
             case 'gz':
             case 'gzip':
-                $this->phar->compressFiles(Phar::GZ);
+                $phar->compressFiles(Phar::GZ);
                 break;
 
             case 'bz2':
             case 'bzip2':
-                $this->phar->compressFiles(Phar::BZ2);
+                $phar->compressFiles(Phar::BZ2);
                 break;
 
             default:
@@ -140,18 +165,21 @@ class PharBuilder
         }
     }
 
-    protected function setStub(): void
+    protected function setStub(Phar $phar): void
     {
-        $stub = file_get_contents(__DIR__ . '/phar-cli-stub.php');
+        $stubFile = $this->options['stub'];
+        if ($stubFile) {
+            $stubFile = $this->joinPaths($this->basePath, $stubFile);
+        } else {
+            $stubFile = __DIR__ . '/phar-cli-stub.php';
+        }
+
+        $stub = file_get_contents($stubFile);
         $stub = strtr($stub, [
             '{INDEX_FILE}' => $this->options['main'],
         ]);
 
-        if ($this->options['shebang']) {
-            $stub = "#!/usr/bin/env php\n" . $stub;
-        }
-
-        $this->phar->setStub($stub);
+        $phar->setStub($stub);
     }
 
     protected function checkPath(string $path)
@@ -210,13 +238,9 @@ class PharBuilder
         return $firstArg . implode(DIRECTORY_SEPARATOR, $paths);
     }
 
-    protected function copyFiles(): void
+    protected function copyFiles($files): void
     {
-        if (empty($this->options['copy'])) {
-            return;
-        }
-
-        $files = (array) $this->options['copy'];
+        $files = (array) $files;
         foreach ($files as $key => $value) {
             $dest = $this->joinPaths($this->options['dist'], $value);
             if (is_int($key)) {
