@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-09 20:13:33 +0800
+ * @version  2019-10-10 10:08:18 +0800
  */
 
 namespace Teddy\Redis;
@@ -71,11 +71,12 @@ class Redis extends Pool
         $ret = [];
         if (strpos($host, ':') === false) {
             $ret['host'] = $host;
+        } else {
+            $arr = explode(':', $host, 2);
+            $ret['host'] = $arr[0];
+            $ret['port'] = intval($arr[1]);
         }
 
-        $arr = explode(':', $host, 2);
-        $ret['host'] = $arr[0];
-        $ret['port'] = intval($arr[1]);
         return $ret;
     }
 }
