@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-09 20:36:42 +0800
+ * @version  2019-10-11 17:57:41 +0800
  */
 
 namespace Teddy\Jwt;
@@ -23,8 +23,6 @@ class Manager
     {
         $this->options = new Options([
             'secret'        => 'This is a secret!',
-            'secure'        => true,
-            'relaxed'       => ['localhost', '127.0.0.1'],
             'algorithm'     => ['HS256', 'HS512', 'HS384'],
             'header'        => 'Authorization',
             'regexp'        => '/Bearer\\s+(.*)$/i',
@@ -32,6 +30,7 @@ class Manager
             'param'         => 'token',
             'attribute'     => 'user',
             'checkToken'    => true,
+            'callback'      => null,
         ]);
 
         $config = config('jwt');
@@ -55,6 +54,10 @@ class Manager
             } catch (Exception $e) {
                 throw $e;
             }
+        }
+
+        if ($this->options['callback']) {
+            $payload = call_user_func($this->options['callback'], $request, $payload);
         }
 
         if ($payload && app()->has(JwtUserInterface::class)) {
