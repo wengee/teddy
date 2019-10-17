@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 23:43:40 +0800
+ * @version  2019-10-17 11:38:10 +0800
  */
 
 namespace Teddy;
@@ -137,7 +137,7 @@ abstract class Task
         }
 
         $this->result = false;
-        throw new Exception('Task is running.');
+        return false;
     }
 
     protected function tryLock(): bool
