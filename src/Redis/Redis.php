@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-10 10:08:18 +0800
+ * @version  2019-10-17 10:29:43 +0800
  */
 
 namespace Teddy\Redis;
@@ -50,6 +50,7 @@ class Redis extends Pool
     protected function initConfig(array $config): void
     {
         $defaultConf = [
+            'cluster'   => array_get($config, 'cluster', false),
             'host'      => array_get($config, 'host', '127.0.0.1'),
             'port'      => array_get($config, 'port', 6379),
             'password'  => array_get($config, 'password', ''),
@@ -57,7 +58,7 @@ class Redis extends Pool
             'prefix'    => array_get($config, 'prefix', ''),
         ];
 
-        if (is_array($defaultConf['host'])) {
+        if (is_array($defaultConf['host']) && !$defaultConf['cluster']) {
             foreach ($defaultConf['host'] as $host) {
                 $this->config[] = $this->splitHost($host) + $defaultConf;
             }
