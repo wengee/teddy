@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-17 10:18:28 +0800
+ * @version  2019-10-17 10:39:27 +0800
  */
 
 namespace Teddy\Redis;
@@ -40,7 +40,7 @@ class Connection implements ConnectionInterface
     public function connect()
     {
         if (!$this->redis) {
-            $this->redis = $this->createRedisClient();
+            $this->redis = $this->createClient();
         }
 
         return $this->redis;
@@ -48,7 +48,7 @@ class Connection implements ConnectionInterface
 
     public function reconnect()
     {
-        $this->redis = $this->createRedisClient();
+        $this->redis = $this->createClient();
         return $this->redis;
     }
 
