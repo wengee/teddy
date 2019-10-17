@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-10-17 10:18:28 +0800
  */
 
 namespace Teddy\Redis;
@@ -21,8 +21,9 @@ class Connection implements ConnectionInterface
     public function __construct(array $config)
     {
         $this->config = $config + [
-            'host' => '127.0.0.1',
-            'port' => 6379,
+            'cluster'       => false,
+            'host'          => '127.0.0.1',
+            'port'          => 6379,
         ];
     }
 
@@ -71,6 +72,15 @@ class Connection implements ConnectionInterface
         return true;
     }
 
+    protected function createClient()
+    {
+        if ($this->config['cluster']) {
+            return $this->createRedisClusterClient();
+        } else {
+            return $this->createRedisClient();
+        }
+    }
+
     protected function createRedisClient(): \Redis
     {
         $redis = new \Redis;
@@ -87,6 +97,41 @@ class Connection implements ConnectionInterface
 
         if (isset($this->config['prefix']) && $this->config['prefix']) {
             $redis->setOption(\Redis::OPT_PREFIX, $this->config['prefix']);
+        }
+
+        $options = $this->config['options'] ?? [];
+        if ($options && is_array($options)) {
+            foreach ($options as $key => $value) {
+                $redis->setOption($key, $value);
+            }
+        }
+
+        return $redis;
+    }
+
+    protected function createRedisClusterClient(): \RedisCluster
+    {
+        $host = $this->config['host'];
+        if (!is_array($host)) {
+            $host = [$host];
+        }
+
+        $timeout = $this->config['timeout'] ?? 1.5;
+        $readTimeout = $this->config['readTimeout'] ?? 3.0;
+        $password = $this->config['password'] ?? '';
+
+        $redis = new \RedisCluster(null, $host, $timeout, $readTimeout, false, $password);
+        $redis->setOption(\Redis::OPT_SERIALIZER, (string) \Redis::SERIALIZER_PHP);
+
+        if (isset($this->config['prefix']) && $this->config['prefix']) {
+            $redis->setOption(\Redis::OPT_PREFIX, $this->config['prefix']);
+        }
+
+        $options = $this->config['options'] ?? [];
+        if ($options && is_array($options)) {
+            foreach ($options as $key => $value) {
+                $redis->setOption($key, $value);
+            }
         }
 
         return $redis;
