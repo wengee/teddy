@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-17 11:38:10 +0800
+ * @version  2019-10-17 14:32:28 +0800
  */
 
 namespace Teddy;
@@ -164,7 +164,7 @@ abstract class Task
         }
 
         $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
-        $redis->delete($cacheKey);
+        $redis->del($cacheKey);
         return true;
     }
 
