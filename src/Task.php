@@ -46,7 +46,7 @@ abstract class Task
         };
 
         if (defined('IN_SWOOLE') && IN_SWOOLE && $task->getDelay() > 0) {
-            Timer::after($task->getDelay() * 1000, $deliver);
+            Timer::after(intval($task->getDelay() * 1000), $deliver);
         } else {
             $deliver();
         }
