@@ -46,18 +46,18 @@ abstract class Task
         };
 
         if (defined('IN_SWOOLE') && IN_SWOOLE && $task->getDelay() > 0) {
-            Timer::after(intval($task->getDelay() * 1000), $deliver);
+            Timer::after($task->getDelay(), $deliver);
         } else {
             $deliver();
         }
     }
 
-    final public function getDelay(): float
+    final public function getDelay(): int
     {
-        return (float) $this->delay;
+        return (int) $this->delay;
     }
 
-    final public function delay(float $delay): self
+    final public function delay(int $delay): self
     {
         if ($delay <= 0) {
             throw new InvalidArgumentException('The delay must be greater than 0');
