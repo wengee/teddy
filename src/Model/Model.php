@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-17 17:19:36 +0800
+ * @version  2019-10-30 17:08:18 +0800
  */
 
 namespace Teddy\Model;
@@ -209,10 +209,8 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
     {
         if ($this->hasGetMutator($key)) {
             return $this->getMutatedAttributeValue($key);
-        } elseif ($this->hasColumn($key)) {
-            if (array_key_exists($key, $this->items)) {
-                return $this->items[$key];
-            }
+        } elseif (array_key_exists($key, $this->items)) {
+            return $this->items[$key];
         }
 
         return $default;
@@ -283,6 +281,8 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
             $key = $metaInfo->transformKey($key, false);
             if (isset($columns[$key])) {
                 $this->items[$key] = $columns[$key]->value($value);
+            } else {
+                $this->items[$key] = $value;
             }
         }
     }
