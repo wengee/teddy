@@ -39,20 +39,6 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         $this->namespace = $namespace;
     }
 
-    public function addNamespace(string $namespace): void
-    {
-        if (!$this->namespace) {
-            $this->namespace = $namespace;
-        } else {
-            $this->namespace = rtrim($this->namespace, '\\') . '\\' . ltrim($namespace, '\\');
-        }
-    }
-
-    public function resetNamespace(): void
-    {
-        $this->namespace = '';
-    }
-
     public function map(array $methods, string $pattern, $callable): RouteInterface
     {
         if ($this->namespace && is_string($callable) && !is_callable($callable)) {
