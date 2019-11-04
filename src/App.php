@@ -220,7 +220,12 @@ class App extends Container
     {
         $routesFile = $this->basePath . 'bootstrap/routes.php';
         if (is_file($routesFile)) {
-            require $routesFile;
+            $this->slimInstance->getRouteCollector()->group([
+                'pattern' => $this->config->get('app.urlPrefix', ''),
+                'namespace' => 'App\\Controllers',
+            ], function ($router) use ($routesFile) {
+                require $routesFile;
+            });
         } else {
             $dir = $this->basePath . 'routes/';
             if (is_dir($dir)) {
