@@ -218,20 +218,25 @@ class App extends Container
 
     protected function loadRoutes(): void
     {
-        $dir = $this->basePath . 'routes/';
-        if (is_dir($dir)) {
-            $this->slimInstance->getRouteCollector()->group([
-                'pattern' => $this->config->get('app.urlPrefix', ''),
-                'namespace' => 'App\\Controllers',
-            ], function ($router) use ($dir): void {
-                $handle = opendir($dir);
-                while (false !== ($file = readdir($handle))) {
-                    $filepath = $dir . $file;
-                    if (ends_with($file, '.php') && is_file($filepath)) {
-                        require $filepath;
+        $routesFile = $this->basePath . 'bootstrap/routes.php';
+        if (is_file($routesFile)) {
+            require $routesFile;
+        } else {
+            $dir = $this->basePath . 'routes/';
+            if (is_dir($dir)) {
+                $this->slimInstance->getRouteCollector()->group([
+                    'pattern' => $this->config->get('app.urlPrefix', ''),
+                    'namespace' => 'App\\Controllers',
+                ], function ($router) use ($dir): void {
+                    $handle = opendir($dir);
+                    while (false !== ($file = readdir($handle))) {
+                        $filepath = $dir . $file;
+                        if (ends_with($file, '.php') && is_file($filepath)) {
+                            require $filepath;
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 }
