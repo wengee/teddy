@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 22:25:38 +0800
+ * @version  2019-11-04 14:26:12 +0800
  */
 
 namespace Teddy;
@@ -222,8 +222,8 @@ class App extends Container
         if (is_file($routesFile)) {
             $this->slimInstance->getRouteCollector()->group([
                 'pattern' => $this->config->get('app.urlPrefix', ''),
-                'namespace' => 'App\\Controllers',
-            ], function ($router) use ($routesFile) {
+                'namespace' => '\\App\\Controllers',
+            ], function ($router) use ($routesFile): void {
                 require $routesFile;
             });
         } else {
@@ -231,7 +231,7 @@ class App extends Container
             if (is_dir($dir)) {
                 $this->slimInstance->getRouteCollector()->group([
                     'pattern' => $this->config->get('app.urlPrefix', ''),
-                    'namespace' => 'App\\Controllers',
+                    'namespace' => '\\App\\Controllers',
                 ], function ($router) use ($dir): void {
                     $handle = opendir($dir);
                     while (false !== ($file = readdir($handle))) {

@@ -74,8 +74,8 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         }
 
         $pattern = $this->basePath . $pattern;
-        if ($this->namespace) {
-            $namespace = rtrim($this->namespace, '\\') . '\\' . ltrim($namespace, '\\');
+        if ($this->namespace && $namespace && $namespace{0} !== '\\') {
+            $namespace = rtrim($this->namespace, '\\') . '\\' . $namespace;
         }
 
         return $this->routeCollector->group([
