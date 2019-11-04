@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-11-04 15:00:04 +0800
  */
 
 namespace Teddy\Routing;
@@ -60,8 +60,8 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         }
 
         $pattern = $this->basePath . $pattern;
-        if ($this->namespace) {
-            $namespace = rtrim($this->namespace, '\\') . '\\' . ltrim($namespace, '\\');
+        if ($this->namespace && (!$namespace || $namespace{0} !== '\\')) {
+            $namespace = rtrim($this->namespace, '\\') . '\\' . $namespace;
         }
 
         return $this->routeCollector->group([
