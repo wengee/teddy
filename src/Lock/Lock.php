@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-06 14:12:30 +0800
+ * @version  2019-11-06 16:34:42 +0800
  */
 
 namespace Teddy\Lock;
@@ -35,12 +35,10 @@ class Lock implements LockInterface
     public function acquire(): bool
     {
         $script = '
-            if redis.call("EXISTS", KEYS[1]) then
-                return 0
-            elseif redis.call("SET", KEYS[1], ARGV[1], "EX", ARGV[2]) then
-                return 1
+            if redis.call("EXISTS", KEYS[1]) > 0 then
+                return false
             else
-                return 0
+                return redis.call("SET", KEYS[1], ARGV[1], "EX", ARGV[2])
             end
         ';
 
@@ -55,9 +53,9 @@ class Lock implements LockInterface
     {
         $script = '
             if redis.call("GET", KEYS[1]) == ARGV[1] then
-                return redis.call("EXPIRE", KEYS[1], ARGV[2]
+                return redis.call("EXPIRE", KEYS[1], ARGV[2]) > 0
             else
-                return 0
+                return false
             end
         ';
 
@@ -84,9 +82,9 @@ class Lock implements LockInterface
     {
         $script = '
             if redis.call("GET", KEYS[1]) == ARGV[1] then
-                return redis.call("DEL", KEYS[1])
+                return redis.call("DEL", KEYS[1]) > 0
             else
-                return 0
+                return false
             end
         ';
 
