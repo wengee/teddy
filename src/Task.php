@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-17 14:32:28 +0800
+ * @version  2019-11-06 15:22:34 +0800
  */
 
 namespace Teddy;
@@ -11,6 +11,7 @@ namespace Teddy;
 use Exception;
 use InvalidArgumentException;
 use Swoole\Timer;
+use Teddy\Lock\Lock;
 
 abstract class Task
 {
@@ -38,6 +39,11 @@ abstract class Task
      * @var mixed
      */
     protected $result = false;
+
+    /**
+     * @var Teddy\Lock\Lock
+     */
+    protected $lock;
 
     final public static function deliver(Task $task): void
     {
@@ -140,32 +146,42 @@ abstract class Task
         return false;
     }
 
+    protected function getLock(): Lock
+    {
+        if (!isset($this->lock)) {
+            $key = 'task:' . strtr(get_class($this), '\\', '_');
+            $this->lock = app('lock')->create($key, $this->executionTime);
+        }
+
+        return $this->lock;
+    }
+
     protected function tryLock(): bool
     {
-        $redis = app('redis');
-        if (!$redis || !$this->exclusive) {
+        if (!$this->exclusive) {
             return true;
         }
 
-        $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
-        if ($redis->exists($cacheKey)) {
+        try {
+            return $this->getLock()->acquire();
+        } catch (Exception $e) {
+            log_exception($e);
             return false;
-        } else {
-            $redis->set($cacheKey, true, $this->executionTime);
-            return true;
         }
     }
 
     protected function unLock(): bool
     {
-        $redis = app('redis');
-        if (!$redis || !$this->exclusive) {
+        if (!$this->exclusive) {
             return true;
         }
 
-        $cacheKey = 'teddyTask:lock:' . strtr(get_class($this), '\\', '');
-        $redis->del($cacheKey);
-        return true;
+        try {
+            return $this->getLock()->release();
+        } catch (Exception $e) {
+            log_exception($e);
+            return false;
+        }
     }
 
     abstract protected function handle();

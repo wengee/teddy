@@ -26,6 +26,7 @@ use Teddy\Flysystem\Manager as FlysystemManager;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
 use Teddy\Jwt\Manager as JwtManager;
+use Teddy\Lock\Factory as LockFactory;
 use Teddy\Logger\Logger;
 use Teddy\Model\Manager as ModelManager;
 use Teddy\Redis\Manager as RedisManager;
@@ -170,6 +171,7 @@ class App extends Container
         $this->bind('events', EventEmitter::class);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
+        $this->bind('lock', LockFactory::class);
 
         if ($this->config->has('database')) {
             $this->bind('db', DatabaseManager::class);
