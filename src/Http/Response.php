@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-28 10:42:49 +0800
+ * @version  2019-11-06 16:41:54 +0800
  */
 
 namespace Teddy\Http;
@@ -26,7 +26,7 @@ class Response extends SlimResponse
         return $this;
     }
 
-    public function withJson($data, $status = null, $encodingOptions = 0): ResponseInterface
+    public function withJson($data, $status = StatusCodeInterface::STATUS_OK, $encodingOptions = 0): ResponseInterface
     {
         $response = $this->withBody(new Stream(fopen('php://temp', 'r+')));
         $response->body->write($json = json_encode($data, $encodingOptions));
@@ -43,7 +43,7 @@ class Response extends SlimResponse
         return $responseWithJson;
     }
 
-    public function redirect($url, $status = null): ResponseInterface
+    public function redirect($url, $status = StatusCodeInterface::STATUS_FOUND): ResponseInterface
     {
         $responseWithRedirect = $this->withHeader('Location', (string) $url);
 
@@ -79,7 +79,7 @@ class Response extends SlimResponse
             }
         }
 
-        return $this->withJson($data, 200);
+        return $this->withJson($data, StatusCodeInterface::STATUS_OK);
     }
 
     public function setCookie(string $name, ?string $value = null, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httponly = true): ResponseInterface
