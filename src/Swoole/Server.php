@@ -87,7 +87,6 @@ class Server
         }
 
         Runtime::enableCoroutine(true, $this->coroutineFlags);
-        Runtime::enableStrictMode();
         Utils::setProcessTitle($processName, $this->name);
     }
 
@@ -165,7 +164,6 @@ class Server
         $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
                 Runtime::enableCoroutine(true, $coroutineFlags);
-                Runtime::enableStrictMode();
             } else {
                 Runtime::enableCoroutine(false);
             }
