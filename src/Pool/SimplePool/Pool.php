@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-07 18:25:40 +0800
+ * @version  2019-11-07 18:46:49 +0800
  */
 
 namespace Teddy\Pool\SimplePool;
@@ -28,7 +28,6 @@ class Pool extends AbstractPool
 
     protected function createConnection(): ConnectionInterface
     {
-        echo time() . PHP_EOL;
         return new Connection($this, $this->callback);
     }
 }
