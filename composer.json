@@ -7,6 +7,8 @@
         "ext-swoole": ">=4.4.0",
         "slim/slim": "4.2.*",
         "slim/psr7": "^0.4.0",
+        "guzzlehttp/guzzle": "6.4.*",
+        "funkjedi/composer-include-files": "^1.0",
         "illuminate/support": "^5.8",
         "illuminate/config": "^5.8",
         "vlucas/phpdotenv": "^3.4",
@@ -33,5 +35,10 @@
             "name": "Fung Wing Kit",
             "email": "wengee@gmail.com"
         }
-    ]
+    ],
+    "extra": {
+        "include_files": [
+            "src/guzzle_functions.php"
+        ]
+    }
 }
