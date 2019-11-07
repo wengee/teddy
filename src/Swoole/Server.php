@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 23:31:50 +0800
+ * @version  2019-11-07 10:04:31 +0800
  */
 
 namespace Teddy\Swoole;
@@ -87,6 +87,7 @@ class Server
         }
 
         Runtime::enableCoroutine(true, $this->coroutineFlags);
+        Runtime::enableStrictMode();
         Utils::setProcessTitle($processName, $this->name);
     }
 
@@ -164,6 +165,7 @@ class Server
         $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
                 Runtime::enableCoroutine(true, $coroutineFlags);
+                Runtime::enableStrictMode();
             } else {
                 Runtime::enableCoroutine(false);
             }
