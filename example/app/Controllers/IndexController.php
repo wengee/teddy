@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-07 18:20:55 +0800
+ * @version  2019-11-12 10:45:57 +0800
  */
 
 namespace App\Controllers;
@@ -20,6 +20,8 @@ class IndexController extends Controller
         $client = new Client;
         $res = $client->request('GET', 'http://www.baidu.com/');
         $a = (string) $res->getBody();
-        return $response->json(0, compact(['a']));
+        $b = \GuzzleHttp\choose_handler();
+        $c = get_class($b);
+        return $response->json(0, compact(['a', 'b', 'c']));
     }
 }

@@ -7,8 +7,6 @@
         "ext-swoole": ">=4.4.0",
         "slim/slim": "4.2.*",
         "slim/psr7": "^0.4.0",
-        "guzzlehttp/guzzle": "6.4.*",
-        "funkjedi/composer-include-files": "^1.0",
         "illuminate/support": "^5.8",
         "illuminate/config": "^5.8",
         "vlucas/phpdotenv": "^3.4",
@@ -19,7 +17,12 @@
         "league/flysystem": "^1.0",
         "aliyuncs/oss-sdk-php": "^2.3",
         "jacobcyl/ali-oss-storage": "^2.1",
-        "league/event": "^2.2"
+        "league/event": "^2.2",
+        "funkjedi/composer-include-files": "^1.0",
+        "mix/guzzle-hook": "^1.0"
+    },
+    "require-dev": {
+        "guzzlehttp/guzzle": "^6.4"
     },
     "license": "MIT",
     "autoload": {
@@ -38,7 +41,7 @@
     ],
     "extra": {
         "include_files": [
-            "src/guzzle_functions.php"
+            "guzzle/functions_include.php"
         ]
     }
 }
