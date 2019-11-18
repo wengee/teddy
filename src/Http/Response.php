@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-06 16:41:54 +0800
+ * @version  2019-11-18 17:54:05 +0800
  */
 
 namespace Teddy\Http;
@@ -19,6 +19,20 @@ use Slim\Psr7\Stream;
 class Response extends SlimResponse
 {
     protected $cookies = [];
+
+    protected $sendFile;
+
+    public function withSendFile(string $file): ResponseInterface
+    {
+        $clone = clone $this;
+        $clone->sendFile = $file;
+        return $clone;
+    }
+
+    public function getSendFile(): string
+    {
+        return (string) $this->sendFile;
+    }
 
     public function write($data): ResponseInterface
     {

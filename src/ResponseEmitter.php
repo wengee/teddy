@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-11-18 17:55:06 +0800
  */
 
 namespace Teddy;
@@ -25,6 +25,11 @@ class ResponseEmitter
         $this->emitHeaders($res);
         $this->emitCookies($res);
         $this->emitStatusLine($res);
+
+        if ($sendFile = $res->getSendFile()) {
+            $this->response->sendfile($sendFile);
+            return;
+        }
 
         if (!$this->isResponseEmpty($res)) {
             $this->emitBody($res);

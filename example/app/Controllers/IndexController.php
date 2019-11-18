@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 16:24:04 +0800
+ * @version  2019-11-18 17:56:33 +0800
  */
 
 namespace App\Controllers;
@@ -37,6 +37,7 @@ class IndexController extends Controller
 
         $b = [];
         $a = $query->getSql($b);
+
         return $response->json(0, compact(['a', 'b']));
     }
 }
