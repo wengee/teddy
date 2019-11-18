@@ -179,13 +179,16 @@ class QueryBuilder
         $metaInfo = app('modelManager')->metaInfo($table);
         $table = $metaInfo ? $metaInfo->tableName() : strval($table);
 
+        $table = $this->quote($table);
+        $as = $this->quote($as);
+
         return empty($as) ? $table : $table . ' AS ' . $as;
     }
 
     public function toDbColumn($column)
     {
         if (empty($this->metaInfo) || empty($column) || $column === '*' || ($column instanceof RawSQL)) {
-            return $column;
+            return $this->quote($column);
         }
 
         if (is_array($column)) {
@@ -201,14 +204,33 @@ class QueryBuilder
             return $ret;
         } else {
             $column = (string) $column;
-            return $this->metaInfo->transformKey($column);
+            $column = $this->metaInfo->transformKey($column);
+            return $this->quote($column);
         }
+    }
+
+    public function quote($string)
+    {
+        if (!$string || $string === '*' || ($string instanceof RawSQL)) {
+            return $string;
+        }
+
+        $string = (string) $string;
+        if (strpos($string, '.') !== false) {
+			return '`' . str_replace('.', '`.`', $string) . '`';
+        }
+
+		return '`' . $string . '`';
     }
 
     protected function getTable(?string $as = null): string
     {
         $as = $as ?: $this->as;
-        return empty($as) ? $this->table : $this->table . ' AS ' . $as;
+
+        $table = $this->quote($this->table);
+        $as = $this->quote($as);
+
+        return empty($as) ? $table : $table . ' AS ' . $as;
     }
 
     protected function execute(array $options = [])

@@ -29,7 +29,7 @@ class PDOConnection implements ConnectionInterface
 
     public function __construct(array $config, bool $readOnly = false)
     {
-        $engine     = array_get($config, 'engine', 'mysql');
+        $engine     = 'mysql';
         $host       = array_get($config, 'host', '127.0.0.1');
         $port       = array_get($config, 'port', 3306);
         $name       = array_get($config, 'name', '');

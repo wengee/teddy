@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 10:05:54 +0800
+ * @version  2019-11-18 11:20:12 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -14,12 +14,13 @@ class WhereClause extends ClauseContainer
 {
     public function search($match, string $against, int $mode = 3, string $chainType = 'AND'): void
     {
+        $match = is_array($match) ? $match : [$match];
         $match = array_map(function ($c) {
             return $this->query->toDbColumn($c);
-        }, (array) $match);
+        }, $match);
         $match = implode(', ', $match);
 
-        $modeSQL = ' IN NATURAL LANGUAGE MODE';
+        $modeSQL = '';
         switch ($mode) {
             case 4:
                 $modeSQL = ' WITH QUERY EXPANSION';
@@ -59,10 +60,7 @@ class WhereClause extends ClauseContainer
     public function whereBetween($column, array $values, string $chainType = 'AND', bool $not = false): void
     {
         if (count($values) === 2) {
-            $column = $this->query->toDbColumn($column);
-            $sql = $column . ($not ? ' NOT' : '') . ' BETWEEN ? AND ?';
-            $values = array_values($values);
-            $this->where(new RawSQL($sql, ...$values), $chainType);
+            $this->where($column, $not ? '><' : '<>', $values, $chainType);
         }
     }
 
@@ -81,13 +79,10 @@ class WhereClause extends ClauseContainer
         $this->whereBetween($column, $values, 'OR', true);
     }
 
-    public function whereIn($column, array $values, string $chainType = 'AND', bool $not = false): void
+    public function whereIn($column, array $values, string $chainType = 'AND'): void
     {
         if (!empty($values)) {
-            $column = $this->query->toDbColumn($column);
-            $sql = $column . ($not ? ' NOT' : '') . ' IN (' . implode(', ', array_fill(0, count($values), '?')) . ')';
-            $values = array_values($values);
-            $this->where(new RawSQL($sql, ...$values), $chainType);
+            $this->where($column, $not ? '!=' : '=', $values, $chainType);
         }
     }
 
@@ -108,9 +103,7 @@ class WhereClause extends ClauseContainer
 
     public function whereLike($column, string $value, string $chainType = 'AND', bool $not = false): void
     {
-        $column = $this->query->toDbColumn($column);
-        $sql = $column . ($not ? ' NOT' : '') . ' LIKE ?';
-        $this->where(new RawSQL($sql, $value), $chainType);
+        $this->where($column, $not ? '!~' : '~', $value, $chainType);
     }
 
     public function orWhereLike($column, string $value): void
@@ -130,9 +123,7 @@ class WhereClause extends ClauseContainer
 
     public function whereNull($column, string $chainType = 'AND', bool $not = false): void
     {
-        $column = $this->query->toDbColumn($column);
-        $sql = $column . ' IS' . ($not ? ' NOT' : '') . ' NULL';
-        $this->where(new RawSQL($sql), $chainType);
+        $this->where($column, $not ? '!=' : '=', null, $chainType);
     }
 
     public function orWhereNull($column): void
@@ -202,10 +193,27 @@ class WhereClause extends ClauseContainer
             $container[] = [$subContainer, null, null, $chainType];
         } else {
             $column = $this->query->toDbColumn($column);
-            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
+            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>', '><', '~', '!~'], true)) {
                 $chainType = $value ?: $chainType;
                 $value = $operator;
                 $operator = '=';
+            }
+
+            if ($value === null) {
+                $column = new RawSQL($column . ' IS' . ($operator === '!=' ? ' NOT' : '') . ' NULL');
+            } elseif ($operator === '<>' || $operator === '><') {
+                if (is_array($value) && count($value) === 2) {
+                    $value = array_values($value);
+                    $column = new RawSQL($column . ($operator === '><' ? ' NOT' : '') . ' BETWEEN ? AND ?', ...$value);
+                } else {
+                    return;
+                }
+            } elseif ($operator === '~' || $operator === '!~') {
+                $column = new RawSQL($column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ?', $value);
+            } elseif (is_array($value)) {
+                $sql = $column . ($operator === '!=' ? ' NOT' : '') . ' IN (' . implode(', ', array_fill(0, count($value), '?')) . ')';
+                $value = array_values($value);
+                $column = new RawSQL($sql, ...$value);
             }
 
             $container[] = [$column, $operator, $value, $chainType];

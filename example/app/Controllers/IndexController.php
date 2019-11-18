@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 10:04:34 +0800
+ * @version  2019-11-18 11:40:23 +0800
  */
 
 namespace App\Controllers;
@@ -19,12 +19,23 @@ class IndexController extends Controller
     {
         $query = Qrcode::query()
             ->select()
-            ->where('code', 'abc')
             ->where([
                 ['id', 0],
                 ['id', '>', 100],
+                ['id', '<>', [1, 20]],
+            ], 'OR')
+            ->where([
+                ['code', 'abc'],
+                ['code', '~', 'c%'],
+            ], 'OR')
+            ->where([
+                ['status', '!=', null],
+                ['status', '>', 100],
+                ['status', '!=', [1,2,3]],
             ], 'OR');
-        $a = (string) $query;
-        return $response->json(0, compact(['a']));
+
+        $b = [];
+        $a = $query->getSql($b);
+        return $response->json(0, compact(['a', 'b']));
     }
 }
