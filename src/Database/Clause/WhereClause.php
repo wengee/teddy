@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-11-18 10:05:54 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -38,7 +38,7 @@ class WhereClause extends ClauseContainer
         }
         $sql = "MATCH({$match}) AGAINST(?{$modeSQL})";
         $column = new RawSQL($sql, $against);
-        $this->container[] = [$column, null, null, $chainType];
+        $this->where($column, null, null, $chainType);
     }
 
     public function orSearch($match, string $against, int $mode = 3): void
@@ -48,19 +48,7 @@ class WhereClause extends ClauseContainer
 
     public function where($column, $operator = null, $value = null, string $chainType = 'AND'): void
     {
-        if ($column instanceof RawSQL) {
-            $chainType = $operator ?: $chainType;
-            $this->container[] = [$column, null, null, $chainType];
-        } else {
-            $column = $this->query->toDbColumn($column);
-            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
-                $chainType = $value ?: $chainType;
-                $value = $operator;
-                $operator = '=';
-            }
-
-            $this->container[] = [$column, $operator, $value, $chainType];
-        }
+        $this->_where($column, $operator, $value, $chainType, $this->container);
     }
 
     public function orWhere($column, $operator = null, $value = null): void
@@ -168,16 +156,23 @@ class WhereClause extends ClauseContainer
             return '';
         }
 
+        return ' WHERE ' . $this->_toSql($this->container, $map);
+    }
+
+    protected function _toSql(array $container, &$map = []): string
+    {
         $ret = '';
-        foreach ($this->container as $where) {
+        foreach ($container as $where) {
             list($column, $operator, $value, $chainType) = $where;
-            if (empty($ret)) {
-                $ret .= ' WHERE ';
-            } else {
+            if (!$column) {
+                continue;
+            } elseif ($ret) {
                 $ret .= $chainType ? " {$chainType} " : ' AND ';
             }
 
-            if ($column instanceof RawSQL) {
+            if (is_array($column)) {
+                $ret .= '(' . $this->_toSql($column, $map) . ')';
+            } elseif ($column instanceof RawSQL) {
                 $ret .= $column->toSql($map, $this->query);
             } else {
                 $ret .= "{$column} {$operator} ?";
@@ -186,5 +181,34 @@ class WhereClause extends ClauseContainer
         }
 
         return $ret;
+    }
+
+    protected function _where($column, $operator = null, $value = null, string $chainType = 'AND', array &$container = []): void
+    {
+        if ($column instanceof RawSQL) {
+            $chainType = $operator ?: $chainType;
+            $container[] = [$column, null, null, $chainType];
+        } elseif (is_array($column)) {
+            $subContainer = [];
+            $subChainType = $operator ?: 'AND';
+            foreach ($column as $c) {
+                $subColumn = $c[0] ?? null;
+                $subOperator = $c[1] ?? null;
+                $subValue = $c[2] ?? null;
+
+                $this->_where($subColumn, $subOperator, $subValue, $subChainType, $subContainer);
+            }
+
+            $container[] = [$subContainer, null, null, $chainType];
+        } else {
+            $column = $this->query->toDbColumn($column);
+            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
+                $chainType = $value ?: $chainType;
+                $value = $operator;
+                $operator = '=';
+            }
+
+            $container[] = [$column, $operator, $value, $chainType];
+        }
     }
 }
