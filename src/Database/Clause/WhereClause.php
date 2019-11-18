@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 11:20:12 +0800
+ * @version  2019-11-18 15:32:04 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -12,6 +12,25 @@ use Teddy\Database\RawSQL;
 
 class WhereClause extends ClauseContainer
 {
+    public static $operators = [
+        '>='            => '>=',
+        '>'             => '>',
+        '<='            => '<=',
+        '<'             => '<',
+        '='             => '=',
+        '!='            => '!=',
+        '<>'            => 'BETWEEN',
+        '><'            => 'NOT BETWEEN',
+        '~'             => 'LIKE',
+        '!~'            => 'NOT LIKE',
+
+        'BETWEEN'       => 'BETWEEN',
+        'NOT BETWEEN'   => 'NOT BETWEEN',
+        'LIKE'          => 'LIKE',
+        'NOT LIKE'      => 'NOT LIKE',
+        'REGEXP'        => 'REGEXP',
+    ];
+
     public function search($match, string $against, int $mode = 3, string $chainType = 'AND'): void
     {
         $match = is_array($match) ? $match : [$match];
@@ -193,7 +212,9 @@ class WhereClause extends ClauseContainer
             $container[] = [$subContainer, null, null, $chainType];
         } else {
             $column = $this->query->toDbColumn($column);
-            if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>', '><', '~', '!~'], true)) {
+            if (isset(self::$operators[$operator])) {
+                $operator = self::$operators[$operator];
+            } else {
                 $chainType = $value ?: $chainType;
                 $value = $operator;
                 $operator = '=';
@@ -201,15 +222,13 @@ class WhereClause extends ClauseContainer
 
             if ($value === null) {
                 $column = new RawSQL($column . ' IS' . ($operator === '!=' ? ' NOT' : '') . ' NULL');
-            } elseif ($operator === '<>' || $operator === '><') {
+            } elseif ($operator === 'BETWEEN' || $operator === 'NOT BETWEEN') {
                 if (is_array($value) && count($value) === 2) {
                     $value = array_values($value);
-                    $column = new RawSQL($column . ($operator === '><' ? ' NOT' : '') . ' BETWEEN ? AND ?', ...$value);
+                    $column = new RawSQL("{$column} {$operator} ? AND ?", ...$value);
                 } else {
                     return;
                 }
-            } elseif ($operator === '~' || $operator === '!~') {
-                $column = new RawSQL($column . ($operator === '!~' ? ' NOT' : '') . ' LIKE ?', $value);
             } elseif (is_array($value)) {
                 $sql = $column . ($operator === '!=' ? ' NOT' : '') . ' IN (' . implode(', ', array_fill(0, count($value), '?')) . ')';
                 $value = array_values($value);
