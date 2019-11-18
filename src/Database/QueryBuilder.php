@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 15:49:45 +0800
+ * @version  2019-11-18 16:42:37 +0800
  */
 
 namespace Teddy\Database;
@@ -268,8 +268,6 @@ class QueryBuilder
     {
         $clause = null;
         switch ($method) {
-            case 'search':
-            case 'orSearch':
             case 'where':
             case 'orWhere':
                 if (!isset($this->whereClause)) {

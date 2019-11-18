@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 16:29:03 +0800
+ * @version  2019-11-18 16:42:29 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -35,16 +35,6 @@ class WhereClause extends ClauseContainer
         'REGEXP'        => 'REGEXP',
         'MATCH'         => 'MATCH',
     ];
-
-    public function search($column, string $value, string $mode = 'boolean', string $chainType = 'AND'): void
-    {
-        $this->where($column, 'MATCH', [$value, $mode], $chainType);
-    }
-
-    public function orSearch($column, string $value, string $mode = 'boolean'): void
-    {
-        $this->search($column, $value, $mode, 'OR');
-    }
 
     public function where($column, $operator = null, $value = null, string $chainType = 'AND'): void
     {
