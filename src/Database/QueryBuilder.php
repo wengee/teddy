@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-11-18 15:49:45 +0800
  */
 
 namespace Teddy\Database;
@@ -217,10 +217,10 @@ class QueryBuilder
 
         $string = (string) $string;
         if (strpos($string, '.') !== false) {
-			return '`' . str_replace('.', '`.`', $string) . '`';
+            return '`' . str_replace('.', '`.`', $string) . '`';
         }
 
-		return '`' . $string . '`';
+        return '`' . $string . '`';
     }
 
     protected function getTable(?string $as = null): string
@@ -272,22 +272,6 @@ class QueryBuilder
             case 'orSearch':
             case 'where':
             case 'orWhere':
-            case 'whereBetween':
-            case 'orWhereBetween':
-            case 'whereNotBetween':
-            case 'orWhereNotBetween':
-            case 'whereIn':
-            case 'orWhereIn':
-            case 'whereNotIn':
-            case 'orWhereNotIn':
-            case 'whereLike':
-            case 'orWhereLike':
-            case 'whereNotLike':
-            case 'orWhereNotLike':
-            case 'whereNull':
-            case 'orWhereNull':
-            case 'whereNotNull':
-            case 'orWhereNotNull':
                 if (!isset($this->whereClause)) {
                     $this->whereClause = new WhereClause($this);
                 }

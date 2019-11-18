@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 11:40:23 +0800
+ * @version  2019-11-18 16:24:04 +0800
  */
 
 namespace App\Controllers;
@@ -32,6 +32,7 @@ class IndexController extends Controller
                 ['status', '!=', null],
                 ['status', '>', 100],
                 ['status', '!=', [1,2,3]],
+                [['status', 'code'], '%', '*a*']
             ], 'OR');
 
         $b = [];
