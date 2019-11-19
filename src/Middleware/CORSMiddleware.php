@@ -89,7 +89,7 @@ class CORSMiddleware implements MiddlewareInterface
             return false;
         }
 
-        return str_is($value, $this->options['origin']);
+        return str_is($origin, $this->options['origin']);
     }
 
     protected function setMethods($methods): void
