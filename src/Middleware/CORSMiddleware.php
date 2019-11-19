@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-19 14:23:09 +0800
+ * @version  2019-11-19 14:36:25 +0800
  */
 
 namespace Teddy\Middleware;
@@ -89,7 +89,7 @@ class CORSMiddleware implements MiddlewareInterface
             return false;
         }
 
-        return str_is($origin, $this->options['origin']);
+        return str_is($this->options['origin'], $origin);
     }
 
     protected function setMethods($methods): void
