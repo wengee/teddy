@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-07 10:04:31 +0800
+ * @version  2019-11-20 10:32:20 +0800
  */
 
 namespace Teddy\Swoole;
@@ -16,6 +16,7 @@ use Swoole\Http\Server as HttpServer;
 use Swoole\Process;
 use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
+use Swoole\Table;
 use Swoole\Websocket\Server as WebsocketServer;
 use Teddy\App;
 use Teddy\Interfaces\ProcessInterface;
@@ -242,6 +243,33 @@ class Server
         });
     }
 
+    protected function createSwooleTables(array $tables): void
+    {
+        foreach ($tables as $name => $table) {
+            $columns = array_wrap($table['columns'] ?? []);
+            if (!$columns) {
+                continue;
+            }
+
+            $t = new Table($table['size'] ?? 1024);
+            foreach ($columns as $column) {
+                if (!is_array($column) || !isset($column['name'])) {
+                    continue;
+                }
+
+                if (isset($column['size'])) {
+                    $t->column($column['name'], $column['type'] ?? Table::TYPE_INT, $column['size'] ?: 1);
+                } else {
+                    $t->column($column['name'], $column['type'] ?? Table::TYPE_INT);
+                }
+            }
+
+            $t->create();
+            $name .= 'Table';
+            $this->swoole->{$name} = $t;
+        }
+    }
+
     protected function init(array $config): void
     {
         $config = $this->parseConfig($config);
@@ -286,6 +314,10 @@ class Server
         if ($config['processes'] && is_array($config['processes'])) {
             $this->addProcesses($config['processes']);
         }
+
+        if ($config['tables'] && is_array($config['tables'])) {
+            $this->createSwooleTables($config['tables']);
+        }
     }
 
     protected function parseConfig(array $config = []): array
@@ -306,13 +338,14 @@ class Server
         }
 
         $config = $config + [
-            'host' => '127.0.0.1',
-            'port' => 9500,
+            'host'      => '127.0.0.1',
+            'port'      => 9500,
 
-            'schedule' => null,
+            'schedule'  => null,
             'processes' => null,
+            'tables'    => null,
 
-            'options' => $options,
+            'options'   => $options,
         ];
 
         $config['options'] = $options;

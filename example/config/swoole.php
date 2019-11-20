@@ -3,8 +3,10 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 16:41:43 +0800
+ * @version  2019-11-20 10:25:28 +0800
  */
+
+use Swoole\Table;
 
 return [
     'host' => env('SWOOLE_HOST', '0.0.0.0'),
@@ -20,6 +22,16 @@ return [
     ],
 
     'processes' => [],
+
+    'tables' => [
+        'a' => [
+            'size'      => 1024,
+            'columns'   => [
+                ['name' => 'a', 'type' => Table::TYPE_INT],
+                ['name' => 'b', 'type' => Table::TYPE_STRING, 'size' => 10],
+            ],
+        ],
+    ],
 
     'options' => [
         'dispatch_mode' => 1,

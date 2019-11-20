@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 17:56:33 +0800
+ * @version  2019-11-20 10:35:52 +0800
  */
 
 namespace App\Controllers;
@@ -38,6 +38,13 @@ class IndexController extends Controller
         $b = [];
         $a = $query->getSql($b);
 
-        return $response->json(0, compact(['a', 'b']));
+        app('swoole')->aTable->set(uniqid(), ['a' => 123, 'b' => 'abc']);
+        $c = app('swoole')->aTable->count();
+        $d = [];
+        foreach (app('swoole')->aTable as $key => $value) {
+            $d[$key] = $value;
+        }
+
+        return $response->json(0, compact(['a', 'b', 'c', 'd']));
     }
 }
