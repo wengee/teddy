@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-19 14:36:25 +0800
+ * @version  2019-11-21 14:28:14 +0800
  */
 
 namespace Teddy\Middleware;
@@ -94,7 +94,7 @@ class CORSMiddleware implements MiddlewareInterface
 
     protected function setMethods($methods): void
     {
-        $methods = (array) $methods;
+        $methods = array_wrap($methods);
         if (array_get($methods, 'replace')) {
             $this->options['methods'] = array_get($methods, 'value');
         } else {
@@ -104,7 +104,7 @@ class CORSMiddleware implements MiddlewareInterface
 
     protected function setHeaders($headers): void
     {
-        $headers = (array) $headers;
+        $headers = array_wrap($headers);
         if (array_get($headers, 'replace')) {
             $this->options['headers'] = array_get($headers, 'value');
         } else {
@@ -114,12 +114,12 @@ class CORSMiddleware implements MiddlewareInterface
 
     protected function setPath($path): void
     {
-        $this->conditions['path'] = (array) $path;
+        $this->conditions['path'] = array_wrap($path);
     }
 
     protected function setIgnore($ignore): void
     {
-        $this->conditions['ignore'] = (array) $ignore;
+        $this->conditions['ignore'] = array_wrap($ignore);
     }
 
     protected function init(): void

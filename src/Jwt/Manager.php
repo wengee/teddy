@@ -3,103 +3,30 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-11 17:57:41 +0800
+ * @version  2019-11-21 14:51:24 +0800
  */
 
 namespace Teddy\Jwt;
 
 use Exception;
 use Firebase\JWT\JWT;
-use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
-use Teddy\Interfaces\JwtUserInterface;
-use Teddy\Options;
+use Teddy\Traits\HasOptions;
 
 class Manager
 {
-    protected $options;
+    use HasOptions;
+
+    protected $options = [
+        'secret'        => 'This is a secret!',
+        'algorithm'     => ['HS256', 'HS512', 'HS384'],
+    ];
 
     public function __construct()
     {
-        $this->options = new Options([
-            'secret'        => 'This is a secret!',
-            'algorithm'     => ['HS256', 'HS512', 'HS384'],
-            'header'        => 'Authorization',
-            'regexp'        => '/Bearer\\s+(.*)$/i',
-            'cookie'        => 'token',
-            'param'         => 'token',
-            'attribute'     => 'user',
-            'checkToken'    => true,
-            'callback'      => null,
-        ]);
-
         $config = config('jwt');
         if ($config && is_array($config)) {
-            $this->options->update($config);
+            $this->setOptions($config);
         }
-    }
-
-    public function processRequest(ServerRequestInterface $request): ServerRequestInterface
-    {
-        $token = $payload = null;
-        try {
-            $token = $this->fetchToken($request);
-        } catch (Exception $e) {
-            throw $e;
-        }
-
-        if ($token && (!$this->options['checkToken'] || !$this->isBlocked($token))) {
-            try {
-                $payload = $this->decode($token);
-            } catch (Exception $e) {
-                throw $e;
-            }
-        }
-
-        if ($this->options['callback']) {
-            $payload = call_user_func($this->options['callback'], $request, $payload);
-        }
-
-        if ($payload && app()->has(JwtUserInterface::class)) {
-            $user = make(JwtUserInterface::class)->retrieveByPayload($payload);
-        } else {
-            $user = $payload;
-        }
-
-        return $request
-            ->withAttribute('jwtToken', $token)
-            ->withAttribute('jwtPayload', $payload)
-            ->withAttribute($this->options['attribute'], $user);
-    }
-
-    /**
-     * Fetch the access token.
-     */
-    public function fetchToken(ServerRequestInterface $request): string
-    {
-        $header = '';
-
-        /* Check for token in header. */
-        $headers = $request->getHeader($this->options['header']);
-        $header = $headers[0] ?? '';
-
-        if (preg_match($this->options['regexp'], $header, $matches)) {
-            return $matches[1];
-        }
-
-        $params = $request->getParams();
-        if (isset($params[$this->options['param']])) {
-            return $params[$this->options['param']];
-        }
-
-        /* Token not found in header try a cookie. */
-        $cookieParams = $request->getCookieParams();
-        if (isset($cookieParams[$this->options['cookie']])) {
-            return $cookieParams[$this->options['cookie']];
-        };
-
-        /* If everything fails log and throw. */
-        throw new RuntimeException('Token not found.');
     }
 
     /**
@@ -145,15 +72,15 @@ class Manager
     /**
      * Decode the token.
      */
-    public function decode(string $token): array
+    public function decode(string $token, array $options = []): array
     {
+        $secret = $options['secret'] ?? $this->options['secret'];
+        $algorithm = $options['algorithm'] ?? $this->options['algorithm'];
+        $algorithm = array_wrap($algorithm);
+
         try {
-            $decoded = JWT::decode(
-                $token,
-                $this->options['secret'],
-                (array) $this->options['algorithm']
-            );
-            return (array) $decoded;
+            $decoded = JWT::decode($token, $secret, $algorithm);
+            return array_wrap($decoded);
         } catch (Exception $e) {
             throw $e;
         }
@@ -162,20 +89,19 @@ class Manager
     /**
      * Encode the payload.
      */
-    public function encode(array $payload, int $ttl = 0): string
+    public function encode(array $payload, int $ttl = 0, array $options = []): string
     {
+        $secret = $options['secret'] ?? $this->options['secret'];
+        $algorithm = $options['algorithm'] ?? $this->options['algorithm'];
+        $algorithm = array_wrap($algorithm);
+
         $timestamp = time();
         $payload['iat'] = $timestamp;
         if ($ttl > 0) {
             $payload['exp'] = $timestamp + $ttl;
         }
 
-        $algorithm = (array) $this->options['algorithm'];
         $alg = $algorithm[0] ?? 'HS256';
-        return JWT::encode(
-            $payload,
-            $this->options['secret'],
-            $alg
-        );
+        return JWT::encode($payload, $secret, $alg);
     }
 }
