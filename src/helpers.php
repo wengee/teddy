@@ -429,3 +429,26 @@ if (!function_exists('build_url')) {
         return unparse_url($parsedUrl);
     }
 }
+
+if (!function_exists('site_url')) {
+    /**
+     * Make a site url.
+     *
+     * @param  string $url
+     * @param  string|array $queryArgs
+     * @return string
+     */
+    function site_url(string $path, $queryArgs = []): string
+    {
+        static $baseUrl;
+        if (!isset($baseUrl)) {
+            $baseUrl = str_finish(config('app.baseUrl', '/'), '/');
+        }
+
+        if (!preg_match('#https?://.+#i', $path)) {
+            $path = $baseUrl . ltrim($path, '/');
+        }
+
+        return build_url($path, $queryArgs);
+    }
+}
