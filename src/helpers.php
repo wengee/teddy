@@ -380,3 +380,52 @@ if (!function_exists('base64url_unserialize')) {
         return unserialize(base64url_decode($data));
     }
 }
+
+if (!function_exists('unparse_url')) {
+    /**
+     * Conversion back to string from a parsed url.
+     *
+     * @param  array $parsedUrl
+     * @return string
+     */
+    function unparse_url(array $parsedUrl): string
+    {
+        $scheme   = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '';
+        $host     = $parsedUrl['host'] ?? '';
+        $port     = isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
+        $user     = $parsedUrl['user'] ?? '';
+        $pass     = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
+        $pass     = ($user || $pass) ? "$pass@" : '';
+        $path     = $parsedUrl['path'] ?? '';
+        $query    = isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '';
+        $fragment = isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : '';
+
+        return "$scheme$user$pass$host$port$path$query$fragment";
+    }
+}
+
+if (!function_exists('build_url')) {
+    /**
+     * Make a url with query params.
+     *
+     * @param  string $url
+     * @param  string|array $queryArgs
+     * @return string
+     */
+    function build_url(string $url, $queryArgs = []): string
+    {
+        if (!$queryArgs) {
+            return $url;
+        }
+
+        if (is_array($queryArgs)) {
+            $queryArgs = http_build_query($queryArgs);
+        } else {
+            $queryArgs = strval($queryArgs);
+        }
+
+        $parsedUrl = parse_url($url);
+        $parsedUrl['query'] = empty($parsedUrl['query']) ? $queryArgs : $parsedUrl['query'] . '&' . $queryArgs;
+        return unparse_url($parsedUrl);
+    }
+}
