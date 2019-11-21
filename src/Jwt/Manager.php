@@ -80,7 +80,7 @@ class Manager
 
         try {
             $decoded = JWT::decode($token, $secret, $algorithm);
-            return array_wrap($decoded);
+            return (array) $decoded;
         } catch (Exception $e) {
             throw $e;
         }
