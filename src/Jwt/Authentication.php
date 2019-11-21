@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-21 14:59:47 +0800
+ * @version  2019-11-21 15:16:04 +0800
  */
 
 namespace Teddy\Jwt;
@@ -39,7 +39,6 @@ class Authentication implements MiddlewareInterface
     public function __construct(array $options = [])
     {
         $this->setOptions($options);
-        $this->init();
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
