@@ -28,6 +28,7 @@ use Teddy\Http\Response;
 use Teddy\Jwt\Manager as JwtManager;
 use Teddy\Lock\Factory as LockFactory;
 use Teddy\Logger\Logger;
+use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Model\Manager as ModelManager;
 use Teddy\Redis\Manager as RedisManager;
 use Teddy\Routing\RouteCollector;
@@ -92,6 +93,13 @@ class App extends Container
         }
 
         throw new BadMethodCallException("Call to undefined method: $method");
+    }
+
+    public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
+    {
+        $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
+        $this->slimInstance->add($bodyParsingMiddleware);
+        return $bodyParsingMiddleware;
     }
 
     public function getName(): string

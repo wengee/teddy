@@ -25,13 +25,13 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         CallableResolverInterface $callableResolver,
         ?ContainerInterface $container = null,
         ?RouteCollectorInterface $routeCollector = null,
-        string $basePath = ''
+        string $groupPattern = ''
     ) {
         $this->responseFactory = $responseFactory;
         $this->callableResolver = $callableResolver;
         $this->container = $container;
         $this->routeCollector = $routeCollector ?? new RouteCollector($responseFactory, $callableResolver, $container);
-        $this->basePath = $basePath;
+        $this->groupPattern = $groupPattern;
     }
 
     public function setNamespace(string $namespace): void
@@ -59,7 +59,7 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
             $pattern = $pattern['pattern'] ?? '';
         }
 
-        $pattern = $this->basePath . $pattern;
+        $pattern = $this->groupPattern . $pattern;
         if ($this->namespace && (!$namespace || $namespace{0} !== '\\')) {
             $namespace = rtrim($this->namespace, '\\') . '\\' . $namespace;
         }
