@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-09 11:04:16 +0800
+ * @version  2019-12-04 11:15:11 +0800
  */
 
 namespace Teddy;
@@ -57,10 +57,6 @@ class Builder
         }
 
         $s = microtime(true);
-        if ($this->options['copy']) {
-            $this->copyFiles($this->options['copy']);
-        }
-
         $files = $this->addFiles();
         if ($this->options['output']) {
             $this->makePhar($files);
@@ -68,6 +64,9 @@ class Builder
             $this->makeCopy($files);
         }
 
+        if ($this->options['copy']) {
+            $this->copyFiles($this->options['copy']);
+        }
         $elapsed = sprintf('%.3f', microtime(true) - $s);
         echo "Elapsed time: {$elapsed}s" . PHP_EOL;
     }
