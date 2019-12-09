@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-07 18:09:59 +0800
+ * @version  2019-12-09 16:29:05 +0800
  */
 
 /**
@@ -26,6 +26,13 @@ use function GuzzleHttp\is_host_in_noproxy;
  */
 class CoroutineHandler
 {
+    protected $options = [];
+
+    public function __construct(array $options = [])
+    {
+        $this->options = $options;
+    }
+
     /**
      * @return \GuzzleHttp\Promise\PromiseInterface
      */
@@ -55,10 +62,11 @@ class CoroutineHandler
         $client->setData((string) $request->getBody());
         // 初始化Headers
         $this->initHeaders($client, $request, $options);
+
         // 初始化配置
         $settings = $this->getSettings($request, $options);
         // 设置客户端参数
-        if (! empty($settings)) {
+        if (!empty($settings)) {
             $client->set($settings);
         }
 
@@ -96,7 +104,7 @@ class CoroutineHandler
 
     protected function getSettings(RequestInterface $request, $options): array
     {
-        $settings = [];
+        $settings = array_wrap($this->options['swoole'] ?? []);
         if (isset($options['delay']) && $options['delay'] > 0) {
             Coroutine::sleep((float) $options['delay'] / 1000);
         }
@@ -159,6 +167,7 @@ class CoroutineHandler
         // SSL KEY
         isset($options['ssl_key']) && $settings['ssl_key_file'] = $options['ssl_key'];
         isset($options['cert']) && $settings['ssl_cert_file'] = $options['cert'];
+
         // Swoole Setting
         if (isset($options['swoole']) && is_array($options['swoole'])) {
             $settings = array_replace($settings, $options['swoole']);
