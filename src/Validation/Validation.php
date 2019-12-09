@@ -59,7 +59,7 @@ class Validation
     public function validate(array $data, array $rules = [], bool $quiet = false)
     {
         if (method_exists($this, 'beforeValidate')) {
-            $this->beforeValidate($data);
+            $data = $this->beforeValidate($data);
         }
 
         if (!empty($rules)) {
@@ -78,7 +78,7 @@ class Validation
         }
 
         if (method_exists($this, 'afterValidate')) {
-            $this->afterValidate($filtered);
+            $filtered = $this->afterValidate($filtered);
         }
 
         return $filtered;
