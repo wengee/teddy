@@ -44,7 +44,7 @@ class Builder
 
     public function run()
     {
-        if (!$this->options['directories'] || !$this->options['files']) {
+        if (!$this->options['directories'] && !$this->options['files']) {
             return false;
         }
 
