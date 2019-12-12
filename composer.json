@@ -2,6 +2,21 @@
     "name": "fwkit/teddy",
     "description": "A PHP framework based on SLIM",
     "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fung Wing Kit",
+            "email": "wengee@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Teddy\\": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    },
     "require": {
         "php": ">=7.3.0",
         "ext-swoole": ">=4.4.0",
@@ -15,8 +30,6 @@
         "doctrine/annotations": "^1.6",
         "firebase/php-jwt": "^5.0",
         "league/flysystem": "^1.0",
-        "aliyuncs/oss-sdk-php": "^2.3",
-        "jacobcyl/ali-oss-storage": "^2.1",
         "league/event": "^2.2",
         "funkjedi/composer-include-files": "^1.0",
         "mix/guzzle-hook": "^1.0"
@@ -24,24 +37,12 @@
     "require-dev": {
         "guzzlehttp/guzzle": "^6.4"
     },
-    "license": "MIT",
-    "autoload": {
-        "psr-4": {
-            "Teddy\\": "src/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
-    },
-    "authors": [
-        {
-            "name": "Fung Wing Kit",
-            "email": "wengee@gmail.com"
-        }
-    ],
     "extra": {
         "include_files": [
             "guzzle/functions_include.php"
         ]
+    },
+    "suggest": {
+        "jacobcyl/ali-oss-storage": "Allows you to use Aliyun OSS"
     }
 }
