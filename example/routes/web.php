@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-02 16:52:20 +0800
+ * @version  2019-12-16 16:56:13 +0800
  */
 
 use App\Middlewares\Bar;
@@ -11,6 +11,7 @@ use App\Middlewares\Foo;
 use App\Middlewares\Test;
 
 $router->get('[/]', 'IndexController:index');
+$router->post('/upload', 'IndexController:upload');
 
 $router->group('/test', function ($router): void {
     $router->group('/foo', function ($router): void {

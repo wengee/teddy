@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-06 18:29:05 +0800
+ * @version  2019-12-16 17:00:43 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -17,6 +17,7 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use OSS\OssClient;
+use Overtrue\Flysystem\Cos\CosAdapter;
 
 class Manager
 {
@@ -38,18 +39,18 @@ class Manager
         }
     }
 
-    public function disk(?string $name = null)
+    public function disk(?string $name = null): FilesystemAdapter
     {
         $name = $name ?: $this->getDefaultDriver();
         return $this->disks[$name] = $this->get($name);
     }
 
-    protected function get($name)
+    protected function get($name): FilesystemAdapter
     {
         return $this->disks[$name] ?? $this->resolve($name);
     }
 
-    protected function resolve($name)
+    protected function resolve($name): FilesystemAdapter
     {
         $config = $this->getConfig($name);
         $driverMethod = 'create'.ucfirst($config['driver']).'Driver';
@@ -61,7 +62,7 @@ class Manager
         }
     }
 
-    public function createLocalDriver(array $config)
+    public function createLocalDriver(array $config): FilesystemAdapter
     {
         $permissions = $config['permissions'] ?? [];
 
@@ -77,7 +78,7 @@ class Manager
         ), $config));
     }
 
-    public function createFtpDriver(array $config)
+    public function createFtpDriver(array $config): FilesystemAdapter
     {
         return $this->adapt($this->createFlysystem(
             new FtpAdapter($config),
@@ -85,10 +86,10 @@ class Manager
         ));
     }
 
-    public function createOssDriver(array $config)
+    public function createOssDriver(array $config): FilesystemAdapter
     {
-        $accessId  = $config['access_id'];
-        $accessKey = $config['access_key'];
+        $accessId  = $config['accessId'];
+        $accessKey = $config['accessKey'];
         $cdnDomain = empty($config['cdnDomain']) ? '' : $config['cdnDomain'];
         $bucket    = $config['bucket'];
         $ssl       = empty($config['ssl']) ? false : $config['ssl'];
@@ -109,7 +110,29 @@ class Manager
         return $this->adapt($filesystem);
     }
 
-    protected function adapt(FilesystemInterface $filesystem)
+    public function createCosDriver(array $config): FilesystemAdapter
+    {
+        $cosConf = [
+            'region'            => $config['region'],
+            'credentials'       => [
+                'appId'         => $config['appId'],
+                'secretId'      => $config['secretId'],
+                'secretKey'     => $config['secretKey'],
+            ],
+            'bucket'            => $config['bucket'],
+            'timeout'           => $config['timeout'] ?? 60,
+            'connect_timeout'   => $config['connectTimeout'] ?? 60,
+            'cdn'               => $config['cdnDomain'] ?? '',
+            'scheme'            => $config['scheme'] ?? 'http',
+            'read_from_cdn'     => $config['readFromCdn'] ?? false,
+        ];
+
+        $adapter = new CosAdapter($cosConf);
+        $filesystem = new Filesystem($adapter);
+        return $this->adapt($filesystem);
+    }
+
+    protected function adapt(FilesystemInterface $filesystem): FilesystemAdapter
     {
         return new FilesystemAdapter($filesystem);
     }

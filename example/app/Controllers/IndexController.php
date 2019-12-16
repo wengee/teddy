@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-20 10:35:52 +0800
+ * @version  2019-12-16 16:55:32 +0800
  */
 
 namespace App\Controllers;
@@ -46,5 +46,41 @@ class IndexController extends Controller
         }
 
         return $response->json(0, compact(['a', 'b', 'c', 'd']));
+    }
+
+    public function upload(Request $request, Response $response)
+    {
+        $files = $request->getUploadedFiles();
+        $file = $files['file'] ?? null;
+        if (!$file) {
+            return $response->json('请上传文件');
+        }
+
+        $filename = (string) $file->getClientFilename();
+        $ext = $this->guessFileExt($filename);
+        $path = 'test/' . time() . str_random(16) . '.' . $ext;
+
+        $f = $file->getStream()->detach();
+        defer(function () use ($f): void {
+            fclose($f);
+        });
+
+        app('fs')->writeStream($path, $f);
+        $url = app('fs')->url($path);
+
+        return $response->json(0, [
+            'url' => $url,
+        ]);
+    }
+
+    protected function guessFileExt(string $name)
+    {
+        $ext = null;
+        if (strrpos($name, '.') !== false) {
+            $ext = substr($name, strrpos($name, '.') + 1);
+            $ext = strtolower($ext);
+        }
+
+        return $ext;
     }
 }
