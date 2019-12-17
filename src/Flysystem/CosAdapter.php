@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-12-17 18:32:05 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -19,12 +19,14 @@ class CosAdapter extends OvertrueCosAdapter
         $expiration = date('c', !\is_numeric($expiration) ? \strtotime($expiration) : \intval($expiration));
 
         $objectUrl = $this->getClient()->getObjectUrl(
-            $this->getBucket(), $path, $expiration, $options
+            $this->getBucket(),
+            $path,
+            $expiration,
+            $options
         );
 
-        $url = parse_url($objectUrl);
-
         if ($this->config['cdn'] && $this->config['read_from_cdn']) {
+            $url = parse_url($objectUrl);
             return \sprintf('%s%s?%s', \rtrim($this->config['cdn'], '/'), urldecode($url['path']), $url['query']);
         }
 
