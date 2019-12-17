@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-06 15:22:34 +0800
+ * @version  2019-12-17 13:44:41 +0800
  */
 
 namespace Teddy;
@@ -104,7 +104,7 @@ abstract class Task
     {
         $this->wait($waitTimeout);
         $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
-        return $ret && isset($ret[0]) ? $ret[0] : false;
+        return ($ret && isset($ret[0])) ? $ret[0] : null;
     }
 
     final public function send()
