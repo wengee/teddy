@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-17 10:20:45 +0800
+ * @version  2019-12-17 10:21:35 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -39,6 +39,11 @@ class Manager
         }
     }
 
+    public function __call($method, $parameters)
+    {
+        return $this->disk()->$method(...$parameters);
+    }
+
     public function disk(?string $name = null): FilesystemAdapter
     {
         $name = $name ?: $this->getDefaultDriver();
@@ -68,7 +73,7 @@ class Manager
         }
     }
 
-    public function createLocalDriver(array $config): FilesystemAdapter
+    protected function createLocalDriver(array $config): FilesystemAdapter
     {
         $permissions = $config['permissions'] ?? [];
 
@@ -84,7 +89,7 @@ class Manager
         ), $config));
     }
 
-    public function createFtpDriver(array $config): FilesystemAdapter
+    protected function createFtpDriver(array $config): FilesystemAdapter
     {
         return $this->adapt($this->createFlysystem(
             new FtpAdapter($config),
@@ -92,7 +97,7 @@ class Manager
         ));
     }
 
-    public function createOssDriver(array $config): FilesystemAdapter
+    protected function createOssDriver(array $config): FilesystemAdapter
     {
         $accessId  = $config['accessId'];
         $accessKey = $config['accessKey'];
@@ -116,7 +121,7 @@ class Manager
         return $this->adapt($filesystem);
     }
 
-    public function createCosDriver(array $config): FilesystemAdapter
+    protected function createCosDriver(array $config): FilesystemAdapter
     {
         $cosConf = [
             'region'            => $config['region'],
@@ -153,13 +158,8 @@ class Manager
         return array_get($this->config, "disks.{$name}");
     }
 
-    public function getDefaultDriver(): string
+    protected function getDefaultDriver(): string
     {
         return array_get($this->config, 'default', 'default');
-    }
-
-    public function __call($method, $parameters)
-    {
-        return $this->disk()->$method(...$parameters);
     }
 }
