@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2019-12-17 11:21:01 +0800
  */
 
 namespace Teddy\Factory;
@@ -29,7 +29,7 @@ class ServerRequestFactory
         $body = static::createBody($request);
         $uploadedFiles = static::createUploadFiles($request);
 
-        return make('request', [
+        $req = make('request', [
             $method,
             $uri,
             $headers,
@@ -38,6 +38,9 @@ class ServerRequestFactory
             $body,
             $uploadedFiles
         ]);
+
+        return $req->withQueryParams($request->get ?? [])
+            ->withParsedBody($request->post ?? []);
     }
 
     protected static function createUri(SwooleRequest $request): Uri

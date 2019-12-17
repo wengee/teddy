@@ -324,13 +324,14 @@ class Server
     {
         $cpuNum = swoole_cpu_num();
         $options = [
-            'reactor_num' => $cpuNum * 2,
-            'worker_num' => $cpuNum * 2,
-            'task_worker_num' => $cpuNum * 2,
-            'dispatch_mode' => 1,
-            'daemonize' => 0,
-            'enable_coroutine' => true,
+            'reactor_num'           => $cpuNum * 2,
+            'worker_num'            => $cpuNum * 2,
+            'task_worker_num'       => $cpuNum * 2,
+            'dispatch_mode'         => 1,
+            'daemonize'             => 0,
+            'enable_coroutine'      => true,
             'task_enable_coroutine' => true,
+            'http_parse_post'       => true,
         ];
 
         if (isset($config['options']) && is_array($config['options'])) {
