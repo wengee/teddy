@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-16 17:00:43 +0800
+ * @version  2019-12-17 10:20:45 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -42,23 +42,29 @@ class Manager
     public function disk(?string $name = null): FilesystemAdapter
     {
         $name = $name ?: $this->getDefaultDriver();
-        return $this->disks[$name] = $this->get($name);
-    }
-
-    protected function get($name): FilesystemAdapter
-    {
-        return $this->disks[$name] ?? $this->resolve($name);
+        return $this->disks[$name] = $this->resolve($name);
     }
 
     protected function resolve($name): FilesystemAdapter
     {
-        $config = $this->getConfig($name);
-        $driverMethod = 'create'.ucfirst($config['driver']).'Driver';
+        if (isset($this->disks[$name])) {
+            return $this->disks[$name];
+        }
 
+        $config = $this->getConfig($name);
+        if (!$config) {
+            throw new InvalidArgumentException("Disk [{$name}] is not found.");
+        } elseif (is_string($config)) {
+            return $this->resolve($config);
+        }
+
+        $config = (array) $config;
+        $driver = $config['driver'] ?? 'local';
+        $driverMethod = 'create'.ucfirst($driver).'Driver';
         if (method_exists($this, $driverMethod)) {
             return $this->{$driverMethod}($config);
         } else {
-            throw new InvalidArgumentException("Driver [{$config['driver']}] is not supported.");
+            throw new InvalidArgumentException("Driver [{$driver}] is not supported.");
         }
     }
 
@@ -147,7 +153,7 @@ class Manager
         return array_get($this->config, "disks.{$name}");
     }
 
-    public function getDefaultDriver()
+    public function getDefaultDriver(): string
     {
         return array_get($this->config, 'default', 'default');
     }
