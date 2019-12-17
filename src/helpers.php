@@ -72,9 +72,9 @@ if (!function_exists('path_join')) {
     function path_join(string $basePath, string ...$args)
     {
         $basePath = rtrim($basePath, '/\\');
-        $args = array_map(function ($arg) {
+        $args = array_filter(array_map(function ($arg) {
             return trim($arg, '/\\');
-        }, $args);
+        }, $args), 'strlen');
 
         return $basePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
     }
