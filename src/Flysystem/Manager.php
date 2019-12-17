@@ -17,7 +17,6 @@ use League\Flysystem\AdapterInterface;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use OSS\OssClient;
-use Overtrue\Flysystem\Cos\CosAdapter;
 
 class Manager
 {
