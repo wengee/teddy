@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-17 18:32:05 +0800
+ * @version  2019-12-17 18:38:55 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -26,8 +26,12 @@ class CosAdapter extends OvertrueCosAdapter
         );
 
         if ($this->config['cdn'] && $this->config['read_from_cdn']) {
-            $url = parse_url($objectUrl);
-            return \sprintf('%s%s?%s', \rtrim($this->config['cdn'], '/'), urldecode($url['path']), $url['query']);
+            return \sprintf(
+                '%s%s?%s',
+                \rtrim($this->config['cdn'], '/'),
+                $objectUrl->getPath(),
+                $objectUrl->getQuery()
+            );
         }
 
         return $objectUrl;
