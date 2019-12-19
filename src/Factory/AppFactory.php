@@ -18,7 +18,7 @@ class AppFactory
         if (defined('IN_SCF') && IN_SCF) {
             return self::createScfApp($basePath, $envFile);
         } else {
-            return App::createSwooleApp($basePath, $envFile);
+            return self::createSwooleApp($basePath, $envFile);
         }
     }
 
