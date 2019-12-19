@@ -9,8 +9,8 @@
 namespace Teddy\Pool;
 
 use SplQueue;
+use Swoole\Coroutine;
 use Swoole\Coroutine\Channel as CoChannel;
-use Teddy\Swoole\Coroutine;
 
 class Channel
 {
@@ -23,8 +23,11 @@ class Channel
     public function __construct(int $size)
     {
         $this->size = $size;
-        $this->channel = new CoChannel($size);
         $this->queue = new SplQueue;
+
+        if (class_exists(CoChannel::class)) {
+            $this->channel = new CoChannel($size);
+        }
     }
 
     public function pop(float $timeout)
@@ -56,6 +59,6 @@ class Channel
 
     protected function isCoroutine(): bool
     {
-        return Coroutine::id() > 0;
+        return class_exists(Coroutine::class) && Coroutine::getCid() > 0;
     }
 }
