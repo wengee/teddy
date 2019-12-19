@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 15:46:03 +0800
+ * @version  2019-12-19 16:38:46 +0800
  */
 
 namespace Teddy\Scf;
@@ -12,7 +12,7 @@ use Teddy\App as BaseApp;
 
 class App extends BaseApp
 {
-    public function run($event, $context): array
+    public function handle($event, $context): array
     {
         $request = ServerRequestFactory::createRequest($event, $context);
         $response = $this->slimInstance->handle($request);
