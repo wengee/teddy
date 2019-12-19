@@ -35,7 +35,7 @@
         "mix/guzzle-hook": "^1.0"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "^6.4",
+        "guzzlehttp/guzzle": "6.4.*",
         "jacobcyl/ali-oss-storage": "^2.1",
         "overtrue/flysystem-cos": "^2.0"
     },

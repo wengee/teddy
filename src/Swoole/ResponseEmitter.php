@@ -3,10 +3,10 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 17:55:06 +0800
+ * @version  2019-12-19 22:01:06 +0800
  */
 
-namespace Teddy;
+namespace Teddy\Swoole;
 
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response as SwooleResponse;

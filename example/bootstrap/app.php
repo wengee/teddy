@@ -3,16 +3,16 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 17:52:12 +0800
+ * @version  2019-12-19 21:59:04 +0800
  */
 
 use App\Http\Request;
 use App\Http\Response;
 use App\Listeners\OnStartListener;
 use App\Listeners\OnWorkerStartListener;
-use Teddy\App;
+use Teddy\Factory\AppFactory;
 
-$app = App::create(defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__));
+$app = AppFactory::create(defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__));
 
 $app->bind('request', Request::class);
 $app->bind('response', Response::class);

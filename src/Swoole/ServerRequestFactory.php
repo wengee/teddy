@@ -6,7 +6,7 @@
  * @version  2019-12-17 11:21:01 +0800
  */
 
-namespace Teddy\Factory;
+namespace Teddy\Swoole;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;

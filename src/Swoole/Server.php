@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-20 10:32:20 +0800
+ * @version  2019-12-19 21:58:06 +0800
  */
 
 namespace Teddy\Swoole;
@@ -18,7 +18,6 @@ use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Table;
 use Swoole\Websocket\Server as WebsocketServer;
-use Teddy\App;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
 use Teddy\Schedule\ScheduleProcess;

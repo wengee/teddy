@@ -8,7 +8,7 @@
 
 namespace Teddy\Factory;
 
-use Teddy\App;
+use Teddy\Swoole\App as SwooleApp;
 use Teddy\Scf\App as ScfApp;
 
 class AppFactory
@@ -29,6 +29,6 @@ class AppFactory
 
     public static function createSwooleApp(string $basePath, string $envFile = '.env')
     {
-        return new App($basePath, $envFile);
+        return new SwooleApp($basePath, $envFile);
     }
 }
