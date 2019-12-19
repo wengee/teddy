@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:53 +0800
+ * @version  2019-12-19 17:52:12 +0800
  */
 
 use App\Http\Request;
@@ -12,12 +12,13 @@ use App\Listeners\OnStartListener;
 use App\Listeners\OnWorkerStartListener;
 use Teddy\App;
 
-$app = App::create(defined('BASE_PATH') ? BASE_PATH : dir(__DIR__));
+$app = App::create(defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__));
 
 $app->bind('request', Request::class);
 $app->bind('response', Response::class);
 
 $app->addErrorMiddleware(true, true, true);
+$app->addStaticFileMiddleware(dirname(__DIR__) . '/public');
 
 $app->addEventListeners([
     'server.onStart' => [

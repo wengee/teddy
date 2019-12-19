@@ -29,6 +29,7 @@ use Teddy\Jwt\Manager as JwtManager;
 use Teddy\Lock\Factory as LockFactory;
 use Teddy\Logger\Logger;
 use Teddy\Middleware\BodyParsingMiddleware;
+use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Model\Manager as ModelManager;
 use Teddy\Redis\Manager as RedisManager;
 use Teddy\Routing\RouteCollector;
@@ -100,6 +101,13 @@ abstract class BaseApp extends Container
         $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
         $this->slimInstance->add($bodyParsingMiddleware);
         return $bodyParsingMiddleware;
+    }
+
+    public function addStaticFileMiddleware(string $basePath, string $urlPrefix = ''): StaticFileMiddleware
+    {
+        $middleware = new StaticFileMiddleware($basePath, $urlPrefix);
+        $this->slimInstance->add($middleware);
+        return $middleware;
     }
 
     public function getName(): string
