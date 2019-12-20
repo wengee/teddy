@@ -8,20 +8,29 @@
 
 namespace Teddy\Guzzle;
 
+use GuzzleHttp\Handler\CurlHandler;
+use GuzzleHttp\Handler\CurlMultiHandler;
+use GuzzleHttp\Handler\StreamHandler;
+use Swoole\Coroutine\Http\Client as SwooleHttpClient;
+
 class DefaultHandler
 {
     protected static $handler;
 
     protected static $handlers = [
-        'stream'    => \GuzzleHttp\Handler\StreamHandler::class,
-        'curl'      => \GuzzleHttp\Handler\CurlHandler::class,
-        'curlMulti' => \GuzzleHttp\Handler\CurlMultiHandler::class,
+        'stream'    => StreamHandler::class,
+        'curl'      => CurlHandler::class,
+        'curlMulti' => CurlMultiHandler::class,
         'coroutine' => CoroutineHandler::class,
         'pool'      => PoolHandler::class,
     ];
 
-    public static function set($handler): void
+    public static function set($handler = null)
     {
+        if ($handler === null) {
+            $handler = class_exists(SwooleHttpClient::class) ? 'coroutine' : 'curl';
+        }
+
         if (is_string($handler)) {
             $handler = self::$handlers[$handler] ?? $handler;
             if (class_exists($handler)) {
@@ -35,7 +44,7 @@ class DefaultHandler
     public static function get()
     {
         if (!isset(self::$handler)) {
-            self::set('coroutine');
+            self::set();
         }
 
         return self::$handler;

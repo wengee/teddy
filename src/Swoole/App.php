@@ -22,9 +22,17 @@ class App extends BaseApp
         $responseEmitter->emit($response);
     }
 
-    public function listen(): void
+    public function listen($host = null): void
     {
-        $config = $this->config->get('swoole', []);
+        $config = (array) $this->config->get('swoole', []);
+        if (is_int($host) && $host > 0) {
+            $config['port'] = $host;
+        } elseif (is_string($host)) {
+            $arr = explode(':', $host);
+            $config['host'] = $arr[0] ?? '0.0.0.0';
+            $config['port'] = intval($arr[1] ?? 9500);
+        }
+
         (new Server($this, $config))->start();
     }
 }
