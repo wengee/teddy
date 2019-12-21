@@ -8,7 +8,7 @@
 
 namespace Teddy\Factory;
 
-use App\Runtime;
+use Teddy\Runtime;
 use Teddy\Scf\App as ScfApp;
 use Teddy\Swoole\App as SwooleApp;
 

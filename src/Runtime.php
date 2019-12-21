@@ -3,10 +3,10 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-20 12:06:26 +0800
+ * @version  2019-12-21 09:31:52 +0800
  */
 
-namespace App;
+namespace Teddy;
 
 class Runtime
 {

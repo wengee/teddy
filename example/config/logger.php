@@ -3,16 +3,26 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:53 +0800
+ * @version  2019-12-21 11:05:44 +0800
  */
 
 return [
-    'handlers' => [
-        'daily' => [
-            'path' => __DIR__ . '/../runtime/app.log',
+    'default'   => 'test',
+
+    'handlers'  => [
+        'test'  => [
+            'driver'    => 'stack',
+            'handlers'  => ['file', 'console'],
         ],
-        'file' => [
-            'path' => __DIR__ . '/../runtime/teddy.log',
+
+        'file'  => [
+            'driver'    => 'file',
+            'path'      => __DIR__ . '/../runtime/teddy.log',
+        ],
+
+        'console'   => [
+            'driver'    => 'file',
+            'path'      => 'php://stderr',
         ],
     ],
 ];

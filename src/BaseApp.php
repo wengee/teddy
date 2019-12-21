@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-04 14:26:12 +0800
+ * @version  2019-12-21 10:16:42 +0800
  */
 
 namespace Teddy;
@@ -17,23 +17,19 @@ use League\Event\Emitter as EventEmitter;
 use League\Event\ListenerInterface;
 use Phar;
 use Slim\App as SlimApp;
-use Swoole\Http\Request as SwooleRequest;
-use Swoole\Http\Response as SwooleResponse;
 use Teddy\Database\Manager as DatabaseManager;
 use Teddy\Factory\ResponseFactory;
-use Teddy\Factory\ServerRequestFactory;
 use Teddy\Flysystem\Manager as FlysystemManager;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
 use Teddy\Jwt\Manager as JwtManager;
 use Teddy\Lock\Factory as LockFactory;
-use Teddy\Logger\Logger;
+use Teddy\Logger\Manager as LoggerManager;
 use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Model\Manager as ModelManager;
 use Teddy\Redis\Manager as RedisManager;
 use Teddy\Routing\RouteCollector;
-use Teddy\Swoole\Server;
 
 abstract class BaseApp extends Container
 {
@@ -169,7 +165,7 @@ abstract class BaseApp extends Container
     {
         $this->instance('app', $this);
         $this->instance('slim', $this->slimInstance);
-        $this->bind('logger', Logger::class);
+        $this->bind('logger', LoggerManager::class);
         $this->bind('events', EventEmitter::class);
         $this->bind('request', Request::class);
         $this->bind('response', Response::class);
