@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-21 10:38:29 +0800
+ * @version  2019-12-23 10:22:36 +0800
  */
 
 namespace Teddy\Logger;
@@ -15,15 +15,20 @@ use Monolog\Processor\PsrLogMessageProcessor;
 
 class Logger extends MonoLogger
 {
-    public function __construct($handlers = [])
+    public function __construct($handlers = [], $processors = null)
     {
         $handlers = array_wrap($handlers);
         $appName = config('app.name') ?: 'Teddy App';
-        $processors = [
-            new PsrLogMessageProcessor,
-            new MemoryUsageProcessor,
-            new MemoryPeakUsageProcessor,
-        ];
+
+        if ($processors === null) {
+            $processors = [
+                new PsrLogMessageProcessor,
+                new MemoryUsageProcessor,
+                new MemoryPeakUsageProcessor,
+            ];
+        } else {
+            $processors = array_wrap($processors);
+        }
 
         parent::__construct($appName, $handlers, $processors);
     }

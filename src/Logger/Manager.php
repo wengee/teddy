@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-21 11:09:12 +0800
+ * @version  2019-12-23 10:28:24 +0800
  */
 
 namespace Teddy\Logger;
@@ -12,6 +12,7 @@ use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\HtmlFormatter;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\RotatingFileHandler;
@@ -172,12 +173,17 @@ class Manager implements LoggerInterface
     protected function createFileHandler(array $config = []): HandlerInterface
     {
         return $this->prepareHandler(new StreamHandler(
-            $config['path'],
+            $config['path'] ?? 'php://stderr',
             $config['level'] ?? $this->defaultLevel,
             $config['bubble'] ?? true,
             $config['filePermission'] ?? null,
             $config['useLocking'] ?? false
         ), $config);
+    }
+
+    protected function createStreamHandler(array $config = []): HandlerInterface
+    {
+        return $this->createFileHandler($config);
     }
 
     protected function createDailyHandler(array $config = []): HandlerInterface
@@ -199,6 +205,16 @@ class Manager implements LoggerInterface
             $config['facility'] ?? LOG_USER,
             $config['level'] ?? $this->defaultLevel,
             $config['bubble'] ?? true
+        ), $config);
+    }
+
+    protected function createErrorLogHandler(array $config = []): HandlerInterface
+    {
+        return $this->prepareHandler(new ErrorLogHandler(
+            $config['messageType'] ?? ErrorLogHandler::OPERATING_SYSTEM,
+            $config['level'] ?? $this->defaultLevel,
+            $config['bubble'] ?? true,
+            $config['expandNewlines'] ?? false
         ), $config);
     }
 
