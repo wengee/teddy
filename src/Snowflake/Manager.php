@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-18 16:51:58 +0800
+ * @version  2020-01-18 17:31:55 +0800
  */
 
 namespace Teddy\Snowflake;
@@ -12,21 +12,33 @@ use Godruoyi\Snowflake\Snowflake;
 
 class Manager extends Snowflake
 {
+    protected $snowflake;
+
     public function __construct()
     {
         $config = config('snowflake');
         $dataCenter = intval($config['dataCenter'] ?? 0);
         $workId = intval($config['workId'] ?? 0);
-        parent::__construct($dataCenter, $workId);
+        $this->snowflake = new Snowflake($dataCenter, $workId);
 
         if (isset($config['redis'])) {
             $redisConfig = (array) $config['redis'] ?? [];
             $connection = $redisConfig['connection'] ?? null;
             $resolver = new RedisSequenceResolver(app('redis')->connection($connection));
             $resolver->setPrefix($redisConfig['prefix'] ?? '');
-            $this->setSequenceResolver($resolver);
+            $this->snowflake->setSequenceResolver($resolver);
         } elseif (isset($config['swoole'])) {
-            $this->setSequenceResolver(new SwooleSequenceResolver);
+            $this->snowflake->setSequenceResolver(new SwooleSequenceResolver);
         }
+    }
+
+    public function id(): int
+    {
+        return (int) $this->snowflake->id();
+    }
+
+    public function parseId(int $id, bool $transform = false): array
+    {
+        return $this->snowflake->parseId(strval($id), $transform);
     }
 }
