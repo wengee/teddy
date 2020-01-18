@@ -3,14 +3,15 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-18 17:31:55 +0800
+ * @version  2020-01-18 17:42:15 +0800
  */
 
 namespace Teddy\Snowflake;
 
 use Godruoyi\Snowflake\Snowflake;
+use Teddy\Interfaces\SnowflakeInterface;
 
-class Manager extends Snowflake
+class Manager implements SnowflakeInterface
 {
     protected $snowflake;
 
@@ -40,5 +41,15 @@ class Manager extends Snowflake
     public function parseId(int $id, bool $transform = false): array
     {
         return $this->snowflake->parseId(strval($id), $transform);
+    }
+
+    public function setSequenceResolver($resolver): void
+    {
+        $this->snowflake->setSequenceResolver($resolver);
+    }
+
+    public function getSequenceResolver()
+    {
+        return $this->snowflake->getSequenceResolver();
     }
 }
