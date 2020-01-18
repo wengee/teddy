@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-21 10:16:42 +0800
+ * @version  2020-01-18 16:25:20 +0800
  */
 
 namespace Teddy;
@@ -13,22 +13,12 @@ use Composer\Autoload\ClassLoader;
 use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
-use League\Event\Emitter as EventEmitter;
 use League\Event\ListenerInterface;
 use Phar;
 use Slim\App as SlimApp;
-use Teddy\Database\Manager as DatabaseManager;
 use Teddy\Factory\ResponseFactory;
-use Teddy\Flysystem\Manager as FlysystemManager;
-use Teddy\Http\Request;
-use Teddy\Http\Response;
-use Teddy\Jwt\Manager as JwtManager;
-use Teddy\Lock\Factory as LockFactory;
-use Teddy\Logger\Manager as LoggerManager;
 use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
-use Teddy\Model\Manager as ModelManager;
-use Teddy\Redis\Manager as RedisManager;
 use Teddy\Routing\RouteCollector;
 
 abstract class BaseApp extends Container
@@ -165,27 +155,32 @@ abstract class BaseApp extends Container
     {
         $this->instance('app', $this);
         $this->instance('slim', $this->slimInstance);
-        $this->bind('logger', LoggerManager::class);
-        $this->bind('events', EventEmitter::class);
-        $this->bind('request', Request::class);
-        $this->bind('response', Response::class);
-        $this->bind('lock', LockFactory::class);
+
+        $this->bind('logger', \Teddy\Logger\Manager::class);
+        $this->bind('events', \League\Event\Emitter::class);
+        $this->bind('request', \Teddy\Http\Request::class);
+        $this->bind('response', \Teddy\Http\Response::class);
+        $this->bind('lock', \Teddy\Lock\Factory::class);
 
         if ($this->config->has('database')) {
-            $this->bind('db', DatabaseManager::class);
-            $this->bind('modelManager', ModelManager::class);
+            $this->bind('db', \Teddy\Database\Manager::class);
+            $this->bind('modelManager', \Teddy\Model\Manager::class);
         }
 
         if ($this->config->has('redis')) {
-            $this->bind('redis', RedisManager::class);
+            $this->bind('redis', \Teddy\Redis\Manager::class);
         }
 
         if ($this->config->has('jwt')) {
-            $this->bind('jwt', JwtManager::class);
+            $this->bind('jwt', \Teddy\Jwt\Manager::class);
         }
 
         if ($this->config->has('flysystem')) {
-            $this->bind('fs', FlysystemManager::class);
+            $this->bind('fs', \Teddy\Flysystem\Manager::class);
+        }
+
+        if ($this->config->has('snowflake')) {
+            $this->bind('snowflake', \Teddy\Snowflake\Manager::class);
         }
     }
 

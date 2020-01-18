@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-16 16:55:32 +0800
+ * @version  2020-01-18 16:56:03 +0800
  */
 
 namespace App\Controllers;
@@ -40,10 +40,8 @@ class IndexController extends Controller
 
         app('swoole')->aTable->set(uniqid(), ['a' => 123, 'b' => 'abc']);
         $c = app('swoole')->aTable->count();
-        $d = [];
-        foreach (app('swoole')->aTable as $key => $value) {
-            $d[$key] = $value;
-        }
+
+        $d = app('snowflake')->id();
 
         return $response->json(0, compact(['a', 'b', 'c', 'd']));
     }
