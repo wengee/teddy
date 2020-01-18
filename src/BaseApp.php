@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-18 16:25:20 +0800
+ * @version  2020-01-18 17:53:26 +0800
  */
 
 namespace Teddy;
@@ -156,11 +156,17 @@ abstract class BaseApp extends Container
         $this->instance('app', $this);
         $this->instance('slim', $this->slimInstance);
 
+        $this->alias('snowflake', \Teddy\Interfaces\SnowflakeInterface::class);
+        $this->alias('request', \Psr\Http\Message\ServerRequestInterface::class);
+        $this->alias('response', \Psr\Http\Message\ResponseInterface::class);
+        $this->alias('logger', \Psr\Log\LoggerInterface::class);
+        $this->alias('events', \League\Event\ListenerInterface::class);
+
         $this->bind('logger', \Teddy\Logger\Manager::class);
         $this->bind('events', \League\Event\Emitter::class);
+        $this->bind('lock', \Teddy\Lock\Factory::class);
         $this->bind('request', \Teddy\Http\Request::class);
         $this->bind('response', \Teddy\Http\Response::class);
-        $this->bind('lock', \Teddy\Lock\Factory::class);
 
         if ($this->config->has('database')) {
             $this->bind('db', \Teddy\Database\Manager::class);
