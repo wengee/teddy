@@ -28,7 +28,7 @@ class DefaultHandler
     public static function set($handler = null)
     {
         if ($handler === null) {
-            $handler = class_exists(SwooleHttpClient::class) ? 'coroutine' : 'curl';
+            $handler = class_exists(SwooleHttpClient::class) ? 'stream' : 'curl';
         }
 
         if (is_string($handler)) {
