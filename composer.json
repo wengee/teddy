@@ -38,7 +38,8 @@
         "guzzlehttp/guzzle": "6.4.*",
         "jacobcyl/ali-oss-storage": "^2.1",
         "overtrue/flysystem-cos": "^2.0",
-        "godruoyi/php-snowflake": "^1.0"
+        "godruoyi/php-snowflake": "^1.0",
+        "ramsey/uuid": "^3.9"
     },
     "extra": {
         "include_files": [
@@ -48,6 +49,7 @@
     "suggest": {
         "jacobcyl/ali-oss-storage": "Allows you to use Aliyun OSS",
         "overtrue/flysystem-cos": "Allows you to use TencentYun COS",
-        "godruoyi/php-snowflake": "Allows you to use snowflake id generator"
+        "godruoyi/php-snowflake": "Allows you to use snowflake id generator",
+        "ramsey/uuid": "Allows you to use db uuid column"
     }
 }
