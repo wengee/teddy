@@ -30,16 +30,15 @@
         "doctrine/annotations": "^1.6",
         "firebase/php-jwt": "^5.0",
         "league/flysystem": "^1.0",
-        "league/event": "^2.2",
-        "funkjedi/composer-include-files": "^1.0",
-        "mix/guzzle-hook": "^1.0"
+        "league/event": "^2.2"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "6.4.*",
+        "guzzlehttp/guzzle": "6.*",
         "jacobcyl/ali-oss-storage": "^2.1",
         "overtrue/flysystem-cos": "^2.0",
         "godruoyi/php-snowflake": "^1.0",
-        "ramsey/uuid": "^3.9"
+        "ramsey/uuid": "^3.9",
+        "fwkit/guzzle-hook": "^1.0"
     },
     "extra": {
         "include_files": [
