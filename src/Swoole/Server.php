@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 21:58:06 +0800
+ * @version  2020-02-11 20:52:08 +0800
  */
 
 namespace Teddy\Swoole;
@@ -22,7 +22,7 @@ use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
 use Teddy\Schedule\ScheduleProcess;
 use Teddy\Task;
-use Teddy\Utils;
+use Teddy\Utils\System;
 
 defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
@@ -66,7 +66,7 @@ class Server
 
     public function start(): void
     {
-        Utils::setProcessTitle('master process', $this->name);
+        System::setProcessTitle('master process', $this->name);
         $this->swoole->start();
     }
 
@@ -87,7 +87,7 @@ class Server
         }
 
         Runtime::enableCoroutine(true, $this->coroutineFlags);
-        Utils::setProcessTitle($processName, $this->name);
+        System::setProcessTitle($processName, $this->name);
     }
 
     public function onRequest(Request $request, Response $response): void
@@ -169,7 +169,7 @@ class Server
             }
 
             $name = $process->getName() ?: 'custom';
-            Utils::setProcessTitle($name, $appName);
+            System::setProcessTitle($name, $appName);
 
             Process::signal(SIGUSR1, function ($signo) use ($name, $process, $worker, $swoole): void {
                 log_message('info', 'Reloading the process %s [pid=%d].', $name, $worker->pid);

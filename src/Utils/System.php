@@ -3,12 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-11 10:40:13 +0800
+ * @version  2020-02-11 20:51:44 +0800
  */
 
-namespace Teddy;
+namespace Teddy\Utils;
 
-class Utils
+class System
 {
     public static function setProcessTitle(string $title, ?string $prefix = null): void
     {

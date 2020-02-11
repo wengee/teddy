@@ -3,13 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-18 17:53:26 +0800
+ * @version  2020-02-11 20:56:15 +0800
  */
 
 namespace Teddy;
 
 use BadMethodCallException;
-use Composer\Autoload\ClassLoader;
 use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
@@ -23,8 +22,6 @@ use Teddy\Routing\RouteCollector;
 
 abstract class BaseApp extends Container
 {
-    protected static $loader;
-
     protected $basePath = '';
 
     protected $slimInstance;
@@ -54,23 +51,6 @@ abstract class BaseApp extends Container
     public static function create(string $basePath = '', string $envFile = '.env'): self
     {
         return new static($basePath, $envFile);
-    }
-
-    public static function setLoader(ClassLoader $loader): void
-    {
-        self::$loader = $loader;
-    }
-
-    public static function getLoader(): ?ClassLoader
-    {
-        if (!isset(self::$loader)) {
-            $loaderFile = vendor_path('autoload.php');
-            if ($loaderFile && is_file($loaderFile)) {
-                self::$loader = require $loaderFile;
-            }
-        }
-
-        return self::$loader;
     }
 
     public function __call(string $method, array $args = [])

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-08 17:55:00 +0800
+ * @version  2020-02-11 20:55:53 +0800
  */
 
 namespace Teddy\Model;
@@ -11,7 +11,7 @@ namespace Teddy\Model;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Exception;
-use Teddy\BaseApp;
+use Teddy\Utils\Composer;
 
 class Manager
 {
@@ -46,9 +46,7 @@ class Manager
 
     protected function registerLoader(): void
     {
-        $loader = BaseApp::getLoader();
-        if ($loader) {
-            AnnotationRegistry::registerLoader([$loader, 'loadClass']);
-        }
+        $loader = Composer::getLoader();
+        AnnotationRegistry::registerLoader([$loader, 'loadClass']);
     }
 }
