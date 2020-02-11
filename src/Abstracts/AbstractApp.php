@@ -3,24 +3,26 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-02-11 20:56:15 +0800
+ * @version  2020-02-11 21:04:18 +0800
  */
 
-namespace Teddy;
+namespace Teddy\Abstracts;
 
 use BadMethodCallException;
 use Dotenv\Dotenv;
-use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
 use League\Event\ListenerInterface;
 use Phar;
 use Slim\App as SlimApp;
+use Teddy\CallableResolver;
+use Teddy\Container;
+use Teddy\Exception;
 use Teddy\Factory\ResponseFactory;
 use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Routing\RouteCollector;
 
-abstract class BaseApp extends Container
+abstract class AbstractApp extends Container
 {
     protected $basePath = '';
 

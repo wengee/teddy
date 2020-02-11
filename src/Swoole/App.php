@@ -3,16 +3,16 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 21:57:42 +0800
+ * @version  2020-02-11 21:04:34 +0800
  */
 
 namespace Teddy\Swoole;
 
 use Swoole\Http\Request as SwooleRequest;
 use Swoole\Http\Response as SwooleResponse;
-use Teddy\BaseApp;
+use Teddy\Abstracts\AbstractApp;
 
-class App extends BaseApp
+class App extends AbstractApp
 {
     public function run(SwooleRequest $swooleRequest, SwooleResponse $swooleResponse): void
     {

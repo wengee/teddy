@@ -3,14 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-20 12:04:17 +0800
+ * @version  2020-02-11 21:00:41 +0800
  */
 
 namespace Teddy\Factory;
 
-use Teddy\Runtime;
 use Teddy\Scf\App as ScfApp;
 use Teddy\Swoole\App as SwooleApp;
+use Teddy\Utils\Runtime;
 
 class AppFactory
 {
