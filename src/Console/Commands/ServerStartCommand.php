@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-05 12:05:32 +0800
+ * @version  2020-03-05 12:19:03 +0800
  */
 
 namespace Teddy\Console\Commands;
@@ -13,12 +13,12 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ServCommand extends Command
+class ServerStartCommand extends Command
 {
     protected function configure(): void
     {
         $this
-            ->setName('serv')
+            ->setName('server:start')
             ->setDefinition($this->createDefinition())
             ->setDescription('Start server')
             ->setHelp('');

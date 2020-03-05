@@ -3,14 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-05 12:17:30 +0800
+ * @version  2020-03-05 12:19:26 +0800
  */
 
 namespace Teddy\Console;
 
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Teddy\Abstracts\AbstractApp;
-use Teddy\Console\Commands\ServCommand;
+use Teddy\Console\Commands\ServerStartCommand;
 
 class Application extends SymfonyApplication
 {
@@ -22,13 +22,13 @@ class Application extends SymfonyApplication
         parent::__construct('Teddy Framework', $version);
         $this->app = $app;
 
-        $this->add(new ServCommand);
+        $this->add(new ServerStartCommand);
         $commandList = config('command.list', []);
         if (!empty($commandList) && is_array($commandList)) {
             $this->addCommands($commandList);
         }
 
-        $defaultCommand = config('command.default', 'serv');
+        $defaultCommand = config('command.default', 'server:start');
         $this->setDefaultCommand($defaultCommand);
     }
 }
