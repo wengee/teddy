@@ -30,7 +30,8 @@
         "doctrine/annotations": "^1.6",
         "firebase/php-jwt": "^5.0",
         "league/flysystem": "^1.0",
-        "league/event": "^2.2"
+        "league/event": "^2.2",
+        "symfony/console": "^5.0"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "6.*",

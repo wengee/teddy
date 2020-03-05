@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-12 10:49:31 +0800
+ * @version  2020-03-05 11:58:19 +0800
  */
 
 defined('BASE_PATH') || define('BASE_PATH', __DIR__ . '/');
@@ -15,4 +15,4 @@ $composer->setPsr4('App\\', BASE_PATH . 'app');
 
 // Teddy\Guzzle\DefaultHandler::set('pool');
 $app = require BASE_PATH . 'bootstrap/app.php';
-$app->listen();
+exit(make('console', [$app])->run());
