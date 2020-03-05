@@ -3,12 +3,11 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-05 17:44:35 +0800
+ * @version  2020-03-05 18:13:27 +0800
  */
 
 namespace App\Commands;
 
-use App\Models\Qrcode;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -26,16 +25,11 @@ class TestCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $file = $input->getOption('file');
-        $output->writeln($file);
-
-        $output->writeln('测试');
-
-        for ($i = 0; $i < 10; $i++) {
-            $qrcode = Qrcode::query()->first();
-            sleep(2);
+        if ($file) {
+            $output->writeln($file);
         }
 
-        $output->writeln(\var_export($qrcode, true));
+        $output->block('测试');
         return 0;
     }
 }
