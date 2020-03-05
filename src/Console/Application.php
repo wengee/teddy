@@ -3,16 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-05 18:08:51 +0800
+ * @version  2020-03-05 18:24:03 +0800
  */
 
 namespace Teddy\Console;
 
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Teddy\Abstracts\AbstractApp;
 use Teddy\Console\Commands\ServerStartCommand;
@@ -37,10 +35,10 @@ class Application extends SymfonyApplication
         $this->setDefaultCommand($defaultCommand);
     }
 
-    public function run(InputInterface $input = null, OutputInterface $output = null)
+    public function handle()
     {
-        $input = $input ?? new ArgvInput;
-        $output = $output ?? new ConsoleOutput;
-        return parent::run($input, new SymfonyStyle($input, $output));
+        $input = new ArgvInput;
+        $output = new ConsoleOutput;
+        return $this->run($input, new SymfonyStyle($input, $output));
     }
 }
