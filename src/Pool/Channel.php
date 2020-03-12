@@ -32,7 +32,7 @@ class Channel
 
     public function pop(float $timeout)
     {
-        if ($this->isCoroutine()) {
+        if ($this->isCoroutine() && $this->channel) {
             return $this->channel->pop($timeout);
         }
 
@@ -41,7 +41,7 @@ class Channel
 
     public function push($data)
     {
-        if ($this->isCoroutine()) {
+        if ($this->isCoroutine() && $this->channel) {
             return $this->channel->push($data);
         }
 
@@ -50,7 +50,7 @@ class Channel
 
     public function length(): int
     {
-        if ($this->isCoroutine()) {
+        if ($this->isCoroutine() && $this->channel) {
             return $this->channel->length();
         }
 

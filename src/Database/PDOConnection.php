@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-03-11 17:28:03 +0800
  */
 
 namespace Teddy\Database;
@@ -13,9 +13,11 @@ use Illuminate\Support\Str;
 use PDO;
 use PDOException;
 use PDOStatement;
-use Teddy\Interfaces\ConnectionInterface;
+use Teddy\Database\Schema\Builder;
+use Teddy\Database\Schema\Grammars\MysqlGrammar;
+use Teddy\Database\Schema\MysqlBuilder;
 
-class PDOConnection implements ConnectionInterface
+class PDOConnection implements DbConnectionInterface
 {
     protected $pdo;
 
@@ -29,21 +31,51 @@ class PDOConnection implements ConnectionInterface
 
     public function __construct(array $config, bool $readOnly = false)
     {
-        $engine     = 'mysql';
-        $host       = array_get($config, 'host', '127.0.0.1');
-        $port       = array_get($config, 'port', 3306);
-        $name       = array_get($config, 'name', '');
-        $user       = array_get($config, 'user', 'root');
-        $password   = array_get($config, 'password', '');
-        $charset    = array_get($config, 'charset', 'utf8mb4');
-        $options    = array_get($config, 'options', []);
-        $dsn        = $engine . ':host=' . $host . ';port=' . $port . ';dbname=' . $name . ';charset=' . $charset;
+        $driver         = 'mysql';
+        $host           = array_get($config, 'host', '127.0.0.1');
+        $port           = array_get($config, 'port', 3306);
+        $dbName         = array_get($config, 'name', '');
+        $user           = array_get($config, 'user', 'root');
+        $password       = array_get($config, 'password', '');
+        $charset        = array_get($config, 'charset', 'utf8mb4');
+        $engine         = array_get($config, 'engine');
+        $collation      = array_get($config, 'collation');
+        $tablePrefix    = array_get($config, 'tablePrefix', '');
+        $options        = array_get($config, 'options', []);
+        $dsn            = $driver . ':host=' . $host . ';port=' . $port . ';dbname=' . $dbName . ';charset=' . $charset;
 
-        $options    = $options + $this->getDefaultOptions();
-        $this->config = compact('engine', 'dsn', 'user', 'password', 'options');
+        $options = $options + $this->getDefaultOptions();
+        $this->config = compact(
+            'driver',
+            'dsn',
+            'user',
+            'password',
+            'dbName',
+            'options',
+            'charset',
+            'engine',
+            'collation',
+            'tablePrefix'
+        );
+
         $this->readOnly = $readOnly;
         $this->idleTimeout = (int) array_get($config, 'idleTimeout', 0);
         $this->pdo = $this->createPDOConnection();
+    }
+
+    public function getConfig(string $key)
+    {
+        return array_get($this->config, $key);
+    }
+
+    public function getTablePrefix(): string
+    {
+        return array_get($this->config, 'tablePrefix', '');
+    }
+
+    public function getDatabaseName(): string
+    {
+        return array_get($this->config, 'dbName', '');
     }
 
     public function connect()
@@ -98,14 +130,14 @@ class PDOConnection implements ConnectionInterface
 
     public function rollBack(): void
     {
-        $this->stick = false;
         $this->connect()->rollBack();
+        $this->stick = false;
     }
 
     public function commit(): void
     {
-        $this->stick = false;
         $this->connect()->commit();
+        $this->stick = false;
     }
 
     public function query(string $sql, array $data = [], array $options = [])
@@ -167,6 +199,32 @@ class PDOConnection implements ConnectionInterface
         return $ret;
     }
 
+    public function select(string $sql, array $data = [])
+    {
+        return $this->query($sql, $data, [
+            'sqlType'   => SQL::SELECT_SQL,
+            'fetchType' => SQL::FETCH_ALL,
+        ]);
+    }
+
+    public function getSchemaBuilder(): Builder
+    {
+        if ($this->config['driver'] === 'mysql') {
+            return new MysqlBuilder($this);
+        }
+
+        return new Builder($this);
+    }
+
+    public function getSchemaGrammar(): Grammar
+    {
+        if ($this->config['driver'] === 'mysql') {
+            return new MysqlGrammar;
+        }
+
+        return new Grammar;
+    }
+
     protected function createPDOConnection(): PDO
     {
         $pdo = new PDO(
@@ -176,7 +234,7 @@ class PDOConnection implements ConnectionInterface
             $this->config['options']
         );
 
-        if ($this->idleTimeout > 0 && $this->config['engine'] === 'mysql') {
+        if ($this->idleTimeout > 0 && $this->config['driver'] === 'mysql') {
             $pdo->query("SET SESSION interactive_timeout = {$this->idleTimeout};");
             $pdo->query("SET SESSION wait_timeout = {$this->idleTimeout};");
         }

@@ -3,14 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-03-11 15:45:54 +0800
  */
 
 namespace Teddy\Database;
 
-use Teddy\Interfaces\ConnectionInterface;
-
-class Transaction implements DbConnectionInterface
+class Transaction implements DatabaseInterface
 {
     protected $pdoConnection;
 
@@ -24,12 +22,12 @@ class Transaction implements DbConnectionInterface
         return new QueryBuilder($this, $table);
     }
 
-    public function getReadConnection(): ConnectionInterface
+    public function getReadConnection(): DbConnectionInterface
     {
         return $this->pdoConnection;
     }
 
-    public function getWriteConnecction(): ConnectionInterface
+    public function getWriteConnection(): DbConnectionInterface
     {
         return $this->pdoConnection;
     }

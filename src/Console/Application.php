@@ -3,16 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-05 18:24:03 +0800
+ * @version  2020-03-12 15:36:45 +0800
  */
 
 namespace Teddy\Console;
 
 use Symfony\Component\Console\Application as SymfonyApplication;
-use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Teddy\Abstracts\AbstractApp;
+use Teddy\Console\Commands\Migrations;
 use Teddy\Console\Commands\ServerStartCommand;
 
 class Application extends SymfonyApplication
@@ -25,20 +23,21 @@ class Application extends SymfonyApplication
         parent::__construct('Teddy Framework', $version);
         $this->app = $app;
 
-        $this->add(new ServerStartCommand);
+        $this->addCommands([
+            new ServerStartCommand,
+            new Migrations\MigrationMakeCommand,
+            new Migrations\MigrateCommand,
+            new Migrations\ResetCommand,
+            new Migrations\RollbackCommand,
+            new Migrations\StatusCommand,
+        ]);
+
         $commandList = config('command.list', []);
         if (!empty($commandList) && is_array($commandList)) {
             $this->addCommands($commandList);
         }
 
-        $defaultCommand = config('command.default', 'server:start');
+        $defaultCommand = config('command.default', 'start');
         $this->setDefaultCommand($defaultCommand);
-    }
-
-    public function handle()
-    {
-        $input = new ArgvInput;
-        $output = new ConsoleOutput;
-        return $this->run($input, new SymfonyStyle($input, $output));
     }
 }

@@ -3,16 +3,33 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-03-11 16:57:30 +0800
  */
 
 namespace Teddy\Database;
 
+use Teddy\Database\Schema\Builder;
 use Teddy\Interfaces\ConnectionInterface;
 
-interface DbConnectionInterface
+interface DbConnectionInterface extends ConnectionInterface
 {
-    public function getReadConnection(): ConnectionInterface;
+    public function getConfig(string $key);
 
-    public function getWriteConnecction(): ConnectionInterface;
+    public function getTablePrefix(): string;
+
+    public function getDatabaseName(): string;
+
+    public function beginTransaction(): void;
+
+    public function rollBack(): void;
+
+    public function commit(): void;
+
+    public function query(string $sql, array $data = [], array $options = []);
+
+    public function select(string $sql, array $data = []);
+
+    public function getSchemaBuilder(): Builder;
+
+    public function getSchemaGrammar(): Grammar;
 }

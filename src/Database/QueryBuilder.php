@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 16:42:37 +0800
+ * @version  2020-03-12 12:16:20 +0800
  */
 
 namespace Teddy\Database;
@@ -103,10 +103,10 @@ class QueryBuilder
     /**
      * Constructor.
      *
-     * @param DbConnectionInterface $db
+     * @param DatabaseInterface $db
      * @param string|object  $table
      */
-    public function __construct(DbConnectionInterface $db, $table)
+    public function __construct(DatabaseInterface $db, $table)
     {
         $this->db = $db;
         $this->setTable($table);
@@ -187,7 +187,7 @@ class QueryBuilder
 
     public function toDbColumn($column)
     {
-        if (empty($this->metaInfo) || empty($column) || $column === '*' || ($column instanceof RawSQL)) {
+        if (empty($column) || $column === '*' || ($column instanceof RawSQL)) {
             return $this->quote($column);
         }
 
@@ -204,7 +204,10 @@ class QueryBuilder
             return $ret;
         } else {
             $column = (string) $column;
-            $column = $this->metaInfo->transformKey($column);
+            if ($this->metaInfo) {
+                $column = $this->metaInfo->transformKey($column);
+            }
+
             return $this->quote($column);
         }
     }
@@ -244,7 +247,7 @@ class QueryBuilder
         $readOnly = $this->sqlType && $this->sqlType === SQL::SELECT_SQL;
         $pdoConnection = $readOnly ?
             $this->db->getReadConnection() :
-            $this->db->getWriteConnecction();
+            $this->db->getWriteConnection();
 
         try {
             $ret = $pdoConnection->query($sql, $map, $options);

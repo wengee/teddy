@@ -8,7 +8,7 @@
 
 return [
     'default' => [
-        'engine'    => 'mysql',
+        'driver'    => 'mysql',
         'host'      => env('DB_HOST', '127.0.0.1'),
         'port'      => (int) env('DB_PORT', 3306),
         'name'      => env('DB_NAME', 'test'),
@@ -22,7 +22,7 @@ return [
     ],
 
     'abc' => [
-        'engine'    => 'mysql',
+        'driver'    => 'mysql',
         'host'      => env('DB_HOST', '127.0.0.1'),
         'port'      => (int) env('DB_PORT', 3306),
         'name'      => env('DB_NAME', 'test'),

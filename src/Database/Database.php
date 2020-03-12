@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-10 10:08:32 +0800
+ * @version  2020-03-11 17:21:09 +0800
  */
 
 namespace Teddy\Database;
@@ -15,7 +15,7 @@ use Teddy\Pool\Channel;
 use Teddy\Pool\Pool;
 use Throwable;
 
-class Database extends Pool implements DbConnectionInterface
+class Database extends Pool implements DatabaseInterface
 {
     protected $hasReadOnly = false;
 
@@ -44,10 +44,10 @@ class Database extends Pool implements DbConnectionInterface
         return parent::get();
     }
 
-    public function getReadConnection(): ConnectionInterface
+    public function getReadConnection(): DbConnectionInterface
     {
         if (!$this->hasReadOnly) {
-            return $this->getWriteConnecction();
+            return $this->getWriteConnection();
         }
 
         $num = $this->getReadConnectionsInChannel();
@@ -65,7 +65,7 @@ class Database extends Pool implements DbConnectionInterface
         return $this->readChannel->pop($this->poolOptions['waitTimeout']);
     }
 
-    public function getWriteConnecction(): ConnectionInterface
+    public function getWriteConnection(): DbConnectionInterface
     {
         return parent::get();
     }
@@ -95,7 +95,7 @@ class Database extends Pool implements DbConnectionInterface
     public function transaction(callable $callback): void
     {
         $firstRun = true;
-        $pdoConnection = $this->getWriteConnecction();
+        $pdoConnection = $this->getWriteConnection();
 
         $ret = false;
         RETRY:
@@ -168,7 +168,7 @@ class Database extends Pool implements DbConnectionInterface
     protected function initConfig(array $config, ?bool $readOnly = null): void
     {
         $defaultConf = [
-            'engine'        => 'mysql',
+            'driver'        => 'mysql',
             'host'          => array_get($config, 'host', '127.0.0.1'),
             'port'          => array_get($config, 'port', 3306),
             'name'          => array_get($config, 'name', ''),
