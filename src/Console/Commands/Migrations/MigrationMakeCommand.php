@@ -19,11 +19,18 @@ class MigrationMakeCommand extends Command
 
     protected function handle()
     {
+        $name = $this->argument('name');
+        $table = $this->option('table');
+        $create = (bool) $this->option('create');
+        if ($create) {
+            $table = $table ?: $name;
+        }
+
         $file = pathinfo(make(MigrationCreator::class)->create(
-            $this->argument('name'),
+            $name,
             path_join(app()->getBasePath(), 'migrations'),
-            $this->option('table'),
-            (bool) $this->option('create')
+            $table,
+            $create
         ), PATHINFO_FILENAME);
 
         $this->line("<info>Created Migration:</info> {$file}");
