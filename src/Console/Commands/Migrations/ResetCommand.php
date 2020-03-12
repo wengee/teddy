@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:31:45 +0800
+ * @version  2020-03-12 16:37:56 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -23,7 +23,7 @@ class ResetCommand extends BaseCommand
 
         $this->getMigrator()->reset($this->getMigrationPath());
         foreach ($this->getMigrator()->getNotes() as $note) {
-            $this->output->writeln($note);
+            $this->line($note);
         }
 
         return 0;

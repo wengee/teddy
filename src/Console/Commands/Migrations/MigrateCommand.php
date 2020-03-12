@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:00:12 +0800
+ * @version  2020-03-12 16:37:50 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -20,7 +20,7 @@ class MigrateCommand extends BaseCommand
         $this->getMigrator()->run($this->getMigrationPath());
 
         foreach ($this->getMigrator()->getNotes() as $note) {
-            $this->output->writeln($note);
+            $this->line($note);
         }
     }
 

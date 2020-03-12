@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-30 17:08:18 +0800
+ * @version  2020-03-12 16:43:01 +0800
  */
 
 namespace Teddy\Model;
@@ -11,6 +11,7 @@ namespace Teddy\Model;
 use ArrayAccess;
 use Exception;
 use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
 use Serializable;
 use Teddy\Database\DbConnectionInterface;
@@ -22,6 +23,8 @@ use Teddy\Interfaces\JsonableInterface;
 
 abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 {
+    use Macroable;
+
     protected $items = [];
 
     protected $hidden = [];
