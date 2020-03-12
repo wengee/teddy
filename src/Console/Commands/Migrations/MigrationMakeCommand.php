@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:31:21 +0800
+ * @version  2020-03-12 16:03:09 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -20,10 +20,10 @@ class MigrationMakeCommand extends Command
     protected function handle()
     {
         $file = pathinfo(make(MigrationCreator::class)->create(
-            $this->getArgument('name'),
+            $this->argument('name'),
             path_join(app()->getBasePath(), 'migrations'),
-            $this->getOption('table'),
-            (bool) $this->getOption('create')
+            $this->option('table'),
+            (bool) $this->option('create')
         ), PATHINFO_FILENAME);
 
         $this->output->writeln("<info>Created Migration:</info> {$file}");
