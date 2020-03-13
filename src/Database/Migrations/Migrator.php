@@ -96,7 +96,7 @@ class Migrator
     public function resolve($file)
     {
         if (preg_match('#^(\\d{8})_(\\d{6})_(.+)$#i', $file, $m)) {
-            $class = Str::studly($m[3]) . $m[1] . $m[2];
+            $class = Str::studly($m[3]) . '_' . $m[1] . $m[2];
         } else {
             $class = Str::studly($file);
         }

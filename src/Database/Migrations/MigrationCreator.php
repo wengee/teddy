@@ -3,13 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 10:41:04 +0800
+ * @version  2020-03-13 11:39:22 +0800
  */
 
 namespace Teddy\Database\Migrations;
 
 use Illuminate\Support\Str;
-use InvalidArgumentException;
 
 class MigrationCreator
 {
@@ -85,7 +84,7 @@ class MigrationCreator
      */
     protected function getClassName(string $name, int $timestamp): string
     {
-        return Str::studly($name) . date('YmdHis', $timestamp);
+        return Str::studly($name) . '_' . date('YmdHis', $timestamp);
     }
 
     /**
