@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 16:46:38 +0800
+ * @version  2020-03-13 17:48:51 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -104,9 +104,9 @@ class Migrator
     public function resolve($file)
     {
         if (preg_match('#^(\\d{8})_(\\d{6})_(.+)$#i', $file, $m)) {
-            $class = Str::studly($m[3]) . '_' . $m[1] . $m[2];
+            $class = Str::studly($m[3]) . 'Migration_' . $m[1] . $m[2];
         } elseif (preg_match('#^(\\d+)_([^\\d].+)$#i', $file, $m)) {
-            $class = Str::studly($m[2]) . '_' . $m[1];
+            $class = Str::studly($m[2]) . 'Migration_' . $m[1];
         } else {
             $class = Str::studly($file);
         }
@@ -166,6 +166,8 @@ class Migrator
 
         $this->note("<comment>Migrating:</comment> {$name}");
         $this->runMigration($migration, 'up');
+
+        $batch = $migration->getBatch() ?: $batch;
         $this->repository->log($name, $batch);
         $this->note("<info>Migrated:</info>  {$name}");
     }

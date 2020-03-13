@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 17:36:10 +0800
+ * @version  2020-03-13 17:50:09 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -84,7 +84,7 @@ class MigrationCreator
      */
     protected function getClassName(string $name, int $number): string
     {
-        return Str::studly($name) . '_' . $this->getPrefix($number);
+        return Str::studly($name) . 'Migration_' . $this->getPrefix($number);
     }
 
     /**
