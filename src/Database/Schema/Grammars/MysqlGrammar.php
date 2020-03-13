@@ -123,6 +123,11 @@ class MysqlGrammar extends Grammar
         return $this->compileKey($blueprint, $command, 'SPATIAL INDEX');
     }
 
+    public function compileFullTextIndex(Blueprint $blueprint, Fluent $command): string
+    {
+        return $this->compileKey($blueprint, $command, 'FULLTEXT INDEX');
+    }
+
     protected function compileKey(Blueprint $blueprint, Fluent $command, string $type): string
     {
         return sprintf(

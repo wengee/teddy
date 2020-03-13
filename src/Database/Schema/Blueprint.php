@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:45:21 +0800
+ * @version  2020-03-13 18:06:47 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -273,6 +273,11 @@ class Blueprint
     public function spatialIndex($columns, ?string $name = null): Fluent
     {
         return $this->indexCommand('spatialIndex', $columns, $name);
+    }
+
+    public function fullTextIndex($columns, ?string $name = null): Fluent
+    {
+        return $this->indexCommand('fullTextIndex', $columns, $name);
     }
 
     public function foreign($columns, ?string $name = null): Fluent
