@@ -19,9 +19,9 @@ class MigrateCommand extends BaseCommand
         $this->prepareDatabase();
         $this->getMigrator()->run($this->getMigrationPath());
 
-        foreach ($this->getMigrator()->getNotes() as $note) {
-            $this->line($note);
-        }
+        // foreach ($this->getMigrator()->getNotes() as $note) {
+        //     $this->line($note);
+        // }
     }
 
     protected function prepareDatabase(): void

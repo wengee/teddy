@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:02:03 +0800
+ * @version  2020-03-13 15:12:43 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -26,6 +26,7 @@ abstract class BaseCommand extends Command
             $this->migrator = make(Migrator::class);
         }
 
+        $this->migrator->setCommand($this);
         return $this->migrator;
     }
 }

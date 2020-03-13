@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 14:36:03 +0800
+ * @version  2020-03-13 15:12:36 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -11,16 +11,24 @@ namespace Teddy\Database\Migrations;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Teddy\Console\Command;
 
 class Migrator
 {
     protected $repository;
+
+    protected $command;
 
     protected $notes = [];
 
     public function __construct()
     {
         $this->repository = new MigrationRepository;
+    }
+
+    public function setCommand(Command $command): void
+    {
+        $this->command = $command;
     }
 
     public function run(string $path)
@@ -207,5 +215,8 @@ class Migrator
     protected function note($message): void
     {
         $this->notes[] = $message;
+        if ($this->command) {
+            $this->command->line($message);
+        }
     }
 }
