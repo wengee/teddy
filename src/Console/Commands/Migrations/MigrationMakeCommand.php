@@ -34,6 +34,5 @@ class MigrationMakeCommand extends Command
         ), PATHINFO_FILENAME);
 
         $this->line("<info>Created Migration:</info> {$file}");
-        return 0;
     }
 }

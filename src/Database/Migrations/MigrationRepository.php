@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 14:20:31 +0800
+ * @version  2020-03-13 16:46:48 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -77,7 +77,7 @@ class MigrationRepository
             $table->string('migration');
             $table->integer('batch');
 
-            $table->index('migration');
+            $table->unique('migration');
             $table->index('batch');
         });
     }

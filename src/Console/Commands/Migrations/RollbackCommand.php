@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 16:37:59 +0800
+ * @version  2020-03-13 16:47:58 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -17,15 +17,9 @@ class RollbackCommand extends BaseCommand
     protected function handle()
     {
         if (!$this->getMigrator()->repositoryExists()) {
-            $this->error('No migrations found.');
-            return 0;
+            return $this->error('No migrations found.');
         }
 
         $this->getMigrator()->rollback($this->getMigrationPath());
-        foreach ($this->getMigrator()->getNotes() as $note) {
-            $this->line($note);
-        }
-
-        return 0;
     }
 }

@@ -17,15 +17,9 @@ class ResetCommand extends BaseCommand
     protected function handle()
     {
         if (!$this->getMigrator()->repositoryExists()) {
-            $this->error('No migrations found.');
-            return 0;
+            return $this->error('No migrations found.');
         }
 
         $this->getMigrator()->reset($this->getMigrationPath());
-        foreach ($this->getMigrator()->getNotes() as $note) {
-            $this->line($note);
-        }
-
-        return 0;
     }
 }

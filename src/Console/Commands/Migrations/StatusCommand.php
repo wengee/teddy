@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:32:04 +0800
+ * @version  2020-03-13 16:48:06 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -19,8 +19,7 @@ class StatusCommand extends BaseCommand
     protected function handle()
     {
         if (!$this->getMigrator()->repositoryExists()) {
-            $this->error('No migrations found.');
-            return 0;
+            return $this->error('No migrations found.');
         }
 
         $ran = $this->getMigrator()->getRepository()->getRan();
@@ -31,8 +30,6 @@ class StatusCommand extends BaseCommand
         } else {
             $this->error('No migrations found');
         }
-
-        return 0;
     }
 
     protected function getStatusFor(array $ran, array $batches)

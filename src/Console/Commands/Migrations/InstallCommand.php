@@ -8,22 +8,18 @@
 
 namespace Teddy\Console\Commands\Migrations;
 
-class MigrateCommand extends BaseCommand
+class InstallCommand extends BaseCommand
 {
-    protected $name = 'migrate';
+    protected $name = 'migrate:install';
 
-    protected $description = 'Run the database migrations';
+    protected $description = 'Create the migration repository';
 
     protected function handle(): void
-    {
-        $this->prepareDatabase();
-        $this->getMigrator()->run($this->getMigrationPath());
-    }
-
-    protected function prepareDatabase(): void
     {
         if (!$this->getMigrator()->repositoryExists()) {
             $this->getMigrator()->getRepository()->createRepository();
         }
+
+        $this->info('Migration table created successfully.');
     }
 }

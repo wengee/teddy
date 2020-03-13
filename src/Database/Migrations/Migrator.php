@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 15:12:36 +0800
+ * @version  2020-03-13 16:46:38 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -36,10 +36,10 @@ class Migrator
         $this->notes = [];
 
         $files = $this->getMigrationFiles($path);
-        $this->requireFiles($migrations = $this->pendingMigrations(
+        $migrations = $this->pendingMigrations(
             $files,
             $this->repository->getRan()
-        ));
+        );
 
         $this->runPending($migrations);
         return $migrations;
@@ -105,6 +105,8 @@ class Migrator
     {
         if (preg_match('#^(\\d{8})_(\\d{6})_(.+)$#i', $file, $m)) {
             $class = Str::studly($m[3]) . '_' . $m[1] . $m[2];
+        } elseif (preg_match('#^(\\d+)_([^\\d].+)$#i', $file, $m)) {
+            $class = Str::studly($m[2]) . '_' . $m[1];
         } else {
             $class = Str::studly($file);
         }
@@ -122,7 +124,11 @@ class Migrator
         if ($dh = opendir($path)) {
             while (($file = readdir($dh)) !== false) {
                 if (substr($file, -4) === '.php') {
-                    $ret[$this->getMigrationName($file)] = path_join($path, $file);
+                    $realpath = path_join($path, $file);
+
+                    $this->requireFile($realpath);
+
+                    $ret[$this->getMigrationName($file)] = $realpath;
                 }
             }
 
@@ -132,9 +138,9 @@ class Migrator
         return $ret;
     }
 
-    public function requireFiles(array $files): void
+    public function requireFile(string $file): void
     {
-        foreach ($files as $file) {
+        if (is_file($file)) {
             require_once $file;
         }
     }
@@ -186,7 +192,7 @@ class Migrator
     protected function rollbackMigrations(array $migrations, string $path)
     {
         $rolledBack = [];
-        $this->requireFiles($files = $this->getMigrationFiles($path));
+        $files = $this->getMigrationFiles($path);
 
         foreach ($migrations as $migration) {
             $migration = (object) $migration;

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 11:39:22 +0800
+ * @version  2020-03-13 17:36:10 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -28,10 +28,10 @@ class MigrationCreator
             mkdir($path, 0755, true);
         }
 
-        $timestamp = time();
+        $number = $this->getMaxNumber($path) + 1;
         file_put_contents(
-            $path = $this->getPath($name, $path, $timestamp),
-            $this->populateStub($name, $stub, $table, $timestamp)
+            $path = $this->getPath($name, $path, $number),
+            $this->populateStub($name, $stub, $table, $number)
         );
 
         return $path;
@@ -65,9 +65,9 @@ class MigrationCreator
     /**
      * Populate the place-holders in the migration stub.
      */
-    protected function populateStub(string $name, string $stub, ?string $table = null, int $timestamp = 0): string
+    protected function populateStub(string $name, string $stub, ?string $table = null, int $number = 0): string
     {
-        $stub = str_replace('DummyClass', $this->getClassName($name, $timestamp), $stub);
+        $stub = str_replace('DummyClass', $this->getClassName($name, $number), $stub);
 
         // Here we will replace the table place-holders with the table specified by
         // the developer, which is useful for quickly creating a tables creation
@@ -82,24 +82,35 @@ class MigrationCreator
     /**
      * Get the class name of a migration name.
      */
-    protected function getClassName(string $name, int $timestamp): string
+    protected function getClassName(string $name, int $number): string
     {
-        return Str::studly($name) . '_' . date('YmdHis', $timestamp);
+        return Str::studly($name) . '_' . $this->getPrefix($number);
     }
 
     /**
      * Get the full path to the migration.
      */
-    protected function getPath(string $name, string $path, int $timestamp = 0): string
+    protected function getPath(string $name, string $path, int $number = 0): string
     {
-        return $path . '/' . $this->getDatePrefix($timestamp) . '_' . $name . '.php';
+        return $path . '/' . $this->getPrefix($number) . '_' . $name . '.php';
     }
 
-    /**
-     * Get the date prefix for the migration.
-     */
-    protected function getDatePrefix(int $timestamp = 0): string
+    protected function getPrefix(int $number = 0): string
     {
-        return date('Ymd_His', $timestamp);
+        return sprintf('%04d', $number);
+    }
+
+    protected function getMaxNumber(string $path): int
+    {
+        $ret = 0;
+        if (is_dir($path) && ($dh = opendir($path))) {
+            while (($file = readdir($dh)) !== false) {
+                if (substr($file, -4) === '.php') {
+                    $ret = max($ret, intval($file));
+                }
+            }
+        }
+
+        return $ret;
     }
 }
