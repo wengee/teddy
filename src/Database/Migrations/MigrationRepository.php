@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 16:46:48 +0800
+ * @version  2020-03-18 14:55:46 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -74,7 +74,7 @@ class MigrationRepository
         $schema = $this->connection->getSchemaBuilder();
         $schema->create(self::TABLE_NAME, function (Blueprint $table): void {
             $table->increments('id');
-            $table->string('migration');
+            $table->string('migration', 128);
             $table->integer('batch');
 
             $table->unique('migration');
