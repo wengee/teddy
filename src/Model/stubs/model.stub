@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Models;
+
+use Teddy\Model\Model;
+
+/**
+ * @Table("DummyTable")
+ */
+class DummyClass extends Model
+{
+}

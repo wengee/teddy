@@ -3,15 +3,16 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 16:50:02 +0800
+ * @version  2020-03-20 23:24:30 +0800
  */
 
 namespace Teddy\Console;
 
-use Symfony\Component\Console\Application as SymfonyApplication;
 use Teddy\Abstracts\AbstractApp;
+use Teddy\Console\Commands\Models;
 use Teddy\Console\Commands\Migrations;
 use Teddy\Console\Commands\ServerStartCommand;
+use Symfony\Component\Console\Application as SymfonyApplication;
 
 class Application extends SymfonyApplication
 {
@@ -31,6 +32,7 @@ class Application extends SymfonyApplication
             new Migrations\ResetCommand,
             new Migrations\RollbackCommand,
             new Migrations\StatusCommand,
+            new Models\ModelMakeCommand,
         ]);
 
         $commandList = config('command.list', []);
