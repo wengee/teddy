@@ -3,24 +3,25 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-05 11:57:13 +0800
+ * @version  2020-03-20 17:48:48 +0800
  */
 
 namespace Teddy\Abstracts;
 
-use BadMethodCallException;
-use Dotenv\Dotenv;
-use Exception;
-use Illuminate\Config\Repository as ConfigRepository;
-use League\Event\ListenerInterface;
 use Phar;
-use Slim\App as SlimApp;
-use Teddy\CallableResolver;
+use Exception;
+use Dotenv\Dotenv;
 use Teddy\Container;
-use Teddy\Factory\ResponseFactory;
-use Teddy\Middleware\BodyParsingMiddleware;
-use Teddy\Middleware\StaticFileMiddleware;
+use Slim\App as SlimApp;
+use Teddy\Utils\Runtime;
+use BadMethodCallException;
+use Teddy\CallableResolver;
 use Teddy\Routing\RouteCollector;
+use Teddy\Factory\ResponseFactory;
+use League\Event\ListenerInterface;
+use Teddy\Middleware\StaticFileMiddleware;
+use Teddy\Middleware\BodyParsingMiddleware;
+use Illuminate\Config\Repository as ConfigRepository;
 
 abstract class AbstractApp extends Container
 {
@@ -183,7 +184,9 @@ abstract class AbstractApp extends Container
                 $filepath = $dir . $file;
                 if (ends_with($file, '.php') && is_file($filepath)) {
                     $name = substr($file, 0, -4);
-                    $config->set($name, require $filepath);
+                    if ($name !== 'swoole' || Runtime::get() === 'swoole') {
+                        $config->set($name, require $filepath);
+                    }
                 }
             }
         }
