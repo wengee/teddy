@@ -3,14 +3,15 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-02-11 21:00:41 +0800
+ * @version  2020-03-20 17:02:15 +0800
  */
 
 namespace Teddy\Factory;
 
+use Teddy\App;
+use Teddy\Utils\Runtime;
 use Teddy\Scf\App as ScfApp;
 use Teddy\Swoole\App as SwooleApp;
-use Teddy\Utils\Runtime;
 
 class AppFactory
 {
@@ -19,6 +20,8 @@ class AppFactory
         $runtime = Runtime::get();
         if ($runtime === 'scf') {
             return self::createScfApp($basePath, $envFile);
+        } elseif ($runtime === 'fpm' || $runtime === 'normal') {
+            return self::createNormalApp($basePath, $envFile);
         } else {
             return self::createSwooleApp($basePath, $envFile);
         }
@@ -32,5 +35,10 @@ class AppFactory
     public static function createSwooleApp(string $basePath, string $envFile = '.env')
     {
         return new SwooleApp($basePath, $envFile);
+    }
+
+    public static function createNormalApp(string $basePath, string $envFile = '.env')
+    {
+        return new App($basePath, $envFile);
     }
 }
