@@ -9,6 +9,7 @@
 namespace Teddy\Database\Migrations;
 
 use Illuminate\Support\Str;
+use Teddy\Utils\FileSystem;
 
 class MigrationCreator
 {
@@ -40,9 +41,12 @@ class MigrationCreator
     /**
      * Get the path to the stubs.
      */
-    public function stubPath(): string
+    public function stubPaths(): array
     {
-        return __DIR__ . '/stubs';
+        return [
+            path_join(app()->getBasePath(), '.stubs', 'migrations'),
+            __DIR__ . '/stubs',
+        ];
     }
 
     /**
@@ -51,7 +55,7 @@ class MigrationCreator
     protected function getStub(?string $table = null, bool $create = true): string
     {
         if ($table === null) {
-            return file_get_contents($this->stubPath() . '/blank.stub');
+            return FileSystem::getContents($this->stubPaths(), 'blank.stub');
         }
 
         // We also have stubs for creating new tables and modifying existing tables
@@ -59,7 +63,7 @@ class MigrationCreator
         // or modifying existing tables. We'll grab the appropriate stub here.
         $stub = $create ? 'create.stub' : 'update.stub';
 
-        return file_get_contents($this->stubPath() . "/{$stub}");
+        return FileSystem::getContents($this->stubPaths(), "/{$stub}");
     }
 
     /**

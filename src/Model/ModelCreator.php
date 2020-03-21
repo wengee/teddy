@@ -3,10 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-20 23:51:03 +0800
+ * @version  2020-03-21 12:54:08 +0800
  */
 
 namespace Teddy\Model;
+
+use Teddy\Utils\FileSystem;
 
 class ModelCreator
 {
@@ -26,19 +28,17 @@ class ModelCreator
         return $path;
     }
 
-    protected function getStub(): string
+    public function stubPaths(): array
     {
-        $stubPaths = [
+        return [
             path_join(app()->getBasePath(), '.stubs'),
             __DIR__ . '/stubs',
         ];
+    }
 
-        foreach ($stubPaths as $path) {
-            $file = path_join($path, 'model.stub');
-            if (is_file($file)) {
-                return file_get_contents($file);
-            }
-        }
+    protected function getStub(): string
+    {
+        return FileSystem::getContents($this->stubPaths, 'model.stub');
     }
 
     protected function populateStub(string $stub, string $name, string $table): string
