@@ -14,6 +14,8 @@ use Teddy\Model\ModelCreator;
 
 class ModelMakeCommand extends Command
 {
+    protected $description = 'Generate a model file';
+
     protected $signature = 'make:model {name : The name of the model}
         {--t|table= : The table name}';
 

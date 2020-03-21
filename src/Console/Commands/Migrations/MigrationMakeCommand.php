@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 16:37:44 +0800
+ * @version  2020-03-21 21:34:52 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -13,11 +13,13 @@ use Teddy\Database\Migrations\MigrationCreator;
 
 class MigrationMakeCommand extends Command
 {
+    protected $description = 'Generate a migration file';
+
     protected $signature = 'make:migration {name : The name of the migration}
         {--c|create : The table to be created}
         {--t|table= : The table to migrate}';
 
-    protected function handle()
+    protected function handle(): void
     {
         $name = $this->argument('name');
         $table = $this->option('table');
