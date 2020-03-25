@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-21 12:54:08 +0800
+ * @version  2020-03-25 11:22:36 +0800
  */
 
 namespace Teddy\Model;
@@ -38,7 +38,7 @@ class ModelCreator
 
     protected function getStub(): string
     {
-        return FileSystem::getContents($this->stubPaths, 'model.stub');
+        return FileSystem::getContents($this->stubPaths(), 'model.stub');
     }
 
     protected function populateStub(string $stub, string $name, string $table): string
