@@ -3,23 +3,24 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 16:43:01 +0800
+ * @version  2020-03-25 11:02:55 +0800
  */
 
 namespace Teddy\Model;
 
-use ArrayAccess;
 use Exception;
-use Illuminate\Support\Str;
-use Illuminate\Support\Traits\Macroable;
-use JsonSerializable;
+use ArrayAccess;
 use Serializable;
-use Teddy\Database\DbConnectionInterface;
+use JsonSerializable;
+use Teddy\Database\RawSQL;
+use Illuminate\Support\Str;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
-use Teddy\Database\RawSQL;
-use Teddy\Interfaces\ArrayableInterface;
+use Teddy\Database\DatabaseInterface;
 use Teddy\Interfaces\JsonableInterface;
+use Illuminate\Support\Traits\Macroable;
+use Teddy\Interfaces\ArrayableInterface;
+use Teddy\Database\DbConnectionInterface;
 
 abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 {
@@ -161,7 +162,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         return true;
     }
 
-    public static function query(?DbConnectionInterface $db = null): QueryBuilder
+    public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
         if ($db === null) {
             $connectionName = app('modelManager')->metaInfo(static::class)->connectionName();
