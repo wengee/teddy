@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-03-25 16:09:49 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -32,7 +32,7 @@ class Length extends ValidatorRuleBase
 
     protected function validate($value, array $data, callable $next)
     {
-        $len = is_array($value) ? count($value) : strlen((string) $value);
+        $len = is_array($value) ? count($value) : $this->strLen((string) $value);
         if ($len < $this->minLen || ($this->maxLen !== null && $len > $this->maxLen)) {
             $this->throwMessage([
                 ':minLen' => $this->minLen,
@@ -41,5 +41,17 @@ class Length extends ValidatorRuleBase
         }
 
         return $next($value, $data);
+    }
+
+    protected function strLen(string $str): int
+    {
+        $ret = 0;
+        if (function_exists('mb_strlen')) {
+            $ret = mb_strlen($str);
+        } else {
+            $ret = strlen($str);
+        }
+
+        return $ret;
     }
 }
