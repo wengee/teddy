@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-21 14:28:14 +0800
+ * @version  2020-03-26 21:54:07 +0800
  */
 
 namespace Teddy\Middleware;
@@ -79,7 +79,7 @@ class CORSMiddleware implements MiddlewareInterface
                                  ->withHeader('Access-Control-Allow-Headers', $this->headerLine);
 
             if ($this->options['withCredentials']) {
-                $response = $response->withHeader('Access-Control-Allow-Credentials', true);
+                $response = $response->withHeader('Access-Control-Allow-Credentials', 'true');
             }
         }
 
