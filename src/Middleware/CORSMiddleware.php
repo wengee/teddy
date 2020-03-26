@@ -37,6 +37,7 @@ class CORSMiddleware implements MiddlewareInterface
             'intercept' => true,
             'origin' => '*',
             'methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+            'withCredentials' => false,
             'headers' => [
                 'Accept',
                 'Accept-Language',
@@ -76,6 +77,10 @@ class CORSMiddleware implements MiddlewareInterface
             $response = $response->withHeader('Access-Control-Allow-Origin', $origin)
                                  ->withHeader('Access-Control-Allow-Methods', $this->methodLine)
                                  ->withHeader('Access-Control-Allow-Headers', $this->headerLine);
+
+            if ($this->options['withCredentials']) {
+                $response = $response->withHeader('Access-Control-Allow-Credentials', true);
+            }
         }
 
         return $response;
