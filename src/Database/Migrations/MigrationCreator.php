@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 17:50:09 +0800
+ * @version  2020-03-30 10:32:14 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -45,7 +45,7 @@ class MigrationCreator
     {
         return [
             path_join(app()->getBasePath(), '.stubs', 'migrations'),
-            __DIR__ . '/stubs',
+            system_path('_stubs', 'migrations'),
         ];
     }
 

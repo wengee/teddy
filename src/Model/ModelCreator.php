@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-25 11:22:36 +0800
+ * @version  2020-03-30 10:33:56 +0800
  */
 
 namespace Teddy\Model;
@@ -32,7 +32,7 @@ class ModelCreator
     {
         return [
             path_join(app()->getBasePath(), '.stubs'),
-            __DIR__ . '/stubs',
+            system_path('_stubs'),
         ];
     }
 

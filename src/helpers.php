@@ -80,6 +80,23 @@ if (!function_exists('path_join')) {
     }
 }
 
+if (!function_exists('system_path')) {
+    /**
+     * Get the system path.
+     *
+     * @param string $args
+     * @return string
+     */
+    function system_path(string ...$args): string
+    {
+        $args = array_filter(array_map(function ($arg) {
+            return trim($arg, '/\\');
+        }, $args), 'strlen');
+
+        return __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
+    }
+}
+
 if (!function_exists('base_path')) {
     /**
      * Get the app path.
