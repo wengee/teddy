@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 17:48:51 +0800
+ * @version  2020-04-03 18:08:24 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -49,13 +49,37 @@ class Migrator
     {
         if (count($migrations) === 0) {
             $this->note('<info>Nothing to migrate.</info>');
-
             return;
         }
 
         $batch = $this->repository->getNextBatchNumber();
         foreach ($migrations as $file) {
             $this->runUp($file, $batch);
+        }
+    }
+
+    public function refresh(string $path, ?string $table = null): void
+    {
+        if (!$table) {
+            $this->reset($path);
+            $this->run($path);
+        } else {
+            $files = $this->getMigrationFiles($path, $table);
+            if (count($files) === 0) {
+                $this->note('<info>Nothing to migrate.</info>');
+                return;
+            }
+
+            $ran = $this->repository->getRan();
+            $resetMigrations = Collection::make($files)
+                ->filter(function ($value, $key) use ($ran) {
+                    return in_array($key, $ran, true);
+                })->keys()->map(function ($m) {
+                    return (object) ['migration' => $m];
+                })->all();
+
+            $this->rollbackMigrations($resetMigrations, $path);
+            $this->runPending($files);
         }
     }
 
@@ -114,7 +138,7 @@ class Migrator
         return new $class;
     }
 
-    public function getMigrationFiles($path): array
+    public function getMigrationFiles($path, ?string $search = null): array
     {
         $ret = [];
         if (!is_dir($path)) {
@@ -124,10 +148,20 @@ class Migrator
         if ($dh = opendir($path)) {
             while (($file = readdir($dh)) !== false) {
                 if (substr($file, -4) === '.php') {
+                    if ($search) {
+                        $arr = explode('_', substr($file, 0, -4), 2);
+                        if (count($arr) !== 2) {
+                            continue;
+                        }
+
+                        $isInt = $this->isInteger($search);
+                        if (($isInt && intval($search) !== intval($arr[0])) || (!$isInt && $search !== $arr[1])) {
+                            continue;
+                        }
+                    }
+
                     $realpath = path_join($path, $file);
-
                     $this->requireFile($realpath);
-
                     $ret[$this->getMigrationName($file)] = $realpath;
                 }
             }
@@ -226,5 +260,10 @@ class Migrator
         if ($this->command) {
             $this->command->line($message);
         }
+    }
+
+    protected function isInteger($input): bool
+    {
+        return (ctype_digit(strval($input)));
     }
 }

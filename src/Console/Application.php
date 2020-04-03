@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-20 23:24:30 +0800
+ * @version  2020-04-03 17:51:34 +0800
  */
 
 namespace Teddy\Console;
@@ -29,6 +29,7 @@ class Application extends SymfonyApplication
             new Migrations\MigrationMakeCommand,
             new Migrations\InstallCommand,
             new Migrations\MigrateCommand,
+            new Migrations\RefreshCommand,
             new Migrations\ResetCommand,
             new Migrations\RollbackCommand,
             new Migrations\StatusCommand,
