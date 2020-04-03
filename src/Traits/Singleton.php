@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-04-03 09:19:37 +0800
  */
 
 namespace Teddy\Traits;
@@ -12,7 +12,7 @@ trait Singleton
 {
     protected static $instances = [];
 
-    public static function instance()
+    public static function instance(): self
     {
         $className = get_called_class();
         if (!isset(self::$instances[$className])) {
