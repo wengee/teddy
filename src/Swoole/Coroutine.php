@@ -47,6 +47,6 @@ class Coroutine
 
     public static function inCoroutine(): bool
     {
-        return class_exists(SwooleCoroutine::class) && self::id() > 0;
+        return class_exists(SwooleCoroutine::class) && SwooleCoroutine::getCid() > 0;
     }
 }
