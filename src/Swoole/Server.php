@@ -86,7 +86,7 @@ class Server
             $processName = 'worker process';
         }
 
-        Runtime::enableCoroutine(true, $this->coroutineFlags);
+        Runtime::enableCoroutine($this->coroutineFlags);
         System::setProcessTitle($processName, $this->name);
     }
 
@@ -163,9 +163,9 @@ class Server
         $coroutineFlags = $this->coroutineFlags;
         $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
-                Runtime::enableCoroutine(true, $coroutineFlags);
+                Runtime::enableCoroutine($coroutineFlags);
             } else {
-                Runtime::enableCoroutine(false);
+                Runtime::enableCoroutine(0);
             }
 
             $name = $process->getName() ?: 'custom';
