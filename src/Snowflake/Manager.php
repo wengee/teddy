@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-04-13 14:58:38 +0800
+ * @version  2020-04-13 15:04:30 +0800
  */
 
 namespace Teddy\Snowflake;
@@ -20,7 +20,7 @@ class Manager implements SnowflakeInterface
         $config = config('snowflake');
         $dataCenter = intval($config['dataCenter'] ?? -1);
         $workerId = intval($config['workerId'] ?? -1);
-        $this->snowflake = new Snowflake($dataCenter, $workId);
+        $this->snowflake = new Snowflake($dataCenter, $workerId);
 
         $startTimestamp = intval($config['startTimestamp'] ?? -1);
         if ($startTimestamp > 0) {
