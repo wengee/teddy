@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-04-03 18:08:24 +0800
+ * @version  2020-04-14 17:12:16 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -155,7 +155,7 @@ class Migrator
                         }
 
                         $isInt = $this->isInteger($search);
-                        if (($isInt && intval($search) !== intval($arr[0])) || (!$isInt && $search !== $arr[1])) {
+                        if (($isInt && intval($search) !== intval($arr[0])) || (!$isInt && !Str::is($search, $arr[1]))) {
                             continue;
                         }
                     }
