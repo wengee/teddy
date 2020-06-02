@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-02 12:08:29 +0800
+ * @version  2020-06-02 15:03:12 +0800
  */
 
 namespace Teddy\Console\Commands;
@@ -18,7 +18,8 @@ class ServerStartCommand extends Command
 
     protected function handle(): void
     {
-        $this->info('Starting web server...');
+        $now = date('Y-m-d H:i:s');
+        $this->info("[{$now}] Starting web server...");
         app()->listen();
     }
 }

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-02 12:15:46 +0800
+ * @version  2020-06-02 15:09:50 +0800
  */
 
 namespace Teddy\Console;
@@ -25,7 +25,7 @@ class Application extends ConsoleApplication
     public function __construct(AbstractApp $app)
     {
         $version = config('app.version') ?: 'UNKNOWN';
-        parent::__construct('Teddy Framework', $version);
+        parent::__construct('', $version);
         $this->app = $app;
         $this->version = $version;
 
@@ -52,9 +52,11 @@ class Application extends ConsoleApplication
 
     protected function welcome(InputInterface $input, OutputInterface $output): void
     {
+        $appName = $this->app->getName();
         $appVersion = $this->version;
+        $os = PHP_OS;
         $phpVersion = PHP_VERSION;
-        $swooleVersion = SWOOLE_VERSION;
+        $swooleVersion = defined('SWOOLE_VERSION') ? SWOOLE_VERSION : 'UNKNOWN';
 
         $output->writeln(<<<EOL
              _____        _     _         ____  _   _ ____
@@ -64,8 +66,8 @@ class Application extends ConsoleApplication
               |_|\___|\__,_|\__,_|\__, | |_|   |_| |_|_|
                                   |___/
 
-
-            Application Version: {$appVersion}, PHP: {$phpVersion}, Swoole: {$swooleVersion}
+            OS: <info>{$os}</info>, PHP: <info>{$phpVersion}</info>, Swoole: <info>{$swooleVersion}</info>
+            Application: <info>{$appName}</info>, Version: <info>{$appVersion}</info>
 
             EOL);
     }
