@@ -3,10 +3,11 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:53 +0800
+ * @version  2020-06-02 15:18:52 +0800
  */
 
 return [
-    'name' => 'Example',
-    'basePath' => __DIR__,
+    'name'      => 'Example',
+    'version'   => '1.0.0',
+    'basePath'  => __DIR__,
 ];

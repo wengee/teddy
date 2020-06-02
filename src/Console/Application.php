@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-02 15:09:50 +0800
+ * @version  2020-06-02 15:18:29 +0800
  */
 
 namespace Teddy\Console;
@@ -24,10 +24,9 @@ class Application extends ConsoleApplication
 
     public function __construct(AbstractApp $app)
     {
-        $version = config('app.version') ?: 'UNKNOWN';
-        parent::__construct('', $version);
+        parent::__construct('');
         $this->app = $app;
-        $this->version = $version;
+        $this->version = config('app.version') ?: 'UNKNOWN';
 
         $this->addCommands([
             new ServerStartCommand,
