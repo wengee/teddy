@@ -3,13 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-20 23:50:16 +0800
+ * @version  2020-06-02 12:08:34 +0800
  */
 
 namespace Teddy\Console\Commands\Models;
 
-use Teddy\Console\Command;
 use Illuminate\Support\Str;
+use Teddy\Console\Command;
 use Teddy\Model\ModelCreator;
 
 class ModelMakeCommand extends Command

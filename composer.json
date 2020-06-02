@@ -31,7 +31,7 @@
         "firebase/php-jwt": "^5.0",
         "league/flysystem": "^1.0",
         "league/event": "^2.2",
-        "symfony/console": "^5.0"
+        "fwkit/console": "^0.2.0"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "6.*",
@@ -40,11 +40,6 @@
         "godruoyi/php-snowflake": "^1.0",
         "ramsey/uuid": "^3.9",
         "fwkit/guzzle-hook": "^1.0"
-    },
-    "extra": {
-        "include_files": [
-            "guzzle/functions_include.php"
-        ]
     },
     "suggest": {
         "jacobcyl/ali-oss-storage": "Allows you to use Aliyun OSS",

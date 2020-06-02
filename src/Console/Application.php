@@ -3,26 +3,31 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-04-03 17:51:34 +0800
+ * @version  2020-06-02 12:15:46 +0800
  */
 
 namespace Teddy\Console;
 
+use fwkit\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Abstracts\AbstractApp;
-use Teddy\Console\Commands\Models;
 use Teddy\Console\Commands\Migrations;
+use Teddy\Console\Commands\Models;
 use Teddy\Console\Commands\ServerStartCommand;
-use Symfony\Component\Console\Application as SymfonyApplication;
 
-class Application extends SymfonyApplication
+class Application extends ConsoleApplication
 {
     protected $app;
 
-    public function __construct(AbstractApp $app, ?string $version = null)
+    protected $version;
+
+    public function __construct(AbstractApp $app)
     {
-        $version = $version ?: config('app.version', 'UNKNOWN');
+        $version = config('app.version') ?: 'UNKNOWN';
         parent::__construct('Teddy Framework', $version);
         $this->app = $app;
+        $this->version = $version;
 
         $this->addCommands([
             new ServerStartCommand,
@@ -43,5 +48,25 @@ class Application extends SymfonyApplication
 
         $defaultCommand = config('command.default', 'start');
         $this->setDefaultCommand($defaultCommand);
+    }
+
+    protected function welcome(InputInterface $input, OutputInterface $output): void
+    {
+        $appVersion = $this->version;
+        $phpVersion = PHP_VERSION;
+        $swooleVersion = SWOOLE_VERSION;
+
+        $output->writeln(<<<EOL
+             _____        _     _         ____  _   _ ____
+            |_   _|__  __| | __| |_   _  |  _ \| | | |  _ \
+              | |/ _ \/ _` |/ _` | | | | | |_) | |_| | |_) |
+              | |  __/ (_| | (_| | |_| | |  __/|  _  |  __/
+              |_|\___|\__,_|\__,_|\__, | |_|   |_| |_|_|
+                                  |___/
+
+
+            Application Version: {$appVersion}, PHP: {$phpVersion}, Swoole: {$swooleVersion}
+
+            EOL);
     }
 }

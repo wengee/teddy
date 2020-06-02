@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 15:12:43 +0800
+ * @version  2020-06-02 12:08:39 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
