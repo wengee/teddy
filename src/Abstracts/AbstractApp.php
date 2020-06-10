@@ -174,6 +174,16 @@ abstract class AbstractApp extends Container
         }
     }
 
+    public function runConsole(?string $commandName = null): void
+    {
+        $console = make('console', [$this]);
+        if ($commandName) {
+            $console->setDefaultCommand($commandName);
+        }
+
+        exit($console->run());
+    }
+
     protected function loadConfigure(): void
     {
         $config = new ConfigRepository;

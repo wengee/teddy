@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-02-11 20:54:24 +0800
+ * @version  2020-06-10 11:10:23 +0800
  */
 
 namespace Teddy\Utils;
@@ -34,7 +34,7 @@ class Composer
             }
         }
 
-        if (! $composerClass) {
+        if (!$composerClass) {
             throw new RuntimeException('Composer loader not found.');
         }
 

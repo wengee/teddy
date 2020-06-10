@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-02 15:18:29 +0800
+ * @version  2020-06-10 11:19:19 +0800
  */
 
 namespace Teddy\Console;
@@ -47,6 +47,11 @@ class Application extends ConsoleApplication
 
         $defaultCommand = config('command.default', 'start');
         $this->setDefaultCommand($defaultCommand);
+    }
+
+    public function getApp(): AbstractApp
+    {
+        return $this->app;
     }
 
     protected function welcome(InputInterface $input, OutputInterface $output): void

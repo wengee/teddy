@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-21 12:55:48 +0800
+ * @version  2020-06-10 11:10:11 +0800
  */
 
 namespace Teddy\Utils;
@@ -26,5 +26,52 @@ class FileSystem
         }
 
         return $ret;
+    }
+
+    public static function xcopy(string $source, string $dest, int $permissions = 0755): void
+    {
+        if (is_link($source)) {
+            symlink(readlink($source), $dest);
+        } elseif (is_file($source)) {
+            $destDir = dirname($dest);
+            if (!is_dir($destDir)) {
+                mkdir($destDir, $permissions, true);
+            }
+
+            copy($source, $dest);
+        } elseif (is_dir($source)) {
+            if (!is_dir($dest)) {
+                mkdir($dest, $permissions, true);
+            }
+
+            $dh = opendir($source);
+            while (false !== ($entry = readdir($dh))) {
+                if ($entry === '.' || $entry === '..') {
+                    continue;
+                }
+
+                static::xcopy($source . DIRECTORY_SEPARATOR . $entry, $dest . DIRECTORY_SEPARATOR . $entry, $permissions);
+            }
+            closedir($dh);
+        }
+    }
+
+    public static function joinPath(string $basePath, ?string ...$args): string
+    {
+        $basePath = rtrim($basePath, '\\/') . DIRECTORY_SEPARATOR;
+        $paths = array_filter(array_map(function ($arg) {
+            return ($arg && is_string($arg)) ? trim($arg, '\\/') : '';
+        }, $args), 'strlen');
+
+        return $basePath . implode(DIRECTORY_SEPARATOR, $paths);
+    }
+
+    public static function humanFilesize(int $bytes, int $decimals = 3): string
+    {
+        $factor = floor((strlen(strval($bytes)) - 1) / 3);
+        if ($factor > 0) {
+            $sz = 'KMGT';
+        }
+        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor) . @$sz[$factor - 1] . 'B';
     }
 }

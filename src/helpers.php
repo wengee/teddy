@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-07 15:26:53 +0800
+ * @version  2020-06-10 11:08:46 +0800
  */
 
 use Dotenv\Environment\Adapter\EnvConstAdapter;
@@ -12,6 +12,7 @@ use Dotenv\Environment\Adapter\ServerConstAdapter;
 use Dotenv\Environment\DotenvFactory;
 use PhpOption\Option;
 use Teddy\Container;
+use Teddy\Utils\FileSystem;
 
 if (!function_exists('make')) {
     /**
@@ -71,12 +72,7 @@ if (!function_exists('path_join')) {
      */
     function path_join(string $basePath, string ...$args)
     {
-        $basePath = rtrim($basePath, '/\\');
-        $args = array_filter(array_map(function ($arg) {
-            return trim($arg, '/\\');
-        }, $args), 'strlen');
-
-        return $basePath . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
+        return FileSystem::joinPath($basePath, ...$args);
     }
 }
 
@@ -311,8 +307,8 @@ if (!function_exists('log_exception')) {
         $logger = app('logger');
         if ($logger) {
             $logger->error(sprintf(
-                '%sUncaught exception "%s": [%d]%s called in %s:%d%s%s',
-                $prefix,
+                '%sException "%s": [%d]%s called in %s:%d%s%s',
+                $prefix ? ($prefix . ' ') : '',
                 get_class($e),
                 $e->getCode(),
                 $e->getMessage(),

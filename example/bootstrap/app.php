@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 21:59:04 +0800
+ * @version  2020-06-10 11:23:06 +0800
  */
 
 use App\Http\Request;

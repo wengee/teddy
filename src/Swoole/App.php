@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:36:57 +0800
+ * @version  2020-06-10 11:14:57 +0800
  */
 
 namespace Teddy\Swoole;
@@ -34,15 +34,5 @@ class App extends AbstractApp
         }
 
         (new Server($this, $config))->start();
-    }
-
-    public function runConsole(?string $commandName = null): void
-    {
-        $console = make('console', [$this]);
-        if ($commandName) {
-            $console->setDefaultCommand($commandName);
-        }
-
-        exit($console->run());
     }
 }
