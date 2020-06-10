@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:14:57 +0800
+ * @version  2020-06-10 14:26:57 +0800
  */
 
 namespace Teddy\Swoole;
@@ -22,7 +22,7 @@ class App extends AbstractApp
         $responseEmitter->emit($response);
     }
 
-    public function listen($host = null): void
+    public function getServer($host = null): Server
     {
         $config = (array) $this->config->get('swoole', []);
         if (is_int($host) && $host > 0) {
@@ -33,6 +33,11 @@ class App extends AbstractApp
             $config['port'] = intval($arr[1] ?? 9500);
         }
 
-        (new Server($this, $config))->start();
+        return new Server($this, $config);
+    }
+
+    public function listen($host = null): void
+    {
+        $this->getServer($host)->start();
     }
 }

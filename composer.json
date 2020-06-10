@@ -20,18 +20,17 @@
     "require": {
         "php": ">=7.3.0",
         "ext-swoole": ">=4.4.0",
-        "slim/slim": "4.3.*",
-        "slim/psr7": "^0.4.0",
-        "illuminate/support": "^5.8",
-        "illuminate/config": "^5.8",
-        "vlucas/phpdotenv": "^3.4",
-        "phpoption/phpoption": "^1.5",
-        "monolog/monolog": "^1.24",
-        "doctrine/annotations": "^1.6",
-        "firebase/php-jwt": "^5.0",
+        "slim/slim": "4.5.*",
+        "slim/psr7": "1.1.*",
+        "illuminate/support": "^7.15",
+        "illuminate/config": "^7.15",
+        "vlucas/phpdotenv": "^4.0",
+        "monolog/monolog": "^2.1",
+        "doctrine/annotations": "^1.10",
+        "firebase/php-jwt": "^5.2",
         "league/flysystem": "^1.0",
         "league/event": "^2.2",
-        "fwkit/console": "^0.2.0"
+        "fwkit/console": "^0.3.0"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "6.*",

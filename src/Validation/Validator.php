@@ -3,13 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-16 16:36:33 +0800
+ * @version  2020-06-10 12:08:00 +0800
  */
 
 namespace Teddy\Validation;
 
 use Closure;
 use Exception;
+use Illuminate\Support\Arr;
 use RuntimeException;
 use Teddy\Filter;
 use Teddy\Interfaces\ValidatorRuleInterface;
@@ -155,7 +156,7 @@ class Validator
         }
 
         $start = $this->tip;
-        $value = array_get($data, $this->field);
+        $value = Arr::get($data, $this->field);
         if ($this->checkCondition($value, $data)) {
             try {
                 $value = $this->filterValue($value);
@@ -168,7 +169,7 @@ class Validator
                 }
             }
 
-            array_set($filterd, $this->field, $value);
+            Arr::set($filterd, $this->field, $value);
         }
 
         return $filterd;
@@ -203,7 +204,7 @@ class Validator
                 break;
 
             case 1:
-                $ret = array_get($data, $this->condition['field']) == $this->condition['value'];
+                $ret = Arr::get($data, $this->condition['field']) == $this->condition['value'];
                 break;
 
             default:

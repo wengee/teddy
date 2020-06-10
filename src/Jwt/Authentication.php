@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-21 15:16:04 +0800
+ * @version  2020-06-10 12:12:26 +0800
  */
 
 namespace Teddy\Jwt;
 
 use Exception;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -104,12 +105,12 @@ class Authentication implements MiddlewareInterface
 
     protected function setPath($path): void
     {
-        $this->conditions['path'] = array_wrap($path);
+        $this->conditions['path'] = Arr::wrap($path);
     }
 
     protected function setIgnore($ignore): void
     {
-        $this->conditions['ignore'] = array_wrap($ignore);
+        $this->conditions['ignore'] = Arr::wrap($ignore);
     }
 
     protected function setCallback($callback): void

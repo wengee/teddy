@@ -8,6 +8,7 @@
 
 namespace Teddy\Flysystem;
 
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Jacobcyl\AliOSS\Plugins\PutFile;
 use Jacobcyl\AliOSS\Plugins\PutRemoteFile;
@@ -154,11 +155,11 @@ class Manager
 
     protected function getConfig($name)
     {
-        return array_get($this->config, "disks.{$name}");
+        return Arr::get($this->config, "disks.{$name}");
     }
 
     protected function getDefaultDriver(): string
     {
-        return array_get($this->config, 'default', 'default');
+        return Arr::get($this->config, 'default', 'default');
     }
 }

@@ -3,11 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-26 21:54:07 +0800
+ * @version  2020-06-10 12:14:40 +0800
  */
 
 namespace Teddy\Middleware;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -94,14 +96,14 @@ class CORSMiddleware implements MiddlewareInterface
             return false;
         }
 
-        return str_is($this->options['origin'], $origin);
+        return Str::is($this->options['origin'], $origin);
     }
 
     protected function setMethods($methods): void
     {
-        $methods = array_wrap($methods);
-        if (array_get($methods, 'replace')) {
-            $this->options['methods'] = array_get($methods, 'value');
+        $methods = Arr::wrap($methods);
+        if (Arr::get($methods, 'replace')) {
+            $this->options['methods'] = Arr::get($methods, 'value');
         } else {
             $this->options['methods'] = array_merge($this->options['methods'], $methods);
         }
@@ -109,9 +111,9 @@ class CORSMiddleware implements MiddlewareInterface
 
     protected function setHeaders($headers): void
     {
-        $headers = array_wrap($headers);
-        if (array_get($headers, 'replace')) {
-            $this->options['headers'] = array_get($headers, 'value');
+        $headers = Arr::wrap($headers);
+        if (Arr::get($headers, 'replace')) {
+            $this->options['headers'] = Arr::get($headers, 'value');
         } else {
             $this->options['headers'] = array_merge($this->options['headers'], $headers);
         }
@@ -119,12 +121,12 @@ class CORSMiddleware implements MiddlewareInterface
 
     protected function setPath($path): void
     {
-        $this->conditions['path'] = array_wrap($path);
+        $this->conditions['path'] = Arr::wrap($path);
     }
 
     protected function setIgnore($ignore): void
     {
-        $this->conditions['ignore'] = array_wrap($ignore);
+        $this->conditions['ignore'] = Arr::wrap($ignore);
     }
 
     protected function init(): void

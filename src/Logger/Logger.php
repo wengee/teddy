@@ -3,11 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-23 10:22:36 +0800
+ * @version  2020-06-10 12:12:08 +0800
  */
 
 namespace Teddy\Logger;
 
+use Illuminate\Support\Arr;
 use Monolog\Logger as MonoLogger;
 use Monolog\Processor\MemoryPeakUsageProcessor;
 use Monolog\Processor\MemoryUsageProcessor;
@@ -17,7 +18,7 @@ class Logger extends MonoLogger
 {
     public function __construct($handlers = [], $processors = null)
     {
-        $handlers = array_wrap($handlers);
+        $handlers = Arr::wrap($handlers);
         $appName = config('app.name') ?: 'Teddy App';
 
         if ($processors === null) {
@@ -27,7 +28,7 @@ class Logger extends MonoLogger
                 new MemoryPeakUsageProcessor,
             ];
         } else {
-            $processors = array_wrap($processors);
+            $processors = Arr::wrap($processors);
         }
 
         parent::__construct($appName, $handlers, $processors);

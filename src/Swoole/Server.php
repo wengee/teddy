@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-02-11 20:52:08 +0800
+ * @version  2020-06-10 14:57:53 +0800
  */
 
 namespace Teddy\Swoole;
 
 use Exception;
+use Illuminate\Support\Arr;
 use Swoole\Coroutine;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -18,6 +19,7 @@ use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Table;
 use Swoole\Websocket\Server as WebsocketServer;
+use Teddy\Console\Command;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
 use Teddy\Schedule\ScheduleProcess;
@@ -29,6 +31,8 @@ defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 class Server
 {
     protected $name = 'Teddy Server';
+
+    protected $command;
 
     protected $swoole;
 
@@ -64,6 +68,12 @@ class Server
         return $this->swoole;
     }
 
+    public function setCommand(Command $command): self
+    {
+        $this->command = $command;
+        return $this;
+    }
+
     public function start(): void
     {
         System::setProcessTitle('master process', $this->name);
@@ -72,12 +82,13 @@ class Server
 
     public function onStart(HttpServer $server): void
     {
+        $this->log('info', 'Listening on ' . $this->config['host'] . ':' . $this->config['port']);
         $this->app->emitEvent('server.onStart');
     }
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
-        $workerNum = array_get($this->config, 'options.worker_num', 1);
+        $workerNum = Arr::get($this->config, 'options.worker_num', 1);
         if ($workerId >= $workerNum) {
             $this->app->emitEvent('server.onTaskWorkerStart');
             $processName = 'task worker process';
@@ -196,9 +207,9 @@ class Server
                 if (is_string($item)) {
                     $className = $item;
                 } elseif (is_array($item)) {
-                    $className = array_get($item, 'class');
-                    $args = array_get($item, 'parameters', []);
-                    $total = array_get($item, 'total', 1);
+                    $className = Arr::get($item, 'class');
+                    $args = Arr::get($item, 'parameters', []);
+                    $total = Arr::get($item, 'total', 1);
                 }
             } elseif (is_string($key)) {
                 $className = $key;
@@ -245,7 +256,7 @@ class Server
     protected function createSwooleTables(array $tables): void
     {
         foreach ($tables as $name => $table) {
-            $columns = array_wrap($table['columns'] ?? []);
+            $columns = Arr::wrap($table['columns'] ?? []);
             if (!$columns) {
                 continue;
             }
@@ -273,8 +284,8 @@ class Server
     {
         $config = $this->parseConfig($config);
 
-        $enableWebsocket = array_pull($config, 'websocket.enable', false);
-        $websocketHandler = array_pull($config, 'websocket.handler');
+        $enableWebsocket = Arr::pull($config, 'websocket.enable', false);
+        $websocketHandler = Arr::pull($config, 'websocket.handler');
 
         $host = $config['host'] ?: '127.0.0.1';
         $port = $config['port'] ?: 9500;
@@ -285,7 +296,7 @@ class Server
         }
 
         $options = $config['options'];
-        $this->coroutineFlags = array_pull($options, 'coroutine_flags', SWOOLE_HOOK_ALL);
+        $this->coroutineFlags = Arr::pull($options, 'coroutine_flags', SWOOLE_HOOK_ALL);
 
         $options['enable_coroutine'] = true;
         $options['task_enable_coroutine'] = true;
@@ -351,5 +362,15 @@ class Server
         $config['options'] = $options;
         $this->config = $config;
         return $config;
+    }
+
+    protected function log(string $type, string $message): void
+    {
+        $message = date('[Y-m-d H:i:s] ') . $message;
+        if ($this->command) {
+            $this->command->{$type}($message);
+        } else {
+            echo $message . "\n";
+        }
     }
 }

@@ -10,6 +10,7 @@ use Dotenv\Environment\Adapter\EnvConstAdapter;
 use Dotenv\Environment\Adapter\PutenvAdapter;
 use Dotenv\Environment\Adapter\ServerConstAdapter;
 use Dotenv\Environment\DotenvFactory;
+use Illuminate\Support\Str;
 use PhpOption\Option;
 use Teddy\Container;
 use Teddy\Utils\FileSystem;
@@ -455,7 +456,7 @@ if (!function_exists('site_url')) {
     {
         static $baseUrl;
         if (!isset($baseUrl)) {
-            $baseUrl = str_finish(config('app.baseUrl', '/'), '/');
+            $baseUrl = Str::finish(config('app.baseUrl', '/'), '/');
         }
 
         if (!preg_match('#https?://.+#i', $path)) {

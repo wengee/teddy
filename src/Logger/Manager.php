@@ -3,11 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-23 10:28:24 +0800
+ * @version  2020-06-10 12:11:54 +0800
  */
 
 namespace Teddy\Logger;
 
+use Illuminate\Support\Arr;
 use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\HtmlFormatter;
 use Monolog\Formatter\JsonFormatter;
@@ -124,7 +125,7 @@ class Manager implements LoggerInterface
             return new Logger($config);
         }
 
-        $config = array_wrap($config);
+        $config = Arr::wrap($config);
         $driver = $config['driver'] ?? 'null';
         $method = 'create' . ucfirst($driver) . 'Driver';
         if (method_exists($this, $method)) {

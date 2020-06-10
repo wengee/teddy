@@ -3,24 +3,25 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-25 11:02:55 +0800
+ * @version  2020-06-10 12:10:57 +0800
  */
 
 namespace Teddy\Model;
 
-use Exception;
 use ArrayAccess;
-use Serializable;
-use JsonSerializable;
-use Teddy\Database\RawSQL;
+use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Support\Traits\Macroable;
+use JsonSerializable;
+use Serializable;
+use Teddy\Database\DatabaseInterface;
+use Teddy\Database\DbConnectionInterface;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
-use Teddy\Database\DatabaseInterface;
-use Teddy\Interfaces\JsonableInterface;
-use Illuminate\Support\Traits\Macroable;
+use Teddy\Database\RawSQL;
 use Teddy\Interfaces\ArrayableInterface;
-use Teddy\Database\DbConnectionInterface;
+use Teddy\Interfaces\JsonableInterface;
 
 abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 {
@@ -86,7 +87,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         }, ARRAY_FILTER_USE_KEY));
 
         if ($keys) {
-            $values = $except ? array_except($values, $keys) : array_only($values, $keys);
+            $values = $except ? Arr::except($values, $keys) : Arr::only($values, $keys);
         }
 
         return $values;
@@ -323,11 +324,11 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
             $this->isNewRecord = false;
         } else {
             $this->trigger('beforeUpdate');
-            foreach (array_only($attributes, $primaryKeys) as $key => $value) {
+            foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
                 $query->where($key, $value);
             }
 
-            $data = array_except($attributes, $primaryKeys);
+            $data = Arr::except($attributes, $primaryKeys);
             $query->limit(1)->update((array) $data);
             $this->trigger('afterUpdate');
         }
@@ -348,7 +349,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         $query = $this->buildQuery();
         $attributes = $this->getDbAttributes();
         if (!$this->isNewRecord()) {
-            foreach (array_only($attributes, $primaryKeys) as $key => $value) {
+            foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
                 $query->where($key, $value);
             }
 

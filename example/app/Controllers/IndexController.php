@@ -3,15 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 17:15:10 +0800
+ * @version  2020-06-10 11:50:13 +0800
  */
 
 namespace App\Controllers;
 
 use App\Models\Qrcode;
 use Teddy\Controller;
-use Teddy\Database\Schema\Blueprint;
-use Teddy\Database\Schema\Schema;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
 
@@ -43,9 +41,7 @@ class IndexController extends Controller
         app('swoole')->aTable->set(uniqid(), ['a' => 123, 'b' => 'abc']);
         $c = app('swoole')->aTable->count();
 
-        $d = Schema::create('aaaa', function (Blueprint $table): void {
-            $table->string('lalala');
-        });
+        $d = $request->getAttributes();
 
         return $response->json(0, compact(['a', 'b', 'c', 'd']));
     }

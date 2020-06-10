@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:20:47 +0800
+ * @version  2020-06-10 14:39:51 +0800
  */
 
 namespace Teddy\Console\Commands;
@@ -15,16 +15,17 @@ class ServerStartCommand extends Command
 {
     protected $name = 'start';
 
-    protected $description = 'Start teddy server';
+    protected $description = 'Start swoole server';
 
     protected function handle(): void
     {
         $now = date('Y-m-d H:i:s');
-        $this->info("[{$now}] Starting web server...");
+        $this->info("[{$now}] Starting swoole server...");
 
         $app = $this->getApplication()->getApp();
         if ($app && ($app instanceof App)) {
-            $app->listen();
+            $server = $app->getServer();
+            $server->setCommand($this)->start();
         } else {
             $this->error("[{$now}] The app is can not start");
         }

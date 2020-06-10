@@ -3,13 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-21 14:51:24 +0800
+ * @version  2020-06-10 12:12:16 +0800
  */
 
 namespace Teddy\Jwt;
 
 use Exception;
 use Firebase\JWT\JWT;
+use Illuminate\Support\Arr;
 use Teddy\Traits\HasOptions;
 
 class Manager
@@ -76,7 +77,7 @@ class Manager
     {
         $secret = $options['secret'] ?? $this->options['secret'];
         $algorithm = $options['algorithm'] ?? $this->options['algorithm'];
-        $algorithm = array_wrap($algorithm);
+        $algorithm = Arr::wrap($algorithm);
 
         try {
             $decoded = JWT::decode($token, $secret, $algorithm);
@@ -93,7 +94,7 @@ class Manager
     {
         $secret = $options['secret'] ?? $this->options['secret'];
         $algorithm = $options['algorithm'] ?? $this->options['algorithm'];
-        $algorithm = array_wrap($algorithm);
+        $algorithm = Arr::wrap($algorithm);
 
         $timestamp = time();
         $payload['iat'] = $timestamp;

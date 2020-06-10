@@ -8,20 +8,21 @@
 
 namespace Teddy\Abstracts;
 
-use Phar;
-use Exception;
-use Dotenv\Dotenv;
-use Teddy\Container;
-use Slim\App as SlimApp;
-use Teddy\Utils\Runtime;
 use BadMethodCallException;
-use Teddy\CallableResolver;
-use Teddy\Routing\RouteCollector;
-use Teddy\Factory\ResponseFactory;
-use League\Event\ListenerInterface;
-use Teddy\Middleware\StaticFileMiddleware;
-use Teddy\Middleware\BodyParsingMiddleware;
+use Dotenv\Dotenv;
+use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Support\Str;
+use League\Event\ListenerInterface;
+use Phar;
+use Slim\App as SlimApp;
+use Teddy\CallableResolver;
+use Teddy\Container;
+use Teddy\Factory\ResponseFactory;
+use Teddy\Middleware\BodyParsingMiddleware;
+use Teddy\Middleware\StaticFileMiddleware;
+use Teddy\Routing\RouteCollector;
+use Teddy\Utils\Runtime;
 
 abstract class AbstractApp extends Container
 {
@@ -86,7 +87,7 @@ abstract class AbstractApp extends Container
 
     public function setBasePath(string $basePath): self
     {
-        $this->basePath = str_finish($basePath, '/');
+        $this->basePath = Str::finish($basePath, '/');
         return $this;
     }
 
@@ -192,7 +193,7 @@ abstract class AbstractApp extends Container
             $handle = opendir($dir);
             while (false !== ($file = readdir($handle))) {
                 $filepath = $dir . $file;
-                if (ends_with($file, '.php') && is_file($filepath)) {
+                if (Str::endsWith($file, '.php') && is_file($filepath)) {
                     $name = substr($file, 0, -4);
                     if ($name !== 'swoole' || Runtime::get() === 'swoole') {
                         $config->set($name, require $filepath);
@@ -208,7 +209,7 @@ abstract class AbstractApp extends Container
     protected function loadEnvironments(string $file = '.env'): void
     {
         try {
-            Dotenv::create([$this->getRuntimePath()], $file)->load();
+            Dotenv::createMutable([$this->getRuntimePath()], $file)->load();
         } catch (Exception $e) {
         }
     }
@@ -233,7 +234,7 @@ abstract class AbstractApp extends Container
                     $handle = opendir($dir);
                     while (false !== ($file = readdir($handle))) {
                         $filepath = $dir . $file;
-                        if (ends_with($file, '.php') && is_file($filepath)) {
+                        if (Str::endsWith($file, '.php') && is_file($filepath)) {
                             require $filepath;
                         }
                     }

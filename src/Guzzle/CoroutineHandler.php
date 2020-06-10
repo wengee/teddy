@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-09 16:29:05 +0800
+ * @version  2020-06-10 12:12:36 +0800
  */
 
 /**
@@ -12,14 +12,15 @@
 
 namespace Teddy\Guzzle;
 
+use function GuzzleHttp\is_host_in_noproxy;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise\FulfilledPromise;
 use GuzzleHttp\Psr7\Uri;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\RequestInterface;
 use Swoole\Coroutine;
 use Swoole\Coroutine\Http\Client;
-use function GuzzleHttp\is_host_in_noproxy;
 
 /**
  * Http handler that uses Swoole Coroutine as a transport layer.
@@ -104,7 +105,7 @@ class CoroutineHandler
 
     protected function getSettings(RequestInterface $request, $options): array
     {
-        $settings = array_wrap($this->options['swoole'] ?? []);
+        $settings = Arr::wrap($this->options['swoole'] ?? []);
         if (isset($options['delay']) && $options['delay'] > 0) {
             Coroutine::sleep((float) $options['delay'] / 1000);
         }

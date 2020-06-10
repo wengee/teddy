@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 17:28:03 +0800
+ * @version  2020-06-10 12:06:24 +0800
  */
 
 namespace Teddy\Database;
 
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use PDO;
 use PDOException;
@@ -32,16 +33,16 @@ class PDOConnection implements DbConnectionInterface
     public function __construct(array $config, bool $readOnly = false)
     {
         $driver         = 'mysql';
-        $host           = array_get($config, 'host', '127.0.0.1');
-        $port           = array_get($config, 'port', 3306);
-        $dbName         = array_get($config, 'name', '');
-        $user           = array_get($config, 'user', 'root');
-        $password       = array_get($config, 'password', '');
-        $charset        = array_get($config, 'charset', 'utf8mb4');
-        $engine         = array_get($config, 'engine');
-        $collation      = array_get($config, 'collation');
-        $tablePrefix    = array_get($config, 'tablePrefix', '');
-        $options        = array_get($config, 'options', []);
+        $host           = Arr::get($config, 'host', '127.0.0.1');
+        $port           = Arr::get($config, 'port', 3306);
+        $dbName         = Arr::get($config, 'name', '');
+        $user           = Arr::get($config, 'user', 'root');
+        $password       = Arr::get($config, 'password', '');
+        $charset        = Arr::get($config, 'charset', 'utf8mb4');
+        $engine         = Arr::get($config, 'engine');
+        $collation      = Arr::get($config, 'collation');
+        $tablePrefix    = Arr::get($config, 'tablePrefix', '');
+        $options        = Arr::get($config, 'options', []);
         $dsn            = $driver . ':host=' . $host . ';port=' . $port . ';dbname=' . $dbName . ';charset=' . $charset;
 
         $options = $options + $this->getDefaultOptions();
@@ -59,23 +60,23 @@ class PDOConnection implements DbConnectionInterface
         );
 
         $this->readOnly = $readOnly;
-        $this->idleTimeout = (int) array_get($config, 'idleTimeout', 0);
+        $this->idleTimeout = (int) Arr::get($config, 'idleTimeout', 0);
         $this->pdo = $this->createPDOConnection();
     }
 
     public function getConfig(string $key)
     {
-        return array_get($this->config, $key);
+        return Arr::get($this->config, $key);
     }
 
     public function getTablePrefix(): string
     {
-        return array_get($this->config, 'tablePrefix', '');
+        return Arr::get($this->config, 'tablePrefix', '');
     }
 
     public function getDatabaseName(): string
     {
-        return array_get($this->config, 'dbName', '');
+        return Arr::get($this->config, 'dbName', '');
     }
 
     public function connect()
@@ -142,10 +143,10 @@ class PDOConnection implements DbConnectionInterface
 
     public function query(string $sql, array $data = [], array $options = [])
     {
-        $sqlType = array_get($options, 'sqlType');
+        $sqlType = Arr::get($options, 'sqlType');
         $retryTotal = 0;
         $maxRetries = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
-        $metaInfo = array_get($options, 'metaInfo');
+        $metaInfo = Arr::get($options, 'metaInfo');
         $pdo = $this->stick ? $this->pdo : $this->connect();
 
         RETRY:
@@ -174,7 +175,7 @@ class PDOConnection implements DbConnectionInterface
         }
 
         if ($sqlType === SQL::SELECT_SQL) {
-            $fetchType = array_get($options, 'fetchType');
+            $fetchType = Arr::get($options, 'fetchType');
             if ($fetchType === SQL::FETCH_ALL) {
                 $ret = array_map(function ($data) use ($metaInfo) {
                     return $metaInfo ? $metaInfo->makeInstance($data) : $data;
@@ -188,7 +189,7 @@ class PDOConnection implements DbConnectionInterface
                 }
             }
         } elseif ($sqlType === SQL::INSERT_SQL) {
-            if (array_get($options, 'lastInsertId')) {
+            if (Arr::get($options, 'lastInsertId')) {
                 $ret = $pdo->lastInsertId();
             }
         } else {

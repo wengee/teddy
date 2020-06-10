@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 17:21:09 +0800
+ * @version  2020-06-10 12:05:22 +0800
  */
 
 namespace Teddy\Database;
 
 use Exception;
+use Illuminate\Support\Arr;
 use PDOException;
 use Teddy\Interfaces\ConnectionInterface;
 use Teddy\Pool\Channel;
@@ -150,13 +151,13 @@ class Database extends Pool implements DatabaseInterface
             return $this->createWriteConnection();
         }
 
-        $config = array_random($this->readConf);
+        $config = Arr::random($this->readConf);
         return new PDOConnection($config, true);
     }
 
     protected function createWriteConnection(): ConnectionInterface
     {
-        $config = array_random($this->writeConf);
+        $config = Arr::random($this->writeConf);
         return new PDOConnection($config, false);
     }
 
@@ -169,13 +170,13 @@ class Database extends Pool implements DatabaseInterface
     {
         $defaultConf = [
             'driver'        => 'mysql',
-            'host'          => array_get($config, 'host', '127.0.0.1'),
-            'port'          => array_get($config, 'port', 3306),
-            'name'          => array_get($config, 'name', ''),
-            'user'          => array_get($config, 'user', ''),
-            'password'      => array_get($config, 'password', ''),
-            'charset'       => array_get($config, 'charset', 'utf8mb4'),
-            'options'       => array_get($config, 'options', []),
+            'host'          => Arr::get($config, 'host', '127.0.0.1'),
+            'port'          => Arr::get($config, 'port', 3306),
+            'name'          => Arr::get($config, 'name', ''),
+            'user'          => Arr::get($config, 'user', ''),
+            'password'      => Arr::get($config, 'password', ''),
+            'charset'       => Arr::get($config, 'charset', 'utf8mb4'),
+            'options'       => Arr::get($config, 'options', []),
             'idleTimeout'   => $this->poolOptions['maxIdleTime'],
         ];
 
