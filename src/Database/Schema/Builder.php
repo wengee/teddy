@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 17:09:33 +0800
+ * @version  2020-06-12 11:31:40 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -14,6 +14,8 @@ use Teddy\Database\DbConnectionInterface;
 
 class Builder
 {
+    protected static $callback;
+
     protected $connection;
 
     protected $grammar;
@@ -41,6 +43,11 @@ class Builder
     public static function defaultStringLength(int $length): void
     {
         static::$defaultStringLength = $length;
+    }
+
+    public function callback(?callable $callback): void
+    {
+        self::$callback = $callback;
     }
 
     public function hasTable(string $table): bool
@@ -81,29 +88,29 @@ class Builder
         ));
     }
 
-    public function table(string $table, Closure $callback): void
+    public function table(string $table, Closure $callback)
     {
-        $this->build($this->createBlueprint($table, $callback));
+        return $this->build($this->createBlueprint($table, $callback));
     }
 
-    public function create(string $table, Closure $callback): void
+    public function create(string $table, Closure $callback)
     {
-        $this->build(tap($this->createBlueprint($table), function ($blueprint) use ($callback): void {
+        return $this->build(tap($this->createBlueprint($table), function ($blueprint) use ($callback): void {
             $blueprint->create();
             $callback($blueprint);
         }));
     }
 
-    public function drop(string $table): void
+    public function drop(string $table)
     {
-        $this->build(tap($this->createBlueprint($table), function ($blueprint): void {
+        return $this->build(tap($this->createBlueprint($table), function ($blueprint): void {
             $blueprint->drop();
         }));
     }
 
-    public function dropIfExists(string $table): void
+    public function dropIfExists(string $table)
     {
-        $this->build(tap($this->createBlueprint($table), function ($blueprint): void {
+        return $this->build(tap($this->createBlueprint($table), function ($blueprint): void {
             $blueprint->dropIfExists();
         }));
     }
@@ -118,9 +125,9 @@ class Builder
         throw new LogicException('This database driver does not support dropping all views.');
     }
 
-    public function rename(string $from, string $to): void
+    public function rename(string $from, string $to)
     {
-        $this->build(tap($this->createBlueprint($from), function ($blueprint) use ($to): void {
+        return $this->build(tap($this->createBlueprint($from), function ($blueprint) use ($to): void {
             $blueprint->rename($to);
         }));
     }
@@ -141,7 +148,12 @@ class Builder
 
     protected function build(Blueprint $blueprint): void
     {
-        $blueprint->build($this->connection, $this->grammar);
+        if (!self::$callback) {
+            $blueprint->build($this->connection, $this->grammar);
+        } else {
+            $sql = $blueprint->toSql($this->connection, $this->grammar);
+            call_user_func(self::$callback, $sql);
+        }
     }
 
     protected function createBlueprint(string $table, Closure $callback = null)

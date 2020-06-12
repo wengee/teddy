@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:19:19 +0800
+ * @version  2020-06-12 10:52:08 +0800
  */
 
 namespace Teddy\Console;
@@ -37,6 +37,7 @@ class Application extends ConsoleApplication
             new Migrations\ResetCommand,
             new Migrations\RollbackCommand,
             new Migrations\StatusCommand,
+            new Migrations\SqlCommand,
             new Models\ModelMakeCommand,
         ]);
 

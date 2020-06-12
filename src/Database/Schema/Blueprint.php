@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 18:06:47 +0800
+ * @version  2020-06-12 10:28:10 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -86,7 +86,7 @@ class Blueprint
         }
     }
 
-    public function toSql(DbConnectionInterface $connection, Grammar $grammar)
+    public function toSql(DbConnectionInterface $connection, Grammar $grammar): array
     {
         $this->addImpliedCommands($grammar);
 

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 17:48:16 +0800
+ * @version  2020-06-12 11:13:53 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -12,8 +12,15 @@ abstract class Migration
 {
     protected $batch = null;
 
+    protected $version = null;
+
     public function getBatch(): ?int
     {
         return $this->batch;
+    }
+
+    public function getVersion(): string
+    {
+        return $this->version ?: '1.0.0';
     }
 }

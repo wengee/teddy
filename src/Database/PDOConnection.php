@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:06:24 +0800
+ * @version  2020-06-12 11:01:53 +0800
  */
 
 namespace Teddy\Database;
@@ -29,6 +29,10 @@ class PDOConnection implements DbConnectionInterface
     protected $readOnly = false;
 
     protected $stick = false;
+
+    protected $schemeBuilder;
+
+    protected $schemeGrammer;
 
     public function __construct(array $config, bool $readOnly = false)
     {
@@ -210,20 +214,28 @@ class PDOConnection implements DbConnectionInterface
 
     public function getSchemaBuilder(): Builder
     {
-        if ($this->config['driver'] === 'mysql') {
-            return new MysqlBuilder($this);
+        if (!$this->schemeBuilder) {
+            if ($this->config['driver'] === 'mysql') {
+                $this->schemeBuilder = new MysqlBuilder($this);
+            } else {
+                $this->schemeBuilder = new Builder($this);
+            }
         }
 
-        return new Builder($this);
+        return $this->schemeBuilder;
     }
 
     public function getSchemaGrammar(): Grammar
     {
-        if ($this->config['driver'] === 'mysql') {
-            return new MysqlGrammar;
+        if (!$this->schemeGrammer) {
+            if ($this->config['driver'] === 'mysql') {
+                $this->schemeGrammer = new MysqlGrammar;
+            } else {
+                $this->schemeGrammer = new Grammar;
+            }
         }
 
-        return new Grammar;
+        return $this->schemeGrammer;
     }
 
     protected function createPDOConnection(): PDO
