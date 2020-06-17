@@ -25,12 +25,12 @@ class Validation
         }
     }
 
-    public static function make(array $rules = [])
+    public static function make(array $rules = []): self
     {
         return new self($rules);
     }
 
-    public function add(string $field, $validator = null)
+    public function add(string $field, $validator = null): ?Validator
     {
         if (is_string($validator) || $validator === null) {
             $validator = Validator::make($field, $validator);
@@ -44,7 +44,7 @@ class Validation
         return null;
     }
 
-    public function append(string $field, $rule, ...$args)
+    public function append(string $field, $rule, ...$args): self
     {
         if (!($rule instanceof ValidatorRuleInterface)) {
             $rule = Validator::rule($rule, ...$args);
@@ -53,10 +53,11 @@ class Validation
         if (isset($this->rules[$field]) && ($rule instanceof ValidatorRuleInterface)) {
             $this->rules[$field]->push($rule);
         }
+
         return $this;
     }
 
-    public function validate(array $data, array $rules = [], bool $quiet = false)
+    public function validate(array $data, array $rules = [], bool $quiet = false): array
     {
         if (method_exists($this, 'beforeValidate')) {
             $data = $this->beforeValidate($data);
@@ -84,7 +85,7 @@ class Validation
         return $filtered;
     }
 
-    public function check(array $data, array $rules = [])
+    public function check(array $data, array $rules = []): array
     {
         return $this->validate($data, $rules, true);
     }

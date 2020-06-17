@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:08:00 +0800
+ * @version  2020-06-17 09:19:10 +0800
  */
 
 namespace Teddy\Validation;
@@ -72,7 +72,7 @@ class Validator
         return ($rule instanceof ValidatorRuleInterface) ? $rule : null;
     }
 
-    public static function make(string $field, ?string $label = null)
+    public static function make(string $field, ?string $label = null): self
     {
         return new self($field, $label);
     }
@@ -88,14 +88,14 @@ class Validator
         return $value;
     }
 
-    public function push(ValidatorRuleInterface $validator)
+    public function push(ValidatorRuleInterface $validator): self
     {
         $validator->setLabel($this->label);
         $this->validators[] = $validator;
         return $this;
     }
 
-    public function filter(string $filter, ...$args)
+    public function filter(string $filter, ...$args): self
     {
         if (empty($args)) {
             $this->filter = $filter;
@@ -107,12 +107,12 @@ class Validator
         return $this;
     }
 
-    public function when($condition, ...$args)
+    public function when($condition, ...$args): self
     {
         return $this->if($condition, ...$args);
     }
 
-    public function if($condition, ...$args)
+    public function if($condition, ...$args): self
     {
         $this->condition['type'] = 0;
         if ($condition instanceof Closure) {
@@ -134,12 +134,12 @@ class Validator
         return $this;
     }
 
-    public function add($rule, ...$args)
+    public function add($rule, ...$args): self
     {
         return $this->then($rule, ...$args);
     }
 
-    public function then($rule, ...$args)
+    public function then($rule, ...$args): self
     {
         $rule = self::rule($rule, ...$args);
         if ($rule instanceof ValidatorRuleInterface) {
@@ -149,7 +149,7 @@ class Validator
         return $this;
     }
 
-    public function validate(array $data, array $filterd = [], bool $quiet = false)
+    public function validate(array $data, array $filterd = [], bool $quiet = false): array
     {
         if (is_null($this->tip)) {
             $this->seedHandlerStack();
@@ -191,7 +191,7 @@ class Validator
         }
     }
 
-    protected function checkCondition($value, array $data)
+    protected function checkCondition($value, array $data): bool
     {
         if (empty($this->condition)) {
             return true;
