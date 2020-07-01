@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:10:57 +0800
+ * @version  2020-07-01 10:47:10 +0800
  */
 
 namespace Teddy\Model;
@@ -36,6 +36,16 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
     protected $metaInfo;
 
     protected $connection = null;
+
+    final public function __construct(bool $init = true)
+    {
+        $columns = $this->metaInfo()->getColumns();
+        if ($columns) {
+            foreach ($columns as $key => $column) {
+                $this->items[$key] = $column->defaultValue();
+            }
+        }
+    }
 
     public function offsetExists($offset): bool
     {
@@ -138,6 +148,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         try {
             $this->doSave();
         } catch (Exception $e) {
+            log_exception($e);
             if ($quiet) {
                 return false;
             } else {
@@ -153,6 +164,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         try {
             $this->doDelete();
         } catch (Exception $e) {
+            log_exception($e);
             if ($quiet) {
                 return false;
             } else {
@@ -268,7 +280,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
         $attributes = $this->items;
         foreach ($columns as $key => $column) {
-            $value = $attributes[$key] ?? $column->defaultValue();
+            $value = array_key_exists($key, $attributes) ? $attributes[$key] : $column->defaultValue();
             $attributes[$key] = $column->dbValue($value);
         }
 

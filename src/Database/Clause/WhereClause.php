@@ -69,9 +69,9 @@ class WhereClause extends ClauseContainer
             if (is_array($column)) {
                 $ret .= '(' . $this->_toSql($column, $map) . ')';
             } elseif ($column instanceof RawSQL) {
-                $ret .= $column->toSql($map, $this->query);
+                $ret .= '(' . $column->toSql($map, $this->query) . ')';
             } else {
-                $ret .= "{$column} {$operator} ?";
+                $ret .= "({$column} {$operator} ?)";
                 $map[] = $value;
             }
         }

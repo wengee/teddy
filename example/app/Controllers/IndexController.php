@@ -38,12 +38,9 @@ class IndexController extends Controller
         $b = [];
         $a = $query->getSql($b);
 
-        app('swoole')->aTable->set(uniqid(), ['a' => 123, 'b' => 'abc']);
-        $c = app('swoole')->aTable->count();
+        $c = new Qrcode;
 
-        $d = $request->getAttributes();
-
-        return $response->json(0, compact(['a', 'b', 'c', 'd']));
+        return $response->json(0, compact(['a', 'b', 'c']));
     }
 
     public function upload(Request $request, Response $response)

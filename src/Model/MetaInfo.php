@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-07-01 10:40:28 +0800
  */
 
 namespace Teddy\Model;
@@ -138,7 +138,8 @@ class MetaInfo
 
     public function makeInstance(array $data)
     {
-        $object = new $this->className;
+        $clsName = $this->className;
+        $object = new $clsName(false);
         $closure = $this->setDbPropertyMethod->getClosure($object);
         call_user_func($closure, $data);
         return $object;

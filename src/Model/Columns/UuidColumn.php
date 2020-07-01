@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-20 11:18:01 +0800
+ * @version  2020-07-01 10:46:19 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -30,6 +30,11 @@ class UuidColumn extends Column
     public function value($value)
     {
         return (string) $value;
+    }
+
+    public function defaultValue()
+    {
+        return $this->generateId();
     }
 
     protected function generateId(): String
