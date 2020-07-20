@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:50:13 +0800
+ * @version  2020-07-20 14:12:05 +0800
  */
 
 namespace App\Controllers;
@@ -38,7 +38,8 @@ class IndexController extends Controller
         $b = [];
         $a = $query->getSql($b);
 
-        $c = new Qrcode;
+        // $c = new Qrcode;
+        $c = app('auth')->create([]);
 
         return $response->json(0, compact(['a', 'b', 'c']));
     }

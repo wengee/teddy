@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-20 17:48:48 +0800
+ * @version  2020-07-20 12:00:40 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -151,6 +151,7 @@ abstract class AbstractApp extends Container
         $this->bind('lock', \Teddy\Lock\Factory::class);
         $this->bind('request', \Teddy\Http\Request::class);
         $this->bind('response', \Teddy\Http\Response::class);
+        $this->bind('auth', \Teddy\Auth\Manager::class);
         $this->bind('console', \Teddy\Console\Application::class);
 
         if ($this->config->has('database')) {
