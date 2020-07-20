@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-20 12:04:31 +0800
+ * @version  2020-07-20 14:33:58 +0800
  */
 
 namespace Teddy\Auth;
@@ -29,7 +29,7 @@ class Authentication implements MiddlewareInterface
 
     protected $options = [
         'header'    => 'Authorization',
-        'regexp'    => '/Token\\s+(.*)$/i',
+        'regexp'    => '/^Token\\s+(.*)$/i',
         'cookie'    => 'token',
         'param'     => 'token',
         'attribute' => 'user',
@@ -77,7 +77,7 @@ class Authentication implements MiddlewareInterface
 
         /* Check for token in header. */
         $headers = $request->getHeader($this->options['header']);
-        $header = $headers[0] ?? '';
+        $header = trim($headers[0] ?? '');
 
         if (preg_match($this->options['regexp'], $header, $matches)) {
             return $matches[1];
