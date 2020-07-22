@@ -29,7 +29,7 @@ class Authentication implements MiddlewareInterface
 
     protected $options = [
         'header'    => 'Authorization',
-        'regexp'    => '/^Token\\s+(.*)$/i',
+        'regexp'    => '/^Bearer\\s+(.*)$/i',
         'cookie'    => 'token',
         'param'     => 'token',
         'attribute' => 'user',
