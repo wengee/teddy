@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-20 12:03:16 +0800
+ * @version  2020-07-22 20:11:45 +0800
  */
 
 namespace Teddy\Auth;
@@ -32,11 +32,21 @@ class Manager
         return $token;
     }
 
-    public function fetch(string $token): array
+    public function refresh(string $token, int $expiresIn = 0): ?string
+    {
+        $data = $this->fetch($token);
+        if (!$data) {
+            return null;
+        }
+
+        return $this->create($data, $expiresIn);
+    }
+
+    public function fetch(string $token): ?array
     {
         $cacheKey = self::CACHE_KEY . $token;
         $data = app('redis')->get($cacheKey);
-        return ($data && is_array($data)) ? $data : [];
+        return ($data && is_array($data)) ? $data : null;
     }
 
     public function clear(string $token): void
