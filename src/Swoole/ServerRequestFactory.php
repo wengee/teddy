@@ -27,7 +27,7 @@ class ServerRequestFactory
         $cookies = (array) $request->cookie;
         $serverParams = static::createServerParams($request);
         $body = static::createBody($request);
-        $uploadedFiles = static::createUploadFiles($request);
+        $uploadedFiles = static::createUploadFiles($request->files ?: null);
 
         $req = make('request', [
             $method,
@@ -100,14 +100,13 @@ class ServerRequestFactory
         return $body;
     }
 
-    protected static function createUploadFiles(SwooleRequest $request): array
+    protected static function createUploadFiles(?array $uploadedFiles): array
     {
         $parsed = [];
-        if (empty($request->files)) {
+        if (empty($uploadedFiles)) {
             return $parsed;
         }
 
-        $uploadedFiles = (array) $request->files;
         foreach ($uploadedFiles as $field => $uploadedFile) {
             if (!isset($uploadedFile['error'])) {
                 if (is_array($uploadedFile)) {

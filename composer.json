@@ -38,7 +38,8 @@
         "overtrue/flysystem-cos": "^2.0",
         "godruoyi/php-snowflake": "^1.0",
         "ramsey/uuid": "^3.9",
-        "fwkit/guzzle-hook": "^1.0"
+        "fwkit/guzzle-hook": "^1.0",
+        "swoole/ide-helper": "^4.5"
     },
     "suggest": {
         "jacobcyl/ali-oss-storage": "Allows you to use Aliyun OSS",

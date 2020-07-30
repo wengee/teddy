@@ -9,10 +9,14 @@
 namespace Teddy\Http;
 
 use ArrayAccess;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Traits\Macroable;
 use Slim\Psr7\Request as SlimRequest;
 
 class Request extends SlimRequest implements ArrayAccess
 {
+    use Macroable;
+
     private $timestamp;
 
     private $clientIp;
@@ -43,6 +47,11 @@ class Request extends SlimRequest implements ArrayAccess
         if (is_string($offset)) {
             unset($this->attributes[$offset]);
         }
+    }
+
+    public function getAttribute($name, $default = null)
+    {
+        return Arr::get($this->attributes, $name, $default);
     }
 
     public function getUserAgent()

@@ -3,13 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 17:54:05 +0800
+ * @version  2020-07-23 21:30:18 +0800
  */
 
 namespace Teddy\Http;
 
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
+use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -18,6 +19,8 @@ use Slim\Psr7\Stream;
 
 class Response extends SlimResponse
 {
+    use Macroable;
+
     protected $cookies = [];
 
     protected $sendFile;

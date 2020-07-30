@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:11:54 +0800
+ * @version  2020-07-30 15:16:59 +0800
  */
 
 namespace Teddy\Logger;
@@ -13,6 +13,7 @@ use Monolog\Formatter\FormatterInterface;
 use Monolog\Formatter\HtmlFormatter;
 use Monolog\Formatter\JsonFormatter;
 use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\AbstractProcessingHandler;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\HandlerInterface;
 use Monolog\Handler\NullHandler;
@@ -221,8 +222,11 @@ class Manager implements LoggerInterface
 
     protected function prepareHandler(HandlerInterface $handler, array $config = []): HandlerInterface
     {
-        $formatter = $config['formatter'] ?? null;
-        $handler->setFormatter($this->createFormatter($formatter));
+        if ($handler instanceof AbstractProcessingHandler) {
+            $formatter = $config['formatter'] ?? null;
+            $handler->setFormatter($this->createFormatter($formatter));
+        }
+
         return $handler;
     }
 

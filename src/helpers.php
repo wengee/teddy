@@ -3,15 +3,10 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:08:46 +0800
+ * @version  2020-07-30 15:31:48 +0800
  */
 
-use Dotenv\Environment\Adapter\EnvConstAdapter;
-use Dotenv\Environment\Adapter\PutenvAdapter;
-use Dotenv\Environment\Adapter\ServerConstAdapter;
-use Dotenv\Environment\DotenvFactory;
 use Illuminate\Support\Str;
-use PhpOption\Option;
 use Teddy\Container;
 use Teddy\Utils\FileSystem;
 
@@ -185,84 +180,6 @@ if (!function_exists('config')) {
         }
 
         return app('config')->get($key, $default);
-    }
-}
-
-if (!function_exists('env_get')) {
-    /**
-     * Gets the value of an environment variable. Supports boolean, empty and null.
-     *
-     * @param  string|null  $key
-     * @param  mixed  $default
-     * @param  string|array  $options
-     * @return mixed
-     */
-    function env_get($key, $default = null, $options = null)
-    {
-        static $variables;
-
-        if ($variables === null) {
-            $variables = (new DotenvFactory([new EnvConstAdapter, new PutenvAdapter, new ServerConstAdapter]))->createImmutable();
-        }
-
-        return Option::fromValue($variables->get($key))
-            ->map(function ($value) use ($options) {
-                $filter = null;
-                $separator = ',';
-
-                if (is_string($options)) {
-                    $filter = $options;
-                } elseif (is_array($options)) {
-                    if (isset($options['separator'])) {
-                        $separator = $options['separator'];
-                        $filter = 'list';
-                    } else {
-                        $filter = $options['filter'] ?? $filter;
-                    }
-                }
-
-                if ($filter) {
-                    switch ($filter) {
-                        case 'int':
-                        case 'integer':
-                            return intval($value);
-
-                        case 'float':
-                        case 'double':
-                            return floatval($value);
-
-                        case 'json':
-                            return json_decode($value, true);
-
-                        case 'list':
-                            return explode($separator, $value);
-                    }
-                }
-
-                switch (strtolower($value)) {
-                    case 'true':
-                    case '(true)':
-                        return true;
-                    case 'false':
-                    case '(false)':
-                        return false;
-                    case 'empty':
-                    case '(empty)':
-                        return '';
-                    case 'null':
-                    case '(null)':
-                        return;
-                }
-
-                if (preg_match('/\A([\'"])(.*)\1\z/', $value, $matches)) {
-                    return $matches[2];
-                }
-
-                return $value;
-            })
-            ->getOrCall(function () use ($default) {
-                return value($default);
-            });
     }
 }
 

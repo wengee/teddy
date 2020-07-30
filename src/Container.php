@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-07-30 15:29:29 +0800
  */
 
 namespace Teddy;
@@ -103,7 +103,7 @@ class Container implements ContainerInterface, ArrayAccess
         return $this->getAlias($this->aliases[$abstract]);
     }
 
-    public static function getInstance(): ContainerInterface
+    public static function getInstance(): self
     {
         if (is_null(static::$instance)) {
             static::$instance = new static;

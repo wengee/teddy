@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-07-30 15:28:26 +0800
  */
 
 namespace Teddy;
@@ -21,14 +21,14 @@ use Slim\Interfaces\CallableResolverInterface;
 final class CallableResolver implements CallableResolverInterface
 {
     /**
-     * @var ContainerInterface|null
+     * @var Container|null
      */
     private $container;
 
     /**
      * @param ContainerInterface|null $container
      */
-    public function __construct(?ContainerInterface $container = null)
+    public function __construct(?Container $container = null)
     {
         $this->container = $container;
     }
