@@ -33,12 +33,12 @@
         "fwkit/console": "^0.3.0"
     },
     "require-dev": {
-        "guzzlehttp/guzzle": "6.*",
+        "mix/guzzle": "^2.2",
+        "guzzlehttp/guzzle": "^6.5",
         "jacobcyl/ali-oss-storage": "^2.1",
         "overtrue/flysystem-cos": "^2.0",
         "godruoyi/php-snowflake": "^1.0",
         "ramsey/uuid": "^3.9",
-        "fwkit/guzzle-hook": "^1.0",
         "swoole/ide-helper": "^4.5"
     },
     "suggest": {

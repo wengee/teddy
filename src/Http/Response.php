@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-23 21:30:18 +0800
+ * @version  2020-08-05 14:38:46 +0800
  */
 
 namespace Teddy\Http;
@@ -25,6 +25,19 @@ class Response extends SlimResponse
 
     protected $sendFile;
 
+    protected $isJsonResponse = false;
+
+    protected $jsonData = null;
+
+    public function isJsonResponse(&$data): bool
+    {
+        if ($this->isJsonResponse) {
+            $data = $this->jsonData;
+        }
+
+        return !!$this->isJsonResponse;
+    }
+
     public function withSendFile(string $file): ResponseInterface
     {
         $clone = clone $this;
@@ -45,6 +58,9 @@ class Response extends SlimResponse
 
     public function withJson($data, $status = StatusCodeInterface::STATUS_OK, $encodingOptions = 0): ResponseInterface
     {
+        $this->isJsonResponse = true;
+        $this->jsonData = $data;
+
         $response = $this->withBody(new Stream(fopen('php://temp', 'r+')));
         $response->body->write($json = json_encode($data, $encodingOptions));
 

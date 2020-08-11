@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-22 20:11:45 +0800
+ * @version  2020-08-06 17:40:42 +0800
  */
 
 namespace Teddy\Auth;
@@ -14,6 +14,13 @@ use Teddy\Exception;
 class Manager
 {
     public const CACHE_KEY = 'auth:token:';
+
+    protected $secret;
+
+    public function __construct()
+    {
+        $this->secret = config('auth.secret', '** It is the default auth secret. **');
+    }
 
     public function create(array $data, int $expiresIn = 0): string
     {
@@ -34,6 +41,10 @@ class Manager
 
     public function refresh(string $token, int $expiresIn = 0): ?string
     {
+        if (!$this->checkToken($token, true)) {
+            return null;
+        }
+
         $data = $this->fetch($token);
         if (!$data) {
             return null;
@@ -44,6 +55,10 @@ class Manager
 
     public function fetch(string $token): ?array
     {
+        if (!$this->checkToken($token, true)) {
+            return null;
+        }
+
         $cacheKey = self::CACHE_KEY . $token;
         $data = app('redis')->get($cacheKey);
         return ($data && is_array($data)) ? $data : null;
@@ -51,18 +66,22 @@ class Manager
 
     public function clear(string $token): void
     {
-        app('redis')->del(self::CACHE_KEY . $token);
+        if ($this->checkToken($token, true)) {
+            app('redis')->del(self::CACHE_KEY . $token);
+        }
     }
 
     public function ttl(string $token, int $expiresIn = 0): void
     {
-        if ($expiresIn > 0) {
+        if ($this->checkToken($token, true) && $expiresIn > 0) {
             app('redis')->expire(self::CACHE_KEY . $token, $expiresIn);
         }
     }
 
     public function reset(string $token, array $data, int $expiresIn = 0): void
     {
+        $this->checkToken($token);
+
         $cacheKey = self::CACHE_KEY . $token;
         if ($expiresIn > 0) {
             $ret = app('redis')->set($cacheKey, $data, $expiresIn);
@@ -77,6 +96,8 @@ class Manager
 
     public function update(string $token, $key, $value)
     {
+        $this->checkToken($token);
+
         $cacheKey = self::CACHE_KEY . $token;
         $data = app('redis')->get($cacheKey);
         if ($data === false || !is_array($data)) {
@@ -89,6 +110,8 @@ class Manager
 
     public function remove(string $token, $key): void
     {
+        $this->checkToken($token);
+
         $cacheKey = self::CACHE_KEY . $token;
         $data = app('redis')->get($cacheKey);
         if ($data === false || !is_array($data)) {
@@ -101,6 +124,34 @@ class Manager
 
     protected function generateToken(): string
     {
-        return intval(microtime(true) * 1000) . '.' . md5(uniqid() . Str::random(8));
+        $timestamp = intval(microtime(true) * 1000);
+        $nonceStr = strtolower(uniqid() . Str::random(8));
+        return $timestamp . '.' . $nonceStr . '.' . $this->makeSignature($timestamp, $nonceStr);
+    }
+
+    protected function checkToken(string $token, bool $silent = false): bool
+    {
+        $ret = false;
+        $arr = explode('.', $token);
+        if (!$arr || count($arr) !== 3) {
+            goto RESULT;
+        }
+
+        $signature = $this->makeSignature((int) $arr[0], $arr[1]);
+        $ret = $signature === $arr[2];
+
+        RESULT:
+        if ($silent) {
+            return $ret;
+        } elseif (!$ret) {
+            throw new Exception('Token is invalid.');
+        }
+
+        return true;
+    }
+
+    protected function makeSignature(int $timestamp, string $nonceStr): string
+    {
+        return md5($timestamp . $this->secret . $nonceStr);
     }
 }

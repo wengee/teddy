@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-20 12:00:40 +0800
+ * @version  2020-08-11 17:08:17 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -18,6 +18,7 @@ use Phar;
 use Slim\App as SlimApp;
 use Teddy\CallableResolver;
 use Teddy\Container;
+use Teddy\Facades\Facade;
 use Teddy\Factory\ResponseFactory;
 use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
@@ -174,6 +175,8 @@ abstract class AbstractApp extends Container
         if ($this->config->has('snowflake')) {
             $this->bind('snowflake', \Teddy\Snowflake\Manager::class);
         }
+
+        Facade::setFacadeApplication($this);
     }
 
     public function runConsole(?string $commandName = null): void
