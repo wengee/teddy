@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-17 09:19:10 +0800
+ * @version  2020-08-12 15:15:43 +0800
  */
 
 namespace Teddy\Validation;
@@ -12,7 +12,7 @@ use Closure;
 use Exception;
 use Illuminate\Support\Arr;
 use RuntimeException;
-use Teddy\Filter;
+use Teddy\Facades\Filter;
 use Teddy\Interfaces\ValidatorRuleInterface;
 use Teddy\Validation\Validators\Callback;
 
@@ -119,7 +119,7 @@ class Validator
             $this->condition['type'] = 2;
             $this->condition['func'] = $condition;
         } elseif (is_string($condition)) {
-            if ($condition{0} === '!') {
+            if ($condition[0] === '!') {
                 $this->condition['not'] = true;
                 $condition = substr($condition, 1);
             }
@@ -149,7 +149,7 @@ class Validator
         return $this;
     }
 
-    public function validate(array $data, array $filterd = [], bool $quiet = false): array
+    public function validate(array $data, array $filterd = [], bool $silent = false): array
     {
         if (is_null($this->tip)) {
             $this->seedHandlerStack();
@@ -162,7 +162,7 @@ class Validator
                 $value = $this->filterValue($value);
                 $value = $start($value, $data);
             } catch (Exception $e) {
-                if ($quiet) {
+                if ($silent) {
                     $value = null;
                 } else {
                     throw $e;
@@ -220,6 +220,6 @@ class Validator
             return $value;
         }
 
-        return Filter::instance()->sanitize($value, $this->filter);
+        return app('filter')->sanitize($value, $this->filter);
     }
 }

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-05 14:24:58 +0800
+ * @version  2020-08-12 15:03:43 +0800
  */
 
 namespace Teddy\Validation;
@@ -20,9 +20,7 @@ class Validation
     public function __construct(array $rules = [])
     {
         $this->rules = $rules;
-        if (method_exists($this, 'initialize')) {
-            $this->initialize();
-        }
+        $this->initialize();
     }
 
     public static function make(array $rules = []): self
@@ -57,12 +55,9 @@ class Validation
         return $this;
     }
 
-    public function validate(array $data, array $rules = [], bool $quiet = false): array
+    public function validate(array $data, array $rules = [], bool $silent = false): array
     {
-        if (method_exists($this, 'beforeValidate')) {
-            $data = $this->beforeValidate($data);
-        }
-
+        $data = $this->beforeValidate($data);
         if (!empty($rules)) {
             $rules = array_filter($rules, function ($item) {
                 return $item instanceof Validator;
@@ -75,18 +70,28 @@ class Validation
 
         $filtered = [];
         foreach ($rules as $validator) {
-            $filtered = $validator->validate($data, $filtered, $quiet);
+            $filtered = $validator->validate($data, $filtered, $silent);
         }
 
-        if (method_exists($this, 'afterValidate')) {
-            $filtered = $this->afterValidate($filtered);
-        }
-
-        return $filtered;
+        return $this->afterValidate($filtered);
     }
 
     public function check(array $data, array $rules = []): array
     {
         return $this->validate($data, $rules, true);
+    }
+
+    protected function initialize(): void
+    {
+    }
+
+    protected function beforeValidate(array $data): array
+    {
+        return $data;
+    }
+
+    protected function afterValidate(array $data): array
+    {
+        return $data;
     }
 }
