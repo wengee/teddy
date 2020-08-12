@@ -3,20 +3,18 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-12 11:02:05 +0800
+ * @version  2020-08-12 11:00:57 +0800
  */
 
 namespace Teddy\Facades;
 
 /**
- * @method static string getName()
- * @method static string getBasePath()
- * @method static string getRuntimePath()
+ * @method static \Teddy\Lock\Lock create(string $key, int $ttl = 600)
  */
-class App extends Facade
+class Lock extends Facade
 {
     public static function getFacadeAccessor(): string
     {
-        return 'app';
+        return 'lock';
     }
 }
