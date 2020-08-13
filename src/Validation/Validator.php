@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-12 15:15:43 +0800
+ * @version  2020-08-13 10:55:05 +0800
  */
 
 namespace Teddy\Validation;
@@ -52,6 +52,8 @@ class Validator
 
     protected $label;
 
+    protected $default = null;
+
     protected $filter;
 
     protected $condition = [];
@@ -92,6 +94,12 @@ class Validator
     {
         $validator->setLabel($this->label);
         $this->validators[] = $validator;
+        return $this;
+    }
+
+    public function default($value): self
+    {
+        $this->default = $value;
         return $this;
     }
 
@@ -156,7 +164,7 @@ class Validator
         }
 
         $start = $this->tip;
-        $value = Arr::get($data, $this->field);
+        $value = Arr::get($data, $this->field, $this->default);
         if ($this->checkCondition($value, $data)) {
             try {
                 $value = $this->filterValue($value);
