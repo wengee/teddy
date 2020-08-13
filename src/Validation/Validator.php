@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-13 10:55:05 +0800
+ * @version  2020-08-13 11:51:43 +0800
  */
 
 namespace Teddy\Validation;
@@ -228,6 +228,6 @@ class Validator
             return $value;
         }
 
-        return app('filter')->sanitize($value, $this->filter);
+        return Filter::sanitize($value, $this->filter);
     }
 }
