@@ -3,13 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 22:01:06 +0800
+ * @version  2020-08-15 17:12:59 +0800
  */
 
 namespace Teddy\Swoole;
 
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response as SwooleResponse;
+use Teddy\Http\Response;
 
 class ResponseEmitter
 {
@@ -26,7 +27,7 @@ class ResponseEmitter
         $this->emitCookies($res);
         $this->emitStatusLine($res);
 
-        if ($sendFile = $res->getSendFile()) {
+        if (($res instanceof Response) && ($sendFile = $res->getSendFile())) {
             $this->response->sendfile($sendFile);
             return;
         }
@@ -49,7 +50,7 @@ class ResponseEmitter
 
     private function emitCookies(ResponseInterface $res): void
     {
-        $cookies = method_exists($res, 'getCookies') ? $res->getCookies() : null;
+        $cookies = ($res instanceof Response) ? $res->getCookies() : null;
 
         if (!empty($cookies)) {
             foreach ($cookies as $name => $cookie) {

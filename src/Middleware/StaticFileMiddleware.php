@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Psr7\Stream;
+use Teddy\Http\Response;
 
 class StaticFileMiddleware implements MiddlewareInterface
 {
@@ -101,9 +102,13 @@ class StaticFileMiddleware implements MiddlewareInterface
 
     protected function sendFile(string $filePath): ResponseInterface
     {
-        return make('response', [200])
-            ->withHeader('Content-Type', $this->getMimeType($filePath))
-            ->withBody(new Stream(fopen($filePath, 'r')));
+        $response = make('response', [200]);
+        if ($response instanceof Response) {
+            return $response->withSendFile($filePath);
+        } else {
+            return $response->withHeader('Content-Type', $this->getMimeType($filePath))
+                ->withBody(new Stream(fopen($filePath, 'r')));
+        }
     }
 
     protected function getMimeType(string $filePath): string

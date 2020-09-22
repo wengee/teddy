@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-04-14 17:12:16 +0800
+ * @version  2020-09-22 10:10:23 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -169,6 +169,7 @@ class Migrator
             closedir($dh);
         }
 
+        ksort($ret, SORT_NATURAL);
         return $ret;
     }
 
