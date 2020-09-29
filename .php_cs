@@ -14,21 +14,16 @@ return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules([
         '@PSR2' => true,
+        '@PhpCsFixer' => true,
         '@PHP71Migration:risky' => true,
         '@PHP73Migration' => true,
 
         'header_comment' => [
             'commentType' => 'PHPDoc',
             'header' => $header,
-            'separate' => 'none'
+            'separate' => 'bottom'
         ],
-        'array_syntax' => [
-            'syntax' => 'short'
-        ],
-        'single_quote' => true,
-        'class_attributes_separation' => true,
-        'no_unused_imports' => true,
-        'standardize_not_equals' => true,
+        'blank_line_after_opening_tag' => false,
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()
