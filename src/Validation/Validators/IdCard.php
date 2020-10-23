@@ -3,18 +3,28 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-10-23 15:23:02 +0800
  */
 
 namespace Teddy\Validation\Validators;
 
 class IdCard extends ValidatorRuleBase
 {
+    public const REGEX = '/^[1-8][0-9]{5}((18|19|20)[0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[0-9]{3}[0-9xX]$/';
+
     protected $message = ':label不是正确的身份证号码';
 
     protected function validate($value, array $data, callable $next)
     {
         $value = strtoupper(trim($value));
+        if (!preg_match(self::REGEX, $value, $m)) {
+            $this->throwMessage();
+        }
+
+        if (!isset($m) || !checkdate(intval($m[3] ?? 0), intval($m[4] ?? 0), intval($m[1] ?? 0))) {
+            $this->throwMessage();
+        }
+
         if (!$this->checkCitizenId($value)) {
             $this->throwMessage();
         }
@@ -24,7 +34,7 @@ class IdCard extends ValidatorRuleBase
 
     protected function checkCitizenId(string $idcard): bool
     {
-        if (! preg_match('/^\\d{17}[\\dxX]$/', $idcard)) {
+        if (!preg_match('/^\\d{17}[\\dxX]$/', $idcard)) {
             return false;
         }
 
@@ -32,11 +42,12 @@ class IdCard extends ValidatorRuleBase
         $results = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
         $arr1 = str_split($idcard);
         $arr2 = [];
-        for ($i = 0; $i <= 16; $i ++) {
+        for ($i = 0; $i <= 16; ++$i) {
             $arr2[] = intval($arr1[$i]) * $weights[$i];
         }
         $x = array_sum($arr2) % 11;
         $x = $results[$x];
+
         return $x == $arr1[17];
     }
 }
