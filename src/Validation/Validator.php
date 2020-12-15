@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-13 11:51:43 +0800
+ * @version  2020-12-15 17:20:02 +0800
  */
 
 namespace Teddy\Validation;
@@ -44,15 +44,15 @@ class Validator
         'timestamp' => Validators\Timestamp::class,
         'url'       => Validators\Url::class,
 
-        'list'      => Validators\DataList::class,
-        'array'     => Validators\DataArray::class,
+        'list'  => Validators\DataList::class,
+        'array' => Validators\DataArray::class,
     ];
 
     protected $field;
 
     protected $label;
 
-    protected $default = null;
+    protected $default;
 
     protected $filter;
 
@@ -61,23 +61,6 @@ class Validator
     protected $tip;
 
     protected $validators = [];
-
-    public static function rule($rule, ...$args): ?ValidatorRuleInterface
-    {
-        if (is_string($rule) && isset(self::DEFAULT_VALIDATORS[$rule])) {
-            $className = self::DEFAULT_VALIDATORS[$rule];
-            return new $className(...$args);
-        } elseif (is_callable($rule)) {
-            return new Callback($rule);
-        }
-
-        return ($rule instanceof ValidatorRuleInterface) ? $rule : null;
-    }
-
-    public static function make(string $field, ?string $label = null): self
-    {
-        return new self($field, $label);
-    }
 
     public function __construct(string $field, ?string $label = null)
     {
@@ -90,16 +73,38 @@ class Validator
         return $value;
     }
 
+    public static function rule($rule, ...$args): ?ValidatorRuleInterface
+    {
+        if (is_string($rule) && isset(self::DEFAULT_VALIDATORS[$rule])) {
+            $className = self::DEFAULT_VALIDATORS[$rule];
+
+            return new $className(...$args);
+        }
+        if (is_callable($rule)) {
+            return new Callback($rule);
+        }
+
+        return ($rule instanceof ValidatorRuleInterface) ? $rule : null;
+    }
+
+    public static function make(string $field, ?string $label = null): self
+    {
+        return new self($field, $label);
+    }
+
     public function push(ValidatorRuleInterface $validator): self
     {
         $validator->setLabel($this->label);
+        $validator->setField($this->field);
         $this->validators[] = $validator;
+
         return $this;
     }
 
     public function default($value): self
     {
         $this->default = $value;
+
         return $this;
     }
 
@@ -127,14 +132,14 @@ class Validator
             $this->condition['type'] = 2;
             $this->condition['func'] = $condition;
         } elseif (is_string($condition)) {
-            if ($condition[0] === '!') {
+            if ('!' === $condition[0]) {
                 $this->condition['not'] = true;
-                $condition = substr($condition, 1);
+                $condition              = substr($condition, 1);
             }
 
             $this->condition['field'] = $condition;
             if (count($args)) {
-                $this->condition['type'] = 1;
+                $this->condition['type']  = 1;
                 $this->condition['value'] = $args[0];
             }
         }
@@ -190,9 +195,9 @@ class Validator
         }
 
         $this->tip = $this;
-        $reversed = array_reverse($this->validators);
+        $reversed  = array_reverse($this->validators);
         foreach ($reversed as $callable) {
-            $next = $this->tip;
+            $next      = $this->tip;
             $this->tip = function ($value, array $data) use ($callable, $next) {
                 return call_user_func($callable, $value, $data, $next);
             };
@@ -209,12 +214,12 @@ class Validator
         switch ($this->condition['type']) {
             case 2:
                 $ret = (bool) call_user_func($this->condition['func'], $data);
-                break;
 
+                break;
             case 1:
                 $ret = Arr::get($data, $this->condition['field']) == $this->condition['value'];
-                break;
 
+                break;
             default:
                 $ret = isset($data[$this->condition['field']]);
         }

@@ -3,18 +3,24 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-12-15 17:20:44 +0800
  */
 
 namespace Teddy\Validation\Validators;
+
+use Illuminate\Support\Arr;
 
 class Optional extends ValidatorRuleBase
 {
     protected function validate($value, array $data, callable $next)
     {
-        if ($value === null ||
-            (is_string($value) && strlen($value) === 0) ||
-            (is_array($value) && count($value) === 0)) {
+        if (!Arr::has($data, $this->field)) {
+            return null;
+        }
+
+        if (null === $value ||
+            (is_string($value) && 0 === strlen($value)) ||
+            (is_array($value) && 0 === count($value))) {
             return $value;
         }
 

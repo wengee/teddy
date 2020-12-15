@@ -24,6 +24,11 @@ return PhpCsFixer\Config::create()
             'separate' => 'bottom'
         ],
         'blank_line_after_opening_tag' => false,
+        'binary_operator_spaces' => [
+            'align_double_arrow' => true,
+            'align_equals' => true,
+        ],
+        'phpdoc_to_comment' => false,
     ])
     ->setFinder(
         PhpCsFixer\Finder::create()

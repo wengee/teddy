@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2020-12-15 17:20:59 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -14,6 +14,8 @@ use Teddy\Validation\Exception;
 abstract class ValidatorRuleBase implements ValidatorRuleInterface
 {
     protected $label;
+
+    protected $field;
 
     protected $message = ':label不符合指定规则';
 
@@ -30,12 +32,21 @@ abstract class ValidatorRuleBase implements ValidatorRuleInterface
     public function setMessage(string $message)
     {
         $this->message = $message;
+
         return $this;
     }
 
     public function setLabel(?string $label)
     {
         $this->label = $label;
+
+        return $this;
+    }
+
+    public function setField(?string $field)
+    {
+        $this->field = $field;
+
         return $this;
     }
 
@@ -49,6 +60,7 @@ abstract class ValidatorRuleBase implements ValidatorRuleInterface
     protected function throwMessage(array $data = []): void
     {
         $data[':label'] = $this->label ?: '';
+
         throw new Exception(strtr($this->message, $data));
     }
 
