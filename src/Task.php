@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-17 13:44:41 +0800
+ * @version  2021-01-07 15:47:48 +0800
  */
 
 namespace Teddy;
@@ -16,42 +16,48 @@ use Teddy\Lock\Lock;
 abstract class Task
 {
     /**
-     * @var float
+     * @property float
      */
     protected $delay = 0;
 
     /**
-     * @var float
+     * @property float
      */
     protected $waitTimeout = 0;
 
     /**
-     * @var integer
+     * @property int
      */
     protected $executionTime = 600;
 
     /**
-     * @var bool
+     * @property bool
      */
     protected $exclusive = true;
 
     /**
-     * @var mixed
+     * @property mixed
      */
     protected $result = false;
 
     /**
-     * @var Teddy\Lock\Lock
+     * @property Teddy\Lock\Lock
      */
     protected $lock;
 
     final public static function deliver(Task $task): void
     {
+        if (app('swoole')->taskworker) {
+            $task->safeRun();
+
+            return;
+        }
+
         $deliver = function () use ($task): void {
             app('swoole')->task($task);
         };
 
-        if (defined('IN_SWOOLE') && IN_SWOOLE && $task->getDelay() > 0) {
+        if ($task->getDelay() > 0) {
             Timer::after($task->getDelay(), $deliver);
         } else {
             $deliver();
@@ -70,6 +76,7 @@ abstract class Task
         }
 
         $this->delay = $delay;
+
         return $this;
     }
 
@@ -80,6 +87,7 @@ abstract class Task
         }
 
         $this->waitTimeout = $waitTimeout;
+
         return $this;
     }
 
@@ -87,7 +95,7 @@ abstract class Task
     {
         if ($executionTime > 0) {
             $this->executionTime = $executionTime;
-            $this->exclusive = true;
+            $this->exclusive     = true;
         } else {
             $this->exclusive = false;
         }
@@ -104,6 +112,7 @@ abstract class Task
     {
         $this->wait($waitTimeout);
         $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
+
         return ($ret && isset($ret[0])) ? $ret[0] : null;
     }
 
@@ -111,9 +120,9 @@ abstract class Task
     {
         if ($this->isWaiting()) {
             return $this->sendWait();
-        } else {
-            static::deliver($this);
         }
+
+        static::deliver($this);
     }
 
     final public function finish()
@@ -134,23 +143,26 @@ abstract class Task
             } catch (Exception $e) {
                 $this->unLock();
                 $this->result = false;
+
                 throw $e;
             }
 
             $this->unLock();
             $this->result = $ret;
+
             return $ret;
         }
 
         $this->result = false;
+
         return false;
     }
 
     protected function getLock(): Lock
     {
         if (!isset($this->lock)) {
-            $key = 'task:' . strtr(get_class($this), '\\', '_');
-            $this->lock = app('lock')->create($key, $this->executionTime);
+            $lockKey    = 'task:'.strtr(get_class($this), '\\', '_');
+            $this->lock = app('lock')->create($lockKey, $this->executionTime);
         }
 
         return $this->lock;
@@ -166,6 +178,7 @@ abstract class Task
             return $this->getLock()->acquire();
         } catch (Exception $e) {
             log_exception($e);
+
             return false;
         }
     }
@@ -180,6 +193,7 @@ abstract class Task
             return $this->getLock()->release();
         } catch (Exception $e) {
             log_exception($e);
+
             return false;
         }
     }

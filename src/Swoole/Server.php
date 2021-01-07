@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 14:57:53 +0800
+ * @version  2021-01-07 15:10:17 +0800
  */
 
 namespace Teddy\Swoole;
@@ -52,7 +52,7 @@ class Server
             throw new Exception('Teddy require swoole 4.4.0 or newer.');
         }
 
-        $this->app = $app;
+        $this->app  = $app;
         $this->name = $app->getName();
 
         $this->init($config);
@@ -71,6 +71,7 @@ class Server
     public function setCommand(Command $command): self
     {
         $this->command = $command;
+
         return $this;
     }
 
@@ -82,14 +83,13 @@ class Server
 
     public function onStart(HttpServer $server): void
     {
-        $this->log('info', 'Listening on ' . $this->config['host'] . ':' . $this->config['port']);
+        $this->log('info', 'Listening on '.$this->config['host'].':'.$this->config['port']);
         $this->app->emitEvent('server.onStart');
     }
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
-        $workerNum = Arr::get($this->config, 'options.worker_num', 1);
-        if ($workerId >= $workerNum) {
+        if ($server->taskworker) {
             $this->app->emitEvent('server.onTaskWorkerStart');
             $processName = 'task worker process';
         } else {
@@ -129,14 +129,15 @@ class Server
 
     public function stats(): array
     {
-        $serverStats = $this->swoole->stats();
+        $serverStats    = $this->swoole->stats();
         $coroutineStats = Coroutine::stats();
+
         return [
             'hostname'                  => gethostname(),
             'currentWorkPid'            => getmypid(),
             'phpVersion'                => PHP_VERSION,
             'swooleVersion'             => SWOOLE_VERSION,
-            'server' => [
+            'server'                    => [
                 'startTime'             => $serverStats['start_time'] ?? null,
                 'connectionNum'         => $serverStats['connection_num'] ?? null,
                 'acceptCount'           => $serverStats['accept_count'] ?? null,
@@ -168,11 +169,11 @@ class Server
 
     public function addProcess(ProcessInterface $process): Process
     {
-        $swoole = $this->swoole;
-        $appName = $this->getName();
+        $swoole          = $this->swoole;
+        $appName         = $this->getName();
         $enableCoroutine = $process->enableCoroutine();
-        $coroutineFlags = $this->coroutineFlags;
-        $processHandler = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
+        $coroutineFlags  = $this->coroutineFlags;
+        $processHandler  = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
                 Runtime::enableCoroutine($coroutineFlags);
             } else {
@@ -193,6 +194,7 @@ class Server
 
         $customProcess = new Process($processHandler, false, 0, $enableCoroutine);
         $swoole->addProcess($customProcess);
+
         return $customProcess;
     }
 
@@ -200,16 +202,16 @@ class Server
     {
         foreach ($processes as $key => $item) {
             $className = null;
-            $args = [];
-            $total = 1;
+            $args      = [];
+            $total     = 1;
 
             if (is_integer($key)) {
                 if (is_string($item)) {
                     $className = $item;
                 } elseif (is_array($item)) {
                     $className = Arr::get($item, 'class');
-                    $args = Arr::get($item, 'parameters', []);
-                    $total = Arr::get($item, 'total', 1);
+                    $args      = Arr::get($item, 'parameters', []);
+                    $total     = Arr::get($item, 'total', 1);
                 }
             } elseif (is_string($key)) {
                 $className = $key;
@@ -225,7 +227,7 @@ class Server
             }
 
             $args = is_array($args) ? $args : [$args];
-            for ($i = 0; $i < $total; $i ++) {
+            for ($i = 0; $i < $total; ++$i ) {
                 $this->addProcess(new $className(...$args));
             }
         }
@@ -247,7 +249,7 @@ class Server
 
         $this->swoole->on('close', function (WebsocketServer $server, int $fd, int $reactorId) use ($eventHandler): void {
             $clientInfo = $server->getClientInfo($fd);
-            if (isset($clientInfo['websocket_status']) && $clientInfo['websocket_status'] === \WEBSOCKET_STATUS_FRAME) {
+            if (isset($clientInfo['websocket_status']) && \WEBSOCKET_STATUS_FRAME === $clientInfo['websocket_status']) {
                 $eventHandler('onClose', func_get_args());
             }
         });
@@ -284,7 +286,7 @@ class Server
     {
         $config = $this->parseConfig($config);
 
-        $enableWebsocket = Arr::pull($config, 'websocket.enable', false);
+        $enableWebsocket  = Arr::pull($config, 'websocket.enable', false);
         $websocketHandler = Arr::pull($config, 'websocket.handler');
 
         $host = $config['host'] ?: '127.0.0.1';
@@ -295,10 +297,10 @@ class Server
             $this->swoole = new HttpServer($host, $port);
         }
 
-        $options = $config['options'];
+        $options              = $config['options'];
         $this->coroutineFlags = Arr::pull($options, 'coroutine_flags', SWOOLE_HOOK_ALL);
 
-        $options['enable_coroutine'] = true;
+        $options['enable_coroutine']      = true;
         $options['task_enable_coroutine'] = true;
         $this->swoole->set($options);
 
@@ -312,7 +314,7 @@ class Server
 
         if ($enableWebsocket) {
             if (is_subclass_of($websocketHandler, WebsocketHandlerInterface::class)) {
-                $websocketHandler = is_string($websocketHandler) ? new $websocketHandler :$websocketHandler;
+                $websocketHandler = is_string($websocketHandler) ? new $websocketHandler() : $websocketHandler;
                 $this->bindWebSocketEvent($websocketHandler);
             }
         }
@@ -332,7 +334,7 @@ class Server
 
     protected function parseConfig(array $config = []): array
     {
-        $cpuNum = swoole_cpu_num();
+        $cpuNum  = swoole_cpu_num();
         $options = [
             'reactor_num'           => $cpuNum * 2,
             'worker_num'            => $cpuNum * 2,
@@ -360,17 +362,18 @@ class Server
         ];
 
         $config['options'] = $options;
-        $this->config = $config;
+        $this->config      = $config;
+
         return $config;
     }
 
     protected function log(string $type, string $message): void
     {
-        $message = date('[Y-m-d H:i:s] ') . $message;
+        $message = date('[Y-m-d H:i:s] ').$message;
         if ($this->command) {
             $this->command->{$type}($message);
         } else {
-            echo $message . "\n";
+            echo $message."\n";
         }
     }
 }
