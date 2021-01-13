@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-20 14:12:05 +0800
+ * @version  2021-01-13 17:36:09 +0800
  */
 
 namespace App\Controllers;
 
 use App\Models\Qrcode;
+use Illuminate\Support\Str;
 use Teddy\Controller;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
@@ -31,15 +32,16 @@ class IndexController extends Controller
             ->where([
                 ['status', '!=', null],
                 ['status', '>', 100],
-                ['status', '!=', [1,2,3]],
-                [['status', 'code'], '%', '*a*']
-            ], 'OR');
+                ['status', '!=', [1, 2, 3]],
+                [['status', 'code'], '%', '*a*'],
+            ], 'OR')
+        ;
 
         $b = [];
         $a = $query->getSql($b);
 
         // $c = new Qrcode;
-        $c = app('auth')->create([]);
+        $c = $request->getHeaders();
 
         return $response->json(0, compact(['a', 'b', 'c']));
     }
@@ -47,14 +49,14 @@ class IndexController extends Controller
     public function upload(Request $request, Response $response)
     {
         $files = $request->getUploadedFiles();
-        $file = $files['file'] ?? null;
+        $file  = $files['file'] ?? null;
         if (!$file) {
             return $response->json('请上传文件');
         }
 
         $filename = (string) $file->getClientFilename();
-        $ext = $this->guessFileExt($filename);
-        $path = 'test/' . time() . str_random(16) . '.' . $ext;
+        $ext      = $this->guessFileExt($filename);
+        $path     = 'test/'.time().Str::random(16).'.'.$ext;
 
         $f = $file->getStream()->detach();
         defer(function () use ($f): void {
@@ -72,7 +74,7 @@ class IndexController extends Controller
     protected function guessFileExt(string $name)
     {
         $ext = null;
-        if (strrpos($name, '.') !== false) {
+        if (false !== strrpos($name, '.')) {
             $ext = substr($name, strrpos($name, '.') + 1);
             $ext = strtolower($ext);
         }
