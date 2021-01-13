@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-20 14:33:58 +0800
+ * @version  2021-01-13 17:17:49 +0800
  */
 
 namespace Teddy\Auth;
@@ -20,10 +20,11 @@ use Teddy\Traits\HasUriMatch;
 
 class Authentication implements MiddlewareInterface
 {
-    use HasOptions, HasUriMatch;
+    use HasOptions;
+    use HasUriMatch;
 
     protected $conditions = [
-        'path' => null,
+        'path'   => null,
         'ignore' => null,
     ];
 
@@ -49,6 +50,7 @@ class Authentication implements MiddlewareInterface
         }
 
         $token = $payload = $user = null;
+
         try {
             $token = $this->fetchToken($request);
         } catch (Exception $e) {
@@ -62,8 +64,9 @@ class Authentication implements MiddlewareInterface
         }
 
         $request = $request->withAttribute('authToken', $token)
-                           ->withAttribute('authData', $payload)
-                           ->withAttribute($this->options['attribute'], $user);
+            ->withAttribute('authPayload', $payload)
+            ->withAttribute($this->options['attribute'], $user)
+        ;
 
         return $handler->handle($request);
     }
@@ -75,26 +78,27 @@ class Authentication implements MiddlewareInterface
     {
         $header = '';
 
-        /* Check for token in header. */
+        // Check for token in header.
         $headers = $request->getHeader($this->options['header']);
-        $header = trim($headers[0] ?? '');
+        $header  = trim($headers[0] ?? '');
 
         if (preg_match($this->options['regexp'], $header, $matches)) {
             return $matches[1];
         }
 
+        /** @var \Teddy\Http\Request $request */
         $params = $request->getParams();
         if (isset($params[$this->options['param']])) {
             return $params[$this->options['param']];
         }
 
-        /* Token not found in header try a cookie. */
+        // Token not found in header try a cookie.
         $cookieParams = $request->getCookieParams();
         if (isset($cookieParams[$this->options['cookie']])) {
             return $cookieParams[$this->options['cookie']];
-        };
+        }
 
-        /* If everything fails log and throw. */
+        // If everything fails log and throw.
         throw new RuntimeException('Token not found.');
     }
 
