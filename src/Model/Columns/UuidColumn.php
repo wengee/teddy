@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-01 10:46:19 +0800
+ * @version  2021-02-20 16:52:37 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -20,7 +20,7 @@ class UuidColumn extends Column
 
     public function dbValue($value)
     {
-        if (!$value) {
+        if (!$value && $this->primaryKey) {
             return $this->generateId();
         }
 
@@ -34,16 +34,16 @@ class UuidColumn extends Column
 
     public function defaultValue()
     {
-        return $this->generateId();
+        return $this->primaryKey ? $this->generateId() : $this->default;
     }
 
-    protected function generateId(): String
+    protected function generateId(): string
     {
         switch ($this->version) {
             case 1:
                 $id = Uuid::uuid1();
-                break;
 
+                break;
             default:
                 $id = Uuid::uuid4();
         }
