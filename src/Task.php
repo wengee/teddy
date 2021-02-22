@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-01-07 15:47:48 +0800
+ * @version  2021-02-22 18:16:47 +0800
  */
 
 namespace Teddy;
@@ -44,6 +44,11 @@ abstract class Task
      * @property Teddy\Lock\Lock
      */
     protected $lock;
+
+    /**
+     * @property null|string
+     */
+    protected $uniqueKey;
 
     final public static function deliver(Task $task): void
     {
@@ -158,10 +163,26 @@ abstract class Task
         return false;
     }
 
+    final public function isRunning(): bool
+    {
+        if (!$this->exclusive) {
+            return false;
+        }
+
+        return $this->getLock()->isAcquired();
+    }
+
+    final public function setUniqueKey(?string $uniqueKey): self
+    {
+        $this->uniqueKey = $uniqueKey;
+
+        return $this;
+    }
+
     protected function getLock(): Lock
     {
         if (!isset($this->lock)) {
-            $lockKey    = 'task:'.strtr(get_class($this), '\\', '_');
+            $lockKey    = 'task:'.($this->uniqueKey ?: strtr(get_class($this), '\\', '_'));
             $this->lock = app('lock')->create($lockKey, $this->executionTime);
         }
 
