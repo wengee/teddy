@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-06 11:16:32 +0800
+ * @version  2021-03-07 22:45:04 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -14,6 +15,8 @@ namespace Teddy\Model\Columns;
  */
 class ArrayColumn extends Column
 {
+    protected $default = [];
+
     public function dbValue($value)
     {
         return json_encode($value ?: []);

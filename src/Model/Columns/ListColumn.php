@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-04 14:56:44 +0800
+ * @version  2021-03-07 22:45:52 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -16,9 +17,11 @@ use Teddy\Filter;
  */
 class ListColumn extends Column
 {
+    protected $default = [];
+
     protected $separator = '|';
 
-    protected $filter = null;
+    protected $filter;
 
     public function dbValue($value)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 21:56:17 +0800
+ * @version  2021-03-07 22:53:07 +0800
  */
 
 namespace Teddy\Database;
@@ -307,7 +307,7 @@ class QueryBuilder
     public function toDbColumn($column)
     {
         if (empty($column) || '*' === $column || ($column instanceof RawSQL)) {
-            return $this->quote($column);
+            return $column;
         }
 
         if (is_array($column)) {

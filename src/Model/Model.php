@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 21:56:34 +0800
+ * @version  2021-03-07 22:50:57 +0800
  */
 
 namespace Teddy\Model;
@@ -40,12 +40,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
     final public function __construct(bool $init = true)
     {
-        $columns = $this->metaInfo()->getColumns();
-        if ($columns) {
-            foreach ($columns as $key => $column) {
-                $this->items[$key] = $column->defaultValue();
-            }
-        }
+        $this->items = $this->metaInfo()->getDefaults();
     }
 
     public function offsetExists($offset): bool

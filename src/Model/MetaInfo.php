@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 21:54:47 +0800
+ * @version  2021-03-07 22:50:19 +0800
  */
 
 namespace Teddy\Model;
@@ -32,6 +32,9 @@ class MetaInfo
 
     private $dbColumnMap = [];
 
+    /**
+     * @property ColumnInterface[]
+     */
     private $columns = [];
 
     private $setDbPropertyMethod;
@@ -139,6 +142,18 @@ class MetaInfo
     public function getColumns(): array
     {
         return (array) $this->columns;
+    }
+
+    public function getDefaults(): array
+    {
+        if (!$this->columns) {
+            return [];
+        }
+
+        return array_map(function ($column) {
+            /** @var ColumnInterface $column */
+            return $column->defaultValue();
+        }, $this->columns);
     }
 
     public function hasColumn(string $columnName): bool

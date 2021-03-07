@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-03-07 22:44:25 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -21,17 +22,18 @@ abstract class Column implements ColumnInterface
 
     protected $autoIncrement = false;
 
-    protected $default = null;
+    protected $default;
 
     public function __construct(array $values)
     {
         foreach ($values as $key => $value) {
-            if ($key === 'value') {
+            if ('value' === $key) {
                 $this->name = $value;
+
                 continue;
             }
 
-            $method = 'set' . Str::studly($key);
+            $method = 'set'.Str::studly($key);
             if (method_exists($this, $method)) {
                 $this->{$method}($value);
             } elseif (property_exists($this, $key)) {
@@ -62,7 +64,7 @@ abstract class Column implements ColumnInterface
 
     public function defaultValue()
     {
-        return $this->default;
+        return value($this->default);
     }
 
     abstract public function dbValue($value);
