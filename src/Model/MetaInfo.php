@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-01 10:40:28 +0800
+ * @version  2021-03-07 21:54:47 +0800
  */
 
 namespace Teddy\Model;
@@ -49,9 +50,9 @@ class MetaInfo
             $className = (string) $model;
         }
 
-        $this->className = $className;
-        $reader = $reader ?: new AnnotationReader;
-        $reflection = new ReflectionClass($className);
+        $this->className           = $className;
+        $reader                    = $reader ?: new AnnotationReader();
+        $reflection                = new ReflectionClass($className);
         $this->setDbPropertyMethod = $reflection->getMethod('setDbAttributes');
         $this->getDbPropertyMethod = $reflection->getMethod('getDbAttributes');
 
@@ -63,11 +64,10 @@ class MetaInfo
                 $this->connectionName = $annotation->name;
             } elseif ($annotation instanceof ColumnInterface) {
                 $propertyName = $annotation->getName();
+                $field        = $annotation->getField() ?: $propertyName;
 
-                $field = $annotation->getField();
-                if ($field) {
-                    $this->columnMap[$propertyName] = $field;
-                }
+                $this->columnMap[$propertyName] = $field;
+                $this->dbColumnMap[$field]      = $propertyName;
 
                 if ($annotation->isPrimaryKey()) {
                     $this->primaryKeys[] = $propertyName;
@@ -81,7 +81,6 @@ class MetaInfo
             }
         }
 
-        $this->dbColumnMap = array_flip($this->columnMap);
         if (empty($this->tableName)) {
             $this->tableName = Str::snake($reflection->getShortName());
         }
@@ -107,13 +106,23 @@ class MetaInfo
         return $this->autoIncrement;
     }
 
+    public function convertToPhpColumn(string $key): string
+    {
+        return $this->dbColumnMap[$key] ?? $key;
+    }
+
+    public function convertToDbColumn(string $key): string
+    {
+        return $this->columnMap[$key] ?? $key;
+    }
+
     public function transformKey(string $key, bool $toDb = true)
     {
         if ($toDb) {
-            return isset($this->columnMap[$key]) ? $this->columnMap[$key] : $key;
-        } else {
-            return isset($this->dbColumnMap[$key]) ? $this->dbColumnMap[$key] : $key;
+            return $this->columnMap[$key] ?? $key;
         }
+
+        return $this->dbColumnMap[$key] ?? $key;
     }
 
     public function getValue($key, $value, bool $toDb = false)
@@ -123,6 +132,7 @@ class MetaInfo
         }
 
         $column = $this->columns[$key];
+
         return $toDb ? $column->dbValue($value) : $column->value($value);
     }
 
@@ -139,9 +149,10 @@ class MetaInfo
     public function makeInstance(array $data)
     {
         $clsName = $this->className;
-        $object = new $clsName(false);
+        $object  = new $clsName(false);
         $closure = $this->setDbPropertyMethod->getClosure($object);
         call_user_func($closure, $data);
+
         return $object;
     }
 }
