@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-27 14:09:09 +0800
+ * @version  2021-03-08 10:26:49 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -16,12 +16,12 @@ class JsonColumn extends Column
 {
     protected $asObject = false;
 
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         return json_encode($value);
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         if (is_string($value) && $value) {
             return json_decode($value, !$this->asObject);

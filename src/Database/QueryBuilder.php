@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 22:53:07 +0800
+ * @version  2021-03-08 11:17:43 +0800
  */
 
 namespace Teddy\Database;
@@ -22,6 +22,7 @@ use Teddy\Database\Traits\QuerySelect;
 use Teddy\Database\Traits\QueryUpdate;
 use Teddy\Interfaces\ConnectionInterface;
 use Teddy\Model\MetaInfo;
+use Teddy\Model\Model;
 
 /**
  * @method self where($column, $operator = null, $value = null, string $chainType = 'AND')
@@ -52,84 +53,84 @@ class QueryBuilder
     use QueryDelete;
 
     /**
-     * @property DatabaseInterface
+     * @var DatabaseInterface
      */
     protected $db;
 
     /**
-     * @property string
+     * @var string
      */
     protected $table;
 
     /**
-     * @property bool
+     * @var bool
      */
     protected $transaction = false;
 
     /**
-     * @property callable
+     * @var callable
      */
     protected $callback;
 
     /**
-     * @property string
+     * @var string
      */
     protected $as;
 
     /**
-     * @property array
+     * @var array
      */
     protected $data = [];
 
     /**
-     * @property null|WhereClause
+     * @var null|WhereClause
      */
     protected $whereClause;
 
     /**
-     * @property null|OrderClause
+     * @var null|OrderClause
      */
     protected $orderClause;
 
     /**
-     * @property null|LimitClause
+     * @var null|LimitClause
      */
     protected $limitClause;
 
     /**
-     * @property null|GroupClause
+     * @var null|GroupClause
      */
     protected $groupClause;
 
     /**
-     * @property null|JoinClause
+     * @var null|JoinClause
      */
     protected $joinClause;
 
     /**
-     * @property null|HavingClause
+     * @var null|HavingClause
      */
     protected $havingClause;
 
     /**
-     * @property int
+     * @var int
      */
     protected $sqlType = 0;
 
     /**
-     * @property null|MetaInfo
+     * @var null|MetaInfo
      */
     protected $metaInfo;
 
     /**
-     * @property string
+     * @var string
      */
     protected $connection;
 
     /**
      * Constructor.
      *
-     * @param object|string $table
+     * @param Model|string $table
      */
     public function __construct(DatabaseInterface $db, $table)
     {
@@ -162,7 +163,6 @@ class QueryBuilder
                 $clause = $this->whereClause;
 
                 break;
-
             case 'order':
             case 'orderBy':
                 if (!isset($this->orderClause)) {
@@ -172,7 +172,6 @@ class QueryBuilder
                 $clause = $this->orderClause;
 
                 break;
-
             case 'limit':
             case 'offset':
                 if (!isset($this->limitClause)) {
@@ -182,7 +181,6 @@ class QueryBuilder
                 $clause = $this->limitClause;
 
                 break;
-
             case 'group':
             case 'groupBy':
                 if (!isset($this->groupClause)) {
@@ -192,7 +190,6 @@ class QueryBuilder
                 $clause = $this->groupClause;
 
                 break;
-
             case 'join':
             case 'leftJoin':
             case 'rightJoin':
@@ -204,7 +201,6 @@ class QueryBuilder
                 $clause = $this->joinClause;
 
                 break;
-
             case 'having':
             case 'orHaving':
             case 'havingCount':
@@ -219,7 +215,6 @@ class QueryBuilder
                 $clause = $this->havingClause;
 
                 break;
-
             default:
                 throw new \RuntimeException("Tried to call unknown method {$method}");
 
@@ -236,23 +231,26 @@ class QueryBuilder
         return $this->getSql();
     }
 
-    public function as(string $as)
+    public function as(string $as): self
     {
         $this->as = $as;
 
         return $this;
     }
 
-    public function connect(string $connection)
+    public function connect(string $connection): self
     {
         $this->connection = $connection;
 
         return $this;
     }
 
-    public function setTable($table)
+    public function setTable($table): self
     {
-        $this->metaInfo = app('modelManager')->metaInfo($table);
+        if (is_subclass_of($table, Model::class)) {
+            $this->metaInfo = $table::metaInfo();
+        }
+
         if (!$this->metaInfo) {
             $this->table = strval($table);
         } else {
@@ -285,7 +283,7 @@ class QueryBuilder
         return '';
     }
 
-    public function setData(array $data)
+    public function setData(array $data): self
     {
         $data       = $this->toDbColumn($data);
         $this->data = array_merge($this->data, $data);
@@ -295,9 +293,7 @@ class QueryBuilder
 
     public function getDbTable($table = null, ?string $as = null): string
     {
-        $metaInfo = app('modelManager')->metaInfo($table);
-        $table    = $metaInfo ? $metaInfo->tableName() : strval($table);
-
+        $table = $this->metaInfo ? $this->metaInfo->tableName() : strval($table);
         $table = $this->quote($table);
         $as    = $this->quote($as);
 

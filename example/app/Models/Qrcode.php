@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-01 10:47:54 +0800
+ * @version  2021-03-08 10:15:47 +0800
  */
 
 namespace App\Models;
@@ -17,7 +17,7 @@ use Teddy\Model\Table;
 
 /**
  * @Table("qrcode_table")
- * @UuidColumn("id")
+ * @UuidColumn("id", primaryKey=true)
  * @DateTimeColumn("created", field="creation_time")
  * @StringColumn("code", default="aa")
  * @IntegerColumn("status")

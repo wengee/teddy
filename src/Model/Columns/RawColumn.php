@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-20 11:02:56 +0800
+ * @version  2021-03-08 10:27:01 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -14,12 +14,12 @@ namespace Teddy\Model\Columns;
  */
 class RawColumn extends Column
 {
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         return $value;
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         return $value;
     }

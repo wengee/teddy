@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 22:45:38 +0800
+ * @version  2021-03-08 10:26:45 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -17,12 +17,12 @@ class IntegerColumn extends Column
 {
     protected $default = 0;
 
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         return (int) $value;
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         return (int) $value;
     }

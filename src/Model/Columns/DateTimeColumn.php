@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-03-08 10:26:33 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -20,7 +20,7 @@ class DateTimeColumn extends Column
 {
     protected $format = 'Y-m-d H:i:s';
 
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         if (empty($value)) {
             return null;
@@ -35,7 +35,7 @@ class DateTimeColumn extends Column
         return $t->format($this->format);
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         if (empty($value)) {
             return null;
@@ -52,8 +52,8 @@ class DateTimeColumn extends Column
 
     public function defaultValue()
     {
-        if ($this->default === 'now') {
-            return new Carbon;
+        if ('now' === $this->default) {
+            return new Carbon();
         }
 
         return null;

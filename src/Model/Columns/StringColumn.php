@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 22:46:14 +0800
+ * @version  2021-03-08 10:27:10 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -19,7 +19,7 @@ class StringColumn extends Column
 
     protected $length = 0;
 
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         $value = strval($value);
         if ($this->length > 0) {
@@ -29,7 +29,7 @@ class StringColumn extends Column
         return $value;
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         return (string) $value;
     }

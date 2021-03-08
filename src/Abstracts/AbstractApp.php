@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-12 15:10:44 +0800
+ * @version  2021-03-08 09:58:29 +0800
  */
 
 namespace Teddy\Abstracts;
 
 use BadMethodCallException;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Dotenv\Dotenv;
 use Exception;
 use Illuminate\Config\Repository as ConfigRepository;
@@ -23,6 +24,7 @@ use Teddy\Factory\ResponseFactory;
 use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Routing\RouteCollector;
+use Teddy\Utils\Composer;
 use Teddy\Utils\Runtime;
 
 abstract class AbstractApp extends Container
@@ -36,9 +38,9 @@ abstract class AbstractApp extends Container
     public function __construct(string $basePath, string $envFile = '.env')
     {
         static::setInstance($this);
-        $responseFactory = new ResponseFactory;
-        $callableResolver = new CallableResolver($this);
-        $routeCollector = new RouteCollector($responseFactory, $callableResolver, $this);
+        $responseFactory    = new ResponseFactory();
+        $callableResolver   = new CallableResolver($this);
+        $routeCollector     = new RouteCollector($responseFactory, $callableResolver, $this);
         $this->slimInstance = new SlimApp(
             $responseFactory,
             $this,
@@ -53,24 +55,25 @@ abstract class AbstractApp extends Container
         $this->bootstrap();
     }
 
-    public static function create(string $basePath = '', string $envFile = '.env'): self
-    {
-        return new static($basePath, $envFile);
-    }
-
     public function __call(string $method, array $args = [])
     {
         if (method_exists($this->slimInstance, $method)) {
             return $this->slimInstance->{$method}(...$args);
         }
 
-        throw new BadMethodCallException("Call to undefined method: $method");
+        throw new BadMethodCallException("Call to undefined method: {$method}");
+    }
+
+    public static function create(string $basePath = '', string $envFile = '.env'): self
+    {
+        return new static($basePath, $envFile);
     }
 
     public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
     {
         $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
         $this->slimInstance->add($bodyParsingMiddleware);
+
         return $bodyParsingMiddleware;
     }
 
@@ -78,6 +81,7 @@ abstract class AbstractApp extends Container
     {
         $middleware = new StaticFileMiddleware($basePath, $urlPrefix);
         $this->slimInstance->add($middleware);
+
         return $middleware;
     }
 
@@ -89,6 +93,7 @@ abstract class AbstractApp extends Container
     public function setBasePath(string $basePath): self
     {
         $this->basePath = Str::finish($basePath, '/');
+
         return $this;
     }
 
@@ -118,7 +123,7 @@ abstract class AbstractApp extends Container
             foreach ($listeners as $listener) {
                 if (is_string($listener) &&
                     is_subclass_of($listener, ListenerInterface::class)) {
-                    $listener = new $listener;
+                    $listener = new $listener();
                 }
 
                 $emitter->addListener($event, $listener);
@@ -156,8 +161,10 @@ abstract class AbstractApp extends Container
         $this->bind('console', \Teddy\Console\Application::class);
 
         if ($this->config->has('database')) {
+            $loader = Composer::getLoader();
+            AnnotationRegistry::registerLoader([$loader, 'loadClass']);
+
             $this->bind('db', \Teddy\Database\Manager::class);
-            $this->bind('modelManager', \Teddy\Model\Manager::class);
         }
 
         if ($this->config->has('redis')) {
@@ -191,15 +198,15 @@ abstract class AbstractApp extends Container
 
     protected function loadConfigure(): void
     {
-        $config = new ConfigRepository;
-        $dir = $this->basePath . 'config/';
+        $config = new ConfigRepository();
+        $dir    = $this->basePath.'config/';
         if (is_dir($dir)) {
             $handle = opendir($dir);
             while (false !== ($file = readdir($handle))) {
-                $filepath = $dir . $file;
+                $filepath = $dir.$file;
                 if (Str::endsWith($file, '.php') && is_file($filepath)) {
                     $name = substr($file, 0, -4);
-                    if ($name !== 'swoole' || Runtime::get() === 'swoole') {
+                    if ('swoole' !== $name || 'swoole' === Runtime::get()) {
                         $config->set($name, require $filepath);
                     }
                 }
@@ -220,24 +227,27 @@ abstract class AbstractApp extends Container
 
     protected function loadRoutes(): void
     {
-        $routesFile = $this->basePath . 'bootstrap/routes.php';
+        $routesFile = $this->basePath.'bootstrap/routes.php';
+
+        /** @var RouteCollector $routeCollector */
+        $routeCollector = $this->slimInstance->getRouteCollector();
         if (is_file($routesFile)) {
-            $this->slimInstance->getRouteCollector()->group([
-                'pattern' => $this->config->get('app.urlPrefix', ''),
+            $routeCollector->group([
+                'pattern'   => $this->config->get('app.urlPrefix', ''),
                 'namespace' => '\\App\\Controllers',
             ], function ($router) use ($routesFile): void {
                 require $routesFile;
             });
         } else {
-            $dir = $this->basePath . 'routes/';
+            $dir = $this->basePath.'routes/';
             if (is_dir($dir)) {
-                $this->slimInstance->getRouteCollector()->group([
-                    'pattern' => $this->config->get('app.urlPrefix', ''),
+                $routeCollector->group([
+                    'pattern'   => $this->config->get('app.urlPrefix', ''),
                     'namespace' => '\\App\\Controllers',
                 ], function ($router) use ($dir): void {
                     $handle = opendir($dir);
                     while (false !== ($file = readdir($handle))) {
-                        $filepath = $dir . $file;
+                        $filepath = $dir.$file;
                         if (Str::endsWith($file, '.php') && is_file($filepath)) {
                             require $filepath;
                         }

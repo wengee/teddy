@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-02 18:36:45 +0800
+ * @version  2021-03-08 09:58:20 +0800
  */
 
 namespace Teddy\Routing;
@@ -14,15 +14,19 @@ use Slim\Routing\RouteGroup;
 
 class RouteCollector extends SlimRouteCollector
 {
+    /**
+     * @param null|array|callable|string $pattern
+     * @param null|callable              $callable
+     */
     public function group($pattern, $callable = null): RouteGroupInterface
     {
         $namespace = '';
         if (is_callable($pattern)) {
             $callable = $pattern;
-            $pattern = '';
+            $pattern  = '';
         } elseif (is_array($pattern)) {
             $namespace = $pattern['namespace'] ?? '';
-            $pattern = $pattern['pattern'] ?? '';
+            $pattern   = $pattern['pattern'] ?? '';
         }
 
         $routeCollectorProxy = new RouteCollectorProxy(
@@ -37,7 +41,7 @@ class RouteCollector extends SlimRouteCollector
             $routeCollectorProxy->setNamespace($namespace);
         }
 
-        $routeGroup = new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
+        $routeGroup          = new RouteGroup($pattern, $callable, $this->callableResolver, $routeCollectorProxy);
         $this->routeGroups[] = $routeGroup;
 
         $routeGroup->collectRoutes();

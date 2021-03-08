@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-01-18 17:34:47 +0800
+ * @version  2021-03-08 10:27:06 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -14,7 +14,7 @@ namespace Teddy\Model\Columns;
  */
 class SnowflakeColumn extends Column
 {
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         if (!$value) {
             return app('snowflake')->id();
@@ -23,7 +23,7 @@ class SnowflakeColumn extends Column
         return (int) $value;
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         return (int) $value;
     }

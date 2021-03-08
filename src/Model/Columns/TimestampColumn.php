@@ -18,7 +18,7 @@ class TimestampColumn extends DateTimeColumn
 {
     protected $update = false;
 
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         if ($this->update) {
             return time();

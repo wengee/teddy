@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-03-08 11:19:07 +0800
  */
 
 namespace Teddy\Database\Traits;
@@ -13,11 +13,11 @@ use Teddy\Database\SQL;
 
 trait QueryUpdate
 {
-    public function set(string $column, $operator, $value = null)
+    public function set(string $column, $operator, $value = null): self
     {
         $column = $this->toDbColumn($column);
         if (in_array($operator, ['+', '-', '*', '/'], true)) {
-            $this->data[] = new RawSQL("$column = $column $operator ?", $value);
+            $this->data[] = new RawSQL("{$column} = {$column} {$operator} ?", $value);
         } else {
             $this->data[$column] = $operator;
         }
@@ -25,15 +25,17 @@ trait QueryUpdate
         return $this;
     }
 
-    public function increase(string $column, int $n = 0)
+    public function increase(string $column, int $n = 0): self
     {
         $this->set($column, '+', $n);
+
         return $this;
     }
 
-    public function decrease(string $column, int $n = 0)
+    public function decrease(string $column, int $n = 0): self
     {
         $this->set($column, '-', $n);
+
         return $this;
     }
 
@@ -53,7 +55,7 @@ trait QueryUpdate
             throw new \Exception('Missing data for update');
         }
 
-        $sql = 'UPDATE ' . $this->getTable();
+        $sql = 'UPDATE '.$this->getTable();
         $sql .= $this->getUpdateData($map);
         $sql .= $this->whereClause ? $this->whereClause->toSql($map) : '';
         $sql .= $this->orderClause ? $this->orderClause->toSql($map) : '';
@@ -76,10 +78,10 @@ trait QueryUpdate
                 }
             } else {
                 $args[] = "{$key} = ?";
-                $map[] = $value;
+                $map[]  = $value;
             }
         }
 
-        return ' SET ' . implode(', ', $args);
+        return ' SET '.implode(', ', $args);
     }
 }

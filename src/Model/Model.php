@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 22:50:57 +0800
+ * @version  2021-03-08 11:13:50 +0800
  */
 
 namespace Teddy\Model;
@@ -17,7 +17,6 @@ use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
 use Serializable;
 use Teddy\Database\DatabaseInterface;
-use Teddy\Database\DbConnectionInterface;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
 use Teddy\Database\RawSQL;
@@ -28,19 +27,44 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 {
     use Macroable;
 
+    /**
+     * @var MetaInfo[]
+     */
+    protected static $metaInfos = [];
+
+    /**
+     * @var array
+     */
     protected $items = [];
 
+    /**
+     * @var array
+     */
     protected $hidden = [];
 
+    /**
+     * @var bool
+     */
     protected $isNewRecord = true;
 
-    protected $metaInfo;
-
+    /**
+     * @var null|DatabaseInterface|string
+     */
     protected $connection;
 
-    final public function __construct(bool $init = true)
+    final public function __construct()
     {
-        $this->items = $this->metaInfo()->getDefaults();
+        $this->items = static::metaInfo()->getDefaults();
+    }
+
+    final public static function metaInfo(): MetaInfo
+    {
+        $className = static::class;
+        if (!isset(static::$metaInfos[$className])) {
+            static::$metaInfos[$className] = new MetaInfo($className);
+        }
+
+        return static::$metaInfos[$className];
     }
 
     public function offsetExists($offset): bool
@@ -123,7 +147,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
     public function setConnection($connection): self
     {
-        if ($connection instanceof DbConnectionInterface) {
+        if ($connection instanceof DatabaseInterface) {
             $this->connection = $connection;
         } elseif (is_string($connection)) {
             $this->connection = db($connection);
@@ -176,7 +200,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
     public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
         if (null === $db) {
-            $connectionName = app('modelManager')->metaInfo(static::class)->connectionName();
+            $connectionName = static::metaInfo()->connectionName();
 
             return new QueryBuilder(db($connectionName), static::class);
         }
@@ -255,33 +279,21 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
     protected function hasColumn(string $key): bool
     {
-        if (!method_exists($this, 'metaInfo')) {
-            return true;
-        }
-
-        return $this->metaInfo()->hasColumn($key);
-    }
-
-    protected function metaInfo(): ?MetaInfo
-    {
-        if (!$this->metaInfo) {
-            $this->metaInfo = app('modelManager')->metaInfo($this);
-        }
-
-        return $this->metaInfo;
+        return static::metaInfo()->hasColumn($key);
     }
 
     protected function getDbAttributes(): array
     {
-        $columns = $this->metaInfo()->getColumns();
+        $columns = static::metaInfo()->getColumns();
         if (empty($columns)) {
             return [];
         }
 
         $attributes = $this->items;
         foreach ($columns as $key => $column) {
-            $value            = array_key_exists($key, $attributes) ? $attributes[$key] : $column->defaultValue();
-            $attributes[$key] = $column->dbValue($value);
+            $value = array_key_exists($key, $attributes) ? $attributes[$key] : $column->defaultValue();
+
+            $attributes[$key] = $column->convertToDbValue($value);
         }
 
         return $attributes;
@@ -292,12 +304,12 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         $this->items       = [];
         $this->isNewRecord = false;
 
-        $metaInfo = $this->metaInfo();
+        $metaInfo = static::metaInfo();
         $columns  = $metaInfo->getColumns();
         foreach ($data as $key => $value) {
             $key = $metaInfo->convertToPhpColumn($key);
             if (isset($columns[$key])) {
-                $this->items[$key] = $columns[$key]->value($value);
+                $this->items[$key] = $columns[$key]->convertToPhpValue($value);
             } else {
                 $this->items[$key] = $value;
             }
@@ -313,7 +325,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
     protected function doSave(): void
     {
-        $metaInfo    = $this->metaInfo();
+        $metaInfo    = static::metaInfo();
         $primaryKeys = $metaInfo->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
@@ -350,8 +362,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
 
     protected function doDelete(): void
     {
-        $metaInfo    = $this->metaInfo();
-        $primaryKeys = $metaInfo->primaryKeys();
+        $primaryKeys = static::metaInfo()->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
@@ -376,7 +387,7 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         if ($this->connection) {
             return static::query($this->connection);
         }
-        $connectionName = $this->metaInfo()->connectionName();
+        $connectionName = static::metaInfo()->connectionName();
 
         return static::query(db($connectionName));
     }

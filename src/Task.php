@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-02-22 18:16:47 +0800
+ * @version  2021-03-08 10:29:39 +0800
  */
 
 namespace Teddy;
@@ -16,37 +16,37 @@ use Teddy\Lock\Lock;
 abstract class Task
 {
     /**
-     * @property float
+     * @var float
      */
     protected $delay = 0;
 
     /**
-     * @property float
+     * @var float
      */
     protected $waitTimeout = 0;
 
     /**
-     * @property int
+     * @var int
      */
     protected $executionTime = 600;
 
     /**
-     * @property bool
+     * @var bool
      */
     protected $exclusive = true;
 
     /**
-     * @property mixed
+     * @var mixed
      */
     protected $result = false;
 
     /**
-     * @property Teddy\Lock\Lock
+     * @var Teddy\Lock\Lock
      */
     protected $lock;
 
     /**
-     * @property null|string
+     * @var null|string
      */
     protected $uniqueKey;
 

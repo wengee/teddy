@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 22:50:19 +0800
+ * @version  2021-03-08 11:14:33 +0800
  */
 
 namespace Teddy\Model;
@@ -18,22 +18,43 @@ use Teddy\Model\Columns\ColumnInterface;
 
 class MetaInfo
 {
+    /**
+     * @var string
+     */
     private $className;
 
+    /**
+     * @var string
+     */
     private $connectionName;
 
+    /**
+     * @var string
+     */
     private $tableName;
 
+    /**
+     * @var array
+     */
     private $primaryKeys = [];
 
+    /**
+     * @var null|string
+     */
     private $autoIncrement;
 
+    /**
+     * @var array
+     */
     private $columnMap = [];
 
+    /**
+     * @var array
+     */
     private $dbColumnMap = [];
 
     /**
-     * @property ColumnInterface[]
+     * @var ColumnInterface[]
      */
     private $columns = [];
 
@@ -52,10 +73,11 @@ class MetaInfo
         } else {
             $className = (string) $model;
         }
+        $this->className = $className;
 
-        $this->className           = $className;
-        $reader                    = $reader ?: new AnnotationReader();
-        $reflection                = new ReflectionClass($className);
+        $reader     = $reader ?: new AnnotationReader();
+        $reflection = new ReflectionClass($className);
+
         $this->setDbPropertyMethod = $reflection->getMethod('setDbAttributes');
         $this->getDbPropertyMethod = $reflection->getMethod('getDbAttributes');
 
@@ -119,13 +141,22 @@ class MetaInfo
         return $this->columnMap[$key] ?? $key;
     }
 
-    public function transformKey(string $key, bool $toDb = true)
+    public function convertToPhpValue(string $key, $value)
     {
-        if ($toDb) {
-            return $this->columnMap[$key] ?? $key;
+        if (empty($this->columns) || empty($this->columns[$key])) {
+            return $value;
         }
 
-        return $this->dbColumnMap[$key] ?? $key;
+        return $this->columns[$key]->convertToPhpValue($value);
+    }
+
+    public function convertToDbValue(string $key, $value)
+    {
+        if (empty($this->columns) || empty($this->columns[$key])) {
+            return $value;
+        }
+
+        return $this->columns[$key]->convertToDbValue($value);
     }
 
     public function getValue($key, $value, bool $toDb = false)
@@ -136,9 +167,12 @@ class MetaInfo
 
         $column = $this->columns[$key];
 
-        return $toDb ? $column->dbValue($value) : $column->value($value);
+        return $toDb ? $column->convertToDbValue($value) : $column->convertToPhpValue($value);
     }
 
+    /**
+     * @return ColumnInterface[]
+     */
     public function getColumns(): array
     {
         return (array) $this->columns;

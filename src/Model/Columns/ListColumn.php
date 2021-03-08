@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-07 22:45:52 +0800
+ * @version  2021-03-08 10:26:53 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -23,12 +23,12 @@ class ListColumn extends Column
 
     protected $filter;
 
-    public function dbValue($value)
+    public function convertToDbValue($value)
     {
         return is_array($value) ? implode($this->separator, $value) : '';
     }
 
-    public function value($value)
+    public function convertToPhpValue($value)
     {
         if (is_string($value) && strlen($value) > 0) {
             $arr = explode($this->separator, $value);

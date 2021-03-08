@@ -67,7 +67,7 @@ abstract class Column implements ColumnInterface
         return value($this->default);
     }
 
-    abstract public function dbValue($value);
+    abstract public function convertToDbValue($value);
 
-    abstract public function value($value);
+    abstract public function convertToPhpValue($value);
 }

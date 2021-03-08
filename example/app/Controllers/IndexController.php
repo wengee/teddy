@@ -3,11 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-01-13 17:36:09 +0800
+ * @version  2021-03-08 10:43:40 +0800
  */
 
 namespace App\Controllers;
 
+use App\Models\Attachment;
 use App\Models\Qrcode;
 use Illuminate\Support\Str;
 use Teddy\Controller;
@@ -18,22 +19,12 @@ class IndexController extends Controller
 {
     public function index(Request $request, Response $response)
     {
-        $query = Qrcode::query()
+        $query = Attachment::query()
             ->select()
             ->where([
                 ['id', 0],
                 ['id', '>', 100],
-                ['id', '<>', [1, 20]],
-            ], 'OR')
-            ->where([
-                ['code', 'abc'],
-                ['code', '~', 'c%'],
-            ], 'OR')
-            ->where([
-                ['status', '!=', null],
-                ['status', '>', 100],
-                ['status', '!=', [1, 2, 3]],
-                [['status', 'code'], '%', '*a*'],
+                ['id', '<>', [5, 20]],
             ], 'OR')
         ;
 
@@ -41,7 +32,9 @@ class IndexController extends Controller
         $a = $query->getSql($b);
 
         // $c = new Qrcode;
-        $c = $request->getHeaders();
+        $c            = $query->first();
+        $c['isImage'] = true;
+        $c->save();
 
         return $response->json(0, compact(['a', 'b', 'c']));
     }
