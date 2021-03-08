@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-10-17 10:39:27 +0800
+ * @version  2021-03-08 21:07:43 +0800
  */
 
 namespace Teddy\Redis;
@@ -14,16 +15,16 @@ use Teddy\Interfaces\ConnectionInterface;
 
 class Connection implements ConnectionInterface
 {
-    protected $redis = null;
+    protected $redis;
 
     protected $config;
 
     public function __construct(array $config)
     {
         $this->config = $config + [
-            'cluster'       => false,
-            'host'          => '127.0.0.1',
-            'port'          => 6379,
+            'cluster' => false,
+            'host'    => '127.0.0.1',
+            'port'    => 6379,
         ];
     }
 
@@ -49,6 +50,7 @@ class Connection implements ConnectionInterface
     public function reconnect()
     {
         $this->redis = $this->createClient();
+
         return $this->redis;
     }
 
@@ -76,14 +78,14 @@ class Connection implements ConnectionInterface
     {
         if ($this->config['cluster']) {
             return $this->createRedisClusterClient();
-        } else {
-            return $this->createRedisClient();
         }
+
+        return $this->createRedisClient();
     }
 
     protected function createRedisClient(): \Redis
     {
-        $redis = new \Redis;
+        $redis = new \Redis();
         $redis->connect($this->config['host'], $this->config['port']);
         $redis->setOption(\Redis::OPT_SERIALIZER, (string) \Redis::SERIALIZER_PHP);
 
@@ -116,9 +118,9 @@ class Connection implements ConnectionInterface
             $host = [$host];
         }
 
-        $timeout = $this->config['timeout'] ?? 1.5;
+        $timeout     = $this->config['timeout'] ?? 1.5;
         $readTimeout = $this->config['readTimeout'] ?? 3.0;
-        $password = $this->config['password'] ?? '';
+        $password    = $this->config['password'] ?? '';
 
         $redis = new \RedisCluster(null, $host, $timeout, $readTimeout, false, $password);
         $redis->setOption(\Redis::OPT_SERIALIZER, (string) \Redis::SERIALIZER_PHP);

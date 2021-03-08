@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-30 15:19:14 +0800
+ * @version  2021-03-08 21:02:17 +0800
  */
 
 namespace Teddy\Routing;
@@ -16,6 +17,9 @@ use Slim\Interfaces\RouteGroupInterface;
 use Slim\Interfaces\RouteInterface;
 use Slim\Routing\RouteCollectorProxy as SlimRouteCollectorProxy;
 
+/**
+ * @property RouteCollector $routeCollector
+ */
 class RouteCollectorProxy extends SlimRouteCollectorProxy
 {
     protected $namespace = '';
@@ -27,11 +31,11 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         ?RouteCollectorInterface $routeCollector = null,
         string $groupPattern = ''
     ) {
-        $this->responseFactory = $responseFactory;
+        $this->responseFactory  = $responseFactory;
         $this->callableResolver = $callableResolver;
-        $this->container = $container;
-        $this->routeCollector = $routeCollector ?? new RouteCollector($responseFactory, $callableResolver, $container);
-        $this->groupPattern = $groupPattern;
+        $this->container        = $container;
+        $this->routeCollector   = $routeCollector ?? new RouteCollector($responseFactory, $callableResolver, $container);
+        $this->groupPattern     = $groupPattern;
     }
 
     public function setNamespace(string $namespace): void
@@ -42,30 +46,34 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
     public function map(array $methods, string $pattern, $callable): RouteInterface
     {
         if ($this->namespace && is_string($callable) && !is_callable($callable)) {
-            $callable = rtrim($this->namespace, '\\') . '\\' . ltrim($callable, '\\');
+            $callable = rtrim($this->namespace, '\\').'\\'.ltrim($callable, '\\');
         }
 
         return parent::map($methods, $pattern, $callable);
     }
 
+    /**
+     * @param null|array|callable|string $pattern
+     * @param null|callable              $callable
+     */
     public function group($pattern, $callable = null): RouteGroupInterface
     {
         $namespace = '';
         if (is_callable($pattern)) {
             $callable = $pattern;
-            $pattern = '';
+            $pattern  = '';
         } elseif (is_array($pattern)) {
             $namespace = $pattern['namespace'] ?? '';
-            $pattern = $pattern['pattern'] ?? '';
+            $pattern   = $pattern['pattern'] ?? '';
         }
 
-        $pattern = $this->groupPattern . $pattern;
-        if ($this->namespace && (!$namespace || $namespace[0] !== '\\')) {
-            $namespace = rtrim($this->namespace, '\\') . '\\' . $namespace;
+        $pattern = $this->groupPattern.$pattern;
+        if ($this->namespace && (!$namespace || '\\' !== $namespace[0])) {
+            $namespace = rtrim($this->namespace, '\\').'\\'.$namespace;
         }
 
         return $this->routeCollector->group([
-            'pattern' => $pattern,
+            'pattern'   => $pattern,
             'namespace' => $namespace,
         ], $callable);
     }

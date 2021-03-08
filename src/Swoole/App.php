@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 14:26:57 +0800
+ * @version  2021-03-08 21:05:14 +0800
  */
 
 namespace Teddy\Swoole;
@@ -16,10 +17,9 @@ class App extends AbstractApp
 {
     public function run(SwooleRequest $swooleRequest, SwooleResponse $swooleResponse): void
     {
-        $request = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
+        $request  = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
         $response = $this->slimInstance->handle($request);
-        $responseEmitter = new ResponseEmitter($swooleResponse);
-        $responseEmitter->emit($response);
+        (new ResponseEmitter($swooleResponse))->emit($response);
     }
 
     public function getServer($host = null): Server
@@ -29,6 +29,7 @@ class App extends AbstractApp
             $config['port'] = $host;
         } elseif (is_string($host)) {
             $arr = explode(':', $host);
+
             $config['host'] = $arr[0] ?? '0.0.0.0';
             $config['port'] = intval($arr[1] ?? 9500);
         }
