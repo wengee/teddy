@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-28 11:44:47 +0800
+ * @version  2021-03-08 11:50:39 +0800
  */
 
 namespace Teddy\Database\Traits;
@@ -15,7 +15,7 @@ use Teddy\Database\SQL;
 trait QuerySelect
 {
     /**
-     * @var boolean
+     * @var bool
      */
     protected $distinct = false;
 
@@ -24,7 +24,7 @@ trait QuerySelect
      */
     protected $columns = ['*'];
 
-    public function select(...$columns)
+    public function select(...$columns): self
     {
         $this->sqlType = SQL::SELECT_SQL;
         if (!empty($columns)) {
@@ -34,9 +34,10 @@ trait QuerySelect
         return $this;
     }
 
-    public function distinct(bool $distinct = true)
+    public function distinct(bool $distinct = true): self
     {
         $this->distinct = $distinct;
+
         return $this;
     }
 
@@ -75,12 +76,12 @@ trait QuerySelect
         ]);
     }
 
-    public function paginate(int $page = 1, int $pageSize = 20)
+    public function paginate(int $page = 1, int $pageSize = 20): Paginator
     {
         $countQuery = clone $this;
-        $total = $countQuery->count();
+        $total      = $countQuery->count();
 
-        $page = max($page, 1);
+        $page     = max($page, 1);
         $pageSize = max($pageSize, 1);
 
         $offset = ($page - 1) * $pageSize;
@@ -93,38 +94,43 @@ trait QuerySelect
         return new Paginator($items, $total, $pageSize, $page);
     }
 
-    public function count(string $column = '*')
+    public function count(string $column = '*'): int
     {
-        $sql = 'COUNT(' . $this->toDbColumn($column) . ')';
+        $sql           = 'COUNT('.$this->toDbColumn($column).')';
         $this->columns = [new RawSQL($sql)];
-        return $this->fetchColumn();
+
+        return (int) $this->fetchColumn();
     }
 
     public function max(string $column)
     {
-        $sql = 'MAX(' . $this->toDbColumn($column) . ')';
+        $sql           = 'MAX('.$this->toDbColumn($column).')';
         $this->columns = [new RawSQL($sql)];
+
         return $this->fetchColumn();
     }
 
     public function min(string $column)
     {
-        $sql = 'MIN(' . $this->toDbColumn($column) . ')';
+        $sql           = 'MIN('.$this->toDbColumn($column).')';
         $this->columns = [new RawSQL($sql)];
+
         return $this->fetchColumn();
     }
 
     public function avg(string $column)
     {
-        $sql = 'AVG(' . $this->toDbColumn($column) . ')';
+        $sql           = 'AVG('.$this->toDbColumn($column).')';
         $this->columns = [new RawSQL($sql)];
+
         return $this->fetchColumn();
     }
 
     public function sum(string $column)
     {
-        $sql = 'SUM(' . $this->toDbColumn($column) . ')';
+        $sql           = 'SUM('.$this->toDbColumn($column).')';
         $this->columns = [new RawSQL($sql)];
+
         return $this->fetchColumn();
     }
 
@@ -133,7 +139,7 @@ trait QuerySelect
         return $this->count() > 0;
     }
 
-    protected function setColumns(...$columns)
+    protected function setColumns(...$columns): self
     {
         if (!empty($columns)) {
             $this->columns = [];
@@ -161,7 +167,7 @@ trait QuerySelect
         }
 
         $sql .= $this->getSelectColumns($this->columns, $map);
-        $sql .= ' FROM ' . $this->getTable();
+        $sql .= ' FROM '.$this->getTable();
         $sql .= $this->joinClause ? $this->joinClause->toSql($map) : '';
         $sql .= $this->whereClause ? $this->whereClause->toSql($map) : '';
         $sql .= $this->groupClause ? $this->groupClause->toSql($map) : '';
@@ -172,7 +178,7 @@ trait QuerySelect
         return $sql;
     }
 
-    protected function getSelectColumns(array $columns, array &$map = [])
+    protected function getSelectColumns(array $columns, array &$map = []): string
     {
         if (empty($columns)) {
             return '*';
@@ -183,7 +189,7 @@ trait QuerySelect
             if (is_int($key)) {
                 $ret[] = ($value instanceof RawSQL) ? $value->toSql($map, $this) : $value;
             } else {
-                $key = ($key instanceof RawSQL) ? $key->toSql($map, $this) : $key;
+                $key   = ($key instanceof RawSQL) ? $key->toSql($map, $this) : $key;
                 $ret[] = "{$key} AS {$value}";
             }
         }

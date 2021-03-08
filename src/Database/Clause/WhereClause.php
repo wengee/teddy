@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-18 16:42:29 +0800
+ * @version  2021-03-08 11:45:44 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -36,11 +36,21 @@ class WhereClause extends ClauseContainer
         'MATCH'         => 'MATCH',
     ];
 
+    /**
+     * @param RawSQL|string|string[] $column
+     * @param mixed                  $operator
+     * @param mixed                  $value
+     */
     public function where($column, $operator = null, $value = null, string $chainType = 'AND'): void
     {
         $this->_where($column, $operator, $value, $chainType, $this->container);
     }
 
+    /**
+     * @param RawSQL|string|string[] $column
+     * @param mixed                  $operator
+     * @param mixed                  $value
+     */
     public function orWhere($column, $operator = null, $value = null): void
     {
         $this->where($column, $operator, $value, 'OR');
@@ -52,7 +62,7 @@ class WhereClause extends ClauseContainer
             return '';
         }
 
-        return ' WHERE ' . $this->_toSql($this->container, $map);
+        return ' WHERE '.$this->_toSql($this->container, $map);
     }
 
     protected function _toSql(array $container, &$map = []): string
@@ -62,14 +72,15 @@ class WhereClause extends ClauseContainer
             list($column, $operator, $value, $chainType) = $where;
             if (!$column) {
                 continue;
-            } elseif ($ret) {
+            }
+            if ($ret) {
                 $ret .= $chainType ? " {$chainType} " : ' AND ';
             }
 
             if (is_array($column)) {
-                $ret .= '(' . $this->_toSql($column, $map) . ')';
+                $ret .= '('.$this->_toSql($column, $map).')';
             } elseif ($column instanceof RawSQL) {
-                $ret .= '(' . $column->toSql($map, $this->query) . ')';
+                $ret .= '('.$column->toSql($map, $this->query).')';
             } else {
                 $ret .= "({$column} {$operator} ?)";
                 $map[] = $value;
@@ -79,22 +90,27 @@ class WhereClause extends ClauseContainer
         return $ret;
     }
 
+    /**
+     * @param RawSQL|string|string[] $column
+     * @param mixed                  $operator
+     * @param mixed                  $value
+     */
     protected function _where($column, $operator = null, $value = null, string $chainType = 'AND', array &$container = []): void
     {
-        if (is_array($column) && $operator !== 'MATCH' && $operator !== '%') {
+        if (is_array($column) && 'MATCH' !== $operator && '%' !== $operator) {
             $subContainer = [];
             $subChainType = $operator ?: 'AND';
             foreach ($column as $c) {
-                $subColumn = $c[0] ?? null;
+                $subColumn   = $c[0] ?? null;
                 $subOperator = $c[1] ?? null;
-                $subValue = $c[2] ?? null;
+                $subValue    = $c[2] ?? null;
 
                 $this->_where($subColumn, $subOperator, $subValue, $subChainType, $subContainer);
             }
 
             $container[] = [$subContainer, null, null, $chainType];
         } elseif ($column instanceof RawSQL) {
-            $chainType = $operator ?: $chainType;
+            $chainType   = $operator ?: $chainType;
             $container[] = [$column, null, null, $chainType];
         } else {
             $column = $this->query->toDbColumn($column);
@@ -102,19 +118,19 @@ class WhereClause extends ClauseContainer
                 $operator = self::$operators[$operator];
             } else {
                 $chainType = $value ?: $chainType;
-                $value = $operator;
-                $operator = '=';
+                $value     = $operator;
+                $operator  = '=';
             }
 
-            if ($value === null) {
-                $column = new RawSQL($column . ' IS' . ($operator === '!=' ? ' NOT' : '') . ' NULL');
-            } elseif ($operator === 'BETWEEN' || $operator === 'NOT BETWEEN') {
-                $value = array_values((array) $value);
+            if (null === $value) {
+                $column = new RawSQL($column.' IS'.('!=' === $operator ? ' NOT' : '').' NULL');
+            } elseif ('BETWEEN' === $operator || 'NOT BETWEEN' === $operator) {
+                $value  = array_values((array) $value);
                 $column = new RawSQL("{$column} {$operator} ? AND ?", ...$value);
-            } elseif ($operator === 'MATCH') {
+            } elseif ('MATCH' === $operator) {
                 $mode = 'boolean';
                 if (is_array($value)) {
-                    $mode = $value[1] ?? '';
+                    $mode  = $value[1] ?? '';
                     $value = $value[0] ?? strval($value);
                 }
 
@@ -122,35 +138,36 @@ class WhereClause extends ClauseContainer
                 switch ($mode) {
                     case 'query':
                         $modeSQL = ' WITH QUERY EXPANSION';
-                        break;
 
+                        break;
                     case 'boolean':
                         $modeSQL = ' IN BOOLEAN MODE';
-                        break;
 
+                        break;
                     case 'natural+query':
                         $modeSQL = ' IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION';
-                        break;
 
+                        break;
                     case 'natural':
                         $modeSQL = ' IN NATURAL LANGUAGE MODE';
+
                         break;
                 }
 
                 $column = is_array($column) ? implode(', ', $column) : $column;
-                $sql = "MATCH({$column}) AGAINST(?{$modeSQL})";
+                $sql    = "MATCH({$column}) AGAINST(?{$modeSQL})";
                 $column = new RawSQL($sql, $value);
             } elseif (is_array($value)) {
-                if ($operator === '!=') {
+                if ('!=' === $operator) {
                     $operator = 'NOT IN';
-                } elseif ($operator !== 'IN' && $operator !== 'NOT IN') {
+                } elseif ('IN' !== $operator && 'NOT IN' !== $operator) {
                     $operator = 'IN';
                 }
 
-                $value = array_values($value);
+                $value      = array_values($value);
                 $placements = implode(', ', array_fill(0, count($value), '?'));
-                $sql = "{$column} {$operator} ({$placements})";
-                $column = new RawSQL($sql, ...$value);
+                $sql        = "{$column} {$operator} ({$placements})";
+                $column     = new RawSQL($sql, ...$value);
             }
 
             $container[] = [$column, $operator, $value, $chainType];

@@ -16,6 +16,7 @@ use Teddy\Database\Clause\JoinClause;
 use Teddy\Database\Clause\LimitClause;
 use Teddy\Database\Clause\OrderClause;
 use Teddy\Database\Clause\WhereClause;
+use Teddy\Database\RawSQL;
 use Teddy\Database\Traits\QueryDelete;
 use Teddy\Database\Traits\QueryInsert;
 use Teddy\Database\Traits\QuerySelect;
@@ -25,8 +26,8 @@ use Teddy\Model\MetaInfo;
 use Teddy\Model\Model;
 
 /**
- * @method self where($column, $operator = null, $value = null, string $chainType = 'AND')
- * @method self orWhere($column, $operator = null, $value = null)
+ * @method self where(RawSQL|string|string[] $column, mixed $operator = null, mixed $value = null, string $chainType = 'AND')
+ * @method self orWhere(RawSQL|string|string[] $column, mixed $operator = null, mixed $value = null)
  * @method self order(string $column, string $direction = 'ASC')
  * @method self orderBy(string $column, string $direction = 'ASC')
  * @method self limit(int $number, int $offset = 0)
