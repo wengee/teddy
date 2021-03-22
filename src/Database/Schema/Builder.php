@@ -1,19 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-12 11:31:40 +0800
+ * @version  2021-03-22 15:35:47 +0800
  */
 
 namespace Teddy\Database\Schema;
 
 use Closure;
 use LogicException;
-use Teddy\Database\DbConnectionInterface;
+use Teddy\Database\PDOConnection;
 
 class Builder
 {
+    /**
+     * The default string length for migrations.
+     *
+     * @var int
+     */
+    public static $defaultStringLength = 255;
     protected static $callback;
 
     protected $connection;
@@ -27,17 +34,10 @@ class Builder
      */
     protected $resolver;
 
-    /**
-     * The default string length for migrations.
-     *
-     * @var int
-     */
-    public static $defaultStringLength = 255;
-
-    public function __construct(DbConnectionInterface $connection)
+    public function __construct(PDOConnection $connection)
     {
         $this->connection = $connection;
-        $this->grammar = $connection->getSchemaGrammar();
+        $this->grammar    = $connection->getSchemaGrammar();
     }
 
     public static function defaultStringLength(int $length): void
@@ -52,7 +52,7 @@ class Builder
 
     public function hasTable(string $table): bool
     {
-        $table = $this->connection->getTablePrefix() . $table;
+        $table = $this->connection->getTablePrefix().$table;
 
         return count($this->connection->select(
             $this->grammar->compileTableExists(),
@@ -84,7 +84,7 @@ class Builder
     public function getColumnListing(string $table): array
     {
         return $this->connection->select($this->grammar->compileColumnListing(
-            $this->connection->getTablePrefix() . $table
+            $this->connection->getTablePrefix().$table
         ));
     }
 
@@ -146,6 +146,23 @@ class Builder
         );
     }
 
+    public function getConnection(): PDOConnection
+    {
+        return $this->connection;
+    }
+
+    public function setConnection(PDOConnection $connection)
+    {
+        $this->connection = $connection;
+
+        return $this;
+    }
+
+    public function blueprintResolver(Closure $resolver): void
+    {
+        $this->resolver = $resolver;
+    }
+
     protected function build(Blueprint $blueprint): void
     {
         if (!self::$callback) {
@@ -163,21 +180,5 @@ class Builder
         }
 
         return new Blueprint($table, $callback);
-    }
-
-    public function getConnection(): DbConnectionInterface
-    {
-        return $this->connection;
-    }
-
-    public function setConnection(DbConnectionInterface $connection)
-    {
-        $this->connection = $connection;
-        return $this;
-    }
-
-    public function blueprintResolver(Closure $resolver): void
-    {
-        $this->resolver = $resolver;
     }
 }

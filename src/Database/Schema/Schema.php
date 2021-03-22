@@ -5,12 +5,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-12 11:30:16 +0800
+ * @version  2021-03-22 15:32:37 +0800
  */
 
 namespace Teddy\Database\Schema;
 
 use Exception;
+use Teddy\Database\PDOConnection;
 
 /**
  * @method static bool hasTable(string $table)
@@ -28,8 +29,8 @@ use Exception;
  * @method static void rename(string $from, string $to)
  * @method static bool enableForeignKeyConstraints()
  * @method static bool disableForeignKeyConstraints()
- * @method static \Hyperf\Database\Connection getConnection()
- * @method static Builder setConnection(\Hyperf\Database\Connection $connection)
+ * @method static PDOConnection getConnection()
+ * @method static Builder setConnection(PDOConnection $connection)
  * @method static void blueprintResolver(\Closure $resolver)
  */
 class Schema
@@ -37,14 +38,17 @@ class Schema
     public static function __callStatic($name, $arguments)
     {
         $connection = app('db')->getWriteConnection();
+
         try {
             $ret = $connection->getSchemaBuilder()->{$name}(...$arguments);
         } catch (Exception $e) {
             app('db')->release($connection);
+
             throw $e;
         }
 
         app('db')->release($connection);
+
         return $ret;
     }
 

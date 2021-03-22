@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-12 15:56:55 +0800
+ * @version  2021-03-22 15:41:06 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
@@ -33,8 +34,6 @@ class MysqlGrammar extends Grammar
 
     /**
      * Compile the query to determine the list of tables.
-     *
-     * @return string
      */
     public function compileTableExists(): string
     {
@@ -43,8 +42,6 @@ class MysqlGrammar extends Grammar
 
     /**
      * Compile the query to determine the list of columns.
-     *
-     * @return string
      */
     public function compileColumnListing(): string
     {
@@ -55,56 +52,21 @@ class MysqlGrammar extends Grammar
     {
         $sql = $this->compileCreateTable($blueprint, $command, $connection);
         $sql = $this->compileCreateEncoding($sql, $connection, $blueprint);
+
         return $this->compileCreateEngine($sql, $connection, $blueprint);
-    }
-
-    protected function compileCreateTable(Blueprint $blueprint, Fluent $command, DbConnectionInterface $connection): string
-    {
-        return sprintf(
-            '%s TABLE %s (%s)',
-            $blueprint->temporary ? 'CREATE TEMPORARY' : 'CREATE',
-            $this->wrapTable($blueprint),
-            implode(', ', $this->getColumns($blueprint))
-        );
-    }
-
-    protected function compileCreateEncoding(string $sql, DbConnectionInterface $connection, Blueprint $blueprint): string
-    {
-        if (isset($blueprint->charset)) {
-            $sql .= ' DEFAULT CHARACTER SET '.$blueprint->charset;
-        } elseif (!is_null($charset = $connection->getConfig('charset'))) {
-            $sql .= ' DEFAULT CHARACTER SET '.$charset;
-        }
-
-        if (isset($blueprint->collation)) {
-            $sql .= " COLLATE '{$blueprint->collation}'";
-        } elseif (!is_null($collation = $connection->getConfig('collation'))) {
-            $sql .= " COLLATE '{$collation}'";
-        }
-
-        return $sql;
-    }
-
-    protected function compileCreateEngine(string $sql, DbConnectionInterface $connection, Blueprint $blueprint): string
-    {
-        if (isset($blueprint->engine)) {
-            return $sql.' ENGINE = '.$blueprint->engine;
-        } elseif (!is_null($engine = $connection->getConfig('engine'))) {
-            return $sql.' ENGINE = '.$engine;
-        }
-
-        return $sql;
     }
 
     public function compileAdd(Blueprint $blueprint, Fluent $command): string
     {
         $columns = $this->prefixArray('ADD', $this->getColumns($blueprint));
-        return 'ALTER TABLE ' . $this->wrapTable($blueprint) . ' ' . implode(', ', $columns);
+
+        return 'ALTER TABLE '.$this->wrapTable($blueprint).' '.implode(', ', $columns);
     }
 
     public function compilePrimary(Blueprint $blueprint, Fluent $command): string
     {
         $command->name(null);
+
         return $this->compileKey($blueprint, $command, 'PRIMARY KEY');
     }
 
@@ -128,18 +90,6 @@ class MysqlGrammar extends Grammar
         return $this->compileKey($blueprint, $command, 'FULLTEXT INDEX');
     }
 
-    protected function compileKey(Blueprint $blueprint, Fluent $command, string $type): string
-    {
-        return sprintf(
-            'ALTER TABLE %s ADD %s %s%s(%s)',
-            $this->wrapTable($blueprint),
-            $type,
-            $this->wrap($command->index),
-            $command->algorithm ? ' USING '.$command->algorithm : '',
-            $this->columnize($command->columns)
-        );
-    }
-
     public function compileDrop(Blueprint $blueprint, Fluent $command): string
     {
         return 'DROP TABLE '.$this->wrapTable($blueprint);
@@ -153,6 +103,7 @@ class MysqlGrammar extends Grammar
     public function compileDropColumn(Blueprint $blueprint, Fluent $command): string
     {
         $columns = $this->prefixArray('DROP', $this->wrapArray($command->columns));
+
         return 'ALTER TABLE '.$this->wrapTable($blueprint).' '.implode(', ', $columns);
     }
 
@@ -164,12 +115,14 @@ class MysqlGrammar extends Grammar
     public function compileDropUnique(Blueprint $blueprint, Fluent $command): string
     {
         $index = $this->wrap($command->index);
+
         return "ALTER TABLE {$this->wrapTable($blueprint)} DROP INDEX {$index}";
     }
 
     public function compileDropIndex(Blueprint $blueprint, Fluent $command): string
     {
         $index = $this->wrap($command->index);
+
         return "ALTER TABLE {$this->wrapTable($blueprint)} DROP INDEX {$index}";
     }
 
@@ -181,12 +134,14 @@ class MysqlGrammar extends Grammar
     public function compileDropForeign(Blueprint $blueprint, Fluent $command): string
     {
         $index = $this->wrap($command->index);
+
         return "ALTER TABLE {$this->wrapTable($blueprint)} DROP FOREIGN KEY {$index}";
     }
 
     public function compileRename(Blueprint $blueprint, Fluent $command): string
     {
         $from = $this->wrapTable($blueprint);
+
         return "RENAME TABLE {$from} TO ".$this->wrapTable($command->to);
     }
 
@@ -228,6 +183,97 @@ class MysqlGrammar extends Grammar
     public function compileDisableForeignKeyConstraints(): string
     {
         return 'SET FOREIGN_KEY_CHECKS = 0;';
+    }
+
+    public function typeGeometry(Fluent $column): string
+    {
+        return 'GEOMETRY';
+    }
+
+    public function typePoint(Fluent $column): string
+    {
+        return 'POINT';
+    }
+
+    public function typeLineString(Fluent $column): string
+    {
+        return 'LINESTRING';
+    }
+
+    public function typePolygon(Fluent $column): string
+    {
+        return 'POLYGON';
+    }
+
+    public function typeGeometryCollection(Fluent $column): string
+    {
+        return 'GEOMETRYCOLLECTION';
+    }
+
+    public function typeMultiPoint(Fluent $column): string
+    {
+        return 'MULTIPOINT';
+    }
+
+    public function typeMultiLineString(Fluent $column): string
+    {
+        return 'MULTILINESTRING';
+    }
+
+    public function typeMultiPolygon(Fluent $column): string
+    {
+        return 'MULTIPOLYGON';
+    }
+
+    protected function compileCreateTable(Blueprint $blueprint, Fluent $command, DbConnectionInterface $connection): string
+    {
+        return sprintf(
+            '%s TABLE %s (%s)',
+            $blueprint->temporary ? 'CREATE TEMPORARY' : 'CREATE',
+            $this->wrapTable($blueprint),
+            implode(', ', $this->getColumns($blueprint))
+        );
+    }
+
+    protected function compileCreateEncoding(string $sql, DbConnectionInterface $connection, Blueprint $blueprint): string
+    {
+        if (isset($blueprint->charset)) {
+            $sql .= ' DEFAULT CHARACTER SET '.$blueprint->charset;
+        } elseif (!is_null($charset = $connection->getConfig('charset'))) {
+            $sql .= ' DEFAULT CHARACTER SET '.$charset;
+        }
+
+        if (isset($blueprint->collation)) {
+            $sql .= " COLLATE '{$blueprint->collation}'";
+        } elseif (!is_null($collation = $connection->getConfig('collation'))) {
+            $sql .= " COLLATE '{$collation}'";
+        }
+
+        return $sql;
+    }
+
+    protected function compileCreateEngine(string $sql, DbConnectionInterface $connection, Blueprint $blueprint): string
+    {
+        if (isset($blueprint->engine)) {
+            return $sql.' ENGINE = '.$blueprint->engine;
+        }
+        if (!is_null($engine = $connection->getConfig('engine'))) {
+            return $sql.' ENGINE = '.$engine;
+        }
+
+        return $sql;
+    }
+
+    protected function compileKey(Blueprint $blueprint, Fluent $command, string $type): string
+    {
+        return sprintf(
+            'ALTER TABLE %s ADD %s %s%s(%s)',
+            $this->wrapTable($blueprint),
+            $type,
+            $this->wrap($command->index),
+            $command->algorithm ? ' USING '.$command->algorithm : '',
+            $this->columnize($command->columns)
+        );
     }
 
     protected function typeChar(Fluent $column): string
@@ -326,19 +372,19 @@ class MysqlGrammar extends Grammar
 
     protected function typeDateTime(Fluent $column): string
     {
-        return $column->precision ? "DATETIME($column->precision)" : 'DATETIME';
+        return $column->precision ? "DATETIME({$column->precision})" : 'DATETIME';
     }
 
     protected function typeTime(Fluent $column): string
     {
-        return $column->precision ? "TIME($column->precision)" : 'TIME';
+        return $column->precision ? "TIME({$column->precision})" : 'TIME';
     }
 
     protected function typeTimestamp(Fluent $column): string
     {
-        $columnType = $column->precision ? "TIMESTAMP($column->precision)" : 'TIMESTAMP';
+        $columnType = $column->precision ? "TIMESTAMP({$column->precision})" : 'TIMESTAMP';
 
-        return $column->useCurrent ? "$columnType DEFAULT CURRENT_TIMESTAMP" : $columnType;
+        return $column->useCurrent ? "{$columnType} DEFAULT CURRENT_TIMESTAMP" : $columnType;
     }
 
     protected function typeYear(Fluent $column): string
@@ -364,46 +410,6 @@ class MysqlGrammar extends Grammar
     protected function typeMacAddress(Fluent $column): string
     {
         return 'VARCHAR(17)';
-    }
-
-    public function typeGeometry(Fluent $column): string
-    {
-        return 'GEOMETRY';
-    }
-
-    public function typePoint(Fluent $column): string
-    {
-        return 'POINT';
-    }
-
-    public function typeLineString(Fluent $column): string
-    {
-        return 'LINESTRING';
-    }
-
-    public function typePolygon(Fluent $column): string
-    {
-        return 'POLYGON';
-    }
-
-    public function typeGeometryCollection(Fluent $column): string
-    {
-        return 'GEOMETRYCOLLECTION';
-    }
-
-    public function typeMultiPoint(Fluent $column): string
-    {
-        return 'MULTIPOINT';
-    }
-
-    public function typeMultiLineString(Fluent $column): string
-    {
-        return 'MULTILINESTRING';
-    }
-
-    public function typeMultiPolygon(Fluent $column): string
-    {
-        return 'MULTIPOLYGON';
     }
 
     protected function modifyVirtualAs(Blueprint $blueprint, Fluent $column): ?string
@@ -444,7 +450,7 @@ class MysqlGrammar extends Grammar
 
     protected function modifyCollate(Blueprint $blueprint, Fluent $column): ?string
     {
-        if (! is_null($column->collation)) {
+        if (!is_null($column->collation)) {
             return " COLLATE '{$column->collation}'";
         }
 
@@ -516,10 +522,10 @@ class MysqlGrammar extends Grammar
 
     protected function wrapValue(string $value): string
     {
-        if ($value !== '*') {
-            return '`' . str_replace('.', '`.`', $value) . '`';
+        if ('*' !== $value) {
+            return '`'.str_replace('.', '`.`', $value).'`';
         }
 
-        return '`' . $value . '`';
+        return '`'.$value.'`';
     }
 }
