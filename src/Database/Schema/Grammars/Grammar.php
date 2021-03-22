@@ -1,15 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 17:05:17 +0800
+ * @version  2021-03-22 17:47:19 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
 
 use Illuminate\Support\Fluent;
 use Teddy\Database\Grammar as BaseGrammar;
+use Teddy\Database\PDOConnection;
 use Teddy\Database\Schema\Blueprint;
 
 abstract class Grammar extends BaseGrammar
@@ -27,6 +29,16 @@ abstract class Grammar extends BaseGrammar
      * @var array
      */
     protected $fluentCommands = [];
+
+    public function compileRenameColumn(Blueprint $blueprint, Fluent $command, PDOConnection $connection)
+    {
+        return RenameColumn::compile($this, $blueprint, $command, $connection);
+    }
+
+    public function compileChange(Blueprint $blueprint, Fluent $command, PDOConnection $connection)
+    {
+        return ChangeColumn::compile($this, $blueprint, $command, $connection);
+    }
 
     public function compileForeign(Blueprint $blueprint, Fluent $command): string
     {
@@ -52,11 +64,11 @@ abstract class Grammar extends BaseGrammar
         // Once we have the basic foreign key creation statement constructed we can
         // build out the syntax for what should happen on an update or delete of
         // the affected columns, which will get something like "cascade", etc.
-        if (! is_null($command->onDelete)) {
+        if (!is_null($command->onDelete)) {
             $sql .= " on delete {$command->onDelete}";
         }
 
-        if (! is_null($command->onUpdate)) {
+        if (!is_null($command->onUpdate)) {
             $sql .= " on update {$command->onUpdate}";
         }
 
@@ -66,7 +78,7 @@ abstract class Grammar extends BaseGrammar
     public function prefixArray($prefix, array $values): array
     {
         return array_map(function ($value) use ($prefix) {
-            return $prefix . ' ' . $value;
+            return $prefix.' '.$value;
         }, $values);
     }
 
@@ -95,7 +107,7 @@ abstract class Grammar extends BaseGrammar
         $columns = [];
 
         foreach ($blueprint->getAddedColumns() as $column) {
-            $sql = $this->wrap($column).' '.$this->getType($column);
+            $sql       = $this->wrap($column).' '.$this->getType($column);
             $columns[] = $this->addModifiers($sql, $blueprint, $column);
         }
 
@@ -137,7 +149,7 @@ abstract class Grammar extends BaseGrammar
     protected function getDefaultValue($value): string
     {
         return is_bool($value) ?
-            "'" . (int) $value . "'" :
-            "'". (string) $value ."'";
+            "'".(int) $value."'" :
+            "'".(string) $value."'";
     }
 }

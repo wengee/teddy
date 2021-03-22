@@ -1,19 +1,25 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-12 11:01:53 +0800
+ * @version  2021-03-22 17:33:57 +0800
  */
 
 namespace Teddy\Database;
 
+use Doctrine\DBAL\Connection as DoctrineConnection;
+use Doctrine\DBAL\Driver as DoctrineDriver;
+use Doctrine\DBAL\Schema\AbstractSchemaManager as DoctrineAbstractSchemaManager;
+use Doctrine\DBAL\Schema\Column as DoctrineColumn;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use PDO;
 use PDOException;
 use PDOStatement;
+use Teddy\Database\DBAL\MysqlDriver;
 use Teddy\Database\Schema\Builder;
 use Teddy\Database\Schema\Grammars\MysqlGrammar;
 use Teddy\Database\Schema\MysqlBuilder;
@@ -34,6 +40,8 @@ class PDOConnection implements DbConnectionInterface
 
     protected $schemeGrammer;
 
+    protected $doctrineConnection;
+
     public function __construct(array $config, bool $readOnly = false)
     {
         $driver         = 'mysql';
@@ -47,9 +55,9 @@ class PDOConnection implements DbConnectionInterface
         $collation      = Arr::get($config, 'collation');
         $tablePrefix    = Arr::get($config, 'tablePrefix', '');
         $options        = Arr::get($config, 'options', []);
-        $dsn            = $driver . ':host=' . $host . ';port=' . $port . ';dbname=' . $dbName . ';charset=' . $charset;
+        $dsn            = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
 
-        $options = $options + $this->getDefaultOptions();
+        $options      = $options + $this->getDefaultOptions();
         $this->config = compact(
             'driver',
             'dsn',
@@ -63,9 +71,9 @@ class PDOConnection implements DbConnectionInterface
             'tablePrefix'
         );
 
-        $this->readOnly = $readOnly;
+        $this->readOnly    = $readOnly;
         $this->idleTimeout = (int) Arr::get($config, 'idleTimeout', 0);
-        $this->pdo = $this->createPDOConnection();
+        $this->pdo         = $this->createPDOConnection();
     }
 
     public function getConfig(string $key)
@@ -95,6 +103,7 @@ class PDOConnection implements DbConnectionInterface
     public function reconnect()
     {
         $this->pdo = $this->createPDOConnection();
+
         return $this->pdo;
     }
 
@@ -113,9 +122,11 @@ class PDOConnection implements DbConnectionInterface
             $this->pdo->query('SELECT 1');
         } catch (PDOException $e) {
             log_exception($e);
+
             return !$this->isDisconnected($e);
         } catch (Exception $e) {
             log_exception($e);
+
             return false;
         }
 
@@ -147,15 +158,16 @@ class PDOConnection implements DbConnectionInterface
 
     public function query(string $sql, array $data = [], array $options = [])
     {
-        $sqlType = Arr::get($options, 'sqlType');
+        $sqlType    = Arr::get($options, 'sqlType');
         $retryTotal = 0;
         $maxRetries = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
-        $metaInfo = Arr::get($options, 'metaInfo');
-        $pdo = $this->stick ? $this->pdo : $this->connect();
+        $metaInfo   = Arr::get($options, 'metaInfo');
+        $pdo        = $this->stick ? $this->pdo : $this->connect();
 
         RETRY:
-        $ret = true;
+        $ret   = true;
         $error = $stmt = null;
+
         try {
             $stmt = $pdo->prepare($sql);
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -164,7 +176,8 @@ class PDOConnection implements DbConnectionInterface
         } catch (PDOException $e) {
             if (!$this->stick && $retryTotal < $maxRetries && $this->isDisconnected($e)) {
                 $pdo = $this->reconnect();
-                $retryTotal += 1;
+                ++$retryTotal;
+
                 goto RETRY;
             }
 
@@ -175,16 +188,17 @@ class PDOConnection implements DbConnectionInterface
 
         if ($error) {
             $stmt && $stmt->closeCursor();
+
             throw $error;
         }
 
-        if ($sqlType === SQL::SELECT_SQL) {
+        if (SQL::SELECT_SQL === $sqlType) {
             $fetchType = Arr::get($options, 'fetchType');
-            if ($fetchType === SQL::FETCH_ALL) {
+            if (SQL::FETCH_ALL === $fetchType) {
                 $ret = array_map(function ($data) use ($metaInfo) {
                     return $metaInfo ? $metaInfo->makeInstance($data) : $data;
                 }, $stmt->fetchAll());
-            } elseif ($fetchType === SQL::FETCH_COLUMN) {
+            } elseif (SQL::FETCH_COLUMN === $fetchType) {
                 $ret = $stmt->fetchColumn();
             } else {
                 $ret = $stmt->fetch();
@@ -192,7 +206,7 @@ class PDOConnection implements DbConnectionInterface
                     $ret = $metaInfo ? $metaInfo->makeInstance($ret) : $ret;
                 }
             }
-        } elseif ($sqlType === SQL::INSERT_SQL) {
+        } elseif (SQL::INSERT_SQL === $sqlType) {
             if (Arr::get($options, 'lastInsertId')) {
                 $ret = $pdo->lastInsertId();
             }
@@ -201,6 +215,7 @@ class PDOConnection implements DbConnectionInterface
         }
 
         $stmt && $stmt->closeCursor();
+
         return $ret;
     }
 
@@ -215,7 +230,7 @@ class PDOConnection implements DbConnectionInterface
     public function getSchemaBuilder(): Builder
     {
         if (!$this->schemeBuilder) {
-            if ($this->config['driver'] === 'mysql') {
+            if ('mysql' === $this->config['driver']) {
                 $this->schemeBuilder = new MysqlBuilder($this);
             } else {
                 $this->schemeBuilder = new Builder($this);
@@ -228,14 +243,56 @@ class PDOConnection implements DbConnectionInterface
     public function getSchemaGrammar(): Grammar
     {
         if (!$this->schemeGrammer) {
-            if ($this->config['driver'] === 'mysql') {
-                $this->schemeGrammer = new MysqlGrammar;
+            if ('mysql' === $this->config['driver']) {
+                $this->schemeGrammer = new MysqlGrammar();
             } else {
-                $this->schemeGrammer = new Grammar;
+                $this->schemeGrammer = new Grammar();
             }
         }
 
         return $this->schemeGrammer;
+    }
+
+    public function isDoctrineAvailable(): bool
+    {
+        return class_exists('Doctrine\DBAL\Connection');
+    }
+
+    public function getDoctrineConnection(): DoctrineConnection
+    {
+        if (is_null($this->doctrineConnection)) {
+            $driver = $this->getDoctrineDriver();
+
+            $this->doctrineConnection = new DoctrineConnection([
+                'pdo'    => $this->createPDOConnection(),
+                'dbname' => $this->getConfig('dbName'),
+                'driver' => null,
+            ], $driver);
+        }
+
+        return $this->doctrineConnection;
+    }
+
+    public function getDoctrineSchemaManager(): DoctrineAbstractSchemaManager
+    {
+        $connection = $this->getDoctrineConnection();
+
+        return $this->getDoctrineDriver()->getSchemaManager(
+            $connection,
+            $connection->getDatabasePlatform()
+        );
+    }
+
+    public function getDoctrineColumn(string $table, string $column): DoctrineColumn
+    {
+        $schema = $this->getDoctrineSchemaManager();
+
+        return $schema->listTableDetails($table)->getColumn($column);
+    }
+
+    protected function getDoctrineDriver(): DoctrineDriver
+    {
+        return new MysqlDriver();
     }
 
     protected function createPDOConnection(): PDO
@@ -247,7 +304,7 @@ class PDOConnection implements DbConnectionInterface
             $this->config['options']
         );
 
-        if ($this->idleTimeout > 0 && $this->config['driver'] === 'mysql') {
+        if ($this->idleTimeout > 0 && 'mysql' === $this->config['driver']) {
             $pdo->query("SET SESSION interactive_timeout = {$this->idleTimeout};");
             $pdo->query("SET SESSION wait_timeout = {$this->idleTimeout};");
         }
@@ -258,10 +315,10 @@ class PDOConnection implements DbConnectionInterface
     protected function getDefaultOptions(bool $persistent = false): array
     {
         $options = [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::ATTR_STRINGIFY_FETCHES => false,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_STRINGIFY_FETCHES  => false,
         ];
 
         if ($persistent) {
@@ -294,11 +351,12 @@ class PDOConnection implements DbConnectionInterface
     protected function isDisconnected(PDOException $e)
     {
         $errorInfo = (array) $e->errorInfo;
-        if (isset($errorInfo[1]) && ($errorInfo[1] === 1461 || $errorInfo[1] === 2006)) {
+        if (isset($errorInfo[1]) && (1461 === $errorInfo[1] || 2006 === $errorInfo[1])) {
             return true;
         }
 
         $message = $e->getMessage();
+
         return Str::contains($message, [
             'server has gone away',
             'no connection to the server',

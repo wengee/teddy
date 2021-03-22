@@ -4,13 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-22 15:41:06 +0800
+ * @version  2021-03-22 17:57:15 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
 
 use Illuminate\Support\Fluent;
-use Teddy\Database\DbConnectionInterface;
+use Teddy\Database\PDOConnection;
 use Teddy\Database\Schema\Blueprint;
 
 class MysqlGrammar extends Grammar
@@ -48,7 +48,7 @@ class MysqlGrammar extends Grammar
         return 'SELECT `column_name` FROM `information_schema`.`columns` WHERE `table_schema` = ? AND `table_name` = ?';
     }
 
-    public function compileCreate(Blueprint $blueprint, Fluent $command, DbConnectionInterface $connection): string
+    public function compileCreate(Blueprint $blueprint, Fluent $command, PDOConnection $connection): string
     {
         $sql = $this->compileCreateTable($blueprint, $command, $connection);
         $sql = $this->compileCreateEncoding($sql, $connection, $blueprint);
@@ -225,7 +225,7 @@ class MysqlGrammar extends Grammar
         return 'MULTIPOLYGON';
     }
 
-    protected function compileCreateTable(Blueprint $blueprint, Fluent $command, DbConnectionInterface $connection): string
+    protected function compileCreateTable(Blueprint $blueprint, Fluent $command, PDOConnection $connection): string
     {
         return sprintf(
             '%s TABLE %s (%s)',
@@ -235,7 +235,7 @@ class MysqlGrammar extends Grammar
         );
     }
 
-    protected function compileCreateEncoding(string $sql, DbConnectionInterface $connection, Blueprint $blueprint): string
+    protected function compileCreateEncoding(string $sql, PDOConnection $connection, Blueprint $blueprint): string
     {
         if (isset($blueprint->charset)) {
             $sql .= ' DEFAULT CHARACTER SET '.$blueprint->charset;
@@ -252,7 +252,7 @@ class MysqlGrammar extends Grammar
         return $sql;
     }
 
-    protected function compileCreateEngine(string $sql, DbConnectionInterface $connection, Blueprint $blueprint): string
+    protected function compileCreateEngine(string $sql, PDOConnection $connection, Blueprint $blueprint): string
     {
         if (isset($blueprint->engine)) {
             return $sql.' ENGINE = '.$blueprint->engine;

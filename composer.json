@@ -30,7 +30,8 @@
         "firebase/php-jwt": "^5.2",
         "league/flysystem": "^1.0",
         "league/event": "^2.2",
-        "fwkit/console": "^0.3.0"
+        "fwkit/console": "^0.3.0",
+        "doctrine/dbal": "^3.0"
     },
     "require-dev": {
         "mix/guzzle": "^2.2",
