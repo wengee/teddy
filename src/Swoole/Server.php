@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-01-07 15:10:17 +0800
+ * @version  2021-04-02 16:41:21 +0800
  */
 
 namespace Teddy\Swoole;
@@ -78,6 +79,7 @@ class Server
     public function start(): void
     {
         System::setProcessTitle('master process', $this->name);
+        Coroutine::set(['hook_flags' => $this->coroutineFlags]);
         $this->swoole->start();
     }
 
@@ -227,7 +229,7 @@ class Server
             }
 
             $args = is_array($args) ? $args : [$args];
-            for ($i = 0; $i < $total; ++$i ) {
+            for ($i = 0; $i < $total; ++$i) {
                 $this->addProcess(new $className(...$args));
             }
         }
