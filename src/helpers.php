@@ -260,58 +260,6 @@ if (!function_exists('safe_call')) {
     }
 }
 
-if (!function_exists('base64url_encode')) {
-    /**
-     * Encode the string to URL-safe base64.
-     *
-     * @param  string $data
-     * @return string
-     */
-    function base64url_encode(string $data): string
-    {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
-    }
-}
-
-if (!function_exists('base64url_decode')) {
-    /**
-     * Decode the URL-safe base64 string.
-     *
-     * @param  string $data
-     * @return string
-     */
-    function base64url_decode(string $data): string
-    {
-        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
-    }
-}
-
-if (!function_exists('base64url_serialize')) {
-    /**
-     * Serialize a php variable to URL-safe base64.
-     *
-     * @param  mixed $data
-     * @return string
-     */
-    function base64url_serialize($data): string
-    {
-        return base64url_encode(serialize($data));
-    }
-}
-
-if (!function_exists('base64url_unserialize')) {
-    /**
-     * Unserialize the URL-safe base64 string.
-     *
-     * @param  string $data
-     * @return mixed
-     */
-    function base64url_unserialize(string $data)
-    {
-        return unserialize(base64url_decode($data));
-    }
-}
-
 if (!function_exists('unparse_url')) {
     /**
      * Conversion back to string from a parsed url.
