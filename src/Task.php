@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 16:22:46 +0800
+ * @version  2021-04-27 20:43:36 +0800
  */
 
 namespace Teddy;
@@ -70,12 +70,12 @@ abstract class Task
         }
     }
 
-    final public function getDelay(): int
+    public function getDelay(): int
     {
         return (int) $this->delay;
     }
 
-    final public function delay(int $delay): self
+    public function delay(int $delay): self
     {
         if ($delay <= 0) {
             throw new InvalidArgumentException('The delay must be greater than 0');
@@ -86,7 +86,7 @@ abstract class Task
         return $this;
     }
 
-    final public function wait(float $waitTimeout = 3.0): self
+    public function wait(float $waitTimeout = 3.0): self
     {
         if ($waitTimeout <= 0) {
             throw new InvalidArgumentException('The waitTimeout must be greater than 0');
@@ -97,7 +97,7 @@ abstract class Task
         return $this;
     }
 
-    final public function exclusive(int $executionTime): self
+    public function exclusive(int $executionTime): self
     {
         if ($executionTime > 0) {
             $this->executionTime = $executionTime;
@@ -109,49 +109,40 @@ abstract class Task
         return $this;
     }
 
-    final public function isWaiting(): bool
+    public function isWaiting(): bool
     {
         return $this->waitTimeout > 0;
     }
 
-    final public function sendWait(float $waitTimeout = 3.0)
-    {
-        $this->wait($waitTimeout);
-        $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
-
-        return ($ret && isset($ret[0])) ? $ret[0] : null;
-    }
-
-    final public function send()
+    public function send(bool $toQueue = false)
     {
         if ($this->isWaiting()) {
-            return $this->sendWait();
+            return $this->sendAndWait();
         }
 
-        static::deliver($this);
-    }
-
-    final public function queue(): void
-    {
-        $queue = app('queue');
-        if (!$queue) {
-            $this->send();
+        if ($toQueue) {
+            $this->sendToQueue();
         } else {
-            $queue->push($this);
+            $this->sendToLocal();
         }
     }
 
-    final public function finish()
+    public function queue(): void
+    {
+        $this->sendToQueue();
+    }
+
+    public function finish()
     {
         return $this->result;
     }
 
-    final public function safeRun(): void
+    public function safeRun(): void
     {
         safe_call([$this, 'run']);
     }
 
-    final public function run()
+    public function run()
     {
         if ($this->tryLock()) {
             try {
@@ -174,7 +165,7 @@ abstract class Task
         return false;
     }
 
-    final public function isRunning(): bool
+    public function isRunning(): bool
     {
         if (!$this->exclusive) {
             return false;
@@ -183,11 +174,34 @@ abstract class Task
         return $this->getLock()->isAcquired();
     }
 
-    final public function setUniqueKey(?string $uniqueKey): self
+    public function setUniqueKey(?string $uniqueKey): self
     {
         $this->uniqueKey = $uniqueKey;
 
         return $this;
+    }
+
+    protected function sendAndWait(float $waitTimeout = 3.0)
+    {
+        $this->wait($waitTimeout);
+        $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
+
+        return ($ret && isset($ret[0])) ? $ret[0] : null;
+    }
+
+    protected function sendToLocal(): void
+    {
+        static::deliver($this);
+    }
+
+    protected function sendToQueue(): void
+    {
+        $queue = app('queue');
+        if (!$queue) {
+            $this->sendToLocal();
+        } else {
+            $queue->push($this);
+        }
     }
 
     protected function getLock(): Lock
