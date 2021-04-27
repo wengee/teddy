@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:09:42 +0800
+ * @version  2021-04-27 16:37:27 +0800
  */
 
 namespace Teddy\Redis;
@@ -28,23 +29,32 @@ class Redis extends Pool
         return $this->runCommand($method, $args);
     }
 
+    public function getNativeClient(): \Redis
+    {
+        return $this->createConnection()->connect();
+    }
+
     public function runCommand(string $method, array $args)
     {
         $connection = $this->get();
+
         try {
             $ret = $connection->{$method}(...$args);
         } catch (Exception $e) {
             $this->release($connection);
+
             throw $e;
         }
 
         $this->release($connection);
+
         return $ret;
     }
 
     protected function createConnection(): ConnectionInterface
     {
         $config = Arr::random($this->config);
+
         return new Connection($config);
     }
 
@@ -71,10 +81,10 @@ class Redis extends Pool
     protected function splitHost(string $host): array
     {
         $ret = [];
-        if (strpos($host, ':') === false) {
+        if (false === strpos($host, ':')) {
             $ret['host'] = $host;
         } else {
-            $arr = explode(':', $host, 2);
+            $arr         = explode(':', $host, 2);
             $ret['host'] = $arr[0];
             $ret['port'] = intval($arr[1]);
         }

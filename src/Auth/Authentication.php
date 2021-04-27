@@ -1,51 +1,36 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-01-13 17:17:49 +0800
+ * @version  2021-04-27 11:23:55 +0800
  */
 
 namespace Teddy\Auth;
 
 use Exception;
-use Illuminate\Support\Arr;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
-use Teddy\Traits\HasOptions;
 use Teddy\Traits\HasUriMatch;
 
 class Authentication implements MiddlewareInterface
 {
-    use HasOptions;
     use HasUriMatch;
 
-    protected $conditions = [
-        'path'   => null,
-        'ignore' => null,
-    ];
-
-    protected $options = [
-        'header'    => 'Authorization',
-        'regexp'    => '/^Bearer\\s+(.*)$/i',
-        'cookie'    => 'token',
-        'param'     => 'token',
-        'attribute' => 'user',
-    ];
-
-    protected $callback;
+    protected $options;
 
     public function __construct(array $options = [])
     {
-        $this->setOptions($options);
+        $this->options = new AuthenticationOptions($options);
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (!$this->isUriMatch($request, $this->conditions)) {
+        if (!$this->isUriMatch($request, $this->options['conditions'])) {
             return $handler->handle($request);
         }
 
@@ -58,8 +43,8 @@ class Authentication implements MiddlewareInterface
 
         if ($token) {
             $payload = app('auth')->fetch($token);
-            if ($payload && is_callable($this->callback)) {
-                $user = call_user_func($this->callback, $request, $payload);
+            if ($payload && is_callable($this->options['callback'])) {
+                $user = call_user_func($this->options['callback'], $request, $payload);
             }
         }
 
@@ -100,22 +85,5 @@ class Authentication implements MiddlewareInterface
 
         // If everything fails log and throw.
         throw new RuntimeException('Token not found.');
-    }
-
-    protected function setPath($path): void
-    {
-        $this->conditions['path'] = Arr::wrap($path);
-    }
-
-    protected function setIgnore($ignore): void
-    {
-        $this->conditions['ignore'] = Arr::wrap($ignore);
-    }
-
-    protected function setCallback($callback): void
-    {
-        if (\is_callable($callback)) {
-            $this->callback = $callback;
-        }
     }
 }

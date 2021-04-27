@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-02 16:41:21 +0800
+ * @version  2021-04-27 16:21:48 +0800
  */
 
 namespace Teddy\Swoole;
@@ -23,6 +23,8 @@ use Swoole\Websocket\Server as WebsocketServer;
 use Teddy\Console\Command;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
+use Teddy\Queue\Queue;
+use Teddy\Queue\QueueProcess;
 use Teddy\Schedule\ScheduleProcess;
 use Teddy\Task;
 use Teddy\Utils\System;
@@ -321,8 +323,17 @@ class Server
             }
         }
 
-        if ($config['schedule'] && is_array($config['schedule'])) {
-            $this->addProcess(new ScheduleProcess($config['schedule']));
+        $schedule = $config['schedule'] ?? null;
+        if ($schedule && is_array($schedule) && (!isset($schedule['enabled']) || $schedule['enabled'])) {
+            $schedule = $schedule['list'] ?? $schedule;
+            $this->addProcess(new ScheduleProcess($schedule));
+        }
+
+        $queue        = $config['queue'] ?? [];
+        $queueEnabled = $queue['enabled'] ?? false;
+        if ($queueEnabled && is_array($queue)) {
+            $this->addProcess(new QueueProcess($queue));
+            $this->app->instance('queue', new Queue($queue));
         }
 
         if ($config['processes'] && is_array($config['processes'])) {
@@ -357,6 +368,7 @@ class Server
             'port'      => 9500,
 
             'schedule'  => null,
+            'queue'     => null,
             'processes' => null,
             'tables'    => null,
 

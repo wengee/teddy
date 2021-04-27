@@ -1,15 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 10:43:40 +0800
+ * @version  2021-04-27 16:24:53 +0800
  */
 
 namespace App\Controllers;
 
 use App\Models\Attachment;
 use App\Models\Qrcode;
+use App\Tasks\Demo;
 use Illuminate\Support\Str;
 use Teddy\Controller;
 use Teddy\Http\Request;
@@ -19,24 +21,27 @@ class IndexController extends Controller
 {
     public function index(Request $request, Response $response)
     {
-        $query = Attachment::query()
-            ->select()
-            ->where([
-                ['id', 0],
-                ['id', '>', 100],
-                ['id', '<>', [5, 20]],
-            ], 'OR')
-        ;
+        // $query = Attachment::query()
+        //     ->select()
+        //     ->where([
+        //         ['id', 0],
+        //         ['id', '>', 100],
+        //         ['id', '<>', [5, 20]],
+        //     ], 'OR')
+        // ;
 
-        $b = [];
-        $a = $query->getSql($b);
+        // $b = [];
+        // $a = $query->getSql($b);
 
-        // $c = new Qrcode;
-        $c            = $query->first();
-        $c['isImage'] = true;
-        $c->save();
+        // // $c = new Qrcode;
+        // $c            = $query->first();
+        // $c['isImage'] = true;
+        // $c->save();
 
-        return $response->json(0, compact(['a', 'b', 'c']));
+        $task = new Demo();
+        $task->queue();
+
+        return $response->json(0);
     }
 
     public function upload(Request $request, Response $response)

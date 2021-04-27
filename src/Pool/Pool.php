@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 14:20:59 +0800
+ * @version  2021-04-27 16:27:09 +0800
  */
 
 namespace Teddy\Pool;
@@ -22,15 +23,15 @@ abstract class Pool
 
     public function __construct(array $options = [])
     {
-        $this->poolOptions = (new Options([
+        $this->poolOptions = new Options([
             'minConnections' => 1,
             'maxConnections' => 10,
             'connectTimeout' => 10.0,
-            'waitTimeout' => 3.0,
-            'heartbeat' => 0,
-            'maxIdleTime' => 900,
-        ]))->update($options);
-
+            'waitTimeout'    => 3.0,
+            'heartbeat'      => 0,
+            'maxIdleTime'    => 900,
+        ]);
+        $this->poolOptions->update($options);
         $this->channel = new Channel($this->poolOptions['maxConnections']);
     }
 
@@ -39,12 +40,14 @@ abstract class Pool
         $num = $this->getConnectionsInChannel();
 
         try {
-            if ($num === 0 && $this->currentConnections < $this->poolOptions['maxConnections']) {
+            if (0 === $num && $this->currentConnections < $this->poolOptions['maxConnections']) {
                 ++$this->currentConnections;
+
                 return $this->createConnection();
             }
         } catch (Throwable $throwable) {
             --$this->currentConnections;
+
             throw $throwable;
         }
 

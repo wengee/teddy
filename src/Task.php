@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 10:29:39 +0800
+ * @version  2021-04-27 16:22:46 +0800
  */
 
 namespace Teddy;
@@ -128,6 +129,16 @@ abstract class Task
         }
 
         static::deliver($this);
+    }
+
+    final public function queue(): void
+    {
+        $queue = app('queue');
+        if (!$queue) {
+            $this->send();
+        } else {
+            $queue->push($this);
+        }
     }
 
     final public function finish()

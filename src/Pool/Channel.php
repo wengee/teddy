@@ -1,15 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-04-27 09:33:34 +0800
  */
 
 namespace Teddy\Pool;
 
 use SplQueue;
-use Swoole\Coroutine;
 use Swoole\Coroutine\Channel as CoChannel;
 
 class Channel
@@ -22,8 +22,8 @@ class Channel
 
     public function __construct(int $size)
     {
-        $this->size = $size;
-        $this->queue = new SplQueue;
+        $this->size  = $size;
+        $this->queue = new SplQueue();
 
         if (class_exists(CoChannel::class)) {
             $this->channel = new CoChannel($size);
@@ -32,7 +32,7 @@ class Channel
 
     public function pop(float $timeout)
     {
-        if ($this->isCoroutine() && $this->channel) {
+        if ($this->channel) {
             return $this->channel->pop($timeout);
         }
 
@@ -41,7 +41,7 @@ class Channel
 
     public function push($data)
     {
-        if ($this->isCoroutine() && $this->channel) {
+        if ($this->channel) {
             return $this->channel->push($data);
         }
 
@@ -50,15 +50,10 @@ class Channel
 
     public function length(): int
     {
-        if ($this->isCoroutine() && $this->channel) {
+        if ($this->channel) {
             return $this->channel->length();
         }
 
         return $this->queue->count();
-    }
-
-    protected function isCoroutine(): bool
-    {
-        return class_exists(Coroutine::class) && Coroutine::getCid() > 0;
     }
 }
