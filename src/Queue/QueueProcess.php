@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 16:42:47 +0800
+ * @version  2021-04-27 17:20:51 +0800
  */
 
 namespace Teddy\Queue;
@@ -32,11 +32,13 @@ class QueueProcess extends BaseQueue implements ProcessInterface
 
     public function handle(Server $swoole, Process $process): void
     {
+        $this->startProcess();
+
         START_HANDLE:
         try {
             $this->redis()->subscribe([$this->channelKey], function ($redis, $channel, $msg): void {
                 log_message('INFO', 'Queue channel: [%s] %s', $channel, $msg);
-                $this->process();
+                $this->startProcess();
             });
         } catch (Exception $e) {
             log_exception($e);
@@ -50,7 +52,7 @@ class QueueProcess extends BaseQueue implements ProcessInterface
         $process->exit(0);
     }
 
-    protected function process(): void
+    protected function startProcess(): void
     {
         if ($this->busy) {
             return;
