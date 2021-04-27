@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 20:05:38 +0800
+ * @version  2021-04-27 20:48:47 +0800
  */
 
 namespace Teddy\Swoole;
@@ -290,7 +290,7 @@ class Server
     {
         $config = $this->parseConfig($config);
 
-        $enableWebsocket  = Arr::pull($config, 'websocket.enable', false);
+        $enableWebsocket  = Arr::pull($config, 'websocket.enabled', false);
         $websocketHandler = Arr::pull($config, 'websocket.handler');
 
         $host = $config['host'] ?: '127.0.0.1';
