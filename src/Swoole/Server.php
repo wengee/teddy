@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 16:21:48 +0800
+ * @version  2021-04-27 17:11:26 +0800
  */
 
 namespace Teddy\Swoole;
@@ -333,8 +333,8 @@ class Server
         $queueEnabled = $queue['enabled'] ?? false;
         if ($queueEnabled && is_array($queue)) {
             $this->addProcess(new QueueProcess($queue));
-            $this->app->instance('queue', new Queue($queue));
         }
+        $this->app->instance('queue', new Queue($queue ?: []));
 
         if ($config['processes'] && is_array($config['processes'])) {
             $this->addProcesses($config['processes']);
