@@ -4,14 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-28 16:25:59 +0800
+ * @version  2021-04-28 16:32:36 +0800
  */
 
 namespace Teddy\Pool;
 
 use SplQueue;
 use Swoole\Coroutine\Channel as CoChannel;
-use Teddy\Swoole\Coroutine;
 
 class Channel
 {
@@ -25,7 +24,7 @@ class Channel
     {
         $this->size  = $size;
 
-        if (class_exists(CoChannel::class) && Coroutine::inCoroutine()) {
+        if (class_exists(CoChannel::class)) {
             $this->channel = new CoChannel($size);
         } else {
             $this->queue = new SplQueue();

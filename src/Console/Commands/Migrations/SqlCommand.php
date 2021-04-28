@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-12 11:21:58 +0800
+ * @version  2021-04-28 16:40:47 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -21,10 +22,10 @@ class SqlCommand extends BaseCommand
 
     protected function handle(): void
     {
-        $f = null;
+        $f    = null;
         $file = $this->option('file');
         if ($file) {
-            if ($file{0} !== '/' || $file{0} !== '\\') {
+            if ('/' !== $file[0] || '\\' !== $file[0]) {
                 $file = FileSystem::joinPath(getcwd(), $file);
             }
 
@@ -34,16 +35,16 @@ class SqlCommand extends BaseCommand
         Schema::callback(function (array $sql) use ($f): void {
             foreach ($sql as $line) {
                 if ($f) {
-                    fwrite($f, $line . ";\n");
+                    fwrite($f, $line.";\n");
                 } else {
-                    $this->line($line . ';');
+                    $this->line($line.';');
                 }
             }
         });
 
-        $since = $this->option('since');
+        $since    = $this->option('since');
         $migrator = $this->getMigrator();
-        $files = $migrator->getMigrationFiles($this->getMigrationPath());
+        $files    = $migrator->getMigrationFiles($this->getMigrationPath());
         foreach ($files as $file) {
             $migration = $migrator->resolve(
                 $name = $migrator->getMigrationName($file)

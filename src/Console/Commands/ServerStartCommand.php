@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 14:39:51 +0800
+ * @version  2021-04-28 16:45:51 +0800
  */
 
 namespace Teddy\Console\Commands;

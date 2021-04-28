@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-02 12:08:47 +0800
+ * @version  2021-04-28 16:40:38 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -21,8 +22,8 @@ class MigrationMakeCommand extends Command
 
     protected function handle(): void
     {
-        $name = $this->argument('name');
-        $table = $this->option('table');
+        $name   = $this->argument('name');
+        $table  = $this->option('table');
         $create = (bool) $this->option('create');
         if ($create) {
             $table = $table ?: $name;

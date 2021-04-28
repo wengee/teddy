@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-13 16:48:06 +0800
+ * @version  2021-04-28 16:40:49 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -22,7 +23,7 @@ class StatusCommand extends BaseCommand
             return $this->error('No migrations found.');
         }
 
-        $ran = $this->getMigrator()->getRepository()->getRan();
+        $ran     = $this->getMigrator()->getRepository()->getRan();
         $batches = $this->getMigrator()->getRepository()->getMigrationBatches();
 
         if (count($migrations = $this->getStatusFor($ran, $batches)) > 0) {
@@ -35,7 +36,7 @@ class StatusCommand extends BaseCommand
     protected function getStatusFor(array $ran, array $batches)
     {
         return Collection::make($this->getAllMigrationFiles())
-                    ->map(function ($migration) use ($ran, $batches) {
+            ->map(function ($migration) use ($ran, $batches) {
                         $migrationName = $this->getMigrator()->getMigrationName($migration);
 
                         return in_array($migrationName, $ran)
