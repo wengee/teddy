@@ -13,6 +13,8 @@ use Teddy\Facades\Filter;
 
 class BooleanField extends Field
 {
+    protected $default = false;
+
     protected function filterValue($value)
     {
         return Filter::sanitize($value, 'bool');

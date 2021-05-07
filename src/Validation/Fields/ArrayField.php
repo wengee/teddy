@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-06 14:28:39 +0800
+ * @version  2021-05-07 17:06:05 +0800
  */
 
 namespace Teddy\Validation\Fields;
@@ -13,11 +13,14 @@ use Teddy\Facades\Filter;
 
 class ArrayField extends Field
 {
+    protected $default = [];
+
     protected $useJson = false;
 
     public function json(bool $useJson = true): self
     {
         $this->useJson = $useJson;
+
         return $this;
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 14:36:16 +0800
+ * @version  2021-05-07 17:07:39 +0800
  */
 
 namespace Teddy\Validation\Fields;
@@ -13,6 +13,8 @@ use Teddy\Facades\Filter;
 
 class ListField extends Field
 {
+    protected $default = [];
+
     protected $pattern;
 
     /**
