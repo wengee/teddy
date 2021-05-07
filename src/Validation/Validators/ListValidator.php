@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 16:11:35 +0800
+ * @version  2021-05-07 23:33:53 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -49,7 +49,7 @@ class ListValidator extends Validator
     protected function validate($value, array $data, callable $next)
     {
         $ret   = [];
-        $value = array_values((array) $value);
+        $value = (array) $value;
         foreach ($value as $val) {
             $val = $this->validateItem($val, $data);
             if (null !== $val) {

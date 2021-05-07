@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 17:12:39 +0800
+ * @version  2021-05-07 23:35:12 +0800
  */
 
 namespace Teddy\Validation\Fields;
@@ -35,6 +35,7 @@ use Teddy\Validation\Validators\LtValidator;
 use Teddy\Validation\Validators\MobileValidator;
 use Teddy\Validation\Validators\NotInValidator;
 use Teddy\Validation\Validators\NumberValidator;
+use Teddy\Validation\Validators\OptionalValidator;
 use Teddy\Validation\Validators\RegexValidator;
 use Teddy\Validation\Validators\RequiredValidator;
 use Teddy\Validation\Validators\SameValidator;
@@ -95,6 +96,7 @@ abstract class Field
         'mobile'    => MobileValidator::class,
         'notIn'     => NotInValidator::class,
         'number'    => NumberValidator::class,
+        'optional'  => OptionalValidator::class,
         'regex'     => RegexValidator::class,
         'required'  => RequiredValidator::class,
         'same'      => SameValidator::class,
@@ -109,8 +111,6 @@ abstract class Field
     protected $default;
 
     protected $prefix;
-
-    protected $optional = false;
 
     protected $condition = [];
 
@@ -169,20 +169,10 @@ abstract class Field
         return $this;
     }
 
-    /**
-     * @return static
-     */
-    public function optional(bool $optional = true): self
-    {
-        $this->optional = $optional;
-
-        return $this;
-    }
-
     public function filter($value)
     {
         if (null === $value) {
-            return $this->optional ? null : $this->default;
+            return $this->default;
         }
 
         return $this->filterValue($value);
@@ -248,6 +238,7 @@ abstract class Field
      * * then('mobile', ?string $message = null)
      * * then('notIn', array $domain, ?string $message = null)
      * * then('number', ?string $message = null)
+     * * then('optional', ?string $message = null)
      * * then('regex' string $pattern, $replacement = null, ?string $message = null)
      * * then('required', ?string $message = null)
      * * then('same', string $otherField, ?string $message = null)
@@ -286,13 +277,6 @@ abstract class Field
     {
         if (is_null($this->tip)) {
             $this->seedHandlerStack();
-        }
-
-        if ($this->optional && (null === $value
-            || (is_string($value) && 0 === strlen($value))
-            || (is_array($value) && 0 === count($value)))
-        ) {
-            return $value;
         }
 
         if ($this->checkCondition($data)) {
