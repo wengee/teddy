@@ -323,8 +323,9 @@ class Server
             }
         }
 
-        $schedule = $config['schedule'] ?? null;
-        if ($schedule && is_array($schedule) && (!isset($schedule['enabled']) || $schedule['enabled'])) {
+        $schedule = $config['schedule'] ?? [];
+        $scheduleEnabled = isset($schedule['enabled']) ? $schedule['enabled'] : !$schedule;
+        if ($scheduleEnabled) {
             $schedule = $schedule['list'] ?? $schedule;
             $this->addProcess(new ScheduleProcess($schedule));
         }

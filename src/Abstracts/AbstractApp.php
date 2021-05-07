@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 09:58:29 +0800
+ * @version  2021-05-06 14:19:33 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -121,8 +122,8 @@ abstract class AbstractApp extends Container
             }
 
             foreach ($listeners as $listener) {
-                if (is_string($listener) &&
-                    is_subclass_of($listener, ListenerInterface::class)) {
+                if (is_string($listener)
+                    && is_subclass_of($listener, ListenerInterface::class)) {
                     $listener = new $listener();
                 }
 
@@ -159,6 +160,7 @@ abstract class AbstractApp extends Container
         $this->bind('response', \Teddy\Http\Response::class);
         $this->bind('auth', \Teddy\Auth\Manager::class);
         $this->bind('console', \Teddy\Console\Application::class);
+        $this->bind('filter', \Teddy\Filter::class);
 
         if ($this->config->has('database')) {
             $loader = Composer::getLoader();

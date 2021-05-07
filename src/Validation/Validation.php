@@ -1,84 +1,141 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-12 15:03:43 +0800
+ * @version  2021-05-07 16:14:20 +0800
  */
 
 namespace Teddy\Validation;
 
-use Teddy\Interfaces\ValidatorRuleInterface;
-use Teddy\Traits\Singleton;
+use Illuminate\Support\Arr;
+use InvalidArgumentException;
+use Teddy\Validation\Fields\AnyField;
+use Teddy\Validation\Fields\ArrayField;
+use Teddy\Validation\Fields\BooleanField;
+use Teddy\Validation\Fields\Field;
+use Teddy\Validation\Fields\FloatField;
+use Teddy\Validation\Fields\IntegerField;
+use Teddy\Validation\Fields\ListField;
+use Teddy\Validation\Fields\StringField;
 
+/**
+ * @method AnyField     any(string $name, ?string $label = null)
+ * @method ArrayField   array(string $name, ?string $label = null)
+ * @method BooleanField bool(string $name, ?string $label = null)
+ * @method BooleanField boolean(string $name, ?string $label = null)
+ * @method FloatField   float(string $name, ?string $label = null)
+ * @method FloatField   double(string $name, ?string $label = null)
+ * @method IntegerField int(string $name, ?string $label = null)
+ * @method IntegerField integer(string $name, ?string $label = null)
+ * @method ListField    list(string $name, ?string $label = null)
+ * @method StringField  string(string $name, ?string $label = null)
+ * @method StringField  str(string $name, ?string $label = null)
+ * @method TrimField    trim(string $name, ?string $label = null)
+ */
 class Validation
 {
-    use Singleton;
+    /**
+     * @var Field[]
+     */
+    protected $fields = [];
 
-    protected $rules = [];
-
-    public function __construct(array $rules = [])
+    /**
+     * @param Field[] $fields
+     */
+    public function __construct(array $fields = [])
     {
-        $this->rules = $rules;
+        foreach ($fields as $name => $field) {
+            $this->add($name, $field);
+        }
+
         $this->initialize();
     }
 
-    public static function make(array $rules = []): self
+    public function __call(string $method, array $arguments)
     {
-        return new self($rules);
+        $name = array_shift($arguments);
+        if (!$name) {
+            throw new InvalidArgumentException('name is required.');
+        }
+
+        return $this->add($name, Field::factory($method, ...$arguments));
     }
 
-    public function add(string $field, $validator = null): ?Validator
+    public function add(string $name, Field $field): Field
     {
-        if (is_string($validator) || $validator === null) {
-            $validator = Validator::make($field, $validator);
-        }
+        $this->fields[$name] = $field;
 
-        if ($validator instanceof Validator) {
-            $this->rules[$field] = $validator;
-            return $validator;
-        }
-
-        return null;
+        return $field;
     }
 
-    public function append(string $field, $rule, ...$args): self
+    public function merge(Validation $validation): self
     {
-        if (!($rule instanceof ValidatorRuleInterface)) {
-            $rule = Validator::rule($rule, ...$args);
-        }
-
-        if (isset($this->rules[$field]) && ($rule instanceof ValidatorRuleInterface)) {
-            $this->rules[$field]->push($rule);
-        }
+        $this->fields = array_merge($this->fields, $validation->getFields());
 
         return $this;
     }
 
-    public function validate(array $data, array $rules = [], bool $silent = false): array
+    /**
+     * @return Field[]
+     */
+    public function getFields(): array
     {
-        $data = $this->beforeValidate($data);
-        if (!empty($rules)) {
-            $rules = array_filter($rules, function ($item) {
-                return $item instanceof Validator;
-            });
-
-            $rules = array_merge($this->rules, $rules);
-        } else {
-            $rules = $this->rules;
-        }
-
-        $filtered = [];
-        foreach ($rules as $validator) {
-            $filtered = $validator->validate($data, $filtered, $silent);
-        }
-
-        return $this->afterValidate($filtered);
+        return $this->fields;
     }
 
-    public function check(array $data, array $rules = []): array
+    /**
+     * @param Field[] $fields
+     */
+    public function validate(?array $data, ?array $fields = null, bool $safe = false): array
     {
-        return $this->validate($data, $rules, true);
+        if (!$data) {
+            return [];
+        }
+
+        $data = $this->beforeValidate($data);
+        $data = $this->filterData($data);
+
+        if ($fields) {
+            $fields = array_merge($this->fields, $fields);
+        } else {
+            $fields = $this->fields;
+        }
+
+        foreach ($fields as $name => $field) {
+            $value = Arr::get($data, $name);
+            $value = $field->validate($value, $data, $safe);
+
+            if (null === $value) {
+                Arr::forget($data, $name);
+            } else {
+                Arr::set($data, $name, $value);
+            }
+        }
+
+        return $this->afterValidate($data);
+    }
+
+    /**
+     * @param Field[] $fields
+     */
+    public function check(array $data, ?array $fields = null)
+    {
+        return $this->validate($data, $fields, true);
+    }
+
+    protected function filterData(array $data): array
+    {
+        $ret = [];
+        foreach ($this->fields as $name => $field) {
+            $value = Arr::get($data, $name);
+            $value = $field->filter($value);
+
+            Arr::set($ret, $name, $value);
+        }
+
+        return $ret;
     }
 
     protected function initialize(): void

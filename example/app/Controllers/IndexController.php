@@ -4,14 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 16:24:53 +0800
+ * @version  2021-05-07 11:23:58 +0800
  */
 
 namespace App\Controllers;
 
-use App\Models\Attachment;
-use App\Models\Qrcode;
-use App\Tasks\Demo;
+use App\Validations\Demo;
+use Exception;
 use Illuminate\Support\Str;
 use Teddy\Controller;
 use Teddy\Http\Request;
@@ -21,27 +20,17 @@ class IndexController extends Controller
 {
     public function index(Request $request, Response $response)
     {
-        // $query = Attachment::query()
-        //     ->select()
-        //     ->where([
-        //         ['id', 0],
-        //         ['id', '>', 100],
-        //         ['id', '<>', [5, 20]],
-        //     ], 'OR')
-        // ;
+        $demo = new Demo();
 
-        // $b = [];
-        // $a = $query->getSql($b);
+        try {
+            $data = $demo->validate($request->getParsedBody());
+        } catch (Exception $e) {
+            return $response->json($e);
+        }
 
-        // // $c = new Qrcode;
-        // $c            = $query->first();
-        // $c['isImage'] = true;
-        // $c->save();
-
-        $task = new Demo();
-        $task->queue();
-
-        return $response->json(0);
+        return $response->json(0, [
+            'data' => $data,
+        ]);
     }
 
     public function upload(Request $request, Response $response)
