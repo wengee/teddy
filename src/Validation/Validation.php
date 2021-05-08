@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-08 16:11:28 +0800
+ * @version  2021-05-08 23:29:32 +0800
  */
 
 namespace Teddy\Validation;
@@ -25,7 +25,7 @@ class Validation
     {
         foreach ($fields as $name => $field) {
             $name = $field->getName() ?: strval($name);
-            $this->addField($name, $field);
+            $this->add($name, $field);
         }
 
         $this->initialize();
@@ -33,17 +33,19 @@ class Validation
 
     public function addField(string $name, Field $field): Field
     {
-        $field->setName($name);
-        $this->fields[$name] = $field;
-
-        return $field;
+        return $this->add($name, $field);
     }
 
-    public function add(string $name, ?string $label = null): Field
+    /**
+     * @param null|Field|string $field
+     */
+    public function add(string $name, $field = null): Field
     {
-        $label = $label ?: ucfirst($name);
-        $field = Field::make($label, $name);
+        if (!($field instanceof Field)) {
+            $field = Field::make((string) $field);
+        }
 
+        $field->setName($name);
         $this->fields[$name] = $field;
 
         return $field;
@@ -102,10 +104,12 @@ class Validation
     {
         foreach ($this->fields as $name => $field) {
             if (Arr::has($data, $name)) {
-                $value = Arr::get($data, $name);
-                $value = $field->filterValue($value);
+                $value    = Arr::get($data, $name);
+                $newValue = $field->filterValue($value);
 
-                Arr::set($data, $name, $value);
+                if ($newValue !== $value) {
+                    Arr::set($data, $name, $value);
+                }
             }
         }
 
