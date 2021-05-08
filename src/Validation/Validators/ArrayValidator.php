@@ -4,13 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 11:32:25 +0800
+ * @version  2021-05-08 15:16:53 +0800
  */
 
 namespace Teddy\Validation\Validators;
 
 use InvalidArgumentException;
-use Teddy\Validation\Fields\Field;
+use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
 
 class ArrayValidator extends Validator

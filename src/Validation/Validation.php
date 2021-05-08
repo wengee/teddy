@@ -4,37 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 16:47:08 +0800
+ * @version  2021-05-08 16:11:28 +0800
  */
 
 namespace Teddy\Validation;
 
 use Illuminate\Support\Arr;
-use InvalidArgumentException;
-use Teddy\Validation\Fields\AnyField;
-use Teddy\Validation\Fields\ArrayField;
-use Teddy\Validation\Fields\BooleanField;
-use Teddy\Validation\Fields\Field;
-use Teddy\Validation\Fields\FloatField;
-use Teddy\Validation\Fields\IntegerField;
-use Teddy\Validation\Fields\ListField;
-use Teddy\Validation\Fields\StringField;
-use Teddy\Validation\Fields\TrimField;
 
-/**
- * @method AnyField     any(string $name, ?string $label = null)
- * @method ArrayField   array(string $name, ?string $label = null)
- * @method BooleanField bool(string $name, ?string $label = null)
- * @method BooleanField boolean(string $name, ?string $label = null)
- * @method FloatField   float(string $name, ?string $label = null)
- * @method FloatField   double(string $name, ?string $label = null)
- * @method IntegerField int(string $name, ?string $label = null)
- * @method IntegerField integer(string $name, ?string $label = null)
- * @method ListField    list(string $name, ?string $label = null)
- * @method StringField  string(string $name, ?string $label = null)
- * @method StringField  str(string $name, ?string $label = null)
- * @method TrimField    trim(string $name, ?string $label = null)
- */
 class Validation
 {
     /**
@@ -48,24 +24,26 @@ class Validation
     public function __construct(array $fields = [])
     {
         foreach ($fields as $name => $field) {
-            $this->add($name, $field);
+            $name = $field->getName() ?: strval($name);
+            $this->addField($name, $field);
         }
 
         $this->initialize();
     }
 
-    public function __call(string $method, array $arguments)
+    public function addField(string $name, Field $field): Field
     {
-        $name = array_shift($arguments);
-        if (!$name) {
-            throw new InvalidArgumentException('name is required.');
-        }
+        $field->setName($name);
+        $this->fields[$name] = $field;
 
-        return $this->add($name, Field::factory($method, ...$arguments));
+        return $field;
     }
 
-    public function add(string $name, Field $field): Field
+    public function add(string $name, ?string $label = null): Field
     {
+        $label = $label ?: ucfirst($name);
+        $field = Field::make($label, $name);
+
         $this->fields[$name] = $field;
 
         return $field;
@@ -104,18 +82,12 @@ class Validation
             $fields = $this->fields;
         }
 
-        foreach ($fields as $name => $field) {
-            $value = Arr::get($data, $name);
-            $value = $field->validate($value, $data, $safe);
-
-            if (null === $value) {
-                Arr::forget($data, $name);
-            } else {
-                Arr::set($data, $name, $value);
-            }
+        $validated = [];
+        foreach ($fields as $field) {
+            $validated = $field->validate($data, $validated, $safe);
         }
 
-        return $this->afterValidate($data);
+        return $this->afterValidate($validated);
     }
 
     /**
@@ -128,15 +100,16 @@ class Validation
 
     protected function filterData(array $data): array
     {
-        $ret = [];
         foreach ($this->fields as $name => $field) {
-            $value = Arr::get($data, $name);
-            $value = $field->filter($value);
+            if (Arr::has($data, $name)) {
+                $value = Arr::get($data, $name);
+                $value = $field->filterValue($value);
 
-            Arr::set($ret, $name, $value);
+                Arr::set($data, $name, $value);
+            }
         }
 
-        return $ret;
+        return $data;
     }
 
     protected function initialize(): void

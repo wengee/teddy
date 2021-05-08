@@ -4,16 +4,16 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 23:35:12 +0800
+ * @version  2021-05-08 16:11:04 +0800
  */
 
-namespace Teddy\Validation\Fields;
+namespace Teddy\Validation;
 
 use Closure;
 use Exception;
 use Illuminate\Support\Arr;
 use RuntimeException;
-use Teddy\Validation\Validation;
+use Teddy\Facades\Filter;
 use Teddy\Validation\Validators\AfterValidator;
 use Teddy\Validation\Validators\AlphaNumValidator;
 use Teddy\Validation\Validators\AlphaValidator;
@@ -24,14 +24,14 @@ use Teddy\Validation\Validators\DateTimeValidator;
 use Teddy\Validation\Validators\DateValidator;
 use Teddy\Validation\Validators\DigitValidator;
 use Teddy\Validation\Validators\EmailValidator;
-use Teddy\Validation\Validators\GteValidator;
-use Teddy\Validation\Validators\GtValidator;
+use Teddy\Validation\Validators\GreatThanOrEqualValidator;
+use Teddy\Validation\Validators\GreatThanValidator;
 use Teddy\Validation\Validators\IdCardValidator;
 use Teddy\Validation\Validators\InValidator;
 use Teddy\Validation\Validators\LengthValidator;
+use Teddy\Validation\Validators\LessThanOrEqualValidator;
+use Teddy\Validation\Validators\LessThanValidator;
 use Teddy\Validation\Validators\ListValidator;
-use Teddy\Validation\Validators\LteValidator;
-use Teddy\Validation\Validators\LtValidator;
 use Teddy\Validation\Validators\MobileValidator;
 use Teddy\Validation\Validators\NotInValidator;
 use Teddy\Validation\Validators\NumberValidator;
@@ -43,37 +43,8 @@ use Teddy\Validation\Validators\TimestampValidator;
 use Teddy\Validation\Validators\UrlValidator;
 use Teddy\Validation\Validators\Validator;
 
-/**
- * @method static AnyField     any(?string $label = null)
- * @method static ArrayField   array(?string $label = null)
- * @method static BooleanField bool(?string $label = null)
- * @method static BooleanField boolean(?string $label = null)
- * @method static FloatField   float(?string $label = null)
- * @method static FloatField   double(?string $label = null)
- * @method static IntegerField int(?string $label = null)
- * @method static IntegerField integer(?string $label = null)
- * @method static ListField    list(?string $label = null)
- * @method static StringField  string(?string $label = null)
- * @method static StringField  str(?string $label = null)
- * @method static TrimField    trim(?string $label = null)
- */
-abstract class Field
+class Field
 {
-    protected const FIELD_LIST = [
-        'any'     => AnyField::class,
-        'array'   => ArrayField::class,
-        'bool'    => BooleanField::class,
-        'boolean' => BooleanField::class,
-        'float'   => FloatField::class,
-        'double'  => FloatField::class,
-        'int'     => IntegerField::class,
-        'integer' => IntegerField::class,
-        'list'    => ListField::class,
-        'string'  => StringField::class,
-        'str'     => StringField::class,
-        'trim'    => TrimField::class,
-    ];
-
     protected const VALIDATOR_LIST = [
         'after'     => AfterValidator::class,
         'alphaNum'  => AlphaNumValidator::class,
@@ -85,14 +56,14 @@ abstract class Field
         'date'      => DateValidator::class,
         'digit'     => DigitValidator::class,
         'email'     => EmailValidator::class,
-        'gte'       => GteValidator::class,
-        'gt'        => GtValidator::class,
+        'gte'       => GreatThanOrEqualValidator::class,
+        'gt'        => GreatThanValidator::class,
         'idcard'    => IdCardValidator::class,
         'in'        => InValidator::class,
         'length'    => LengthValidator::class,
         'list'      => ListValidator::class,
-        'lte'       => LteValidator::class,
-        'lt'        => LtValidator::class,
+        'lte'       => LessThanOrEqualValidator::class,
+        'lt'        => LessThanValidator::class,
         'mobile'    => MobileValidator::class,
         'notIn'     => NotInValidator::class,
         'number'    => NumberValidator::class,
@@ -106,11 +77,15 @@ abstract class Field
         'eq'        => SameValidator::class,
     ];
 
+    protected $name;
+
     protected $label;
 
     protected $default;
 
     protected $prefix;
+
+    protected $filter;
 
     protected $condition = [];
 
@@ -118,9 +93,10 @@ abstract class Field
 
     protected $validators = [];
 
-    public function __construct(?string $label = null)
+    public function __construct(?string $label = null, ?string $name = null)
     {
         $this->label = $label;
+        $this->name  = $name;
     }
 
     public function __invoke($value, array $data)
@@ -128,33 +104,42 @@ abstract class Field
         return $value;
     }
 
-    public static function __callStatic(string $method, array $arguments)
+    /**
+     * @return static
+     */
+    public static function make(?string $label = null, ?string $name = null): self
     {
-        return self::factory($method, ...$arguments);
-    }
-
-    public static function factory(string $name, ...$arguments)
-    {
-        $className = self::FIELD_LIST[$name] ?? null;
-        if (!$className) {
-            throw new RuntimeException('Field ['.$name.'] is invalid.');
-        }
-
-        return new $className(...$arguments);
+        return new static($label, $name);
     }
 
     /**
-     * @return static|string
+     * @return static
      */
-    public function label(?string $label = null)
+    public function setName(?string $name = null): self
     {
-        if (null === $label) {
-            return $this->label ?: '';
-        }
+        $this->name = $name ?: $this->name;
 
+        return $this;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return static
+     */
+    public function setLabel(?string $label = null): self
+    {
         $this->label = $label;
 
         return $this;
+    }
+
+    public function getLabel(): string
+    {
+        return $this->label ?: '';
     }
 
     /**
@@ -169,13 +154,21 @@ abstract class Field
         return $this;
     }
 
-    public function filter($value)
+    /**
+     * @param array|string $filter
+     *
+     * @return static
+     */
+    public function filter($filter, string ...$args): self
     {
-        if (null === $value) {
-            return $this->default;
+        if (empty($args)) {
+            $this->filter = $filter;
+        } else {
+            array_unshift($args, $filter);
+            $this->filter = $args;
         }
 
-        return $this->filterValue($value);
+        return $this;
     }
 
     /**
@@ -273,17 +266,17 @@ abstract class Field
      *
      * @return mixed
      */
-    public function validate($value, array $data = [], bool $safe = false)
+    public function validate(array $data = [], array $validated = [], bool $safe = false)
     {
-        if (is_null($this->tip)) {
-            $this->seedHandlerStack();
+        if (!$this->name) {
+            return $validated;
         }
 
         if ($this->checkCondition($data)) {
-            $start = $this->tip;
+            $value = Arr::get($data, $this->name, $this->default);
 
             try {
-                $value = $start($value, $data);
+                $value = $this->validateValue($value, $data);
             } catch (Exception $e) {
                 if ($safe) {
                     $value = null;
@@ -292,10 +285,30 @@ abstract class Field
                 }
             }
 
+            Arr::set($validated, $this->name, $value);
+        }
+
+        return $validated;
+    }
+
+    public function validateValue($value, array $data = [])
+    {
+        if (is_null($this->tip)) {
+            $this->seedHandlerStack();
+        }
+
+        return call_user_func($this->tip, $value, $data);
+    }
+
+    public function filterValue($value)
+    {
+        if (!$this->filter) {
             return $value;
         }
 
-        return null;
+        $value = (null === $value) ? $this->default : $value;
+
+        return Filter::sanitize($value, $this->filter);
     }
 
     protected function checkCondition(array $data): bool
@@ -362,6 +375,4 @@ abstract class Field
             };
         }
     }
-
-    abstract protected function filterValue($value);
 }
