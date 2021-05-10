@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-10 14:30:47 +0800
+ * @version  2021-05-10 15:05:00 +0800
  */
 
 namespace Teddy\Validation;
@@ -28,6 +28,7 @@ use Teddy\Validation\Validators\GreatThanOrEqualValidator;
 use Teddy\Validation\Validators\GreatThanValidator;
 use Teddy\Validation\Validators\IdCardValidator;
 use Teddy\Validation\Validators\InValidator;
+use Teddy\Validation\Validators\IpValidator;
 use Teddy\Validation\Validators\LengthValidator;
 use Teddy\Validation\Validators\LessThanOrEqualValidator;
 use Teddy\Validation\Validators\LessThanValidator;
@@ -41,6 +42,7 @@ use Teddy\Validation\Validators\RequiredValidator;
 use Teddy\Validation\Validators\SameValidator;
 use Teddy\Validation\Validators\TimestampValidator;
 use Teddy\Validation\Validators\UrlValidator;
+use Teddy\Validation\Validators\UuidValidator;
 use Teddy\Validation\Validators\Validator;
 
 class Field
@@ -60,6 +62,7 @@ class Field
         'gt'        => GreatThanValidator::class,
         'idcard'    => IdCardValidator::class,
         'in'        => InValidator::class,
+        'ip'        => IpValidator::class,
         'length'    => LengthValidator::class,
         'list'      => ListValidator::class,
         'lte'       => LessThanOrEqualValidator::class,
@@ -73,6 +76,7 @@ class Field
         'same'      => SameValidator::class,
         'timestamp' => TimestampValidator::class,
         'url'       => UrlValidator::class,
+        'uuid'      => UuidValidator::class,
 
         'eq'        => SameValidator::class,
     ];
@@ -229,6 +233,7 @@ class Field
      * * then('gt', $value, ?string $message = null)
      * * then('idcard', ?string $message = null)
      * * then('in', array $domain, ?string $message = null)
+     * * then('ip', int $flag = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6, ?string $message = null)
      * * then('length', int $minLen, $maxLen = null, ?string $message = null)
      * * then('list', callable|Field|Field[]|Validation $validation)
      * * then('lte', $value, ?string $message = null)
@@ -242,6 +247,7 @@ class Field
      * * then('same', string $otherField, ?string $message = null)
      * * then('timestamp', ?string $message = null)
      * * then('url', ?string $message = null)
+     * * then('uuid', ?string $message = null)
      * * then('eq', string $otherField, ?string $message = null)
      *
      * @param callback|Field[]|string|Validation|Validator $validator
