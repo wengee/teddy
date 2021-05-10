@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-05-10 14:53:50 +0800
  */
 
 namespace Teddy;
@@ -15,56 +16,37 @@ class Filter
 {
     use Singleton;
 
-    public const FILTER_BOOL           = 'bool';
-
-    public const FILTER_BOOLEAN        = 'boolean';
-
-    public const FILTER_EMAIL          = 'email';
-
-    public const FILTER_ABSINT         = 'absint';
-
-    public const FILTER_INT            = 'int';
-
-    public const FILTER_INT_CAST       = 'int!';
-
-    public const FILTER_STRING         = 'string';
-
-    public const FILTER_FLOAT          = 'float';
-
-    public const FILTER_FLOAT_CAST     = 'float!';
-
-    public const FILTER_DOUBLE         = 'double';
-
-    public const FILTER_DOUBLE_CAST    = 'double!';
-
-    public const FILTER_ALPHANUM       = 'alphanum';
-
-    public const FILTER_TRIM           = 'trim';
-
-    public const FILTER_STRIPTAGS      = 'striptags';
-
-    public const FILTER_LOWER          = 'lower';
-
-    public const FILTER_UPPER          = 'upper';
-
-    public const FILTER_URL            = 'url';
-
-    public const FILTER_SPECIAL_CHARS  = 'special_chars';
-
-    public const FILTER_LIST           = 'list';
-
-    public const FILTER_ARRAY          = 'array';
-
-    public const FILTER_TIMESTAMP      = 'timestamp';
-
-    public const FILTER_JSON_DECODE    = 'json_decode';
-
-    public const FILTER_JSON_ENCODE    = 'json_encode';
+    public const FILTER_BOOL          = 'bool';
+    public const FILTER_BOOLEAN       = 'boolean';
+    public const FILTER_EMAIL         = 'email';
+    public const FILTER_ABSINT        = 'absint';
+    public const FILTER_INT           = 'int';
+    public const FILTER_INT_CAST      = 'int!';
+    public const FILTER_STRING        = 'string';
+    public const FILTER_FLOAT         = 'float';
+    public const FILTER_FLOAT_CAST    = 'float!';
+    public const FILTER_DOUBLE        = 'double';
+    public const FILTER_DOUBLE_CAST   = 'double!';
+    public const FILTER_ALPHANUM      = 'alphanum';
+    public const FILTER_TRIM          = 'trim';
+    public const FILTER_STRIPTAGS     = 'striptags';
+    public const FILTER_LOWER         = 'lower';
+    public const FILTER_UPPER         = 'upper';
+    public const FILTER_URL           = 'url';
+    public const FILTER_SPECIAL_CHARS = 'special_chars';
+    public const FILTER_LIST          = 'list';
+    public const FILTER_ARRAY         = 'array';
+    public const FILTER_TIMESTAMP     = 'timestamp';
+    public const FILTER_JSON_DECODE   = 'json_decode';
+    public const FILTER_JSON_ENCODE   = 'json_encode';
+    public const FILTER_UUID          = 'uuid';
 
     protected $_filters;
 
     /**
-     * Adds a user-defined filter
+     * Adds a user-defined filter.
+     *
+     * @param mixed $handler
      */
     public function add(string $name, $handler): Filter
     {
@@ -73,19 +55,23 @@ class Filter
         }
 
         $this->_filters[$name] = $handler;
+
         return $this;
     }
 
     /**
-     * Sanitizes a value with a specified single or set of filters
+     * Sanitizes a value with a specified single or set of filters.
+     *
+     * @param mixed $value
+     * @param mixed $filters
      */
     public function sanitize($value, $filters, bool $noRecursive = true)
     {
-        $filters = (is_string($filters) && strpos($filters, ',') !== false) ? explode(',', $filters) : $filters;
+        $filters = (is_string($filters) && false !== strpos($filters, ',')) ? explode(',', $filters) : $filters;
         if (is_array($filters)) {
-            if ($value !== null) {
+            if (null !== $value) {
                 foreach ($filters as $filter) {
-                    if ($filter !== self::FILTER_LIST && is_array($value) && !$noRecursive) {
+                    if (self::FILTER_LIST !== $filter && is_array($value) && !$noRecursive) {
                         $arrayValue = [];
                         foreach ($value as $itemKey => $itemValue) {
                             $arrayValue[$itemKey] = $this->_sanitize($itemValue, $filter);
@@ -96,14 +82,16 @@ class Filter
                     }
                 }
             }
+
             return $value;
         }
 
-        if ($filters !== self::FILTER_LIST && is_array($value) && !$noRecursive) {
+        if (self::FILTER_LIST !== $filters && is_array($value) && !$noRecursive) {
             $arrayValue = [];
             foreach ($value as $itemKey => $itemValue) {
                 $arrayValue[$itemKey] = $this->_sanitize($itemValue, $filters);
             }
+
             return $arrayValue;
         }
 
@@ -111,7 +99,17 @@ class Filter
     }
 
     /**
-     * Internal sanitize wrapper to filter_var
+     * Return the user-defined filters in the instance.
+     */
+    public function getFilters(): array
+    {
+        return $this->_filters;
+    }
+
+    /**
+     * Internal sanitize wrapper to filter_var.
+     *
+     * @param mixed $value
      */
     protected function _sanitize($value, string $filter)
     {
@@ -122,7 +120,8 @@ class Filter
             }
 
             return $filterObject->filter($value);
-        } elseif (preg_match('/^date\\[(.+)\\]$/', $filter, $m)) {
+        }
+        if (preg_match('/^date\\[(.+)\\]$/', $filter, $m)) {
             return DateTime::createFromFormat($m[1], $value);
         }
 
@@ -163,12 +162,14 @@ class Filter
                 if (function_exists('mb_strtolower')) {
                     return mb_strtolower($value);
                 }
+
                 return strtolower($value);
 
             case self::FILTER_UPPER:
                 if (function_exists('mb_strtoupper')) {
                     return mb_strtoupper($value);
                 }
+
                 return strtoupper($value);
 
             case self::FILTER_URL:
@@ -181,7 +182,7 @@ class Filter
                 return array_values((array) $value);
 
             case self::FILTER_ARRAY:
-                if ($value === null || $value === '') {
+                if (null === $value || '' === $value) {
                     return [];
                 }
 
@@ -190,7 +191,9 @@ class Filter
             case self::FILTER_TIMESTAMP:
                 if (is_numeric($value)) {
                     return intval($value);
-                } elseif (empty($value)) {
+                }
+
+                if (empty($value)) {
                     return null;
                 }
 
@@ -202,16 +205,16 @@ class Filter
             case self::FILTER_JSON_ENCODE:
                 return json_encode($value);
 
-            default:
-                throw new Exception('Sanitize filter "' . $filter . '" is not supported');
-        }
-    }
+            case self::FILTER_UUID:
+                $value = trim((string) $value);
+                if (preg_match('#^\w{8}(\-\w{4}){3}\-\w{12}$#i', $value)) {
+                    return $value;
+                }
 
-    /**
-     * Return the user-defined filters in the instance
-     */
-    public function getFilters(): array
-    {
-        return $this->_filters;
+                return null;
+
+            default:
+                throw new Exception('Sanitize filter "'.$filter.'" is not supported');
+        }
     }
 }
