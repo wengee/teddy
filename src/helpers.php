@@ -1,11 +1,13 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-30 15:31:48 +0800
+ * @version  2021-05-10 14:44:07 +0800
  */
 
+use Fig\Http\Message\StatusCodeInterface;
 use Illuminate\Support\Str;
 use Teddy\Container;
 use Teddy\Utils\FileSystem;
@@ -15,7 +17,7 @@ if (!function_exists('make')) {
      * Make the instance.
      *
      * @param mixed $abstract
-     * @param array|null $parameters
+     *
      * @return mixed
      */
     function make($abstract, ?array $parameters = null)
@@ -24,16 +26,25 @@ if (!function_exists('make')) {
     }
 }
 
+if (!function_exists('response')) {
+    /**
+     * Make a response.
+     */
+    function response(int $status = StatusCodeInterface::STATUS_OK)
+    {
+        return make('response', [$status]);
+    }
+}
+
 if (!function_exists('app')) {
     /**
      * Get the available container instance.
      *
-     * @param  string|null  $make
      * @return mixed
      */
     function app(?string $make = null)
     {
-        if ($make === null) {
+        if (null === $make) {
             return Container::getInstance();
         }
 
@@ -45,8 +56,7 @@ if (!function_exists('db')) {
     /**
      * Get a database connection.
      *
-     * @param  string  $connection
-     * @return Teddy\Database\Database|null
+     * @return null|Teddy\Database\Database
      */
     function db(string $connection = 'default')
     {
@@ -61,9 +71,10 @@ if (!function_exists('db')) {
 
 if (!function_exists('path_join')) {
     /**
-     * Join the paths
+     * Join the paths.
      *
      * @param string ...$paths
+     *
      * @return string
      */
     function path_join(string $basePath, string ...$args)
@@ -75,9 +86,6 @@ if (!function_exists('path_join')) {
 if (!function_exists('system_path')) {
     /**
      * Get the system path.
-     *
-     * @param string $args
-     * @return string
      */
     function system_path(string ...$args): string
     {
@@ -85,21 +93,18 @@ if (!function_exists('system_path')) {
             return trim($arg, '/\\');
         }, $args), 'strlen');
 
-        return __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $args);
+        return __DIR__.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, $args);
     }
 }
 
 if (!function_exists('base_path')) {
     /**
      * Get the app path.
-     *
-     * @param string|null $path
-     * @return string
      */
     function base_path(?string $path = null): string
     {
         static $basePath;
-        if ($basePath === null) {
+        if (null === $basePath) {
             $basePath = app()->getBasePath();
         }
 
@@ -107,21 +112,18 @@ if (!function_exists('base_path')) {
             return $basePath;
         }
 
-        return rtrim($basePath, '/\\') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+        return rtrim($basePath, '/\\').DIRECTORY_SEPARATOR.ltrim($path, '/\\');
     }
 }
 
 if (!function_exists('runtime_path')) {
     /**
      * Get the runtime path.
-     *
-     * @param string|null $path
-     * @return string
      */
     function runtime_path(?string $path = null): string
     {
         static $runtimePath;
-        if ($runtimePath === null) {
+        if (null === $runtimePath) {
             $runtimePath = app()->getRuntimePath();
         }
 
@@ -129,16 +131,13 @@ if (!function_exists('runtime_path')) {
             return $runtimePath;
         }
 
-        return rtrim($runtimePath, '/\\') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+        return rtrim($runtimePath, '/\\').DIRECTORY_SEPARATOR.ltrim($path, '/\\');
     }
 }
 
 if (!function_exists('vendor_path')) {
     /**
      * Get the vendor path.
-     *
-     * @param string|null $path
-     * @return string
      */
     function vendor_path(?string $path = null): string
     {
@@ -147,8 +146,8 @@ if (!function_exists('vendor_path')) {
         }
 
         static $vendorPath;
-        if ($vendorPath === null) {
-            $refCls = new ReflectionClass('\\Composer\\Autoload\\ClassLoader');
+        if (null === $vendorPath) {
+            $refCls   = new ReflectionClass('\\Composer\\Autoload\\ClassLoader');
             $fileName = $refCls->getFileName();
             if ($fileName) {
                 $vendorPath = dirname($fileName, 2);
@@ -161,7 +160,7 @@ if (!function_exists('vendor_path')) {
             return $vendorPath;
         }
 
-        return rtrim($vendorPath, '/\\') . DIRECTORY_SEPARATOR . ltrim($path, '/\\');
+        return rtrim($vendorPath, '/\\').DIRECTORY_SEPARATOR.ltrim($path, '/\\');
     }
 }
 
@@ -169,13 +168,14 @@ if (!function_exists('config')) {
     /**
      * Get the specified configuration value.
      *
-     * @param  array|string|null  $key
-     * @param  mixed  $default
+     * @param null|array|string $key
+     * @param mixed             $default
+     *
      * @return mixed
      */
     function config($key = null, $default = null)
     {
-        if ($key === null) {
+        if (null === $key) {
             return app('config');
         }
 
@@ -185,8 +185,9 @@ if (!function_exists('config')) {
 
 if (!function_exists('event')) {
     /**
-     * @param string|League\Event\EventInterface $event
-     * @param mixed $args
+     * @param League\Event\EventInterface|string $event
+     * @param mixed                              $args
+     *
      * @return mixed
      */
     function event($event, ...$args)
@@ -199,10 +200,8 @@ if (!function_exists('log_message')) {
     /**
      * Write the message to logger.
      *
-     * @param string|int $level
-     * @param string $message
-     * @param array $data
-     * @return void
+     * @param int|string $level
+     * @param array      $data
      */
     function log_message($level, string $message, ...$data): void
     {
@@ -216,9 +215,6 @@ if (!function_exists('log_message')) {
 if (!function_exists('log_exception')) {
     /**
      * Write the exception to logger.
-     *
-     * @param  Exception  $e
-     * @return void
      */
     function log_exception(Exception $e, string $prefix = ''): void
     {
@@ -226,7 +222,7 @@ if (!function_exists('log_exception')) {
         if ($logger) {
             $logger->error(sprintf(
                 '%sException "%s": [%d]%s called in %s:%d%s%s',
-                $prefix ? ($prefix . ' ') : '',
+                $prefix ? ($prefix.' ') : '',
                 get_class($e),
                 $e->getCode(),
                 $e->getMessage(),
@@ -243,8 +239,6 @@ if (!function_exists('safe_call')) {
     /**
      * Call a function safely, without exceptions.
      *
-     * @param callable $func
-     * @param array $args
      * @return mixed
      */
     function safe_call(callable $func, array $args = [])
@@ -253,6 +247,7 @@ if (!function_exists('safe_call')) {
             $ret = $func(...$args);
         } catch (Exception $e) {
             log_exception($e, "Call a function throw exceptions.\n");
+
             return false;
         }
 
@@ -263,23 +258,20 @@ if (!function_exists('safe_call')) {
 if (!function_exists('unparse_url')) {
     /**
      * Conversion back to string from a parsed url.
-     *
-     * @param  array $parsedUrl
-     * @return string
      */
     function unparse_url(array $parsedUrl): string
     {
-        $scheme   = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '';
+        $scheme   = isset($parsedUrl['scheme']) ? $parsedUrl['scheme'].'://' : '';
         $host     = $parsedUrl['host'] ?? '';
-        $port     = isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '';
+        $port     = isset($parsedUrl['port']) ? ':'.$parsedUrl['port'] : '';
         $user     = $parsedUrl['user'] ?? '';
-        $pass     = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
-        $pass     = ($user || $pass) ? "$pass@" : '';
+        $pass     = isset($parsedUrl['pass']) ? ':'.$parsedUrl['pass'] : '';
+        $pass     = ($user || $pass) ? "{$pass}@" : '';
         $path     = $parsedUrl['path'] ?? '';
-        $query    = isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '';
-        $fragment = isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : '';
+        $query    = isset($parsedUrl['query']) ? '?'.$parsedUrl['query'] : '';
+        $fragment = isset($parsedUrl['fragment']) ? '#'.$parsedUrl['fragment'] : '';
 
-        return "$scheme$user$pass$host$port$path$query$fragment";
+        return "{$scheme}{$user}{$pass}{$host}{$port}{$path}{$query}{$fragment}";
     }
 }
 
@@ -287,9 +279,7 @@ if (!function_exists('build_url')) {
     /**
      * Make a url with query params.
      *
-     * @param  string $url
-     * @param  string|array $queryArgs
-     * @return string
+     * @param array|string $queryArgs
      */
     function build_url(string $url, $queryArgs = []): string
     {
@@ -303,8 +293,9 @@ if (!function_exists('build_url')) {
             $queryArgs = strval($queryArgs);
         }
 
-        $parsedUrl = parse_url($url);
-        $parsedUrl['query'] = empty($parsedUrl['query']) ? $queryArgs : $parsedUrl['query'] . '&' . $queryArgs;
+        $parsedUrl          = parse_url($url);
+        $parsedUrl['query'] = empty($parsedUrl['query']) ? $queryArgs : $parsedUrl['query'].'&'.$queryArgs;
+
         return unparse_url($parsedUrl);
     }
 }
@@ -313,9 +304,8 @@ if (!function_exists('site_url')) {
     /**
      * Make a site url.
      *
-     * @param  string $url
-     * @param  string|array $queryArgs
-     * @return string
+     * @param string       $url
+     * @param array|string $queryArgs
      */
     function site_url(string $path, $queryArgs = []): string
     {
@@ -325,7 +315,7 @@ if (!function_exists('site_url')) {
         }
 
         if (!preg_match('#https?://.+#i', $path)) {
-            $path = $baseUrl . ltrim($path, '/');
+            $path = $baseUrl.ltrim($path, '/');
         }
 
         return build_url($path, $queryArgs);

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 11:24:41 +0800
+ * @version  2021-05-10 14:42:03 +0800
  */
 
 namespace Teddy\Middleware;
@@ -40,7 +40,7 @@ class CORSMiddleware implements MiddlewareInterface
         }
 
         if ($this->options['intercept'] && 'OPTIONS' === $request->getMethod()) {
-            $response = make('response', []);
+            $response = make('response', [200]);
         } else {
             $response = $handler->handle($request);
         }
