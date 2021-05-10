@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-08 16:11:04 +0800
+ * @version  2021-05-10 14:30:47 +0800
  */
 
 namespace Teddy\Validation;
@@ -125,6 +125,11 @@ class Field
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function hasLabel(): bool
+    {
+        return (bool) $this->label;
     }
 
     /**

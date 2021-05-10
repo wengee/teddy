@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-08 15:42:06 +0800
+ * @version  2021-05-10 14:29:41 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -73,6 +73,10 @@ class ListValidator extends Validator
             case 2:
                 /** @var Field $field */
                 $field = $this->validation;
+                if (!$field->hasLabel()) {
+                    $field->setLabel($this->field->getLabel());
+                }
+
                 $ret   = $field->filterValue($value);
                 $ret   = $field->validateValue($ret, $data);
 
