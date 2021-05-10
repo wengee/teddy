@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-08 23:29:32 +0800
+ * @version  2021-05-10 09:55:31 +0800
  */
 
 namespace Teddy\Validation;
@@ -56,6 +56,11 @@ class Validation
         $this->fields = array_merge($this->fields, $validation->getFields());
 
         return $this;
+    }
+
+    public function getField(string $name): ?Field
+    {
+        return $this->fields[$name] ?? null;
     }
 
     /**

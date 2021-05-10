@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-08 16:00:07 +0800
+ * @version  2021-05-10 09:52:50 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -17,7 +17,7 @@ class OptionalValidator extends Validator
     {
         $fieldName = $this->field->getName();
         if ($fieldName && !Arr::has($data, $fieldName)) {
-            return null;
+            return $value;
         }
 
         if (null === $value
