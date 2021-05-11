@@ -113,7 +113,7 @@ class Validation
                 $newValue = $field->filterValue($value);
 
                 if ($newValue !== $value) {
-                    Arr::set($data, $name, $value);
+                    Arr::set($data, $name, $newValue);
                 }
             }
         }
