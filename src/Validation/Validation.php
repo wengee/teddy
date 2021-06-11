@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-10 09:55:31 +0800
+ * @version  2021-06-11 15:01:45 +0800
  */
 
 namespace Teddy\Validation;
@@ -76,10 +76,7 @@ class Validation
      */
     public function validate(?array $data, ?array $fields = null, bool $safe = false): array
     {
-        if (!$data) {
-            return [];
-        }
-
+        $data = $data ?: [];
         $data = $this->beforeValidate($data);
         $data = $this->filterData($data);
 
