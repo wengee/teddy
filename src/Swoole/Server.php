@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 20:48:47 +0800
+ * @version  2021-07-14 15:42:14 +0800
  */
 
 namespace Teddy\Swoole;
@@ -20,6 +20,7 @@ use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Table;
 use Swoole\Websocket\Server as WebsocketServer;
+use Teddy\Application;
 use Teddy\Console\Command;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
@@ -45,7 +46,7 @@ class Server
 
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
-    public function __construct(App $app, array $config = [])
+    public function __construct(Application $app, array $config = [])
     {
         if (version_compare(PHP_VERSION, '7.3.0') < 0) {
             throw new Exception('Teddy require PHP 7.3 or newer.');
@@ -323,8 +324,8 @@ class Server
             }
         }
 
-        $schedule = $config['schedule'] ?? [];
-        $scheduleEnabled = isset($schedule['enabled']) ? $schedule['enabled'] : !$schedule;
+        $schedule        = $config['schedule'] ?? [];
+        $scheduleEnabled = $schedule['enabled'] ?? !$schedule;
         if ($scheduleEnabled) {
             $schedule = $schedule['list'] ?? $schedule;
             $this->addProcess(new ScheduleProcess($schedule));

@@ -9,8 +9,8 @@ declare(strict_types=1);
 
 namespace Teddy\Console\Commands;
 
+use Teddy\Application;
 use Teddy\Console\Command;
-use Teddy\Swoole\App;
 
 class ServerStartCommand extends Command
 {
@@ -24,7 +24,7 @@ class ServerStartCommand extends Command
         $this->info("[{$now}] Starting swoole server...");
 
         $app = $this->getApplication()->getApp();
-        if ($app && ($app instanceof App)) {
+        if ($app && ($app instanceof Application)) {
             $server = $app->getServer();
             $server->setCommand($this)->start();
         } else {

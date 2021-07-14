@@ -4,10 +4,10 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-06 14:19:33 +0800
+ * @version  2021-07-14 15:45:45 +0800
  */
 
-namespace Teddy\Abstracts;
+namespace Teddy;
 
 use BadMethodCallException;
 use Doctrine\Common\Annotations\AnnotationRegistry;
@@ -18,17 +18,19 @@ use Illuminate\Support\Str;
 use League\Event\ListenerInterface;
 use Phar;
 use Slim\App as SlimApp;
-use Teddy\CallableResolver;
-use Teddy\Container;
+use Swoole\Http\Request as SwooleRequest;
+use Swoole\Http\Response as SwooleResponse;
 use Teddy\Facades\Facade;
 use Teddy\Factory\ResponseFactory;
 use Teddy\Middleware\BodyParsingMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Routing\RouteCollector;
+use Teddy\Swoole\ResponseEmitter;
+use Teddy\Swoole\Server;
+use Teddy\Swoole\ServerRequestFactory;
 use Teddy\Utils\Composer;
-use Teddy\Utils\Runtime;
 
-abstract class AbstractApp extends Container
+class Application extends Container
 {
     protected $basePath = '';
 
@@ -188,6 +190,33 @@ abstract class AbstractApp extends Container
         Facade::setFacadeApplication($this);
     }
 
+    public function run(SwooleRequest $swooleRequest, SwooleResponse $swooleResponse): void
+    {
+        $request  = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
+        $response = $this->slimInstance->handle($request);
+        (new ResponseEmitter($swooleResponse))->emit($response);
+    }
+
+    public function getServer($host = null): Server
+    {
+        $config = (array) $this->config->get('swoole', []);
+        if (is_int($host) && $host > 0) {
+            $config['port'] = $host;
+        } elseif (is_string($host)) {
+            $arr = explode(':', $host);
+
+            $config['host'] = $arr[0] ?? '0.0.0.0';
+            $config['port'] = intval($arr[1] ?? 9500);
+        }
+
+        return new Server($this, $config);
+    }
+
+    public function listen($host = null): void
+    {
+        $this->getServer($host)->start();
+    }
+
     public function runConsole(?string $commandName = null): void
     {
         $console = make('console', [$this]);
@@ -208,9 +237,7 @@ abstract class AbstractApp extends Container
                 $filepath = $dir.$file;
                 if (Str::endsWith($file, '.php') && is_file($filepath)) {
                     $name = substr($file, 0, -4);
-                    if ('swoole' !== $name || 'swoole' === Runtime::get()) {
-                        $config->set($name, require $filepath);
-                    }
+                    $config->set($name, require $filepath);
                 }
             }
         }
