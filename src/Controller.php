@@ -1,15 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-12 15:07:18 +0800
+ * @version  2021-08-30 15:22:13 +0800
  */
 
 namespace Teddy;
 
-abstract class Controller
+use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Traits\ContainerAwareTrait;
+
+abstract class Controller implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     final public function __construct()
     {
         $this->initialize();

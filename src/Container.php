@@ -1,19 +1,21 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-30 15:29:29 +0800
+ * @version  2021-08-31 16:20:05 +0800
  */
 
 namespace Teddy;
 
-use ArrayAccess;
 use Closure;
+use JsonSerializable;
 use LogicException;
-use Psr\Container\ContainerInterface;
+use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Interfaces\ContainerInterface;
 
-class Container implements ContainerInterface, ArrayAccess
+class Container implements ContainerInterface, JsonSerializable
 {
     protected static $instance;
 
@@ -23,60 +25,60 @@ class Container implements ContainerInterface, ArrayAccess
 
     protected $aliases = [];
 
-    public function bind($abstract, $concrete): Container
+    public function __construct()
     {
-        $this->bindings[$abstract] = $concrete;
-        return $this;
+        static::$instance = $this;
     }
 
-    public function instance($abstract, $object): Container
+    public function jsonSerialize()
     {
-        $this->instances[$abstract] = $object;
-        return $this;
+        return [
+            'bindings'  => array_keys($this->bindings),
+            'instances' => array_keys($this->instances),
+            'alias'     => $this->aliases,
+        ];
     }
 
-    public function bound($abstract): bool
+    public static function getInstance(): self
     {
-        return isset($this->bindings[$abstract]) ||
-               isset($this->instances[$abstract]) ||
-               $this->isAlias($abstract);
-    }
-
-    public function has($id): bool
-    {
-        return $this->bound($id);
-    }
-
-    public function resolved($abstract): bool
-    {
-        if ($this->isAlias($abstract)) {
-            $abstract = $this->getAlias($abstract);
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
         }
 
-        return isset($this->instances[$abstract]);
+        return static::$instance;
     }
 
-    public function isAlias($name): bool
+    public function bind(string $id, $concrete): ContainerInterface
     {
-        return isset($this->aliases[$name]);
-    }
+        $this->bindings[$id] = $concrete;
 
-    public function alias($abstract, $alias): Container
-    {
-        if ($alias === $abstract) {
-            throw new LogicException("[{$abstract}] is aliased to itself.");
-        }
-
-        $this->aliases[$alias] = $abstract;
         return $this;
     }
 
-    public function make($abstract, ?array $parameters = null)
+    public function instance(string $id, $object): ContainerInterface
     {
-        return $this->resolve($abstract, $parameters);
+        $this->instances[$id] = $object;
+
+        return $this;
     }
 
-    public function get($id)
+    public function alias(string $id, string $alias): ContainerInterface
+    {
+        if ($alias === $id) {
+            throw new LogicException("[{$id}] is aliased to itself.");
+        }
+
+        $this->aliases[$alias] = $id;
+
+        return $this;
+    }
+
+    public function make(string $id, ?array $parameters = null)
+    {
+        return $this->resolve($id, $parameters);
+    }
+
+    public function get(string $id)
     {
         if ($this->has($id)) {
             return $this->resolve($id);
@@ -85,96 +87,72 @@ class Container implements ContainerInterface, ArrayAccess
         return null;
     }
 
-    public function getBindings(): array
+    public function has(string $id): bool
     {
-        return $this->bindings;
+        return isset($this->bindings[$id])
+               || isset($this->instances[$id])
+               || $this->isAlias($id);
     }
 
-    public function getAlias($abstract)
+    protected function isAlias($alias): bool
     {
-        if (!isset($this->aliases[$abstract])) {
-            return $abstract;
+        return isset($this->aliases[$alias]);
+    }
+
+    protected function getAlias($alias)
+    {
+        if (!isset($this->aliases[$alias])) {
+            return $alias;
         }
 
-        if ($this->aliases[$abstract] === $abstract) {
-            throw new LogicException("[{$abstract}] is aliased to itself.");
+        if ($this->aliases[$alias] === $alias) {
+            throw new LogicException("[{$alias}] is aliased to itself.");
         }
 
-        return $this->getAlias($this->aliases[$abstract]);
+        return $this->aliases[$alias];
     }
 
-    public static function getInstance(): self
+    protected function resolve($id, ?array $parameters = null)
     {
-        if (is_null(static::$instance)) {
-            static::$instance = new static;
+        $id = $this->getAlias($id);
+
+        if (isset($this->instances[$id]) && null === $parameters) {
+            return $this->instances[$id];
         }
 
-        return static::$instance;
-    }
-
-    public static function setInstance($container): void
-    {
-        static::$instance = $container;
-    }
-
-    public function offsetExists($key)
-    {
-        return $this->bound($key);
-    }
-
-    public function offsetGet($key)
-    {
-        return $this->make($key);
-    }
-
-    public function offsetSet($key, $value): void
-    {
-        $this->bind($key, $value instanceof Closure ? $value : function () use ($value) {
-            return $value;
-        });
-    }
-
-    public function offsetUnset($key): void
-    {
-        unset($this->bindings[$key], $this->instances[$key]);
-    }
-
-    public function build($concrete, array $parameters = [])
-    {
-        if ($concrete instanceof Closure) {
-            return $concrete(...$parameters);
-        } elseif (class_exists($concrete)) {
-            return new $concrete(...$parameters);
-        } elseif (is_callable($concrete)) {
-            return $concrete(...$parameters);
-        }
-
-        return null;
-    }
-
-    protected function resolve($abstract, ?array $parameters = null)
-    {
-        $abstract = $this->getAlias($abstract);
-
-        if (isset($this->instances[$abstract]) && $parameters === null) {
-            return $this->instances[$abstract];
-        }
-
-        $concrete = $this->getConcrete($abstract);
-        $object = $this->build($concrete, $parameters ?: []);
-        if ($object !== null && $parameters === null) {
-            $this->instances[$abstract] = $object;
+        $concrete = $this->getConcrete($id);
+        $object   = $this->build($concrete, $parameters ?: []);
+        if (null !== $object && null === $parameters) {
+            $this->instances[$id] = $object;
         }
 
         return $object;
     }
 
-    protected function getConcrete($abstract)
+    protected function getConcrete($id)
     {
-        if (isset($this->bindings[$abstract])) {
-            return $this->bindings[$abstract];
+        if (isset($this->bindings[$id])) {
+            return $this->bindings[$id];
         }
 
-        return $abstract;
+        return $id;
+    }
+
+    protected function build($concrete, array $parameters = [])
+    {
+        $object = null;
+        if ($concrete instanceof Closure) {
+            $object = $concrete(...$parameters);
+        } elseif (class_exists($concrete)) {
+            $object = new $concrete(...$parameters);
+        } elseif (is_callable($concrete)) {
+            $object = $concrete(...$parameters);
+        }
+
+        if ($object instanceof ContainerAwareInterface) {
+            $object->setContainer($this);
+        }
+
+        return $object;
     }
 }

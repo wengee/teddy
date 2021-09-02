@@ -1,14 +1,14 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-05 14:38:46 +0800
+ * @version  2021-08-30 15:00:40 +0800
  */
 
 namespace Teddy\Http;
 
-use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
@@ -16,8 +16,10 @@ use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Psr7\Stream;
+use Teddy\Exception;
+use Teddy\Interfaces\CookieAwareInterface;
 
-class Response extends SlimResponse
+class Response extends SlimResponse implements CookieAwareInterface
 {
     use Macroable;
 
@@ -27,7 +29,7 @@ class Response extends SlimResponse
 
     protected $isJsonResponse = false;
 
-    protected $jsonData = null;
+    protected $jsonData;
 
     public function isJsonResponse(&$data): bool
     {
@@ -35,13 +37,14 @@ class Response extends SlimResponse
             $data = $this->jsonData;
         }
 
-        return !!$this->isJsonResponse;
+        return (bool) $this->isJsonResponse;
     }
 
     public function withSendFile(string $file): ResponseInterface
     {
-        $clone = clone $this;
+        $clone           = clone $this;
         $clone->sendFile = $file;
+
         return $clone;
     }
 
@@ -53,19 +56,20 @@ class Response extends SlimResponse
     public function write($data): ResponseInterface
     {
         $this->getBody()->write($data);
+
         return $this;
     }
 
     public function withJson($data, $status = StatusCodeInterface::STATUS_OK, $encodingOptions = 0): ResponseInterface
     {
         $this->isJsonResponse = true;
-        $this->jsonData = $data;
+        $this->jsonData       = $data;
 
         $response = $this->withBody(new Stream(fopen('php://temp', 'r+')));
         $response->body->write($json = json_encode($data, $encodingOptions));
 
         // Ensure that the json encoding passed successfully
-        if ($json === false) {
+        if (false === $json) {
             throw new RuntimeException(json_last_error_msg(), json_last_error());
         }
 
@@ -73,6 +77,7 @@ class Response extends SlimResponse
         if (isset($status)) {
             return $responseWithJson->withStatus($status);
         }
+
         return $responseWithJson;
     }
 
@@ -80,11 +85,11 @@ class Response extends SlimResponse
     {
         $responseWithRedirect = $this->withHeader('Location', (string) $url);
 
-        if ($status === null && $this->getStatusCode() === StatusCodeInterface::STATUS_OK) {
+        if (null === $status && StatusCodeInterface::STATUS_OK === $this->getStatusCode()) {
             $status = StatusCodeInterface::STATUS_FOUND;
         }
 
-        if ($status !== null) {
+        if (null !== $status) {
             return $responseWithRedirect->withStatus($status);
         }
 
@@ -97,12 +102,13 @@ class Response extends SlimResponse
         foreach ($args as $arg) {
             if ($arg instanceof JsonSerializable) {
                 $data = $arg;
+
                 break;
             }
 
             if ($arg instanceof Exception) {
                 $data['errcode'] = $arg->getCode() ?: -1;
-                $data['errmsg'] = $arg->getMessage();
+                $data['errmsg']  = $arg->getMessage();
             } elseif (is_int($arg)) {
                 $data['errcode'] = $arg;
             } elseif (is_string($arg)) {
@@ -117,13 +123,15 @@ class Response extends SlimResponse
 
     public function setCookie(string $name, ?string $value = null, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httponly = true): ResponseInterface
     {
-        if ($value === null) {
+        if (null === $value) {
             $expire = 1;
         }
 
-        $clone = clone $this;
+        $clone  = clone $this;
         $domain = $domain ?: config('cookie.domain', '');
+
         $clone->cookies[$name] = compact('value', 'expire', 'path', 'domain', 'secure', 'httponly');
+
         return $clone;
     }
 
@@ -147,21 +155,21 @@ class Response extends SlimResponse
 
     protected function parseCookie($name, array $properties): string
     {
-        $result = urlencode($name) . '=' . urlencode($properties['value']);
+        $result = urlencode($name).'='.urlencode($properties['value']);
 
         if (isset($properties['domain'])) {
-            $result .= '; domain=' . $properties['domain'];
+            $result .= '; domain='.$properties['domain'];
         }
 
         if (isset($properties['path'])) {
-            $result .= '; path=' . $properties['path'];
+            $result .= '; path='.$properties['path'];
         }
 
         if (isset($properties['expire'])) {
             $timestamp = (int) $properties['expire'];
 
-            if ($timestamp !== 0) {
-                $result .= '; expires=' . gmdate('D, d-M-Y H:i:s e', $timestamp);
+            if (0 !== $timestamp) {
+                $result .= '; expires='.gmdate('D, d-M-Y H:i:s e', $timestamp);
             }
         }
 
@@ -179,7 +187,7 @@ class Response extends SlimResponse
 
         if (isset($properties['samesite']) && in_array(strtolower($properties['samesite']), ['lax', 'strict'], true)) {
             // While strtolower is needed for correct comparison, the RFC doesn't care about case
-            $result .= '; SameSite=' . $properties['samesite'];
+            $result .= '; SameSite='.$properties['samesite'];
         }
 
         return $result;

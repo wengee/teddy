@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-30 10:33:56 +0800
+ * @version  2021-08-30 17:09:44 +0800
  */
 
 namespace Teddy\Model;
@@ -31,7 +32,7 @@ class ModelCreator
     public function stubPaths(): array
     {
         return [
-            path_join(app()->getBasePath(), '.stubs'),
+            base_path('.stubs'),
             system_path('_stubs'),
         ];
     }
@@ -44,13 +45,12 @@ class ModelCreator
     protected function populateStub(string $stub, string $name, string $table): string
     {
         $stub = str_replace('DummyClass', $name, $stub);
-        $stub = str_replace('DummyTable', $table, $stub);
 
-        return $stub;
+        return str_replace('DummyTable', $table, $stub);
     }
 
     protected function getPath(string $name, string $path): string
     {
-        return $path . '/' . $name . '.php';
+        return $path.'/'.$name.'.php';
     }
 }

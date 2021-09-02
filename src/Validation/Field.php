@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-10 15:05:00 +0800
+ * @version  2021-08-30 16:25:35 +0800
  */
 
 namespace Teddy\Validation;
@@ -13,7 +13,6 @@ use Closure;
 use Exception;
 use Illuminate\Support\Arr;
 use RuntimeException;
-use Teddy\Facades\Filter;
 use Teddy\Validation\Validators\AfterValidator;
 use Teddy\Validation\Validators\AlphaNumValidator;
 use Teddy\Validation\Validators\AlphaValidator;
@@ -319,7 +318,7 @@ class Field
 
         $value = (null === $value) ? $this->default : $value;
 
-        return Filter::sanitize($value, $this->filter);
+        return app('filter')->sanitize($value, $this->filter);
     }
 
     protected function checkCondition(array $data): bool

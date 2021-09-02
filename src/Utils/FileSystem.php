@@ -1,21 +1,24 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:10:11 +0800
+ * @version  2021-08-30 17:08:20 +0800
  */
 
 namespace Teddy\Utils;
+
+use Phar;
 
 class FileSystem
 {
     public static function getContents($paths, string $file, bool $first = true)
     {
-        $ret = '';
+        $ret   = '';
         $paths = is_array($paths) ? $paths : [$paths];
         foreach ($paths as $path) {
-            $filepath = path_join($path, $file);
+            $filepath = self::joinPath($path, $file);
             if (is_file($filepath)) {
                 $ret = file_get_contents($filepath);
 
@@ -46,11 +49,11 @@ class FileSystem
 
             $dh = opendir($source);
             while (false !== ($entry = readdir($dh))) {
-                if ($entry === '.' || $entry === '..') {
+                if ('.' === $entry || '..' === $entry) {
                     continue;
                 }
 
-                static::xcopy($source . DIRECTORY_SEPARATOR . $entry, $dest . DIRECTORY_SEPARATOR . $entry, $permissions);
+                static::xcopy($source.DIRECTORY_SEPARATOR.$entry, $dest.DIRECTORY_SEPARATOR.$entry, $permissions);
             }
             closedir($dh);
         }
@@ -58,12 +61,16 @@ class FileSystem
 
     public static function joinPath(string $basePath, ?string ...$args): string
     {
-        $basePath = rtrim($basePath, '\\/') . DIRECTORY_SEPARATOR;
-        $paths = array_filter(array_map(function ($arg) {
+        if (!$args) {
+            return $basePath;
+        }
+
+        $basePath = rtrim($basePath, '\\/').DIRECTORY_SEPARATOR;
+        $paths    = array_filter(array_map(function ($arg) {
             return ($arg && is_string($arg)) ? trim($arg, '\\/') : '';
         }, $args), 'strlen');
 
-        return $basePath . implode(DIRECTORY_SEPARATOR, $paths);
+        return $basePath.implode(DIRECTORY_SEPARATOR, $paths);
     }
 
     public static function humanFilesize(int $bytes, int $decimals = 3): string
@@ -72,6 +79,17 @@ class FileSystem
         if ($factor > 0) {
             $sz = 'KMGT';
         }
-        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor) . @$sz[$factor - 1] . 'B';
+
+        return sprintf("%.{$decimals}f", $bytes / 1024 ** $factor).@$sz[$factor - 1].'B';
+    }
+
+    public static function getRuntimePath(): ?string
+    {
+        $pharPath = Phar::running(false);
+        if ($pharPath) {
+            return dirname($pharPath);
+        }
+
+        return null;
     }
 }

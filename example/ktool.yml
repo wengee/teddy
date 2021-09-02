@@ -1,2 +1,0 @@
-watch:
-    exec: /usr/bin/env php server.php

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-07-14 15:44:34 +0800
+ * @version  2021-08-27 17:31:16 +0800
  */
 
 namespace Teddy\Console;
@@ -14,23 +14,32 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Application as TeddyApplication;
 use Teddy\Console\Commands\Migrations;
-use Teddy\Console\Commands\Models;
-use Teddy\Console\Commands\ServerStartCommand;
+use Teddy\Console\Commands\StartCommand;
+use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Traits\ContainerAwareTrait;
 
-class Application extends ConsoleApplication
+class Application extends ConsoleApplication implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
+    /** @var TeddyApplication */
     protected $app;
 
+    /** @var string */
+    protected $appName;
+
+    /** @var string */
     protected $version;
 
     public function __construct(TeddyApplication $app)
     {
         parent::__construct('');
         $this->app     = $app;
+        $this->appName = config('app.name') ?: 'Teddy App';
         $this->version = config('app.version') ?: 'UNKNOWN';
 
         $this->addCommands([
-            new ServerStartCommand(),
+            new StartCommand(),
             new Migrations\MigrationMakeCommand(),
             new Migrations\InstallCommand(),
             new Migrations\MigrateCommand(),
@@ -39,7 +48,6 @@ class Application extends ConsoleApplication
             new Migrations\RollbackCommand(),
             new Migrations\StatusCommand(),
             new Migrations\SqlCommand(),
-            new Models\ModelMakeCommand(),
         ]);
 
         $commandList = config('command.list', []);
@@ -58,7 +66,7 @@ class Application extends ConsoleApplication
 
     protected function welcome(InputInterface $input, OutputInterface $output): void
     {
-        $appName       = $this->app->getName();
+        $appName       = $this->appName;
         $appVersion    = $this->version;
         $os            = PHP_OS;
         $phpVersion    = PHP_VERSION;

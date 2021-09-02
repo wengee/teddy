@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-19 18:08:58 +0800
+ * @version  2021-08-30 17:12:40 +0800
  */
 
 namespace Teddy\Middleware;
@@ -78,19 +79,20 @@ class StaticFileMiddleware implements MiddlewareInterface
 
     public function __construct(string $basePath, string $urlPrefix = '')
     {
-        $this->basePath = rtrim($basePath, '/') . '/';
-        $this->urlPrefix = $urlPrefix ? '/' . ltrim($urlPrefix, '/') : '';
+        $this->basePath  = rtrim($basePath, '/').'/';
+        $this->urlPrefix = $urlPrefix ? '/'.ltrim($urlPrefix, '/') : '';
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $path = $request->getUri()->getPath();
-        if (!$this->urlPrefix || strpos($path, $this->urlPrefix) === 0) {
-            $filePath = $this->basePath . ltrim($path, '/');
+        if (!$this->urlPrefix || 0 === strpos($path, $this->urlPrefix)) {
+            $filePath = $this->basePath.ltrim($path, '/');
             if (is_file($filePath)) {
                 return $this->sendFile($filePath);
-            } elseif (is_dir($filePath)) {
-                $filePath = rtrim($filePath, '/') . '/index.html';
+            }
+            if (is_dir($filePath)) {
+                $filePath = rtrim($filePath, '/').'/index.html';
                 if (is_file($filePath)) {
                     return $this->sendFile($filePath);
                 }
@@ -105,10 +107,11 @@ class StaticFileMiddleware implements MiddlewareInterface
         $response = make('response', [200]);
         if ($response instanceof Response) {
             return $response->withSendFile($filePath);
-        } else {
-            return $response->withHeader('Content-Type', $this->getMimeType($filePath))
-                ->withBody(new Stream(fopen($filePath, 'r')));
         }
+
+        return $response->withHeader('Content-Type', $this->getMimeType($filePath))
+            ->withBody(new Stream(fopen($filePath, 'r')))
+        ;
     }
 
     protected function getMimeType(string $filePath): string
@@ -116,10 +119,12 @@ class StaticFileMiddleware implements MiddlewareInterface
         $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
         if (isset(self::$mimeTypes[$ext])) {
             return self::$mimeTypes[$ext];
-        } elseif (function_exists('finfo_open')) {
-            $finfo = finfo_open(FILEINFO_MIME);
+        }
+        if (function_exists('finfo_open')) {
+            $finfo    = finfo_open(FILEINFO_MIME);
             $mimeType = finfo_file($finfo, $filePath);
             finfo_close($finfo);
+
             return $mimeType;
         }
 

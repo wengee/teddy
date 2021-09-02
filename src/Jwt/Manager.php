@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 11:33:49 +0800
+ * @version  2021-08-31 11:53:09 +0800
  */
 
 namespace Teddy\Jwt;
@@ -12,24 +12,15 @@ namespace Teddy\Jwt;
 use Exception;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Arr;
-use Teddy\Options;
 
 class Manager
 {
-    /** @var Options */
-    protected $options;
+    /** @var array */
+    protected $config;
 
     public function __construct()
     {
-        $this->options = new Options([
-            'secret'    => 'This is a secret!',
-            'algorithm' => ['HS256', 'HS512', 'HS384'],
-        ]);
-
-        $config = config('jwt');
-        if ($config && is_array($config)) {
-            $this->options->update($config);
-        }
+        $this->config = config('jwt');
     }
 
     /**
@@ -81,8 +72,8 @@ class Manager
      */
     public function decode(string $token, array $options = []): array
     {
-        $secret    = $options['secret'] ?? $this->options['secret'];
-        $algorithm = $options['algorithm'] ?? $this->options['algorithm'];
+        $secret    = $options['secret'] ?? $this->config['secret'];
+        $algorithm = $options['algorithm'] ?? $this->config['algorithm'];
         $algorithm = Arr::wrap($algorithm);
 
         try {
@@ -99,8 +90,8 @@ class Manager
      */
     public function encode(array $payload, int $ttl = 0, array $options = []): string
     {
-        $secret    = $options['secret'] ?? $this->options['secret'];
-        $algorithm = $options['algorithm'] ?? $this->options['algorithm'];
+        $secret    = $options['secret'] ?? $this->config['secret'];
+        $algorithm = $options['algorithm'] ?? $this->config['algorithm'];
         $algorithm = Arr::wrap($algorithm);
 
         $timestamp      = time();

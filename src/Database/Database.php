@@ -73,6 +73,7 @@ class Database extends Pool implements DatabaseInterface
 
     public function release(ConnectionInterface $connection): void
     {
+        /** @var PDOConnection $connection */
         if ($connection->isReadOnly()) {
             $this->readChannel->push($connection);
         } else {

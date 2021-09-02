@@ -1,28 +1,31 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-21 11:05:44 +0800
+ * @version  2021-09-02 14:25:18 +0800
  */
+
+use Teddy\Config\Repository;
 
 return [
     'default'   => 'test',
 
-    'handlers'  => [
-        'test'  => [
+    'handlers'  => new Repository([
+        'test'      => new Repository([
             'driver'    => 'stack',
             'handlers'  => ['file', 'console'],
-        ],
+        ]),
 
-        'file'  => [
+        'file'      => new Repository([
             'driver'    => 'file',
-            'path'      => __DIR__ . '/../runtime/teddy.log',
-        ],
+            'path'      => __DIR__.'/../runtime/teddy.log',
+        ]),
 
-        'console'   => [
+        'console'   => new Repository([
             'driver'    => 'file',
             'path'      => 'php://stderr',
-        ],
-    ],
+        ]),
+    ]),
 ];

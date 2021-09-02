@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-30 15:16:59 +0800
+ * @version  2021-08-30 17:42:42 +0800
  */
 
 namespace Teddy\Logger;
@@ -39,12 +40,13 @@ class Manager implements LoggerInterface
     public function __construct()
     {
         $this->appName = config('app.name') ?: 'Teddy App';
-        $config = (array) config('logger');
+
+        $config = config('logger');
         if ($config) {
             $this->defaultChannel = $config['default'] ?? 'default';
-            $this->defaultLevel = $config['level'] ?? Logger::DEBUG;
-            $this->handlers = $config['handlers'] ?? [];
-            $this->dateFormat = $config['dateFormat'] ?? 'Y-m-d H:i:s';
+            $this->defaultLevel   = $config['level'] ?? Logger::DEBUG;
+            $this->handlers       = $config['handlers'] ?? [];
+            $this->dateFormat     = $config['dateFormat'] ?? 'Y-m-d H:i:s';
         }
     }
 
@@ -58,6 +60,7 @@ class Manager implements LoggerInterface
         $channel = $this->channels[$this->defaultChannel] ?? null;
         if (!$channel) {
             $channel = $this->resolve($this->defaultChannel, false);
+
             $this->channels[$this->defaultChannel] = $channel;
         }
 
@@ -118,17 +121,18 @@ class Manager implements LoggerInterface
         $config = $this->handlers[$channel] ?? null;
         if (!$config) {
             if (!$nullable) {
-                return new Logger;
+                return new Logger();
             }
 
             return null;
-        } elseif ($config instanceof HandlerInterface) {
+        }
+        if ($config instanceof HandlerInterface) {
             return new Logger($config);
         }
 
         $config = Arr::wrap($config);
         $driver = $config['driver'] ?? 'null';
-        $method = 'create' . ucfirst($driver) . 'Driver';
+        $method = 'create'.ucfirst($driver).'Driver';
         if (method_exists($this, $method)) {
             $instance = $this->{$method}($config);
         } else {
@@ -136,17 +140,18 @@ class Manager implements LoggerInterface
         }
 
         $this->channels[$channel] = $instance;
+
         return $instance;
     }
 
     protected function createStackDriver(array $config): Logger
     {
-        $handlers = $config['handlers'] ?? [];
+        $handlers    = $config['handlers'] ?? [];
         $handlerObjs = [];
         foreach ($handlers as $handler) {
             $config = $this->handlers[$handler] ?? null;
             if ($config && isset($config['driver'])) {
-                $method = 'create' . ucfirst($config['driver']) . 'Handler';
+                $method = 'create'.ucfirst($config['driver']).'Handler';
                 if (method_exists($this, $method)) {
                     $handlerObjs[] = $this->{$method}($config);
                 }
@@ -159,7 +164,7 @@ class Manager implements LoggerInterface
     protected function createDriver(string $driver, array $config = []): Logger
     {
         $handler = null;
-        $method = 'create' . ucfirst($driver) . 'Handler';
+        $method  = 'create'.ucfirst($driver).'Handler';
         if (method_exists($this, $method)) {
             $handler = $this->{$method}($config);
         }
@@ -169,7 +174,7 @@ class Manager implements LoggerInterface
 
     protected function createNullHandler(array $config = []): HandlerInterface
     {
-        return $this->prepareHandler(new NullHandler, $config);
+        return $this->prepareHandler(new NullHandler(), $config);
     }
 
     protected function createFileHandler(array $config = []): HandlerInterface
@@ -234,10 +239,12 @@ class Manager implements LoggerInterface
     {
         if ($formatter instanceof FormatterInterface) {
             return $formatter;
-        } elseif ($formatter === 'json') {
-            return new JsonFormatter;
-        } elseif ($formatter === 'html') {
-            return new HtmlFormatter;
+        }
+        if ('json' === $formatter) {
+            return new JsonFormatter();
+        }
+        if ('html' === $formatter) {
+            return new HtmlFormatter();
         }
 
         return new LineFormatter(null, $this->dateFormat, true, true);

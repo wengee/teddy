@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-07-14 15:42:14 +0800
+ * @version  2021-08-30 15:25:56 +0800
  */
 
 namespace Teddy\Swoole;
@@ -22,6 +22,7 @@ use Swoole\Table;
 use Swoole\Websocket\Server as WebsocketServer;
 use Teddy\Application;
 use Teddy\Console\Command;
+use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
 use Teddy\Queue\Queue;
@@ -34,19 +35,27 @@ defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
 class Server
 {
-    protected $name = 'Teddy Server';
+    /** @var string */
+    protected $name;
 
+    /** @var null|Command */
     protected $command;
 
+    /** @var HttpServer|WebsocketServer */
     protected $swoole;
 
+    /** @var Application */
     protected $app;
+
+    /** @var ContainerInterface */
+    protected $container;
 
     protected $config;
 
+    /** @var int */
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
-    public function __construct(Application $app, array $config = [])
+    public function __construct(Application $app)
     {
         if (version_compare(PHP_VERSION, '7.3.0') < 0) {
             throw new Exception('Teddy require PHP 7.3 or newer.');
@@ -56,10 +65,11 @@ class Server
             throw new Exception('Teddy require swoole 4.4.0 or newer.');
         }
 
-        $this->app  = $app;
-        $this->name = $app->getName();
+        $this->app       = $app;
+        $this->container = $app->getContainer();
+        $this->name      = config('app.name') ?: 'Teddy App';
 
-        $this->init($config);
+        $this->initialize();
     }
 
     public function getName(): string
@@ -88,28 +98,29 @@ class Server
 
     public function onStart(HttpServer $server): void
     {
-        $this->log('info', 'Listening on '.$this->config['host'].':'.$this->config['port']);
-        $this->app->emitEvent('server.onStart');
+        $host = config('swoole.host');
+        $port = config('swoole.port');
+        $this->log('info', 'Listening on '.$host.':'.$port);
     }
 
     public function onWorkerStart(HttpServer $server, int $workerId): void
     {
         if ($server->taskworker) {
-            $this->app->emitEvent('server.onTaskWorkerStart');
             $processName = 'task worker process';
         } else {
-            $this->app->emitEvent('server.onWorkerStart');
             $processName = 'worker process';
         }
 
-        Runtime::enableCoroutine($this->coroutineFlags);
+        Runtime::enableCoroutine(true, $this->coroutineFlags);
         System::setProcessTitle($processName, $this->name);
     }
 
     public function onRequest(Request $request, Response $response): void
     {
         try {
-            $this->app->run($request, $response);
+            $req = ServerRequestFactory::createServerRequestFromSwoole($request);
+            $res = $this->app->handle($req);
+            (new ResponseEmitter($response))->emit($res);
         } catch (Exception $e) {
             log_exception($e);
             $response->detach();
@@ -142,7 +153,8 @@ class Server
             'currentWorkPid'            => getmypid(),
             'phpVersion'                => PHP_VERSION,
             'swooleVersion'             => SWOOLE_VERSION,
-            'server'                    => [
+
+            'server' => [
                 'startTime'             => $serverStats['start_time'] ?? null,
                 'connectionNum'         => $serverStats['connection_num'] ?? null,
                 'acceptCount'           => $serverStats['accept_count'] ?? null,
@@ -156,12 +168,14 @@ class Server
                 'taskIdleWorkerNum'     => $serverStats['task_idle_worker_num'] ?? null,
                 'coroutineNum'          => $serverStats['coroutine_num'] ?? null,
             ],
+
             'memory' => [
                 'usage'                 => memory_get_usage(),
                 'allotUsage'            => memory_get_usage(true),
                 'peakUsage'             => memory_get_peak_usage(),
                 'peakAllotUsage'        => memory_get_peak_usage(true),
             ],
+
             'coroutine' => [
                 'eventNum'              => $coroutineStats['event_num'] ?? null,
                 'signalListenerNum'     => $coroutineStats['signal_listener_num'] ?? null,
@@ -180,9 +194,9 @@ class Server
         $coroutineFlags  = $this->coroutineFlags;
         $processHandler  = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
             if ($enableCoroutine) {
-                Runtime::enableCoroutine($coroutineFlags);
+                Runtime::enableCoroutine(true, $coroutineFlags);
             } else {
-                Runtime::enableCoroutine(0);
+                Runtime::enableCoroutine(false);
             }
 
             $name = $process->getName() ?: 'custom';
@@ -198,8 +212,11 @@ class Server
         };
 
         $customProcess = new Process($processHandler, false, 0, $enableCoroutine);
+
+        /** @var \swoole_process $customProcess */
         $swoole->addProcess($customProcess);
 
+        /** @var Process $customProcess */
         return $customProcess;
     }
 
@@ -287,9 +304,9 @@ class Server
         }
     }
 
-    protected function init(array $config): void
+    protected function initialize(): void
     {
-        $config = $this->parseConfig($config);
+        $config = config('swoole');
 
         $enableWebsocket  = Arr::pull($config, 'websocket.enabled', false);
         $websocketHandler = Arr::pull($config, 'websocket.handler');
@@ -302,15 +319,16 @@ class Server
             $this->swoole = new HttpServer($host, $port);
         }
 
-        $options              = $config['options'];
+        $options = $config['options'];
+
         $this->coroutineFlags = Arr::pull($options, 'coroutine_flags', SWOOLE_HOOK_ALL);
 
         $options['enable_coroutine']      = true;
         $options['task_enable_coroutine'] = true;
         $this->swoole->set($options);
 
-        $this->app->instance('server', $this);
-        $this->app->instance('swoole', $this->swoole);
+        $this->container->instance('server', $this);
+        $this->container->instance('swoole', $this->swoole);
 
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
@@ -338,7 +356,7 @@ class Server
                 $this->addProcess(new QueueProcess($queue));
             }
 
-            $this->app->instance('queue', new Queue($queue));
+            $this->container->instance('queue', new Queue($queue));
         }
 
         if ($config['processes'] && is_array($config['processes'])) {
@@ -348,42 +366,6 @@ class Server
         if ($config['tables'] && is_array($config['tables'])) {
             $this->createSwooleTables($config['tables']);
         }
-    }
-
-    protected function parseConfig(array $config = []): array
-    {
-        $cpuNum  = swoole_cpu_num();
-        $options = [
-            'reactor_num'           => $cpuNum * 2,
-            'worker_num'            => $cpuNum * 2,
-            'task_worker_num'       => $cpuNum * 2,
-            'dispatch_mode'         => 1,
-            'daemonize'             => 0,
-            'enable_coroutine'      => true,
-            'task_enable_coroutine' => true,
-            'http_parse_post'       => true,
-        ];
-
-        if (isset($config['options']) && is_array($config['options'])) {
-            $options = $config['options'] + $options;
-        }
-
-        $config = $config + [
-            'host'      => '127.0.0.1',
-            'port'      => 9500,
-
-            'schedule'  => null,
-            'queue'     => null,
-            'processes' => null,
-            'tables'    => null,
-
-            'options'   => $options,
-        ];
-
-        $config['options'] = $options;
-        $this->config      = $config;
-
-        return $config;
     }
 
     protected function log(string $type, string $message): void

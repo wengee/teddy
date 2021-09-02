@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-12-17 11:21:01 +0800
+ * @version  2021-08-30 15:05:18 +0800
  */
 
 namespace Teddy\Swoole;
@@ -21,12 +22,12 @@ class ServerRequestFactory
     public static function createServerRequestFromSwoole(
         SwooleRequest $request
     ): ServerRequestInterface {
-        $method = $request->server['request_method'];
-        $uri = static::createUri($request);
-        $headers = static::createHeaders($request);
-        $cookies = (array) $request->cookie;
-        $serverParams = static::createServerParams($request);
-        $body = static::createBody($request);
+        $method        = $request->server['request_method'];
+        $uri           = static::createUri($request);
+        $headers       = static::createHeaders($request);
+        $cookies       = (array) $request->cookie;
+        $serverParams  = static::createServerParams($request);
+        $body          = static::createBody($request);
         $uploadedFiles = static::createUploadFiles($request->files ?: null);
 
         $req = make('request', [
@@ -36,31 +37,32 @@ class ServerRequestFactory
             $cookies,
             $serverParams,
             $body,
-            $uploadedFiles
+            $uploadedFiles,
         ]);
 
         return $req->withQueryParams($request->get ?? [])
-            ->withParsedBody($request->post ?? []);
+            ->withParsedBody($request->post ?? [])
+        ;
     }
 
     protected static function createUri(SwooleRequest $request): Uri
     {
         $isSecure = $request->header['https'] ?? null;
-        $scheme = (empty($isSecure) || $isSecure === 'off') ? 'http' : 'https';
+        $scheme   = (empty($isSecure) || 'off' === $isSecure) ? 'http' : 'https';
 
         $host = $request->header['host'];
         $port = null;
-        $pos = strpos($host, ':');
-        if ($pos !== false) {
+        $pos  = strpos($host, ':');
+        if (false !== $pos) {
             $port = (int) substr($host, $pos + 1);
             $host = strstr($host, ':', true);
         }
 
-        $path = $request->server['request_uri'] ?? '/';
+        $path        = $request->server['request_uri'] ?? '/';
         $queryString = $request->server['query_string'] ?? '';
-        $fragment = '';
-        $user = '';
-        $password = '';
+        $fragment    = '';
+        $user        = '';
+        $password    = '';
 
         return new Uri($scheme, $host, $port, $path, $queryString, $fragment, $user, $password);
     }
@@ -74,12 +76,12 @@ class ServerRequestFactory
     {
         $ret = [];
         foreach ($request->server as $key => $value) {
-            $key = str_replace('-', '_', strtoupper($key));
+            $key       = str_replace('-', '_', strtoupper($key));
             $ret[$key] = $value;
         }
 
         foreach ($request->header as $key => $value) {
-            $key = str_replace('-', '_', strtoupper('HTTP_' . $key));
+            $key       = str_replace('-', '_', strtoupper('HTTP_'.$key));
             $ret[$key] = $value;
         }
 
@@ -89,7 +91,7 @@ class ServerRequestFactory
     protected static function createBody(SwooleRequest $request): StreamInterface
     {
         $stream = fopen('php://temp', 'w+');
-        $body = new Stream($stream);
+        $body   = new Stream($stream);
         if (empty($request->rawContent())) {
             return $body;
         }
@@ -112,6 +114,7 @@ class ServerRequestFactory
                 if (is_array($uploadedFile)) {
                     $parsed[$field] = static::createUploadFiles($uploadedFile);
                 }
+
                 continue;
             }
 
@@ -129,11 +132,11 @@ class ServerRequestFactory
                 $subArray = [];
                 foreach ($uploadedFile['error'] as $fileIdx => $error) {
                     // normalise subarray and re-parse to move the input's keyname up a level
-                    $subArray[$fileIdx]['name'] = $uploadedFile['name'][$fileIdx];
-                    $subArray[$fileIdx]['type'] = $uploadedFile['type'][$fileIdx];
+                    $subArray[$fileIdx]['name']     = $uploadedFile['name'][$fileIdx];
+                    $subArray[$fileIdx]['type']     = $uploadedFile['type'][$fileIdx];
                     $subArray[$fileIdx]['tmp_name'] = $uploadedFile['tmp_name'][$fileIdx];
-                    $subArray[$fileIdx]['error'] = $uploadedFile['error'][$fileIdx];
-                    $subArray[$fileIdx]['size'] = $uploadedFile['size'][$fileIdx];
+                    $subArray[$fileIdx]['error']    = $uploadedFile['error'][$fileIdx];
+                    $subArray[$fileIdx]['size']     = $uploadedFile['size'][$fileIdx];
 
                     $parsed[$field] = static::createUploadFiles($subArray);
                 }

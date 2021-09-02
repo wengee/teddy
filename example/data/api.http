@@ -1,8 +1,0 @@
-POST http://localhost:9099/
-Content-Type: application/json
-
-{
-    "a": 12
-}
-
-###

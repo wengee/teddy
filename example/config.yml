@@ -1,0 +1,6 @@
+swoole:
+
+cors:
+  origin:
+    - "*.iqoo.com"
+    - "*.lvh.me"

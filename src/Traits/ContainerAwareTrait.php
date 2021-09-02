@@ -4,21 +4,19 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-25 15:51:38 +0800
+ * @version  2021-08-26 17:10:35 +0800
  */
 
 namespace Teddy\Traits;
 
 use BadMethodCallException;
-use Exception;
-use Psr\Container\ContainerInterface;
+use Teddy\Exception;
 use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Interfaces\ContainerInterface;
 
 trait ContainerAwareTrait
 {
-    /**
-     * @var ?ContainerInterface
-     */
+    /** @var ContainerInterface */
     protected $container;
 
     public function setContainer(ContainerInterface $container): ContainerAwareInterface

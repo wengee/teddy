@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-28 16:40:38 +0800
+ * @version  2021-08-30 17:06:09 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -31,7 +31,7 @@ class MigrationMakeCommand extends Command
 
         $file = pathinfo(make(MigrationCreator::class)->create(
             $name,
-            path_join(app()->getBasePath(), 'migrations'),
+            base_path('migrations'),
             $table,
             $create
         ), PATHINFO_FILENAME);

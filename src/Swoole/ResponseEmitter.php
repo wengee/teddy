@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-15 17:12:59 +0800
+ * @version  2021-08-30 15:06:24 +0800
  */
 
 namespace Teddy\Swoole;
@@ -11,6 +12,7 @@ namespace Teddy\Swoole;
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response as SwooleResponse;
 use Teddy\Http\Response;
+use Teddy\Interfaces\CookieAwareInterface;
 
 class ResponseEmitter
 {
@@ -29,6 +31,7 @@ class ResponseEmitter
 
         if (($res instanceof Response) && ($sendFile = $res->getSendFile())) {
             $this->response->sendfile($sendFile);
+
             return;
         }
 
@@ -42,7 +45,7 @@ class ResponseEmitter
     private function emitHeaders(ResponseInterface $res): void
     {
         foreach ($res->getHeaders() as $name => $values) {
-            if (stripos($name, 'Set-Cookie') !== 0) {
+            if (0 !== stripos($name, 'Set-Cookie')) {
                 $this->response->header($name, implode('; ', $values));
             }
         }
@@ -50,7 +53,7 @@ class ResponseEmitter
 
     private function emitCookies(ResponseInterface $res): void
     {
-        $cookies = ($res instanceof Response) ? $res->getCookies() : null;
+        $cookies = ($res instanceof CookieAwareInterface) ? $res->getCookies() : null;
 
         if (!empty($cookies)) {
             foreach ($cookies as $name => $cookie) {
@@ -89,6 +92,7 @@ class ResponseEmitter
     private function isResponseEmpty(ResponseInterface $res): bool
     {
         $contents = (string) $res->getBody();
+
         return !strlen($contents) || in_array($res->getStatusCode(), [204, 205, 304], true);
     }
 }

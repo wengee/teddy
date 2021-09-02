@@ -4,13 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-05-07 11:23:58 +0800
+ * @version  2021-09-02 14:34:40 +0800
  */
 
 namespace App\Controllers;
 
-use App\Validations\Demo;
-use Exception;
+use App\Models\Abc;
 use Illuminate\Support\Str;
 use Teddy\Controller;
 use Teddy\Http\Request;
@@ -20,16 +19,14 @@ class IndexController extends Controller
 {
     public function index(Request $request, Response $response)
     {
-        $demo = new Demo();
-
-        try {
-            $data = $demo->validate($request->getParsedBody());
-        } catch (Exception $e) {
-            return $response->json($e);
-        }
+        $model = new Abc();
+        $model = $model->save() ? $model : null;
 
         return $response->json(0, [
-            'data' => $data,
+            'config'    => config(),
+            'container' => $this->getContainer(),
+            'model'     => $model,
+            'list'      => Abc::query()->orderBy('id', 'DESC')->limit(5)->all(),
         ]);
     }
 

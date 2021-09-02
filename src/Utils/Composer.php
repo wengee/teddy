@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 11:10:23 +0800
+ * @version  2021-08-05 15:30:53 +0800
  */
 
 namespace Teddy\Utils;
@@ -28,8 +29,9 @@ class Composer
     {
         $composerClass = '';
         foreach (get_declared_classes() as $declaredClass) {
-            if (strpos($declaredClass, 'ComposerAutoloaderInit') === 0 && method_exists($declaredClass, 'getLoader')) {
+            if (0 === strpos($declaredClass, 'ComposerAutoloaderInit') && method_exists($declaredClass, 'getLoader')) {
                 $composerClass = $declaredClass;
+
                 break;
             }
         }
@@ -39,6 +41,7 @@ class Composer
         }
 
         self::$loader = $composerClass::getLoader();
+
         return self::$loader;
     }
 }

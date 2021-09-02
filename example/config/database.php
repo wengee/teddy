@@ -1,37 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 10:38:20 +0800
+ * @version  2021-09-02 14:26:23 +0800
  */
 
-return [
-    'default' => [
-        'driver'    => 'mysql',
-        'host'      => env('DB_HOST', '127.0.0.1'),
-        'port'      => (int) env('DB_PORT', 3306),
-        'name'      => env('DB_NAME', 'events'),
-        'user'      => env('DB_USER', 'root'),
-        'password'  => env('DB_PASSWORD', 'toor'),
-        'charset'   => env('DB_CHARSET', 'utf8mb4'),
-        'options'   => [],
-        'pool'      => [
-            'maxConnections' => 2,
-        ],
-    ],
+use Teddy\Config\Repository;
 
-    'abc' => [
-        'driver'    => 'mysql',
-        'host'      => env('DB_HOST', '127.0.0.1'),
-        'port'      => (int) env('DB_PORT', 3306),
-        'name'      => env('DB_NAME', 'events'),
-        'user'      => env('DB_USER', 'test'),
-        'password'  => env('DB_PASSWORD', 'test'),
-        'charset'   => env('DB_CHARSET', 'utf8mb4'),
-        'options'   => [],
-        'pool'      => [
+return [
+    'default' => new Repository([
+        'driver'   => 'mysql',
+        'host'     => '127.0.0.1',
+        'port'     => 3306,
+        'name'     => 'test',
+        'user'     => 'root',
+        'password' => 'toor',
+        'charset'  => 'utf8mb4',
+        'options'  => [],
+        'pool'     => [
             'maxConnections' => 2,
         ],
-    ],
+    ]),
 ];

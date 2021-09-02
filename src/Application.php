@@ -4,285 +4,193 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-07-14 15:45:45 +0800
+ * @version  2021-08-31 10:22:15 +0800
  */
 
 namespace Teddy;
 
 use BadMethodCallException;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Dotenv\Dotenv;
-use Exception;
-use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Support\Str;
-use League\Event\ListenerInterface;
-use Phar;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Slim\App as SlimApp;
-use Swoole\Http\Request as SwooleRequest;
-use Swoole\Http\Response as SwooleResponse;
-use Teddy\Facades\Facade;
+use Slim\Middleware\BodyParsingMiddleware;
+use Slim\Middleware\ErrorMiddleware;
+use Slim\Middleware\RoutingMiddleware;
+use Teddy\Config\Config;
+use Teddy\Console\Application as ConsoleApplication;
 use Teddy\Factory\ResponseFactory;
-use Teddy\Middleware\BodyParsingMiddleware;
+use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Middleware\CorsMiddleware;
+use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Routing\RouteCollector;
-use Teddy\Swoole\ResponseEmitter;
-use Teddy\Swoole\Server;
-use Teddy\Swoole\ServerRequestFactory;
+use Teddy\Traits\ContainerAwareTrait;
 use Teddy\Utils\Composer;
 
-class Application extends Container
+/**
+ * @method BodyParsingMiddleware addBodyParsingMiddleware(array $bodyParsers = [])
+ * @method RoutingMiddleware     addRoutingMiddleware()
+ * @method ErrorMiddleware       addErrorMiddleware(bool $displayErrorDetails, bool $logErrors, bool $logErrorDetails, ?LoggerInterface $logger = null)
+ */
+class Application implements ContainerAwareInterface
 {
-    protected $basePath = '';
+    use ContainerAwareTrait;
 
-    protected $slimInstance;
+    /** @var SlimApp */
+    protected $slimApp;
 
+    /** @var Config */
     protected $config;
 
-    public function __construct(string $basePath, string $envFile = '.env')
+    public function __construct(string $basePath)
     {
-        static::setInstance($this);
-        $responseFactory    = new ResponseFactory();
-        $callableResolver   = new CallableResolver($this);
-        $routeCollector     = new RouteCollector($responseFactory, $callableResolver, $this);
-        $this->slimInstance = new SlimApp(
-            $responseFactory,
-            $this,
-            $callableResolver,
-            $routeCollector
-        );
+        $container = Container::getInstance();
+        $this->setContainer($container);
 
-        $this->setBasePath($basePath);
-        $this->loadEnvironments($envFile);
-        $this->loadConfigure();
-        $this->loadRoutes();
-        $this->bootstrap();
+        $container->instance('basePath', $basePath);
+        $container->instance('app', $this);
+
+        $this->config = new Config($basePath);
+        $container->instance('config', $this->config);
+
+        $this->initialize();
+        $this->initSlimApp();
+        $this->initRoutes($basePath);
     }
 
     public function __call(string $method, array $args = [])
     {
-        if (method_exists($this->slimInstance, $method)) {
-            return $this->slimInstance->{$method}(...$args);
+        if (method_exists($this->slimApp, $method)) {
+            return $this->slimApp->{$method}(...$args);
         }
 
         throw new BadMethodCallException("Call to undefined method: {$method}");
     }
 
-    public static function create(string $basePath = '', string $envFile = '.env'): self
+    public static function create(string $basePath = ''): self
     {
-        return new static($basePath, $envFile);
+        return new static($basePath);
     }
 
-    public function addBodyParsingMiddleware(array $bodyParsers = []): BodyParsingMiddleware
+    public function addCorsMiddleware(): CorsMiddleware
     {
-        $bodyParsingMiddleware = new BodyParsingMiddleware($bodyParsers);
-        $this->slimInstance->add($bodyParsingMiddleware);
+        $middleware = new CorsMiddleware();
+        $this->slimApp->add($middleware);
 
-        return $bodyParsingMiddleware;
+        return $middleware;
+    }
+
+    public function addProxyFixMiddleware(): ProxyFixMiddleware
+    {
+        $middleware = new ProxyFixMiddleware();
+        $this->slimApp->add($middleware);
+
+        return $middleware;
     }
 
     public function addStaticFileMiddleware(string $basePath, string $urlPrefix = ''): StaticFileMiddleware
     {
         $middleware = new StaticFileMiddleware($basePath, $urlPrefix);
-        $this->slimInstance->add($middleware);
+        $this->slimApp->add($middleware);
 
         return $middleware;
     }
 
-    public function getName(): string
+    public function getSlimApp(): SlimApp
     {
-        return $this->config->get('app.name') ?: 'Teddy App';
+        return $this->slimApp;
     }
 
-    public function setBasePath(string $basePath): self
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->basePath = Str::finish($basePath, '/');
-
-        return $this;
+        return $this->slimApp->handle($request);
     }
 
-    public function getBasePath(): string
+    public function run(): void
     {
-        return $this->basePath;
+        $console = new ConsoleApplication($this);
+        $console->setContainer($this->getContainer());
+
+        $console->run();
     }
 
-    public function getRuntimePath(): string
+    protected function initialize(): void
     {
-        $pharPath = Phar::running(false);
-        if ($pharPath) {
-            return dirname($pharPath);
+        // Logger
+        $this->container->alias('logger', \Psr\Log\LoggerInterface::class);
+        $this->container->bind('logger', \Teddy\Logger\Manager::class);
+
+        // Request
+        $this->container->alias('request', \Psr\Http\Message\ServerRequestInterface::class);
+        $this->container->bind('request', \Teddy\Http\Request::class);
+
+        // Response
+        $this->container->alias('response', \Psr\Http\Message\ResponseInterface::class);
+        $this->container->bind('response', \Teddy\Http\Response::class);
+
+        // Database
+        $loader = Composer::getLoader();
+        AnnotationRegistry::registerLoader([$loader, 'loadClass']);
+        $this->container->bind('db', \Teddy\Database\Manager::class);
+
+        // Redis
+        $this->container->bind('redis', \Teddy\Redis\Manager::class);
+
+        // Flysystem
+        $this->container->alias('fs', 'flysystem');
+        $this->container->bind('fs', \Teddy\Flysystem\Manager::class);
+
+        // JWT
+        if ($this->config->get('jwt.enabled')) {
+            $this->container->bind('jwt', \Teddy\Jwt\Manager::class);
         }
 
-        return $this->getBasePath();
+        // Others
+        $this->container->bind('base64', \Teddy\Base64::class);
+        $this->container->bind('filter', \Teddy\Filter::class);
+        $this->container->bind('lock', \Teddy\Lock\Factory::class);
+        $this->container->bind('auth', \Teddy\Auth\Manager::class);
     }
 
-    public function addEventListeners(array $list): void
+    protected function initSlimApp(): void
     {
-        $emitter = $this->get('events');
-        foreach ($list as $event => $listeners) {
-            if (!is_array($listeners)) {
-                $listeners = [$listeners];
-            }
+        $responseFactory  = new ResponseFactory();
+        $callableResolver = new CallableResolver($this->container);
+        $routeCollector   = new RouteCollector($responseFactory, $callableResolver, $this->container);
+        $this->slimApp    = new SlimApp(
+            $responseFactory,
+            $this->container,
+            $callableResolver,
+            $routeCollector
+        );
 
-            foreach ($listeners as $listener) {
-                if (is_string($listener)
-                    && is_subclass_of($listener, ListenerInterface::class)) {
-                    $listener = new $listener();
-                }
-
-                $emitter->addListener($event, $listener);
-            }
-        }
+        $this->container->instance('slim', $this->slimApp);
     }
 
-    public function emitEvent($event, ...$args)
+    protected function initRoutes(string $basePath): void
     {
-        $emitter = $this->get('events');
-        if ($emitter) {
-            return $emitter->emit($event, ...$args);
-        }
-
-        return false;
-    }
-
-    public function bootstrap(): void
-    {
-        $this->instance('app', $this);
-        $this->instance('slim', $this->slimInstance);
-
-        $this->alias('snowflake', \Teddy\Interfaces\SnowflakeInterface::class);
-        $this->alias('request', \Psr\Http\Message\ServerRequestInterface::class);
-        $this->alias('response', \Psr\Http\Message\ResponseInterface::class);
-        $this->alias('logger', \Psr\Log\LoggerInterface::class);
-        $this->alias('events', \League\Event\ListenerInterface::class);
-
-        $this->bind('logger', \Teddy\Logger\Manager::class);
-        $this->bind('events', \League\Event\Emitter::class);
-        $this->bind('lock', \Teddy\Lock\Factory::class);
-        $this->bind('request', \Teddy\Http\Request::class);
-        $this->bind('response', \Teddy\Http\Response::class);
-        $this->bind('auth', \Teddy\Auth\Manager::class);
-        $this->bind('console', \Teddy\Console\Application::class);
-        $this->bind('filter', \Teddy\Filter::class);
-
-        if ($this->config->has('database')) {
-            $loader = Composer::getLoader();
-            AnnotationRegistry::registerLoader([$loader, 'loadClass']);
-
-            $this->bind('db', \Teddy\Database\Manager::class);
-        }
-
-        if ($this->config->has('redis')) {
-            $this->bind('redis', \Teddy\Redis\Manager::class);
-        }
-
-        if ($this->config->has('jwt')) {
-            $this->bind('jwt', \Teddy\Jwt\Manager::class);
-        }
-
-        if ($this->config->has('flysystem')) {
-            $this->bind('fs', \Teddy\Flysystem\Manager::class);
-        }
-
-        if ($this->config->has('snowflake')) {
-            $this->bind('snowflake', \Teddy\Snowflake\Manager::class);
-        }
-
-        Facade::setFacadeApplication($this);
-    }
-
-    public function run(SwooleRequest $swooleRequest, SwooleResponse $swooleResponse): void
-    {
-        $request  = ServerRequestFactory::createServerRequestFromSwoole($swooleRequest);
-        $response = $this->slimInstance->handle($request);
-        (new ResponseEmitter($swooleResponse))->emit($response);
-    }
-
-    public function getServer($host = null): Server
-    {
-        $config = (array) $this->config->get('swoole', []);
-        if (is_int($host) && $host > 0) {
-            $config['port'] = $host;
-        } elseif (is_string($host)) {
-            $arr = explode(':', $host);
-
-            $config['host'] = $arr[0] ?? '0.0.0.0';
-            $config['port'] = intval($arr[1] ?? 9500);
-        }
-
-        return new Server($this, $config);
-    }
-
-    public function listen($host = null): void
-    {
-        $this->getServer($host)->start();
-    }
-
-    public function runConsole(?string $commandName = null): void
-    {
-        $console = make('console', [$this]);
-        if ($commandName) {
-            $console->setDefaultCommand($commandName);
-        }
-
-        exit($console->run());
-    }
-
-    protected function loadConfigure(): void
-    {
-        $config = new ConfigRepository();
-        $dir    = $this->basePath.'config/';
-        if (is_dir($dir)) {
-            $handle = opendir($dir);
-            while (false !== ($file = readdir($handle))) {
-                $filepath = $dir.$file;
-                if (Str::endsWith($file, '.php') && is_file($filepath)) {
-                    $name = substr($file, 0, -4);
-                    $config->set($name, require $filepath);
-                }
-            }
-        }
-
-        $this->config = $config;
-        $this->instance('config', $config);
-    }
-
-    protected function loadEnvironments(string $file = '.env'): void
-    {
-        try {
-            Dotenv::createMutable([$this->getRuntimePath()], $file)->load();
-        } catch (Exception $e) {
-        }
-    }
-
-    protected function loadRoutes(): void
-    {
-        $routesFile = $this->basePath.'bootstrap/routes.php';
-
         /** @var RouteCollector $routeCollector */
-        $routeCollector = $this->slimInstance->getRouteCollector();
-        if (is_file($routesFile)) {
+        $routeCollector = $this->slimApp->getRouteCollector();
+
+        $dir = path_join($basePath, 'routes');
+        if (is_dir($dir)) {
             $routeCollector->group([
                 'pattern'   => $this->config->get('app.urlPrefix', ''),
                 'namespace' => '\\App\\Controllers',
-            ], function ($router) use ($routesFile): void {
-                require $routesFile;
-            });
-        } else {
-            $dir = $this->basePath.'routes/';
-            if (is_dir($dir)) {
-                $routeCollector->group([
-                    'pattern'   => $this->config->get('app.urlPrefix', ''),
-                    'namespace' => '\\App\\Controllers',
-                ], function ($router) use ($dir): void {
-                    $handle = opendir($dir);
-                    while (false !== ($file = readdir($handle))) {
-                        $filepath = $dir.$file;
-                        if (Str::endsWith($file, '.php') && is_file($filepath)) {
-                            require $filepath;
-                        }
+            ], function ($router) use ($dir): void {
+                $handle = opendir($dir);
+                while (false !== ($file = readdir($handle))) {
+                    $filepath = path_join($dir, $file);
+                    if (Str::endsWith($file, '.php') && is_file($filepath)) {
+                        require $filepath;
                     }
-                });
-            }
+                }
+
+                closedir($handle);
+            });
         }
     }
 }

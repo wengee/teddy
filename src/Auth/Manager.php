@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-08-06 17:40:42 +0800
+ * @version  2021-08-30 09:45:41 +0800
  */
 
 namespace Teddy\Auth;
@@ -24,8 +25,8 @@ class Manager
 
     public function create(array $data, int $expiresIn = 0): string
     {
-        $token = $this->generateToken();
-        $cacheKey = self::CACHE_KEY . $token;
+        $token    = $this->generateToken();
+        $cacheKey = self::CACHE_KEY.$token;
         if ($expiresIn > 0) {
             $ret = app('redis')->set($cacheKey, $data, $expiresIn);
         } else {
@@ -59,22 +60,23 @@ class Manager
             return null;
         }
 
-        $cacheKey = self::CACHE_KEY . $token;
-        $data = app('redis')->get($cacheKey);
+        $cacheKey = self::CACHE_KEY.$token;
+        $data     = app('redis')->get($cacheKey);
+
         return ($data && is_array($data)) ? $data : null;
     }
 
     public function clear(string $token): void
     {
         if ($this->checkToken($token, true)) {
-            app('redis')->del(self::CACHE_KEY . $token);
+            app('redis')->del(self::CACHE_KEY.$token);
         }
     }
 
     public function ttl(string $token, int $expiresIn = 0): void
     {
         if ($this->checkToken($token, true) && $expiresIn > 0) {
-            app('redis')->expire(self::CACHE_KEY . $token, $expiresIn);
+            app('redis')->expire(self::CACHE_KEY.$token, $expiresIn);
         }
     }
 
@@ -82,7 +84,7 @@ class Manager
     {
         $this->checkToken($token);
 
-        $cacheKey = self::CACHE_KEY . $token;
+        $cacheKey = self::CACHE_KEY.$token;
         if ($expiresIn > 0) {
             $ret = app('redis')->set($cacheKey, $data, $expiresIn);
         } else {
@@ -98,13 +100,14 @@ class Manager
     {
         $this->checkToken($token);
 
-        $cacheKey = self::CACHE_KEY . $token;
-        $data = app('redis')->get($cacheKey);
-        if ($data === false || !is_array($data)) {
+        $cacheKey = self::CACHE_KEY.$token;
+        $data     = app('redis')->get($cacheKey);
+        if (false === $data || !is_array($data)) {
             throw new Exception('Can not found the auth data.');
         }
 
         $data[$key] = $value;
+
         return app('redis')->set($cacheKey, $data);
     }
 
@@ -112,9 +115,9 @@ class Manager
     {
         $this->checkToken($token);
 
-        $cacheKey = self::CACHE_KEY . $token;
-        $data = app('redis')->get($cacheKey);
-        if ($data === false || !is_array($data)) {
+        $cacheKey = self::CACHE_KEY.$token;
+        $data     = app('redis')->get($cacheKey);
+        if (false === $data || !is_array($data)) {
             throw new Exception('Can not found the auth data.');
         }
 
@@ -125,25 +128,27 @@ class Manager
     protected function generateToken(): string
     {
         $timestamp = intval(microtime(true) * 1000);
-        $nonceStr = strtolower(uniqid() . Str::random(8));
-        return $timestamp . '.' . $nonceStr . '.' . $this->makeSignature($timestamp, $nonceStr);
+        $nonceStr  = strtolower(uniqid().Str::random(8));
+
+        return $timestamp.'.'.$nonceStr.'.'.$this->makeSignature($timestamp, $nonceStr);
     }
 
     protected function checkToken(string $token, bool $silent = false): bool
     {
         $ret = false;
         $arr = explode('.', $token);
-        if (!$arr || count($arr) !== 3) {
+        if (!$arr || 3 !== count($arr)) {
             goto RESULT;
         }
 
         $signature = $this->makeSignature((int) $arr[0], $arr[1]);
-        $ret = $signature === $arr[2];
+        $ret       = $signature === $arr[2];
 
         RESULT:
         if ($silent) {
             return $ret;
-        } elseif (!$ret) {
+        }
+        if (!$ret) {
             throw new Exception('Token is invalid.');
         }
 
@@ -152,6 +157,6 @@ class Manager
 
     protected function makeSignature(int $timestamp, string $nonceStr): string
     {
-        return md5($timestamp . $this->secret . $nonceStr);
+        return md5($timestamp.$this->secret.$nonceStr);
     }
 }

@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-09-28 10:44:04 +0800
+ * @version  2021-08-30 14:51:41 +0800
  */
 
 namespace Teddy\Http;
@@ -77,25 +78,28 @@ class Request extends SlimRequest implements ArrayAccess
             foreach ($matches[0] as $xip) {
                 if (!preg_match('#^(127|10|172\.16|192\.168)\.#', $xip)) {
                     $ip = $xip;
+
                     break;
                 }
             }
         }
 
-        $ip = $ip == '::1' ? '127.0.0.1' : $ip;
+        $ip = '::1' == $ip ? '127.0.0.1' : $ip;
+
         $this->clientIp = $ip;
+
         return $ip;
     }
 
     public function getParam($key, $default = null)
     {
         $postParams = $this->getParsedBody();
-        $getParams = $this->getQueryParams();
-        $result = $default;
+        $getParams  = $this->getQueryParams();
+        $result     = $default;
         if (is_array($postParams) && isset($postParams[$key])) {
             $result = $postParams[$key];
         } elseif (is_object($postParams) && property_exists($postParams, $key)) {
-            $result = $postParams->$key;
+            $result = $postParams->{$key};
         } elseif (isset($getParams[$key])) {
             $result = $getParams[$key];
         }
@@ -105,7 +109,7 @@ class Request extends SlimRequest implements ArrayAccess
 
     public function getParams(array $only = null)
     {
-        $params = $this->getQueryParams();
+        $params     = $this->getQueryParams();
         $postParams = $this->getParsedBody();
         if ($postParams) {
             $params = array_replace($params, (array) $postParams);
@@ -118,6 +122,7 @@ class Request extends SlimRequest implements ArrayAccess
                     $onlyParams[$key] = $params[$key];
                 }
             }
+
             return $onlyParams;
         }
 
@@ -127,13 +132,14 @@ class Request extends SlimRequest implements ArrayAccess
     public function getServerParam($key, $default = null)
     {
         $serverParams = $this->getServerParams();
+
         return $serverParams[$key] ?? $default;
     }
 
     public function getCookieParam($key, $default = null)
     {
         $cookieParams = $this->getCookieParams();
-        $result = $default;
+        $result       = $default;
         if (isset($cookieParams[$key])) {
             $result = $cookieParams[$key];
         }
@@ -144,7 +150,7 @@ class Request extends SlimRequest implements ArrayAccess
     public function getQueryParam($key, $default = null)
     {
         $getParams = $this->getQueryParams();
-        $result = $default;
+        $result    = $default;
         if (isset($getParams[$key])) {
             $result = $getParams[$key];
         }
@@ -155,11 +161,11 @@ class Request extends SlimRequest implements ArrayAccess
     public function getParsedBodyParam($key, $default = null)
     {
         $postParams = $this->getParsedBody();
-        $result = $default;
+        $result     = $default;
         if (is_array($postParams) && isset($postParams[$key])) {
             $result = $postParams[$key];
         } elseif (is_object($postParams) && property_exists($postParams, $key)) {
-            $result = $postParams->$key;
+            $result = $postParams->{$key};
         }
 
         return $result;
@@ -167,7 +173,7 @@ class Request extends SlimRequest implements ArrayAccess
 
     public function getUploadedFile(string $field)
     {
-        return isset($this->uploadedFiles[$field]) ? $this->uploadedFiles[$field] : null;
+        return $this->uploadedFiles[$field] ?? null;
     }
 
     public function url(?string $path = null, array $query = []): string
@@ -179,15 +185,15 @@ class Request extends SlimRequest implements ArrayAccess
         $uri = $this->getUri();
         if (empty($path) && empty($query)) {
             return (string) $uri;
-        } else {
-            if ($path) {
-                $uri = $uri->withPath($path);
-            }
-
-            $query = $query ? http_build_query($query) : '';
-            $uri = $uri->withQuery($query);
-            return (string) $uri;
         }
+        if ($path) {
+            $uri = $uri->withPath($path);
+        }
+
+        $query = $query ? http_build_query($query) : '';
+        $uri   = $uri->withQuery($query);
+
+        return (string) $uri;
     }
 
     public function timestamp(bool $asFloat = false)

@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-02-11 20:51:44 +0800
+ * @version  2021-08-05 15:31:08 +0800
  */
 
 namespace Teddy\Utils;
@@ -17,13 +18,13 @@ class System
         }
 
         if ($prefix) {
-            $title = $prefix . ': ' . $title;
+            $title = $prefix.': '.$title;
         }
 
         if (function_exists('cli_set_process_title')) {
             cli_set_process_title($title);
         } elseif (function_exists('swoole_set_process_name')) {
-            swoole_set_process_name($title);
+            \swoole_set_process_name($title);
         }
     }
 }

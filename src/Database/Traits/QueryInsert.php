@@ -8,7 +8,7 @@
 
 namespace Teddy\Database\Traits;
 
-use Exception;
+use Teddy\Exception;
 use Teddy\Database\SQL;
 
 trait QueryInsert

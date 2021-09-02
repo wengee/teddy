@@ -14,8 +14,6 @@ use Teddy\Traits\Singleton;
 
 class Filter
 {
-    use Singleton;
-
     public const FILTER_BOOL          = 'bool';
     public const FILTER_BOOLEAN       = 'boolean';
     public const FILTER_EMAIL         = 'email';

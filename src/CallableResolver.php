@@ -1,18 +1,19 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-07-30 15:28:26 +0800
+ * @version  2021-08-26 14:56:12 +0800
  */
 
 namespace Teddy;
 
 use Closure;
-use Psr\Container\ContainerInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
+use Teddy\Interfaces\ContainerInterface;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure
@@ -21,14 +22,11 @@ use Slim\Interfaces\CallableResolverInterface;
 final class CallableResolver implements CallableResolverInterface
 {
     /**
-     * @var Container|null
+     * @var null|ContainerInterface
      */
     private $container;
 
-    /**
-     * @param ContainerInterface|null $container
-     */
-    public function __construct(?Container $container = null)
+    public function __construct(?ContainerInterface $container = null)
     {
         $this->container = $container;
     }
@@ -40,7 +38,6 @@ final class CallableResolver implements CallableResolverInterface
      * from the container otherwise instantiate it and then dispatch 'method'.
      *
      * @param mixed $toResolve
-     * @return callable
      *
      * @throws RuntimeException if the callable does not exist
      * @throws RuntimeException if the callable is not resolvable
@@ -50,14 +47,14 @@ final class CallableResolver implements CallableResolverInterface
         $resolved = $toResolve;
 
         if (!is_callable($toResolve) && is_string($toResolve)) {
-            $class = $toResolve;
+            $class    = $toResolve;
             $instance = null;
-            $method = null;
+            $method   = null;
 
             // check for slim callable as "class:method"
             $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
             if (preg_match($callablePattern, $toResolve, $matches)) {
-                $class = $matches[1];
+                $class  = $matches[1];
                 $method = $matches[2];
             }
 
@@ -65,7 +62,7 @@ final class CallableResolver implements CallableResolverInterface
 
             // For a class that implements RequestHandlerInterface, we will call handle()
             // if no method has been specified explicitly
-            if ($instance instanceof RequestHandlerInterface && $method === null) {
+            if ($instance instanceof RequestHandlerInterface && null === $method) {
                 $method = 'handle';
             }
 

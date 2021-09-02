@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-28 16:40:49 +0800
+ * @version  2021-08-30 16:33:08 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -37,12 +37,12 @@ class StatusCommand extends BaseCommand
     {
         return Collection::make($this->getAllMigrationFiles())
             ->map(function ($migration) use ($ran, $batches) {
-                        $migrationName = $this->getMigrator()->getMigrationName($migration);
+                $migrationName = $this->getMigrator()->getMigrationName($migration);
 
-                        return in_array($migrationName, $ran)
+                return in_array($migrationName, $ran)
                                 ? ['<info>Y</info>', $migrationName, $batches[$migrationName]]
                                 : ['<fg=red>N</fg=red>', $migrationName];
-                    })->all();
+            })->all();
     }
 
     protected function getAllMigrationFiles()

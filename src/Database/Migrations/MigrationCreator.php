@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-30 10:32:14 +0800
+ * @version  2021-08-30 17:10:08 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -44,7 +45,7 @@ class MigrationCreator
     public function stubPaths(): array
     {
         return [
-            path_join(app()->getBasePath(), '.stubs', 'migrations'),
+            base_path('.stubs', 'migrations'),
             system_path('_stubs', 'migrations'),
         ];
     }
@@ -54,7 +55,7 @@ class MigrationCreator
      */
     protected function getStub(?string $table = null, bool $create = true): string
     {
-        if ($table === null) {
+        if (null === $table) {
             return FileSystem::getContents($this->stubPaths(), 'blank.stub');
         }
 
@@ -76,7 +77,7 @@ class MigrationCreator
         // Here we will replace the table place-holders with the table specified by
         // the developer, which is useful for quickly creating a tables creation
         // or update migration from the console instead of typing it manually.
-        if ($table !== null) {
+        if (null !== $table) {
             $stub = str_replace('DummyTable', $table, $stub);
         }
 
@@ -88,7 +89,7 @@ class MigrationCreator
      */
     protected function getClassName(string $name, int $number): string
     {
-        return Str::studly($name) . 'Migration_' . $this->getPrefix($number);
+        return Str::studly($name).'Migration_'.$this->getPrefix($number);
     }
 
     /**
@@ -96,7 +97,7 @@ class MigrationCreator
      */
     protected function getPath(string $name, string $path, int $number = 0): string
     {
-        return $path . '/' . $this->getPrefix($number) . '_' . $name . '.php';
+        return $path.'/'.$this->getPrefix($number).'_'.$name.'.php';
     }
 
     protected function getPrefix(int $number = 0): string
@@ -109,7 +110,7 @@ class MigrationCreator
         $ret = 0;
         if (is_dir($path) && ($dh = opendir($path))) {
             while (($file = readdir($dh)) !== false) {
-                if (substr($file, -4) === '.php') {
+                if ('.php' === substr($file, -4)) {
                     $ret = max($ret, intval($file));
                 }
             }

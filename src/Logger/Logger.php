@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:12:08 +0800
+ * @version  2021-08-30 11:03:18 +0800
  */
 
 namespace Teddy\Logger;
@@ -19,13 +20,13 @@ class Logger extends MonoLogger
     public function __construct($handlers = [], $processors = null)
     {
         $handlers = Arr::wrap($handlers);
-        $appName = config('app.name') ?: 'Teddy App';
+        $appName  = config('app.name') ?: 'Teddy App';
 
-        if ($processors === null) {
+        if (null === $processors) {
             $processors = [
-                new PsrLogMessageProcessor,
-                new MemoryUsageProcessor,
-                new MemoryPeakUsageProcessor,
+                new PsrLogMessageProcessor(),
+                new MemoryUsageProcessor(),
+                new MemoryPeakUsageProcessor(),
             ];
         } else {
             $processors = Arr::wrap($processors);
