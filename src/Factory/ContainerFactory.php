@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 13:16:30 +0800
+ * @version  2021-09-03 18:08:17 +0800
  */
 
 namespace Teddy\Factory;
@@ -21,7 +21,10 @@ class ContainerFactory
         $container->addValue('basePath', $basePath);
 
         // Config
-        $container->addShared('config', \Teddy\Config\Config::class)->addArgument('basePath');
+        $container->addShared('config', \Teddy\Config\Config::class)
+            ->addArgument('container')
+            ->addArgument('basePath')
+        ;
 
         // Logger
         $container->addShared('logger', \Teddy\Logger\Manager::class);
