@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-30 15:05:18 +0800
+ * @version  2021-09-03 13:19:49 +0800
  */
 
 namespace Teddy\Swoole;
@@ -16,6 +16,7 @@ use Slim\Psr7\Stream;
 use Slim\Psr7\UploadedFile;
 use Slim\Psr7\Uri;
 use Swoole\Http\Request as SwooleRequest;
+use Teddy\Container\Container;
 
 class ServerRequestFactory
 {
@@ -30,7 +31,7 @@ class ServerRequestFactory
         $body          = static::createBody($request);
         $uploadedFiles = static::createUploadFiles($request->files ?: null);
 
-        $req = make('request', [
+        $req = Container::getInstance()->getNew('request', [
             $method,
             $uri,
             $headers,

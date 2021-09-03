@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-12 11:19:41 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -27,7 +28,8 @@ class MigrationRepository
         $data = $this->table()
             ->orderBy('batch', 'ASC')
             ->orderBy('migration', 'ASC')
-            ->all();
+            ->all()
+        ;
 
         return Collection::make($data)->pluck('migration')->all();
     }
@@ -35,9 +37,10 @@ class MigrationRepository
     public function getMigrationBatches()
     {
         $data = $this->table()
-                ->orderBy('batch', 'ASC')
-                ->orderBy('migration', 'ASC')
-                ->all();
+            ->orderBy('batch', 'ASC')
+            ->orderBy('migration', 'ASC')
+            ->all()
+        ;
 
         return Collection::make($data)->pluck('batch', 'migration')->all();
     }
@@ -45,6 +48,7 @@ class MigrationRepository
     public function getLast()
     {
         $query = $this->table()->where('batch', $this->getLastBatchNumber());
+
         return $query->orderBy('migration', 'desc')->all();
     }
 
@@ -85,6 +89,7 @@ class MigrationRepository
     public function repositoryExists()
     {
         $schema = $this->connection->getSchemaBuilder();
+
         return $schema->hasTable(self::TABLE_NAME);
     }
 

@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-07 17:28:20 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Pool\SimplePool;
@@ -22,7 +23,7 @@ class Connection implements ConnectionInterface
 
     public function __construct(Pool $pool, callable $callback)
     {
-        $this->pool = $pool;
+        $this->pool     = $pool;
         $this->callback = $callback;
     }
 
@@ -37,8 +38,9 @@ class Connection implements ConnectionInterface
 
     public function reconnect()
     {
-        $this->connection = ($this->callback)();
+        $this->connection  = ($this->callback)();
         $this->lastUseTime = microtime(true);
+
         return $this->connection;
     }
 
@@ -50,11 +52,12 @@ class Connection implements ConnectionInterface
     public function check()
     {
         $maxIdleTime = $this->pool->getOption('maxIdleTime');
-        $now = microtime(true);
+        $now         = microtime(true);
         if ($now > $maxIdleTime + $this->lastUseTime) {
             return false;
         }
         $this->lastUseTime = $now;
+
         return true;
     }
 }

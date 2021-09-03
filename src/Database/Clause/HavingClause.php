@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -15,14 +16,14 @@ class HavingClause extends ClauseContainer
     public function having($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         if ($column instanceof RawSQL) {
-            $chainType = $operator ?: $chainType;
+            $chainType         = $operator ?: $chainType;
             $this->container[] = [$column, null, null, $chainType];
         } else {
             $column = $this->query->toDbColumn($column);
             if (!in_array($operator, ['>=', '>', '<=', '<', '=', '!=', '<>'], true)) {
                 $chainType = $value ?: $chainType;
-                $value = $operator;
-                $operator = '=';
+                $value     = $operator;
+                $operator  = '=';
             }
 
             $this->container[] = [$column, $operator, $value, $chainType];
@@ -37,35 +38,35 @@ class HavingClause extends ClauseContainer
     public function havingCount($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
-        $sql = "COUNT($column) $operator ?";
+        $sql    = "COUNT({$column}) {$operator} ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
     public function havingMax($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
-        $sql = "MAX($column) $operator ?";
+        $sql    = "MAX({$column}) {$operator} ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
     public function havingMin($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
-        $sql = "MIN($column) $operator ?";
+        $sql    = "MIN({$column}) {$operator} ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
     public function havingAvg($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
-        $sql = "AVG($column) $operator ?";
+        $sql    = "AVG({$column}) {$operator} ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
     public function havingSum($column, $operator, $value = null, string $chainType = 'AND'): void
     {
         $column = $this->query->toDbColumn($column);
-        $sql = "SUM($column) $operator ?";
+        $sql    = "SUM({$column}) {$operator} ?";
         $this->having(new RawSQL($sql, $value), $chainType);
     }
 
@@ -77,7 +78,7 @@ class HavingClause extends ClauseContainer
 
         $ret = '';
         foreach ($this->container as $having) {
-            list($column, $operator, $value, $chainType) = $having;
+            [$column, $operator, $value, $chainType] = $having;
             if (empty($ret)) {
                 $ret .= ' HAVING ';
             } else {

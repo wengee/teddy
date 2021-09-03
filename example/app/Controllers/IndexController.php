@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-02 14:34:40 +0800
+ * @version  2021-09-03 13:23:46 +0800
  */
 
 namespace App\Controllers;
@@ -26,7 +26,8 @@ class IndexController extends Controller
             'config'    => config(),
             'container' => $this->getContainer(),
             'model'     => $model,
-            'list'      => Abc::query()->orderBy('id', 'DESC')->limit(5)->all(),
+            'request'   => spl_object_hash($request),
+            // 'list'      => Abc::query()->orderBy('id', 'DESC')->limit(5)->all(),
         ]);
     }
 

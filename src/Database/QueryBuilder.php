@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 11:17:43 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database;
@@ -16,7 +16,6 @@ use Teddy\Database\Clause\JoinClause;
 use Teddy\Database\Clause\LimitClause;
 use Teddy\Database\Clause\OrderClause;
 use Teddy\Database\Clause\WhereClause;
-use Teddy\Database\RawSQL;
 use Teddy\Database\Traits\QueryDelete;
 use Teddy\Database\Traits\QueryInsert;
 use Teddy\Database\Traits\QuerySelect;
@@ -164,6 +163,7 @@ class QueryBuilder
                 $clause = $this->whereClause;
 
                 break;
+
             case 'order':
             case 'orderBy':
                 if (!isset($this->orderClause)) {
@@ -173,6 +173,7 @@ class QueryBuilder
                 $clause = $this->orderClause;
 
                 break;
+
             case 'limit':
             case 'offset':
                 if (!isset($this->limitClause)) {
@@ -182,6 +183,7 @@ class QueryBuilder
                 $clause = $this->limitClause;
 
                 break;
+
             case 'group':
             case 'groupBy':
                 if (!isset($this->groupClause)) {
@@ -191,6 +193,7 @@ class QueryBuilder
                 $clause = $this->groupClause;
 
                 break;
+
             case 'join':
             case 'leftJoin':
             case 'rightJoin':
@@ -202,6 +205,7 @@ class QueryBuilder
                 $clause = $this->joinClause;
 
                 break;
+
             case 'having':
             case 'orHaving':
             case 'havingCount':
@@ -216,6 +220,7 @@ class QueryBuilder
                 $clause = $this->havingClause;
 
                 break;
+
             default:
                 throw new \RuntimeException("Tried to call unknown method {$method}");
 

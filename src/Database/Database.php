@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-10 12:05:22 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database;
@@ -54,12 +55,14 @@ class Database extends Pool implements DatabaseInterface
         $num = $this->getReadConnectionsInChannel();
 
         try {
-            if ($num === 0 && $this->currentReadConnections < $this->poolOptions['maxConnections']) {
+            if (0 === $num && $this->currentReadConnections < $this->poolOptions['maxConnections']) {
                 ++$this->currentReadConnections;
+
                 return $this->createReadConnection();
             }
         } catch (Throwable $throwable) {
             --$this->currentReadConnections;
+
             throw $throwable;
         }
 
@@ -96,7 +99,7 @@ class Database extends Pool implements DatabaseInterface
 
     public function transaction(callable $callback): void
     {
-        $firstRun = true;
+        $firstRun      = true;
         $pdoConnection = $this->getWriteConnection();
 
         $ret = false;
@@ -104,21 +107,24 @@ class Database extends Pool implements DatabaseInterface
         try {
             $pdoConnection->beginTransaction();
             $transaction = new Transaction($pdoConnection);
-            $ret = $callback($transaction);
+            $ret         = $callback($transaction);
         } catch (PDOException $e) {
             if ($firstRun) {
                 $pdoConnection->rollBack();
                 $pdoConnection->reconnect();
                 $firstRun = false;
+
                 goto RETRY;
             }
 
             $pdoConnection->rollBack();
             $this->release($pdoConnection);
+
             throw $e;
         } catch (Exception $e) {
             $pdoConnection->rollBack();
             $this->release($pdoConnection);
+
             throw $e;
         }
 
@@ -153,12 +159,14 @@ class Database extends Pool implements DatabaseInterface
         }
 
         $config = Arr::random($this->readConf);
+
         return new PDOConnection($config, true);
     }
 
     protected function createWriteConnection(): ConnectionInterface
     {
         $config = Arr::random($this->writeConf);
+
         return new PDOConnection($config, false);
     }
 
@@ -181,14 +189,14 @@ class Database extends Pool implements DatabaseInterface
             'idleTimeout'   => $this->poolOptions['maxIdleTime'],
         ];
 
-        if ($readOnly === null) {
-            if (isset($config['read']) && isset($config['write'])) {
+        if (null === $readOnly) {
+            if (isset($config['read'], $config['write'])) {
                 $this->initConfig($config['read'] + $defaultConf, true);
                 $this->initConfig($config['write'] + $defaultConf, false);
             } else {
                 $this->initConfig($defaultConf, false);
             }
-        } elseif ($readOnly === true) {
+        } elseif (true === $readOnly) {
             $this->hasReadOnly = true;
             if (is_array($defaultConf['host'])) {
                 foreach ($defaultConf['host'] as $host) {
@@ -197,7 +205,7 @@ class Database extends Pool implements DatabaseInterface
             } else {
                 $this->readConf[] = $defaultConf;
             }
-        } elseif ($readOnly === false) {
+        } elseif (false === $readOnly) {
             if (is_array($defaultConf['host'])) {
                 foreach ($defaultConf['host'] as $host) {
                     $this->writeConf[] = $this->splitHost($host) + $defaultConf;
@@ -211,10 +219,10 @@ class Database extends Pool implements DatabaseInterface
     protected function splitHost(string $host): array
     {
         $ret = [];
-        if (strpos($host, ':') === false) {
+        if (false === strpos($host, ':')) {
             $ret['host'] = $host;
         } else {
-            $arr = explode(':', $host, 2);
+            $arr         = explode(':', $host, 2);
             $ret['host'] = $arr[0];
             $ret['port'] = intval($arr[1]);
         }

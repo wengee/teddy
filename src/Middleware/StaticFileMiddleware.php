@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-30 17:12:40 +0800
+ * @version  2021-09-03 14:22:07 +0800
  */
 
 namespace Teddy\Middleware;
@@ -104,7 +104,7 @@ class StaticFileMiddleware implements MiddlewareInterface
 
     protected function sendFile(string $filePath): ResponseInterface
     {
-        $response = make('response', [200]);
+        $response = response();
         if ($response instanceof Response) {
             return $response->withSendFile($filePath);
         }

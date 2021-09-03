@@ -4,34 +4,37 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-04-27 16:27:09 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Pool;
 
+use Teddy\Config\Repository;
 use Teddy\Interfaces\ConnectionInterface;
-use Teddy\Options;
 use Throwable;
 
 abstract class Pool
 {
+    /** @var Channel */
     protected $channel;
 
+    /** @var array */
     protected $poolOptions;
 
+    /** @var int */
     protected $currentConnections = 0;
 
     public function __construct(array $options = [])
     {
-        $this->poolOptions = new Options([
+        $this->poolOptions = (new Repository([
             'minConnections' => 1,
             'maxConnections' => 10,
             'connectTimeout' => 10.0,
             'waitTimeout'    => 3.0,
             'heartbeat'      => 0,
             'maxIdleTime'    => 900,
-        ]);
-        $this->poolOptions->update($options);
+        ]))->merge($options)->toArray();
+
         $this->channel = new Channel($this->poolOptions['maxConnections']);
     }
 

@@ -4,25 +4,35 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-30 17:09:26 +0800
+ * @version  2021-09-03 15:21:03 +0800
  */
 
-use Fig\Http\Message\StatusCodeInterface;
 use Illuminate\Support\Str;
-use PhpOption\Option;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
-use Teddy\Container;
+use Teddy\Container\Container;
 use Teddy\Utils\FileSystem;
 
 if (!function_exists('make')) {
     /**
      * Make the instance.
+     *
+     * @param mixed $concrete
      */
-    function make(string $id, ?array $parameters = null)
+    function make($concrete, ?array $arguments = null)
     {
-        return Container::getInstance()->make($id, $parameters);
+        if (is_callable($concrete)) {
+            return call_user_func_array($concrete, $arguments ?: []);
+        }
+
+        if (is_string($concrete) && class_exists($concrete)) {
+            $reflection = new ReflectionClass($concrete);
+
+            return $reflection->newInstanceArgs($arguments ?: []);
+        }
+
+        return null;
     }
 }
 
@@ -30,9 +40,9 @@ if (!function_exists('response')) {
     /**
      * Make a response.
      */
-    function response(int $status = StatusCodeInterface::STATUS_OK): ResponseInterface
+    function response(): ResponseInterface
     {
-        return make('response', [$status]);
+        return Container::getInstance()->getNew('response');
     }
 }
 

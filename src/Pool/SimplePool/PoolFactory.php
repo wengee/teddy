@@ -1,19 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-07 17:37:43 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Pool\SimplePool;
 
-use Teddy\Traits\Singleton;
-
 class PoolFactory
 {
-    use Singleton;
-
     protected $pools = [];
 
     public function get(string $name, callable $callback, array $options = []): Pool

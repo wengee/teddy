@@ -1,15 +1,16 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Traits;
 
-use Teddy\Exception;
 use Teddy\Database\SQL;
+use Teddy\Exception;
 
 trait QueryInsert
 {
@@ -31,7 +32,7 @@ trait QueryInsert
             throw new Exception('Missing data for insertion');
         }
 
-        $sql = 'INSERT INTO ' . $this->getTable();
+        $sql = 'INSERT INTO '.$this->getTable();
         $sql .= $this->getInsertData($map);
 
         return $sql;
@@ -39,7 +40,7 @@ trait QueryInsert
 
     protected function getInsertData(array &$map = []): string
     {
-        $columns = [];
+        $columns      = [];
         $placeholders = [];
         foreach ($this->data as $key => $value) {
             $columns[] = $key;
@@ -47,10 +48,10 @@ trait QueryInsert
                 $placeholders[] = $value->toSql($map, $this);
             } else {
                 $placeholders[] = '?';
-                $map[] = $value;
+                $map[]          = $value;
             }
         }
 
-        return ' (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+        return ' ('.implode(', ', $columns).') VALUES ('.implode(', ', $placeholders).')';
     }
 }

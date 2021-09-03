@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 13:16:22 +0800
  */
 
 namespace Teddy\Factory;
@@ -11,6 +12,7 @@ namespace Teddy\Factory;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Teddy\Container\Container;
 
 class ResponseFactory implements ResponseFactoryInterface
 {
@@ -18,12 +20,9 @@ class ResponseFactory implements ResponseFactoryInterface
         int $code = StatusCodeInterface::STATUS_OK,
         string $reasonPhrase = ''
     ): ResponseInterface {
-        $response = make('response', [$code]);
+        /** @var ResponseInterface */
+        $response = Container::getInstance()->getNew('response', [$code]);
 
-        if ($reasonPhrase !== '') {
-            $response = $response->withStatus($code, $reasonPhrase);
-        }
-
-        return $response;
+        return $response->withStatus($code, $reasonPhrase);
     }
 }

@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 17:14:31 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -12,7 +13,7 @@ class MysqlBuilder extends Builder
 {
     public function hasTable(string $table): bool
     {
-        $table = $this->connection->getTablePrefix() . $table;
+        $table = $this->connection->getTablePrefix().$table;
 
         return count($this->connection->select(
             $this->grammar->compileTableExists(),
@@ -22,7 +23,7 @@ class MysqlBuilder extends Builder
 
     public function getColumnListing(string $table): array
     {
-        $table = $this->connection->getTablePrefix() . $table;
+        $table = $this->connection->getTablePrefix().$table;
 
         $results = $this->connection->select(
             $this->grammar->compileColumnListing(),
@@ -39,7 +40,7 @@ class MysqlBuilder extends Builder
         $tables = [];
 
         foreach ($this->getAllTables() as $row) {
-            $row = (array) $row;
+            $row      = (array) $row;
             $tables[] = reset($row);
         }
 
@@ -61,7 +62,7 @@ class MysqlBuilder extends Builder
         $views = [];
 
         foreach ($this->getAllViews() as $row) {
-            $row = (array) $row;
+            $row     = (array) $row;
             $views[] = reset($row);
         }
 

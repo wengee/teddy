@@ -1,16 +1,17 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Clause;
 
 class LimitClause extends ClauseContainer
 {
-    private $limit = null;
+    private $limit;
 
     private $offset = 0;
 
@@ -32,17 +33,17 @@ class LimitClause extends ClauseContainer
 
     public function toSql(&$map = []): string
     {
-        if ($this->limit === null && $this->offset === 0) {
+        if (null === $this->limit && 0 === $this->offset) {
             return '';
         }
 
         $ret = '';
-        if ($this->limit !== null) {
-            $ret .= ' LIMIT ' . $this->limit;
+        if (null !== $this->limit) {
+            $ret .= ' LIMIT '.$this->limit;
         }
 
         if ($this->offset > 0) {
-            $ret .= ' OFFSET ' . $this->offset;
+            $ret .= ' OFFSET '.$this->offset;
         }
 
         return $ret;

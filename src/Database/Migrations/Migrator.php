@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-09-22 10:10:23 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -23,7 +24,7 @@ class Migrator
 
     public function __construct()
     {
-        $this->repository = new MigrationRepository;
+        $this->repository = new MigrationRepository();
     }
 
     public function setCommand(Command $command): void
@@ -35,20 +36,22 @@ class Migrator
     {
         $this->notes = [];
 
-        $files = $this->getMigrationFiles($path);
+        $files      = $this->getMigrationFiles($path);
         $migrations = $this->pendingMigrations(
             $files,
             $this->repository->getRan()
         );
 
         $this->runPending($migrations);
+
         return $migrations;
     }
 
     public function runPending(array $migrations): void
     {
-        if (count($migrations) === 0) {
+        if (0 === count($migrations)) {
             $this->note('<info>Nothing to migrate.</info>');
+
             return;
         }
 
@@ -65,12 +68,13 @@ class Migrator
             $this->run($path);
         } else {
             $files = $this->getMigrationFiles($path, $table);
-            if (count($files) === 0) {
+            if (0 === count($files)) {
                 $this->note('<info>Nothing to migrate.</info>');
+
                 return;
             }
 
-            $ran = $this->repository->getRan();
+            $ran             = $this->repository->getRan();
             $resetMigrations = Collection::make($files)
                 ->filter(function ($value, $key) use ($ran) {
                     return in_array($key, $ran, true);
@@ -86,9 +90,9 @@ class Migrator
     public function rollback(string $path)
     {
         $this->notes = [];
-        $migrations = $this->repository->getLast();
+        $migrations  = $this->repository->getLast();
 
-        if (count($migrations) === 0) {
+        if (0 === count($migrations)) {
             $this->note('<info>Nothing to rollback.</info>');
 
             return [];
@@ -100,10 +104,11 @@ class Migrator
     public function reset(string $path)
     {
         $this->notes = [];
-        $migrations = array_reverse($this->repository->getRan());
+        $migrations  = array_reverse($this->repository->getRan());
 
-        if (count($migrations) === 0) {
+        if (0 === count($migrations)) {
             $this->note('<info>Nothing to rollback.</info>');
+
             return [];
         }
 
@@ -128,14 +133,14 @@ class Migrator
     public function resolve($file)
     {
         if (preg_match('#^(\\d{8})_(\\d{6})_(.+)$#i', $file, $m)) {
-            $class = Str::studly($m[3]) . 'Migration_' . $m[1] . $m[2];
+            $class = Str::studly($m[3]).'Migration_'.$m[1].$m[2];
         } elseif (preg_match('#^(\\d+)_([^\\d].+)$#i', $file, $m)) {
-            $class = Str::studly($m[2]) . 'Migration_' . $m[1];
+            $class = Str::studly($m[2]).'Migration_'.$m[1];
         } else {
             $class = Str::studly($file);
         }
 
-        return new $class;
+        return new $class();
     }
 
     public function getMigrationFiles($path, ?string $search = null): array
@@ -147,10 +152,10 @@ class Migrator
 
         if ($dh = opendir($path)) {
             while (($file = readdir($dh)) !== false) {
-                if (substr($file, -4) === '.php') {
+                if ('.php' === substr($file, -4)) {
                     if ($search) {
                         $arr = explode('_', substr($file, 0, -4), 2);
-                        if (count($arr) !== 2) {
+                        if (2 !== count($arr)) {
                             continue;
                         }
 
@@ -170,6 +175,7 @@ class Migrator
         }
 
         ksort($ret, SORT_NATURAL);
+
         return $ret;
     }
 
@@ -188,7 +194,7 @@ class Migrator
     protected function pendingMigrations($files, $ran)
     {
         return Collection::make($files)
-                ->reject(function ($file) use ($ran) {
+            ->reject(function ($file) use ($ran) {
                     return in_array($this->getMigrationName($file), $ran);
                 })->values()->all();
     }
@@ -229,13 +235,14 @@ class Migrator
     protected function rollbackMigrations(array $migrations, string $path)
     {
         $rolledBack = [];
-        $files = $this->getMigrationFiles($path);
+        $files      = $this->getMigrationFiles($path);
 
         foreach ($migrations as $migration) {
             $migration = (object) $migration;
 
             if (!$file = Arr::get($files, $migration->migration)) {
                 $this->note("<fg=red>Migration not found:</> {$migration->migration}");
+
                 continue;
             }
 
@@ -265,6 +272,6 @@ class Migrator
 
     protected function isInteger($input): bool
     {
-        return (ctype_digit(strval($input)));
+        return ctype_digit(strval($input));
     }
 }

@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Schedule;
@@ -16,12 +17,8 @@ class Parser
     {
         $date = self::parse($crontabStr);
         if (
-            $date !== null &&
-            isset($date['minutes'][$minutes]) &&
-            isset($date['hours'][$hours]) &&
-            isset($date['day'][$day]) &&
-            isset($date['month'][$month]) &&
-            isset($date['week'][$week])
+            null !== $date
+            && isset($date['minutes'][$minutes], $date['hours'][$hours], $date['day'][$day], $date['month'][$month], $date['week'][$week])
         ) {
             return $date['second'];
         }
@@ -37,13 +34,14 @@ class Parser
         $day       = (int) date('j', $timestamp);
         $month     = (int) date('n', $timestamp);
         $week      = (int) date('w', $timestamp);
+
         return self::check($crontabStr, $minutes, $hours, $day, $month, $week);
     }
 
     protected static function parse(string $crontabStr): ?array
     {
         $crontabStr = trim($crontabStr);
-        $date = isset(self::$formatedDates[$crontabStr]) ? self::$formatedDates[$crontabStr] : null;
+        $date       = self::$formatedDates[$crontabStr] ?? null;
 
         if (preg_match('/^(((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+)?((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)$/i', trim($crontabStr), $m)) {
             $date = [
@@ -62,13 +60,13 @@ class Parser
     protected static function parseCronNum($s, $min, $max): array
     {
         $result = [];
-        $v1 = explode(',', $s);
+        $v1     = explode(',', $s);
         foreach ($v1 as $v2) {
-            $v3 = explode('/', $v2);
+            $v3   = explode('/', $v2);
             $step = empty($v3[1]) ? 1 : $v3[1];
-            $v4 = explode('-', $v3[0]);
-            $_min = count($v4) == 2 ? $v4[0] : ($v3[0] == '*' ? $min : $v3[0]);
-            $_max = count($v4) == 2 ? $v4[1] : ($v3[0] == '*' ? $max : $v3[0]);
+            $v4   = explode('-', $v3[0]);
+            $_min = 2 == count($v4) ? $v4[0] : ('*' == $v3[0] ? $min : $v3[0]);
+            $_max = 2 == count($v4) ? $v4[1] : ('*' == $v3[0] ? $max : $v3[0]);
             for ($i = $_min; $i <= $_max; $i += $step) {
                 if (intval($i) < $min) {
                     $result[$min] = $min;
@@ -80,6 +78,7 @@ class Parser
             }
         }
         ksort($result);
+
         return $result;
     }
 }

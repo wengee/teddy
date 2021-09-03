@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-30 15:25:56 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Swoole;
@@ -49,8 +49,6 @@ class Server
 
     /** @var ContainerInterface */
     protected $container;
-
-    protected $config;
 
     /** @var int */
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
@@ -327,8 +325,8 @@ class Server
         $options['task_enable_coroutine'] = true;
         $this->swoole->set($options);
 
-        $this->container->instance('server', $this);
-        $this->container->instance('swoole', $this->swoole);
+        $this->container->addValue('server', $this);
+        $this->container->addValue('swoole', $this->swoole);
 
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
@@ -356,7 +354,7 @@ class Server
                 $this->addProcess(new QueueProcess($queue));
             }
 
-            $this->container->instance('queue', new Queue($queue));
+            $this->container->addValue('queue', new Queue($queue));
         }
 
         if ($config['processes'] && is_array($config['processes'])) {

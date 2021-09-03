@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-31 11:19:53 +0800
+ * @version  2021-09-03 15:24:35 +0800
  */
 
 namespace Teddy\Config;
@@ -12,8 +12,9 @@ namespace Teddy\Config;
 use Illuminate\Support\Arr;
 use Nette\Schema\Processor;
 use Nette\Schema\Schema;
+use Teddy\Interfaces\ArrayableInterface;
 
-class Repository
+class Repository implements ArrayableInterface
 {
     public const DATA_PROTECTED = 1;
     public const DATA_AS_LIST   = 2;

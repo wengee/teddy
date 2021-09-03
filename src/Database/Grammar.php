@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-03-11 16:37:24 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database;
@@ -23,8 +24,6 @@ abstract class Grammar
 
     /**
      * Wrap an array of values.
-     *
-     * @return array
      */
     public function wrapArray(array $values): array
     {
@@ -33,14 +32,15 @@ abstract class Grammar
 
     public function wrapTable($table): string
     {
-        return $this->wrap($this->tablePrefix . $table);
+        return $this->wrap($this->tablePrefix.$table);
     }
 
     public function wrap($value): string
     {
-        if (stripos($value, ' as ') !== false) {
+        if (false !== stripos($value, ' as ')) {
             $segments = preg_split('/\s+as\s+/i', $value);
-            return $this->wrapValue($segments[0]) . ' AS ' . $this->wrapValue($segments[1]);
+
+            return $this->wrapValue($segments[0]).' AS '.$this->wrapValue($segments[1]);
         }
 
         return $this->wrapValue($value);
@@ -78,15 +78,16 @@ abstract class Grammar
     public function setTablePrefix(string $prefix)
     {
         $this->tablePrefix = $prefix;
+
         return $this;
     }
 
     protected function wrapValue(string $value): string
     {
-        if ($value !== '*') {
-            return '"' . str_replace('.', '"."', $value) . '"';
+        if ('*' !== $value) {
+            return '"'.str_replace('.', '"."', $value).'"';
         }
 
-        return '"' . $value . '"';
+        return '"'.$value.'"';
     }
 }

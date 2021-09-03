@@ -4,11 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-22 17:24:32 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\DBAL;
 
+use function assert;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Result;
 use Doctrine\DBAL\Driver\PDO\Statement;
@@ -16,7 +17,6 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
-use function assert;
 use PDO;
 use PDOException;
 use PDOStatement;

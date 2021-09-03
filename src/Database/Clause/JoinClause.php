@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -22,19 +23,19 @@ class JoinClause extends ClauseContainer
         $on = [];
         if (is_array($first)) {
             foreach ($first as $c) {
-                $c = array_pad((array) $c, 4, null);
-                list($x, $y, $z, $t) = $c;
-                $x = $this->query->toDbColumn($x);
-                $z = $this->query->toDbColumn($z);
-                $t = $t ?: 'AND';
-                $on[] = [$x, $y, $z, $t];
+                $c               = array_pad((array) $c, 4, null);
+                [$x, $y, $z, $t] = $c;
+                $x               = $this->query->toDbColumn($x);
+                $z               = $this->query->toDbColumn($z);
+                $t               = $t ?: 'AND';
+                $on[]            = [$x, $y, $z, $t];
             }
 
             $joinType = $operator ?: $joinType;
         } else {
-            $first = $this->query->toDbColumn($first);
+            $first  = $this->query->toDbColumn($first);
             $second = $this->query->toDbColumn($second);
-            $on = [[$first, $operator, $second, null]];
+            $on     = [[$first, $operator, $second, null]];
         }
 
         $this->container[] = [$table, $on, $joinType];
@@ -63,14 +64,14 @@ class JoinClause extends ClauseContainer
 
         $ret = [];
         foreach ($this->container as $join) {
-            list($table, $ons, $joinType) = $join;
+            [$table, $ons, $joinType] = $join;
 
             $sql = '';
-            if ($joinType === SQL::FULL_JOIN) {
+            if (SQL::FULL_JOIN === $joinType) {
                 $sql .= ' FULL OUTER JOIN ';
-            } elseif ($joinType === SQL::RIGHT_JOIN) {
+            } elseif (SQL::RIGHT_JOIN === $joinType) {
                 $sql .= ' RIGHT OUTER JOIN ';
-            } elseif ($joinType === SQL::LEFT_JOIN) {
+            } elseif (SQL::LEFT_JOIN === $joinType) {
                 $sql .= ' LEFT OUTER JOIN ';
             } else {
                 $sql .= ' INNER JOIN ';
@@ -78,24 +79,24 @@ class JoinClause extends ClauseContainer
 
             $as = '';
             if (is_array($table) && count($table >= 2)) {
-                list($table, $as) = $table;
+                [$table, $as] = $table;
             }
             $sql .= $this->query->getDbTable($table, $as);
 
             $tick = false;
             foreach ($ons as $on) {
-                list($first, $operator, $second, $chainType) = $on;
+                [$first, $operator, $second, $chainType] = $on;
                 if (!$tick) {
                     $sql .= ' ON ';
                     $tick = true;
                 } else {
                     $chainType = $chainType ?: 'AND';
-                    $sql .= " $chainType ";
+                    $sql .= " {$chainType} ";
                 }
 
                 $sql .= ($first instanceof RawSQL) ? $first->toSql($map, $this->query) : $first;
                 if (!empty($second)) {
-                    $sql .= " $operator " . (($second instanceof RawSQL) ? $second->toSql($map, $this->query) : $second);
+                    $sql .= " {$operator} ".(($second instanceof RawSQL) ? $second->toSql($map, $this->query) : $second);
                 }
             }
 

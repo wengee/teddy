@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 11:45:44 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -69,7 +70,7 @@ class WhereClause extends ClauseContainer
     {
         $ret = '';
         foreach ($container as $where) {
-            list($column, $operator, $value, $chainType) = $where;
+            [$column, $operator, $value, $chainType] = $where;
             if (!$column) {
                 continue;
             }
@@ -135,19 +136,23 @@ class WhereClause extends ClauseContainer
                 }
 
                 $modeSQL = '';
+
                 switch ($mode) {
                     case 'query':
                         $modeSQL = ' WITH QUERY EXPANSION';
 
                         break;
+
                     case 'boolean':
                         $modeSQL = ' IN BOOLEAN MODE';
 
                         break;
+
                     case 'natural+query':
                         $modeSQL = ' IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION';
 
                         break;
+
                     case 'natural':
                         $modeSQL = ' IN NATURAL LANGUAGE MODE';
 

@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-11-06 16:34:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Lock;
@@ -42,7 +43,7 @@ class Lock implements LockInterface
             end
         ';
 
-        return !!$this->evaluate(
+        return (bool) $this->evaluate(
             $script,
             (string) $this->key,
             [$this->key->getUniqueToken(), $this->ttl]
@@ -59,8 +60,9 @@ class Lock implements LockInterface
             end
         ';
 
-        $ttl = $ttl === null ? $this->ttl : $ttl;
-        return !!$this->evaluate(
+        $ttl = null === $ttl ? $this->ttl : $ttl;
+
+        return (bool) $this->evaluate(
             $script,
             (string) $this->key,
             [$this->key->getUniqueToken(), $ttl]
@@ -71,7 +73,7 @@ class Lock implements LockInterface
     {
         $script = 'return redis.call("GET", KEYS[1]) == ARGV[1]';
 
-        return !!$this->evaluate(
+        return (bool) $this->evaluate(
             $script,
             (string) $this->key,
             [$this->key->getUniqueToken()]
@@ -88,7 +90,7 @@ class Lock implements LockInterface
             end
         ';
 
-        return !!$this->evaluate(
+        return (bool) $this->evaluate(
             $script,
             (string) $this->key,
             [$this->key->getUniqueToken()]

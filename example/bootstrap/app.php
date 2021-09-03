@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-08-31 10:56:12 +0800
+ * @version  2021-09-03 11:49:22 +0800
  */
 
 use App\Http\Request;
@@ -13,10 +13,8 @@ use Teddy\Application;
 
 $app = Application::create(defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__));
 
-$app->getContainer()
-    ->bind('request', Request::class)
-    ->bind('response', Response::class)
-;
+$app->getContainer()->add('request', Request::class);
+$app->getContainer()->add('response', Response::class);
 
 $app->addRoutingMiddleware();
 $app->addBodyParsingMiddleware([]);

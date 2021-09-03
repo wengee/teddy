@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-15 10:31:42 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database;
@@ -24,6 +25,13 @@ class Manager
         }
     }
 
+    public function __call(string $method, array $args)
+    {
+        $connection = $this->connection();
+
+        return $connection->{$method}(...$args);
+    }
+
     public function connection(?string $key = null): Database
     {
         $key = $key ?: 'default';
@@ -36,11 +44,5 @@ class Manager
         }
 
         return $this->pools[$key];
-    }
-
-    public function __call(string $method, array $args)
-    {
-        $connection = $this->connection();
-        return $connection->{$method}(...$args);
     }
 }

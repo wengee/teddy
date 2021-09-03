@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2020-06-12 10:28:10 +0800
+ * @version  2021-09-03 11:37:54 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -17,27 +18,6 @@ use Teddy\Database\Grammar;
 class Blueprint
 {
     use Macroable;
-
-    /**
-     * The table the blueprint describes.
-     *
-     * @var string
-     */
-    protected $table;
-
-    /**
-     * The columns that should be added to the table.
-     *
-     * @var \Illuminate\Support\Fluent[]
-     */
-    protected $columns = [];
-
-    /**
-     * The commands that should be run for the table.
-     *
-     * @var \Illuminate\Support\Fluent[]
-     */
-    protected $commands = [];
 
     /**
      * The storage engine that should be used for the table.
@@ -64,17 +44,36 @@ class Blueprint
     public $temporary = false;
 
     /**
+     * The table the blueprint describes.
+     *
+     * @var string
+     */
+    protected $table;
+
+    /**
+     * The columns that should be added to the table.
+     *
+     * @var \Illuminate\Support\Fluent[]
+     */
+    protected $columns = [];
+
+    /**
+     * The commands that should be run for the table.
+     *
+     * @var \Illuminate\Support\Fluent[]
+     */
+    protected $commands = [];
+
+    /**
      * Create a new schema blueprint.
      *
-     * @param  string  $table
-     * @param  \Closure|null  $callback
-     * @return void
+     * @param string $table
      */
     public function __construct($table, Closure $callback = null)
     {
         $this->table = $table;
 
-        if (! is_null($callback)) {
+        if (!is_null($callback)) {
             $callback($this);
         }
     }
@@ -95,7 +94,7 @@ class Blueprint
             $method = 'compile'.ucfirst($command->name);
 
             if (method_exists($grammar, $method)) {
-                if (! is_null($sql = $grammar->$method($this, $command, $connection))) {
+                if (!is_null($sql = $grammar->{$method}($this, $command, $connection))) {
                     $statements = array_merge($statements, (array) $sql);
                 }
             }
@@ -104,56 +103,13 @@ class Blueprint
         return $statements;
     }
 
-    protected function commandsNamed(array $names)
-    {
-        return collect($this->commands)->filter(function ($command) use ($names) {
-            return in_array($command->name, $names);
-        });
-    }
-
-    protected function addImpliedCommands(Grammar $grammar): void
-    {
-        if (count($this->getAddedColumns()) > 0 && ! $this->creating()) {
-            array_unshift($this->commands, $this->createCommand('add'));
-        }
-
-        if (count($this->getChangedColumns()) > 0 && ! $this->creating()) {
-            array_unshift($this->commands, $this->createCommand('change'));
-        }
-
-        $this->addFluentIndexes();
-        $this->addFluentCommands($grammar);
-    }
-
-    /**
-     * Add the index commands fluently specified on columns.
-     *
-     * @return void
-     */
-    protected function addFluentIndexes(): void
-    {
-        foreach ($this->columns as $column) {
-            foreach (['primary', 'unique', 'index', 'spatialIndex'] as $index) {
-                if ($column->{$index} === true) {
-                    $this->{$index}($column->name);
-
-                    continue 2;
-                } elseif (isset($column->{$index})) {
-                    $this->{$index}($column->name, $column->{$index});
-
-                    continue 2;
-                }
-            }
-        }
-    }
-
     public function addFluentCommands(Grammar $grammar): void
     {
         foreach ($this->columns as $column) {
             foreach ($grammar->getFluentCommands() as $commandName) {
                 $attributeName = lcfirst($commandName);
 
-                if (! isset($column->{$attributeName})) {
+                if (!isset($column->{$attributeName})) {
                     continue;
                 }
 
@@ -165,13 +121,6 @@ class Blueprint
                 );
             }
         }
-    }
-
-    protected function creating()
-    {
-        return collect($this->commands)->contains(function ($command) {
-            return $command->name == 'create';
-        });
     }
 
     public function create(): Fluent
@@ -202,6 +151,7 @@ class Blueprint
     public function dropColumn($columns): Fluent
     {
         $columns = is_array($columns) ? $columns : func_get_args();
+
         return $this->addCommand('dropColumn', compact('columns'));
     }
 
@@ -313,12 +263,14 @@ class Blueprint
     public function char(string $column, ?int $length = null): Fluent
     {
         $length = $length ?: Builder::$defaultStringLength;
+
         return $this->addColumn('char', $column, compact('length'));
     }
 
     public function string(string $column, ?int $length = null): Fluent
     {
         $length = $length ?: Builder::$defaultStringLength;
+
         return $this->addColumn('string', $column, compact('length'));
     }
 
@@ -525,33 +477,6 @@ class Blueprint
         return $this->addColumn('multipolygon', $column);
     }
 
-    protected function indexCommand(string $type, $columns, ?string $index, ?string $algorithm = null): Fluent
-    {
-        $columns = (array) $columns;
-        $index = $index ?: $this->createIndexName($type, $columns);
-
-        return $this->addCommand(
-            $type,
-            compact('index', 'columns', 'algorithm')
-        );
-    }
-
-    protected function dropIndexCommand(string $command, string $type, ?string $index): Fluent
-    {
-        $columns = [];
-        if (is_array($index)) {
-            $index = $this->createIndexName($type, $columns = $index);
-        }
-
-        return $this->indexCommand($command, $columns, $index);
-    }
-
-    protected function createIndexName(string $type, array $columns): string
-    {
-        $index = strtolower($this->table.'_'.implode('_', $columns).'_'.$type);
-        return str_replace(['-', '.'], '_', $index);
-    }
-
     public function addColumn(string $type, string $name, array $parameters = []): Fluent
     {
         $this->columns[] = $column = new Fluent(
@@ -568,17 +493,6 @@ class Blueprint
         }));
 
         return $this;
-    }
-
-    protected function addCommand(string $name, array $parameters = []): Fluent
-    {
-        $this->commands[] = $command = $this->createCommand($name, $parameters);
-        return $command;
-    }
-
-    protected function createCommand(string $name, array $parameters = []): Fluent
-    {
-        return new Fluent(array_merge(compact('name'), $parameters));
     }
 
     public function getTable(): string
@@ -608,5 +522,94 @@ class Blueprint
         return array_filter($this->columns, function ($column) {
             return (bool) $column->change;
         });
+    }
+
+    protected function commandsNamed(array $names)
+    {
+        return collect($this->commands)->filter(function ($command) use ($names) {
+            return in_array($command->name, $names);
+        });
+    }
+
+    protected function addImpliedCommands(Grammar $grammar): void
+    {
+        if (count($this->getAddedColumns()) > 0 && !$this->creating()) {
+            array_unshift($this->commands, $this->createCommand('add'));
+        }
+
+        if (count($this->getChangedColumns()) > 0 && !$this->creating()) {
+            array_unshift($this->commands, $this->createCommand('change'));
+        }
+
+        $this->addFluentIndexes();
+        $this->addFluentCommands($grammar);
+    }
+
+    /**
+     * Add the index commands fluently specified on columns.
+     */
+    protected function addFluentIndexes(): void
+    {
+        foreach ($this->columns as $column) {
+            foreach (['primary', 'unique', 'index', 'spatialIndex'] as $index) {
+                if (true === $column->{$index}) {
+                    $this->{$index}($column->name);
+
+                    continue 2;
+                }
+                if (isset($column->{$index})) {
+                    $this->{$index}($column->name, $column->{$index});
+
+                    continue 2;
+                }
+            }
+        }
+    }
+
+    protected function creating()
+    {
+        return collect($this->commands)->contains(function ($command) {
+            return 'create' == $command->name;
+        });
+    }
+
+    protected function indexCommand(string $type, $columns, ?string $index, ?string $algorithm = null): Fluent
+    {
+        $columns = (array) $columns;
+        $index   = $index ?: $this->createIndexName($type, $columns);
+
+        return $this->addCommand(
+            $type,
+            compact('index', 'columns', 'algorithm')
+        );
+    }
+
+    protected function dropIndexCommand(string $command, string $type, ?string $index): Fluent
+    {
+        $columns = [];
+        if (is_array($index)) {
+            $index = $this->createIndexName($type, $columns = $index);
+        }
+
+        return $this->indexCommand($command, $columns, $index);
+    }
+
+    protected function createIndexName(string $type, array $columns): string
+    {
+        $index = strtolower($this->table.'_'.implode('_', $columns).'_'.$type);
+
+        return str_replace(['-', '.'], '_', $index);
+    }
+
+    protected function addCommand(string $name, array $parameters = []): Fluent
+    {
+        $this->commands[] = $command = $this->createCommand($name, $parameters);
+
+        return $command;
+    }
+
+    protected function createCommand(string $name, array $parameters = []): Fluent
+    {
+        return new Fluent(array_merge(compact('name'), $parameters));
     }
 }
