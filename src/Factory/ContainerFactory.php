@@ -4,14 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 18:08:17 +0800
+ * @version  2021-09-07 16:55:59 +0800
  */
 
 namespace Teddy\Factory;
 
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Teddy\Container\Container;
-use Teddy\Utils\Composer;
 
 class ContainerFactory
 {
@@ -34,8 +33,7 @@ class ContainerFactory
         $container->add('response', \Teddy\Http\Response::class);
 
         // Database
-        $loader = Composer::getLoader();
-        AnnotationRegistry::registerLoader([$loader, 'loadClass']);
+        AnnotationRegistry::registerUniqueLoader('class_exists');
         $container->addShared('db', \Teddy\Database\Manager::class);
 
         // Redis
