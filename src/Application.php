@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-08 18:09:27 +0800
+ * @version  2021-09-08 18:16:27 +0800
  */
 
 namespace Teddy;
@@ -22,6 +22,7 @@ use Teddy\Config\Config;
 use Teddy\Console\Application as ConsoleApplication;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
+use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Middleware\CorsMiddleware;
 use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
@@ -33,21 +34,17 @@ use Teddy\Traits\ContainerAwareTrait;
  * @method RoutingMiddleware     addRoutingMiddleware()
  * @method ErrorMiddleware       addErrorMiddleware(bool $displayErrorDetails, bool $logErrors, bool $logErrorDetails, ?LoggerInterface $logger = null)
  */
-class Application implements ContainerAwareInterface
+class Application implements WithContainerInterface, ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
     /** @var SlimApp */
     protected $slimApp;
 
-    /** @var Config */
-    protected $config;
-
     public function __construct(ContainerInterface $container)
     {
         $container->addValue('app', $this);
         $this->container = $container;
-        $this->config    = $container->get('config');
         $this->slimApp   = $container->get('slim');
 
         $this->initRoutes();
@@ -117,7 +114,7 @@ class Application implements ContainerAwareInterface
         $dir = base_path('routes');
         if (is_dir($dir)) {
             $routeCollector->group([
-                'pattern'   => $this->config->get('app.urlPrefix', ''),
+                'pattern'   => config('app.urlPrefix', ''),
                 'namespace' => 'App\\Controllers',
             ], function ($router) use ($dir): void {
                 $handle = opendir($dir);
