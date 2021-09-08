@@ -4,12 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-07 16:52:36 +0800
+ * @version  2021-09-08 16:47:57 +0800
  */
 
 namespace Teddy\Container;
 
 use JsonSerializable;
+use LogicException;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\DefinitionInterface;
 use Teddy\Interfaces\LiteralArgumentInterface;
@@ -17,6 +18,9 @@ use Teddy\Interfaces\LiteralArgumentInterface;
 class Container implements ContainerInterface, JsonSerializable
 {
     protected static $instance;
+
+    /** @var array */
+    protected $aliases = [];
 
     /** @var array */
     protected $concretes = [];
@@ -36,20 +40,25 @@ class Container implements ContainerInterface, JsonSerializable
     public function jsonSerialize()
     {
         return [
+            'alias'     => $this->aliases,
             'concretes' => array_map(function ($item) {
                 if ($item instanceof DefinitionInterface) {
                     return '[definition]'.($item->isShared() ? '.[shared]' : '');
                 }
 
                 if (is_object($item)) {
-                    return get_class($item);
+                    return '['.get_class($item).']';
                 }
 
                 if (is_callable($item)) {
-                    return 'callable';
+                    return '[callable]';
                 }
 
-                return gettype($item);
+                if (is_string($item) || method_exists($item, '__toString')) {
+                    return (string) $item;
+                }
+
+                return '['.gettype($item).']';
             }, $this->concretes),
         ];
     }
@@ -87,6 +96,15 @@ class Container implements ContainerInterface, JsonSerializable
         $this->concretes[$id] = $value;
     }
 
+    public function addAlias(string $id, string $alias): void
+    {
+        if ($id === $alias) {
+            throw new LogicException("[{$id}] is aliased to itself.");
+        }
+
+        $this->aliases[$id] = $alias;
+    }
+
     public function get(string $id)
     {
         return $this->resolve($id, null, false);
@@ -97,13 +115,19 @@ class Container implements ContainerInterface, JsonSerializable
         return $this->resolve($id, $arguments, true);
     }
 
+    public function getAlias(string $id)
+    {
+        return $this->aliases[$id] ?? $id;
+    }
+
     public function has(string $id): bool
     {
-        return array_key_exists($id, $this->concretes);
+        return array_key_exists($id, $this->aliases) || array_key_exists($id, $this->concretes);
     }
 
     protected function resolve(string $id, ?array $arguments = null, bool $new = false)
     {
+        $id       = $this->getAlias($id);
         $concrete = $this->concretes[$id] ?? null;
         if ($concrete instanceof DefinitionInterface) {
             return $new ? $concrete->resolveNew($arguments) : $concrete->resolve();

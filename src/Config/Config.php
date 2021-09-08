@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 18:07:58 +0800
+ * @version  2021-09-08 17:44:05 +0800
  */
 
 namespace Teddy\Config;
@@ -17,10 +17,11 @@ use JsonSerializable;
 use Symfony\Component\Yaml\Yaml;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
+use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Traits\ContainerAwareTrait;
 use Teddy\Utils\FileSystem;
 
-class Config extends Repository implements ContainerAwareInterface, JsonSerializable
+class Config extends Repository implements WithContainerInterface, ContainerAwareInterface, JsonSerializable
 {
     use ContainerAwareTrait;
 
@@ -42,10 +43,12 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
     /** @var array */
     protected $cached = [];
 
-    public function __construct(ContainerInterface $container, ?string $basePath = null)
+    public function __construct(ContainerInterface $container)
     {
         $this->container    = $container;
         $this->configDirs[] = dirname(__DIR__).'/_config';
+
+        $basePath = $container->get('basePath');
         if ($basePath) {
             $this->configDirs[]  = FileSystem::joinPath($basePath, 'config');
             $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yml');

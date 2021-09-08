@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 13:19:49 +0800
+ * @version  2021-09-08 17:19:17 +0800
  */
 
 namespace Teddy\Swoole;
@@ -31,7 +31,7 @@ class ServerRequestFactory
         $body          = static::createBody($request);
         $uploadedFiles = static::createUploadFiles($request->files ?: null);
 
-        $req = Container::getInstance()->getNew('request', [
+        $req = Container::getInstance()->getNew(ServerRequestInterface::class, [
             $method,
             $uri,
             $headers,

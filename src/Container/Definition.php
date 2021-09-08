@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 16:32:57 +0800
+ * @version  2021-09-08 17:40:44 +0800
  */
 
 namespace Teddy\Container;
@@ -15,6 +15,7 @@ use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\DefinitionInterface;
 use Teddy\Interfaces\LiteralArgumentInterface;
+use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Traits\ContainerAwareTrait;
 
 class Definition implements ContainerAwareInterface, DefinitionInterface
@@ -155,11 +156,14 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
 
     protected function resolveClass(string $concrete, ?array $arguments = null): object
     {
+        $reflection = new ReflectionClass($concrete);
+        if ($reflection->implementsInterface(WithContainerInterface::class)) {
+            return $reflection->newInstanceArgs([$this->getContainer()]);
+        }
+
         if (null === $arguments) {
             $arguments = $this->resolveArguments($this->arguments);
         }
-
-        $reflection = new ReflectionClass($concrete);
 
         return $reflection->newInstanceArgs($arguments);
     }

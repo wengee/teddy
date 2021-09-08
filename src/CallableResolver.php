@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 15:17:16 +0800
+ * @version  2021-09-08 17:42:14 +0800
  */
 
 namespace Teddy;
@@ -14,20 +14,20 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Slim\Interfaces\CallableResolverInterface;
 use Teddy\Interfaces\ContainerInterface;
-use Teddy\Interfaces\ControllerInterface;
+use Teddy\Interfaces\WithContainerInterface;
 
 /**
  * This class resolves a string of the format 'class:method' into a closure
  * that can be dispatched.
  */
-final class CallableResolver implements CallableResolverInterface
+final class CallableResolver implements WithContainerInterface, CallableResolverInterface
 {
     /**
      * @var null|ContainerInterface
      */
     private $container;
 
-    public function __construct(?ContainerInterface $container = null)
+    public function __construct(ContainerInterface $container)
     {
         $this->container = $container;
     }
@@ -60,11 +60,7 @@ final class CallableResolver implements CallableResolverInterface
             }
 
             if (class_exists($class) && !$this->container->has($class)) {
-                $definition = $this->container->addShared($class);
-
-                if (is_subclass_of($class, ControllerInterface::class)) {
-                    $definition->addArgument('container');
-                }
+                $this->container->addShared($class);
             }
 
             $instance = $this->container->get($class);
