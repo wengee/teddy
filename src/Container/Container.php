@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-08 16:47:57 +0800
+ * @version  2021-09-09 14:15:25 +0800
  */
 
 namespace Teddy\Container;
@@ -74,8 +74,7 @@ class Container implements ContainerInterface, JsonSerializable
 
     public function add(string $id, $concrete = null): DefinitionInterface
     {
-        $concrete   = $concrete ?: $id;
-        $definition = new Definition($concrete);
+        $definition = new Definition($id, $concrete);
         $definition->setContainer($this);
 
         $this->concretes[$id] = $definition;

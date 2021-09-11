@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-08 17:40:44 +0800
+ * @version  2021-09-09 14:17:22 +0800
  */
 
 namespace Teddy\Container;
@@ -22,6 +22,9 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
 {
     use ContainerAwareTrait;
 
+    /** @var string */
+    protected $id;
+
     protected $concrete;
 
     protected $shared = false;
@@ -30,9 +33,10 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
 
     protected $resolved;
 
-    public function __construct($concrete)
+    public function __construct(string $id, $concrete = null)
     {
-        $this->concrete = $concrete;
+        $this->id       = $id;
+        $this->concrete = $concrete ?: $id;
     }
 
     public function setShared(bool $shared = true): self
@@ -45,6 +49,13 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
     public function isShared(): bool
     {
         return $this->shared;
+    }
+
+    public function setAlias(string $alias): self
+    {
+        $this->getContainer()->addAlias($alias, $this->id);
+
+        return $this;
     }
 
     public function addArgument($arg): self
