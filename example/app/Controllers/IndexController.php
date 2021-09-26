@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 13:23:46 +0800
+ * @version  2021-09-26 17:21:03 +0800
  */
 
 namespace App\Controllers;
@@ -21,11 +21,13 @@ class IndexController extends Controller
     {
         $model = new Abc();
         $model = $model->save() ? $model : null;
+        $token = app('auth')->login(['openId' => 'abcd']);
 
         return $response->json(0, [
             'config'    => config(),
             'container' => $this->getContainer(),
             'model'     => $model,
+            'token'     => $token,
             'request'   => spl_object_hash($request),
             // 'list'      => Abc::query()->orderBy('id', 'DESC')->limit(5)->all(),
         ]);

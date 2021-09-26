@@ -4,159 +4,62 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-09-26 17:25:17 +0800
  */
 
 namespace Teddy\Auth;
 
-use Illuminate\Support\Str;
-use Teddy\Exception;
+use RuntimeException;
+use Teddy\Auth\Adapaters\JwtAdapater;
+use Teddy\Auth\Adapaters\RedisAdapater;
+use Teddy\Interfaces\AuthAdapaterInterface;
 
 class Manager
 {
-    public const CACHE_KEY = 'auth:token:';
-
-    protected $secret;
+    /** @var AuthAdapaterInterface */
+    protected $adapater;
 
     public function __construct()
     {
-        $this->secret = config('auth.secret', '** It is the default auth secret. **');
+        $options = (array) config('auth', []);
+
+        $this->adapater = $this->createAdapater($options['adapater'] ?? 'redis', $options);
     }
 
-    public function create(array $data, int $expiresIn = 0): string
+    public function login(array $data, int $expiresIn = 3600): string
     {
-        $token    = $this->generateToken();
-        $cacheKey = self::CACHE_KEY.$token;
-        if ($expiresIn > 0) {
-            $ret = app('redis')->set($cacheKey, $data, $expiresIn);
-        } else {
-            $ret = app('redis')->set($cacheKey, $data);
-        }
-
-        if (!$ret) {
-            throw new Exception('Can not save the auth data.');
-        }
-
-        return $token;
+        return $this->adapater->encode($data, $expiresIn);
     }
 
-    public function refresh(string $token, int $expiresIn = 0): ?string
+    public function logout(string $token): void
     {
-        if (!$this->checkToken($token, true)) {
-            return null;
-        }
-
-        $data = $this->fetch($token);
-        if (!$data) {
-            return null;
-        }
-
-        return $this->create($data, $expiresIn);
+        $this->adapater->block($token);
     }
 
-    public function fetch(string $token): ?array
+    public function load(string $token): ?array
     {
-        if (!$this->checkToken($token, true)) {
-            return null;
-        }
-
-        $cacheKey = self::CACHE_KEY.$token;
-        $data     = app('redis')->get($cacheKey);
-
-        return ($data && is_array($data)) ? $data : null;
+        return $this->adapater->decode($token);
     }
 
-    public function clear(string $token): void
+    public function refresh(string $token, int $expiresIn = 3600): string
     {
-        if ($this->checkToken($token, true)) {
-            app('redis')->del(self::CACHE_KEY.$token);
-        }
+        $data = $this->adapater->decode($token);
+
+        return $this->adapater->encode($data, $expiresIn);
     }
 
-    public function ttl(string $token, int $expiresIn = 0): void
+    protected function createAdapater(string $adapater, array $options): AuthAdapaterInterface
     {
-        if ($this->checkToken($token, true) && $expiresIn > 0) {
-            app('redis')->expire(self::CACHE_KEY.$token, $expiresIn);
-        }
-    }
-
-    public function reset(string $token, array $data, int $expiresIn = 0): void
-    {
-        $this->checkToken($token);
-
-        $cacheKey = self::CACHE_KEY.$token;
-        if ($expiresIn > 0) {
-            $ret = app('redis')->set($cacheKey, $data, $expiresIn);
-        } else {
-            $ret = app('redis')->set($cacheKey, $data);
+        if ('redis' === $adapater) {
+            $adapater = RedisAdapater::class;
+        } elseif ('jwt' === $adapater) {
+            $adapater = JwtAdapater::class;
         }
 
-        if (!$ret) {
-            throw new Exception('Can not save the auth data.');
-        }
-    }
-
-    public function update(string $token, $key, $value)
-    {
-        $this->checkToken($token);
-
-        $cacheKey = self::CACHE_KEY.$token;
-        $data     = app('redis')->get($cacheKey);
-        if (false === $data || !is_array($data)) {
-            throw new Exception('Can not found the auth data.');
+        if (!is_subclass_of($adapater, AuthAdapaterInterface::class)) {
+            throw new RuntimeException('The auth adapater ['.$adapater.'] is invalid.');
         }
 
-        $data[$key] = $value;
-
-        return app('redis')->set($cacheKey, $data);
-    }
-
-    public function remove(string $token, $key): void
-    {
-        $this->checkToken($token);
-
-        $cacheKey = self::CACHE_KEY.$token;
-        $data     = app('redis')->get($cacheKey);
-        if (false === $data || !is_array($data)) {
-            throw new Exception('Can not found the auth data.');
-        }
-
-        unset($data[$key]);
-        app('redis')->set($cacheKey, $data);
-    }
-
-    protected function generateToken(): string
-    {
-        $timestamp = intval(microtime(true) * 1000);
-        $nonceStr  = strtolower(uniqid().Str::random(8));
-
-        return $timestamp.'.'.$nonceStr.'.'.$this->makeSignature($timestamp, $nonceStr);
-    }
-
-    protected function checkToken(string $token, bool $silent = false): bool
-    {
-        $ret = false;
-        $arr = explode('.', $token);
-        if (!$arr || 3 !== count($arr)) {
-            goto RESULT;
-        }
-
-        $signature = $this->makeSignature((int) $arr[0], $arr[1]);
-        $ret       = $signature === $arr[2];
-
-        RESULT:
-        if ($silent) {
-            return $ret;
-        }
-        if (!$ret) {
-            throw new Exception('Token is invalid.');
-        }
-
-        return true;
-    }
-
-    protected function makeSignature(int $timestamp, string $nonceStr): string
-    {
-        return md5($timestamp.$this->secret.$nonceStr);
+        return make($adapater, [$options]);
     }
 }

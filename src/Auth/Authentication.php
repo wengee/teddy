@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-09-26 17:07:39 +0800
  */
 
 namespace Teddy\Auth;
@@ -45,7 +45,7 @@ class Authentication implements MiddlewareInterface
         }
 
         if ($token) {
-            $payload = app('auth')->fetch($token);
+            $payload = app('auth')->load($token);
             if ($payload && is_callable($this->config['callback'])) {
                 $user = call_user_func($this->config['callback'], $request, $payload);
             }

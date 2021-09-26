@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-09 14:18:19 +0800
+ * @version  2021-09-26 17:16:16 +0800
  */
 
 namespace Teddy\Container;
@@ -52,9 +52,6 @@ class DefaultContainer
 
         // Flysystem
         $container->addShared('fs', \Teddy\Flysystem\Manager::class);
-
-        // JWT
-        $container->addShared('jwt', \Teddy\Jwt\Manager::class);
 
         // Others
         $container->addShared('base64', \Teddy\Base64::class);
