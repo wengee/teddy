@@ -4,12 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-26 17:25:17 +0800
+ * @version  2021-09-26 17:55:00 +0800
  */
 
 namespace Teddy\Auth;
 
 use RuntimeException;
+use Swoole\Timer;
 use Teddy\Auth\Adapaters\JwtAdapater;
 use Teddy\Auth\Adapaters\RedisAdapater;
 use Teddy\Interfaces\AuthAdapaterInterface;
@@ -44,6 +45,9 @@ class Manager
     public function refresh(string $token, int $expiresIn = 3600): string
     {
         $data = $this->adapater->decode($token);
+        Timer::after(10000, function () use ($token): void {
+            $this->adapater->block($token);
+        });
 
         return $this->adapater->encode($data, $expiresIn);
     }
