@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-09 14:15:25 +0800
+ * @version  2021-10-11 14:20:05 +0800
  */
 
 namespace Teddy\Container;
@@ -72,27 +72,29 @@ class Container implements ContainerInterface, JsonSerializable
         return static::$instance;
     }
 
-    public function add(string $id, $concrete = null): DefinitionInterface
+    public function add(string $id, $concrete = null, bool $shared = false): DefinitionInterface
     {
         $definition = new Definition($id, $concrete);
         $definition->setContainer($this);
+        if ($shared) {
+            $definition->setShared(true);
+        }
 
         $this->concretes[$id] = $definition;
+        $this->removeAlias($id);
 
         return $definition;
     }
 
     public function addShared(string $id, $concrete = null): DefinitionInterface
     {
-        $definition = $this->add($id, $concrete);
-        $definition->setShared(true);
-
-        return $definition;
+        return $this->add($id, $concrete, true);
     }
 
     public function addValue(string $id, $value): void
     {
         $this->concretes[$id] = $value;
+        $this->removeAlias($id);
     }
 
     public function addAlias(string $id, string $alias): void
@@ -102,6 +104,22 @@ class Container implements ContainerInterface, JsonSerializable
         }
 
         $this->aliases[$id] = $alias;
+    }
+
+    public function remove(string $id): void
+    {
+        if (isset($this->concretes[$id])) {
+            unset($this->concretes[$id]);
+        }
+
+        $this->removeAlias($id);
+    }
+
+    public function removeAlias(string $id): void
+    {
+        if (isset($this->aliases[$id])) {
+            unset($this->aliases[$id]);
+        }
     }
 
     public function get(string $id)
