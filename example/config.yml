@@ -4,3 +4,6 @@ cors:
   origin:
     - "*.iqoo.com"
     - "*.lvh.me"
+
+app:
+  test: !eval "env('HOME') ? 123 : 345"

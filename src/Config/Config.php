@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-08 17:44:05 +0800
+ * @version  2021-11-03 14:13:58 +0800
  */
 
 namespace Teddy\Config;
@@ -14,7 +14,9 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use JsonSerializable;
+use Symfony\Component\Yaml\Tag\TaggedValue;
 use Symfony\Component\Yaml\Yaml;
+use Teddy\Interfaces\ConfigTagInterface;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\WithContainerInterface;
@@ -24,6 +26,11 @@ use Teddy\Utils\FileSystem;
 class Config extends Repository implements WithContainerInterface, ContainerAwareInterface, JsonSerializable
 {
     use ContainerAwareTrait;
+
+    protected const TAG_DEFINITIONS = [
+        'env'  => Tags\EnvTag::class,
+        'eval' => Tags\EvalTag::class,
+    ];
 
     /** @var string[] */
     protected $configDirs = [];
@@ -141,9 +148,42 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 
     private function loadYamlConfig(string $file): void
     {
-        $config = Yaml::parseFile($file);
+        $config = Yaml::parseFile($file, Yaml::PARSE_CUSTOM_TAGS);
         if ($config && is_array($config)) {
+            $config = $this->parseValue($config);
+
             $this->merge($config, true);
         }
+    }
+
+    private function parseValue(array $data): array
+    {
+        return array_map(function ($item) {
+            if (is_array($item)) {
+                return $this->parseValue($item);
+            }
+
+            if ($item instanceof TaggedValue) {
+                $tagName = $item->getTag();
+                $value = $item->getValue();
+
+                return $this->parseTagValue($tagName, $value);
+            }
+
+            return $item;
+        }, $data);
+    }
+
+    private function parseTagValue(string $tag, $value)
+    {
+        $definition = self::TAG_DEFINITIONS[$tag] ?? null;
+        if ($definition) {
+            /** @var ConfigTagInterface $obj */
+            $obj = new $definition($value);
+
+            return $obj->getValue();
+        }
+
+        return $value;
     }
 }
