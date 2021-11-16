@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-26 17:16:16 +0800
+ * @version  2021-11-16 15:02:08 +0800
  */
 
 namespace Teddy\Container;
@@ -13,6 +13,8 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Slim\Interfaces\CallableResolverInterface;
 use Slim\Interfaces\RouteCollectorInterface;
@@ -25,6 +27,8 @@ class DefaultContainer
         $container->addValue('basePath', $basePath);
 
         // Slim Application
+        $container->addShared(StreamFactoryInterface::class, \Slim\Psr7\Factory\StreamFactory::class);
+        $container->addShared(UploadedFileFactoryInterface::class, \Slim\Psr7\Factory\UploadedFileFactory::class);
         $container->addShared(ResponseFactoryInterface::class, \Teddy\Http\ResponseFactory::class);
         $container->addShared(CallableResolverInterface::class, \Teddy\CallableResolver::class);
         $container->addShared(RouteCollectorInterface::class, \Teddy\Routing\RouteCollector::class);

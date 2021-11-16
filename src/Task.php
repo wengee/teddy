@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-11-16 15:21:11 +0800
  */
 
 namespace Teddy;
@@ -29,12 +29,12 @@ abstract class Task
     /**
      * @var int
      */
-    protected $executionTime = 600;
+    protected $timeout = 600;
 
     /**
      * @var bool
      */
-    protected $exclusive = true;
+    protected $overlapped = false;
 
     /**
      * @var mixed
@@ -86,7 +86,7 @@ abstract class Task
         return $this;
     }
 
-    public function wait(float $waitTimeout = 3.0): self
+    public function waitTimeout(float $waitTimeout = 3.0): self
     {
         if ($waitTimeout <= 0) {
             throw new InvalidArgumentException('The waitTimeout must be greater than 0');
@@ -97,14 +97,20 @@ abstract class Task
         return $this;
     }
 
-    public function exclusive(int $executionTime): self
+    public function timeout(int $timeout): self
     {
-        if ($executionTime > 0) {
-            $this->executionTime = $executionTime;
-            $this->exclusive     = true;
-        } else {
-            $this->exclusive = false;
+        if ($timeout <= 0) {
+            throw new InvalidArgumentException('The timeout must be greater than 0');
         }
+
+        $this->timeout = $timeout;
+
+        return $this;
+    }
+
+    public function withOverlapping(bool $overlapped = true): self
+    {
+        $this->overlapped = $overlapped;
 
         return $this;
     }
@@ -167,7 +173,7 @@ abstract class Task
 
     public function isRunning(): bool
     {
-        if (!$this->exclusive) {
+        if ($this->overlapped) {
             return false;
         }
 
@@ -183,7 +189,7 @@ abstract class Task
 
     protected function sendAndWait(float $waitTimeout = 3.0)
     {
-        $this->wait($waitTimeout);
+        $this->waitTimeout($waitTimeout);
         $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
 
         return ($ret && isset($ret[0])) ? $ret[0] : null;
@@ -208,7 +214,7 @@ abstract class Task
     {
         if (!isset($this->lock)) {
             $lockKey    = 'task:'.($this->uniqueKey ?: strtr(get_class($this), '\\', '_'));
-            $this->lock = app('lock')->create($lockKey, $this->executionTime);
+            $this->lock = app('lock')->create($lockKey, $this->timeout);
         }
 
         return $this->lock;
@@ -216,7 +222,7 @@ abstract class Task
 
     protected function tryLock(): bool
     {
-        if (!$this->exclusive) {
+        if ($this->overlapped) {
             return true;
         }
 
@@ -231,7 +237,7 @@ abstract class Task
 
     protected function unLock(): bool
     {
-        if (!$this->exclusive) {
+        if ($this->overlapped) {
             return true;
         }
 

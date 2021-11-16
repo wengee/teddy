@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-11-16 14:43:48 +0800
  */
 
 namespace Teddy\Validation;
@@ -78,7 +78,6 @@ class Validation
     {
         $data = $data ?: [];
         $data = $this->beforeValidate($data);
-        $data = $this->filterData($data);
 
         if ($fields) {
             $fields = array_merge($this->fields, $fields);
@@ -86,9 +85,10 @@ class Validation
             $fields = $this->fields;
         }
 
+        $filtered  = $this->filterData($fields, $data);
         $validated = [];
         foreach ($fields as $field) {
-            $validated = $field->validate($data, $validated, $safe);
+            $validated = $field->validate($filtered, $validated, $safe);
         }
 
         return $this->afterValidate($validated);
@@ -102,9 +102,12 @@ class Validation
         return $this->validate($data, $fields, true);
     }
 
-    protected function filterData(array $data): array
+    /**
+     * @param Field[] $fields
+     */
+    protected function filterData(array $fields, array $data): array
     {
-        foreach ($this->fields as $name => $field) {
+        foreach ($fields as $name => $field) {
             if (Arr::has($data, $name)) {
                 $value    = Arr::get($data, $name);
                 $newValue = $field->filterValue($value);
