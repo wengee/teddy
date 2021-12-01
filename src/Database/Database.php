@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-11-30 10:48:43 +0800
  */
 
 namespace Teddy\Database;
@@ -12,13 +12,17 @@ namespace Teddy\Database;
 use Exception;
 use Illuminate\Support\Arr;
 use PDOException;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Teddy\Interfaces\ConnectionInterface;
 use Teddy\Pool\Channel;
 use Teddy\Pool\Pool;
 use Throwable;
 
-class Database extends Pool implements DatabaseInterface
+class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     protected $hasReadOnly = false;
 
     protected $readConf = [];
@@ -159,15 +163,23 @@ class Database extends Pool implements DatabaseInterface
         }
 
         $config = Arr::random($this->readConf);
+        $pdo    = new PDOConnection($config, true);
+        if ($this->logger) {
+            $pdo->setLogger($this->logger);
+        }
 
-        return new PDOConnection($config, true);
+        return $pdo;
     }
 
     protected function createWriteConnection(): ConnectionInterface
     {
         $config = Arr::random($this->writeConf);
+        $pdo    = new PDOConnection($config, false);
+        if ($this->logger) {
+            $pdo->setLogger($this->logger);
+        }
 
-        return new PDOConnection($config, false);
+        return $pdo;
     }
 
     protected function getReadConnectionsInChannel(): int

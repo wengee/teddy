@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-11-30 14:38:37 +0800
  */
 
 namespace Teddy\Database;
@@ -19,13 +19,17 @@ use Illuminate\Support\Str;
 use PDO;
 use PDOException;
 use PDOStatement;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Teddy\Database\DBAL\MysqlDriver;
 use Teddy\Database\Schema\Builder;
 use Teddy\Database\Schema\Grammars\MysqlGrammar;
 use Teddy\Database\Schema\MysqlBuilder;
 
-class PDOConnection implements DbConnectionInterface
+class PDOConnection implements DbConnectionInterface, LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     protected $pdo;
 
     protected $config;
@@ -163,6 +167,7 @@ class PDOConnection implements DbConnectionInterface
         $maxRetries = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
         $metaInfo   = Arr::get($options, 'metaInfo');
         $pdo        = $this->stick ? $this->pdo : $this->connect();
+        $startTime  = microtime(true);
 
         RETRY:
         $ret   = true;
@@ -188,6 +193,7 @@ class PDOConnection implements DbConnectionInterface
 
         if ($error) {
             $stmt && $stmt->closeCursor();
+            $this->writeLog($sql, $startTime, $error->getMessage());
 
             throw $error;
         }
@@ -215,6 +221,7 @@ class PDOConnection implements DbConnectionInterface
         }
 
         $stmt && $stmt->closeCursor();
+        $this->writeLog($sql, $startTime);
 
         return $ret;
     }
@@ -366,5 +373,20 @@ class PDOConnection implements DbConnectionInterface
             'decryption failed or bad record mac',
             'SSL connection has been closed unexpectedly',
         ]);
+    }
+
+    protected function writeLog(string $sql, float $start, ?string $extra = null): void
+    {
+        if ($this->logger) {
+            $data = [
+                'SQL: '.$sql,
+                sprintf('Elapsed time: %.2fms', (microtime(true) - $start) * 1000),
+            ];
+            if ($extra) {
+                $data[] = 'Message: '.$extra;
+            }
+
+            $this->logger->info(implode(', ', $data));
+        }
     }
 }

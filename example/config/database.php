@@ -4,12 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-02 14:26:23 +0800
+ * @version  2021-11-30 10:54:25 +0800
  */
 
 use Teddy\Config\Repository;
 
 return [
+    'logger' => 'file',
+
     'default' => new Repository([
         'driver'   => 'mysql',
         'host'     => '127.0.0.1',

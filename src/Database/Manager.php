@@ -4,24 +4,39 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2021-11-30 14:36:46 +0800
  */
 
 namespace Teddy\Database;
 
+use Psr\Log\LoggerInterface;
 use Teddy\Exception;
+use Teddy\Interfaces\ContainerInterface;
+use Teddy\Interfaces\WithContainerInterface;
 
-class Manager
+class Manager implements WithContainerInterface
 {
+    protected $container;
+
     protected $config = [];
 
     protected $pools = [];
 
-    public function __construct()
+    /** @var LoggerInterface */
+    protected $logger;
+
+    public function __construct(ContainerInterface $container)
     {
+        $this->container = $container;
+
         $config = config('database');
         if ($config && is_array($config)) {
             $this->config = $config;
+
+            $loggerChannel = $config['logger'] ?? null;
+            if ($loggerChannel) {
+                $this->logger = $this->container->get('logger')->channel($loggerChannel);
+            }
         }
     }
 
@@ -40,7 +55,12 @@ class Manager
                 throw new Exception('Can not found the database config.');
             }
 
-            $this->pools[$key] = new Database($this->config[$key]);
+            $database = new Database($this->config[$key]);
+            if ($this->logger) {
+                $database->setLogger($this->logger);
+            }
+
+            $this->pools[$key] = $database;
         }
 
         return $this->pools[$key];
