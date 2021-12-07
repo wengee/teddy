@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-08 18:16:27 +0800
+ * @version  2021-12-07 17:14:02 +0800
  */
 
 namespace Teddy;
@@ -18,12 +18,10 @@ use Slim\App as SlimApp;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
-use Teddy\Config\Config;
 use Teddy\Console\Application as ConsoleApplication;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\WithContainerInterface;
-use Teddy\Middleware\CorsMiddleware;
 use Teddy\Middleware\CrossOriginMiddleware;
 use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
