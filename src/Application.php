@@ -24,6 +24,7 @@ use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Middleware\CorsMiddleware;
+use Teddy\Middleware\CrossOriginMiddleware;
 use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Routing\RouteCollector;
@@ -64,9 +65,9 @@ class Application implements WithContainerInterface, ContainerAwareInterface
         return new static($container);
     }
 
-    public function addCorsMiddleware(): CorsMiddleware
+    public function addCorsMiddleware(): CrossOriginMiddleware
     {
-        $middleware = new CorsMiddleware();
+        $middleware = new CrossOriginMiddleware();
         $this->slimApp->add($middleware);
 
         return $middleware;

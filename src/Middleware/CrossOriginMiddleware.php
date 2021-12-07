@@ -15,7 +15,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
-class CorsMiddleware implements MiddlewareInterface
+class CrossOriginMiddleware implements MiddlewareInterface
 {
     /** @var array */
     protected $config;
