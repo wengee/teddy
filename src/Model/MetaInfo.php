@@ -4,13 +4,11 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-01-26 17:05:01 +0800
  */
 
 namespace Teddy\Model;
 
-use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Annotations\Reader;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Teddy\Exception;
@@ -62,7 +60,7 @@ class MetaInfo
 
     private $getDbPropertyMethod;
 
-    public function __construct($model, ?Reader $reader = null)
+    public function __construct($model)
     {
         if (!is_subclass_of($model, Model::class)) {
             throw new Exception(sprintf('Invalid parameters [%s].', $model));
@@ -75,14 +73,15 @@ class MetaInfo
         }
         $this->className = $className;
 
-        $reader     = $reader ?: new AnnotationReader();
-        $reflection = new ReflectionClass($className);
+        $ref = new ReflectionClass($className);
 
-        $this->setDbPropertyMethod = $reflection->getMethod('setDbAttributes');
-        $this->getDbPropertyMethod = $reflection->getMethod('getDbAttributes');
+        $this->setDbPropertyMethod = $ref->getMethod('setDbAttributes');
+        $this->getDbPropertyMethod = $ref->getMethod('getDbAttributes');
 
-        $annotations = $reader->getClassAnnotations($reflection);
-        foreach ($annotations as $annotation) {
+        $attrs = $ref->getAttributes();
+        foreach ($attrs as $attr) {
+            $annotation = $attr->newInstance();
+
             if ($annotation instanceof Table) {
                 $this->tableName = $annotation->name;
             } elseif ($annotation instanceof Connection) {
@@ -107,7 +106,7 @@ class MetaInfo
         }
 
         if (empty($this->tableName)) {
-            $this->tableName = Str::snake($reflection->getShortName());
+            $this->tableName = Str::snake($ref->getShortName());
         }
     }
 

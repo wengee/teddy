@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-03 14:13:58 +0800
+ * @version  2022-01-26 17:09:47 +0800
  */
 
 namespace Teddy\Config;
@@ -85,7 +85,7 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
         return Arr::has($this->freezedData, $key);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         if (!$this->freezed) {
             $this->freeze();

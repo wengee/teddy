@@ -4,12 +4,11 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-16 15:02:08 +0800
+ * @version  2022-01-26 17:05:54 +0800
  */
 
 namespace Teddy\Container;
 
-use Doctrine\Common\Annotations\AnnotationRegistry;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -48,7 +47,6 @@ class DefaultContainer
         $container->addAlias('response', ResponseInterface::class);
 
         // Database
-        AnnotationRegistry::registerUniqueLoader('class_exists');
         $container->addShared('db', \Teddy\Database\Manager::class);
 
         // Redis
