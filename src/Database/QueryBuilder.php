@@ -132,7 +132,7 @@ class QueryBuilder
      *
      * @param Model|string $table
      */
-    public function __construct(DatabaseInterface $db, $table)
+    public function __construct(DatabaseInterface $db, Model|string $table)
     {
         $this->db = $db;
         $this->setTable($table);

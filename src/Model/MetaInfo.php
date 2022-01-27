@@ -60,7 +60,7 @@ class MetaInfo
 
     private $getDbPropertyMethod;
 
-    public function __construct($model)
+    public function __construct(Model|string $model)
     {
         if (!is_subclass_of($model, Model::class)) {
             throw new Exception(sprintf('Invalid parameters [%s].', $model));
