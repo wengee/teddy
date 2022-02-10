@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:26:18 +0800
+ * @version  2022-02-08 09:47:41 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 
 abstract class Column implements ColumnInterface
 {
-    /** @Required */
     protected $name;
 
     protected $field;
@@ -33,11 +32,13 @@ abstract class Column implements ColumnInterface
                 continue;
             }
 
-            $method = 'set'.Str::studly($key);
-            if (method_exists($this, $method)) {
-                $this->{$method}($value);
-            } elseif (property_exists($this, $key)) {
-                $this->{$key} = $value;
+            if (is_string($key)) {
+                $method = 'set'.Str::studly($key);
+                if (method_exists($this, $method)) {
+                    $this->{$method}($value);
+                } elseif (property_exists($this, $key)) {
+                    $this->{$key} = $value;
+                }
             }
         }
     }

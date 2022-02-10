@@ -14,7 +14,7 @@ use ReflectionClass;
 use Teddy\Exception;
 use Teddy\Model\Columns\ColumnInterface;
 
-class MetaInfo
+class Meta
 {
     /**
      * @var string
@@ -83,9 +83,9 @@ class MetaInfo
             $annotation = $attr->newInstance();
 
             if ($annotation instanceof Table) {
-                $this->tableName = $annotation->name;
+                $this->tableName = $annotation->getName();
             } elseif ($annotation instanceof Connection) {
-                $this->connectionName = $annotation->name;
+                $this->connectionName = $annotation->getName();
             } elseif ($annotation instanceof ColumnInterface) {
                 $propertyName = $annotation->getName();
                 $field        = $annotation->getField() ?: $propertyName;

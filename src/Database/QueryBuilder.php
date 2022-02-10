@@ -21,7 +21,7 @@ use Teddy\Database\Traits\QueryInsert;
 use Teddy\Database\Traits\QuerySelect;
 use Teddy\Database\Traits\QueryUpdate;
 use Teddy\Interfaces\ConnectionInterface;
-use Teddy\Model\MetaInfo;
+use Teddy\Model\Meta;
 use Teddy\Model\Model;
 
 /**
@@ -118,9 +118,9 @@ class QueryBuilder
     protected $sqlType = 0;
 
     /**
-     * @var null|MetaInfo
+     * @var null|Meta
      */
-    protected $metaInfo;
+    protected $meta;
 
     /**
      * @var string
@@ -254,13 +254,13 @@ class QueryBuilder
     public function setTable($table): self
     {
         if (is_subclass_of($table, Model::class)) {
-            $this->metaInfo = $table::metaInfo();
+            $this->meta = $table::meta();
         }
 
-        if (!$this->metaInfo) {
+        if (!$this->meta) {
             $this->table = strval($table);
         } else {
-            $this->table = $this->metaInfo->tableName();
+            $this->table = $this->meta->tableName();
         }
 
         return $this;
@@ -299,7 +299,7 @@ class QueryBuilder
 
     public function getDbTable($table = null, ?string $as = null): string
     {
-        $table = $this->metaInfo ? $this->metaInfo->tableName() : strval($table);
+        $table = $this->meta ? $this->meta->tableName() : strval($table);
         $table = $this->quote($table);
         $as    = $this->quote($as);
 
@@ -325,8 +325,8 @@ class QueryBuilder
             return $ret;
         }
         $column = (string) $column;
-        if ($this->metaInfo) {
-            $column = $this->metaInfo->convertToDbColumn($column);
+        if ($this->meta) {
+            $column = $this->meta->convertToDbColumn($column);
         }
 
         return $this->quote($column);
@@ -362,7 +362,7 @@ class QueryBuilder
         $sql                   = $this->getSql($map);
         $options['connection'] = $this->connection;
         $options['sqlType']    = $this->sqlType;
-        $options['metaInfo']   = $this->metaInfo;
+        $options['meta']       = $this->meta;
 
         $readOnly      = $this->sqlType && SQL::SELECT_SQL === $this->sqlType;
         $pdoConnection = $readOnly ?

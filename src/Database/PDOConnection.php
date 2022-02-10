@@ -165,7 +165,7 @@ class PDOConnection implements DbConnectionInterface, LoggerAwareInterface
         $sqlType    = Arr::get($options, 'sqlType');
         $retryTotal = 0;
         $maxRetries = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
-        $metaInfo   = Arr::get($options, 'metaInfo');
+        $meta   = Arr::get($options, 'meta');
         $pdo        = $this->stick ? $this->pdo : $this->connect();
         $startTime  = microtime(true);
 
@@ -201,15 +201,15 @@ class PDOConnection implements DbConnectionInterface, LoggerAwareInterface
         if (SQL::SELECT_SQL === $sqlType) {
             $fetchType = Arr::get($options, 'fetchType');
             if (SQL::FETCH_ALL === $fetchType) {
-                $ret = array_map(function ($data) use ($metaInfo) {
-                    return $metaInfo ? $metaInfo->makeInstance($data) : $data;
+                $ret = array_map(function ($data) use ($meta) {
+                    return $meta ? $meta->makeInstance($data) : $data;
                 }, $stmt->fetchAll());
             } elseif (SQL::FETCH_COLUMN === $fetchType) {
                 $ret = $stmt->fetchColumn();
             } else {
                 $ret = $stmt->fetch();
                 if ($ret && is_array($ret)) {
-                    $ret = $metaInfo ? $metaInfo->makeInstance($ret) : $ret;
+                    $ret = $meta ? $meta->makeInstance($ret) : $ret;
                 }
             }
         } elseif (SQL::INSERT_SQL === $sqlType) {

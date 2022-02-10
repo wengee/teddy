@@ -27,9 +27,9 @@ abstract class Model implements ArrayAccess, JsonSerializable
     use Macroable;
 
     /**
-     * @var MetaInfo[]
+     * @var Meta[]
      */
-    protected static $metaInfos = [];
+    protected static $metas = [];
 
     /**
      * @var array
@@ -53,7 +53,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     final public function __construct()
     {
-        $this->items = static::metaInfo()->getDefaults();
+        $this->items = static::meta()->getDefaults();
     }
 
     public function __serialize(): array
@@ -70,14 +70,14 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $this->isNewRecord = $data['isNewRecord'] ?? false;
     }
 
-    final public static function metaInfo(): MetaInfo
+    final public static function meta(): Meta
     {
         $className = static::class;
-        if (!isset(static::$metaInfos[$className])) {
-            static::$metaInfos[$className] = new MetaInfo($className);
+        if (!isset(static::$metas[$className])) {
+            static::$metas[$className] = new Meta($className);
         }
 
-        return static::$metaInfos[$className];
+        return static::$metas[$className];
     }
 
     public function offsetExists(mixed $offset): bool
@@ -198,7 +198,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
         if (null === $db) {
-            $connectionName = static::metaInfo()->connectionName();
+            $connectionName = static::meta()->connectionName();
 
             return new QueryBuilder(db($connectionName), static::class);
         }
@@ -277,12 +277,12 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function hasColumn(string $key): bool
     {
-        return static::metaInfo()->hasColumn($key);
+        return static::meta()->hasColumn($key);
     }
 
     protected function getDbAttributes(): array
     {
-        $columns = static::metaInfo()->getColumns();
+        $columns = static::meta()->getColumns();
         if (empty($columns)) {
             return [];
         }
@@ -302,10 +302,10 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $this->items       = [];
         $this->isNewRecord = false;
 
-        $metaInfo = static::metaInfo();
-        $columns  = $metaInfo->getColumns();
+        $meta = static::meta();
+        $columns  = $meta->getColumns();
         foreach ($data as $key => $value) {
-            $key = $metaInfo->convertToPhpColumn($key);
+            $key = $meta->convertToPhpColumn($key);
             if (isset($columns[$key])) {
                 $this->items[$key] = $columns[$key]->convertToPhpValue($value);
             } else {
@@ -323,8 +323,8 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function doSave(): void
     {
-        $metaInfo    = static::metaInfo();
-        $primaryKeys = $metaInfo->primaryKeys();
+        $meta    = static::meta();
+        $primaryKeys = $meta->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
@@ -337,7 +337,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $this->trigger('beforeInsert');
             $id = $query->insert($attributes, true);
 
-            $autoIncrement = $metaInfo->autoIncrement();
+            $autoIncrement = $meta->autoIncrement();
             if ($autoIncrement && $id > 0) {
                 $this->setAttribute($autoIncrement, (int) $id);
             }
@@ -360,7 +360,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function doDelete(): void
     {
-        $primaryKeys = static::metaInfo()->primaryKeys();
+        $primaryKeys = static::meta()->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
@@ -385,7 +385,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         if ($this->connection) {
             return static::query($this->connection);
         }
-        $connectionName = static::metaInfo()->connectionName();
+        $connectionName = static::meta()->connectionName();
 
         return static::query(db($connectionName));
     }
