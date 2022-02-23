@@ -41,7 +41,7 @@ class Repository implements ArrayableInterface
         if (($flags & self::DATA_AS_RAW) === self::DATA_AS_RAW) {
             $this->value = $items;
         } else {
-            $this->items  = $items;
+            $this->items = $items;
         }
 
         $this->flags  = $flags;

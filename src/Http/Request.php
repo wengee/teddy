@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:12:00 +0800
+ * @version  2022-02-23 15:20:00 +0800
  */
 
 namespace Teddy\Http;
@@ -13,6 +13,8 @@ use ArrayAccess;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Traits\Macroable;
 use Slim\Psr7\Request as SlimRequest;
+use Teddy\Validation\Field;
+use Teddy\Validation\Validation;
 
 class Request extends SlimRequest implements ArrayAccess
 {
@@ -207,5 +209,71 @@ class Request extends SlimRequest implements ArrayAccess
         }
 
         return $this->timestamp;
+    }
+
+    /**
+     * @param string|Validation $validation
+     * @param Field[]           $fields
+     */
+    public function validate($validation, array $fields = [])
+    {
+        return $this->validateParsedBody($validation, $fields);
+    }
+
+    /**
+     * @param string|Validation $validation
+     * @param Field[]           $fields
+     */
+    public function validateQuery($validation, array $fields = [])
+    {
+        $postData = (array) $this->getQueryParams();
+
+        return validate($validation, $postData, $fields);
+    }
+
+    /**
+     * @param string|Validation $validation
+     * @param Field[]           $fields
+     */
+    public function checkQuery($validation, array $fields = [])
+    {
+        $postData = (array) $this->getQueryParams();
+
+        return validate($validation, $postData, $fields, true);
+    }
+
+    /**
+     * @param string|Validation $validation
+     * @param Field[]           $fields
+     */
+    public function validateParsedBody($validation, array $fields = [])
+    {
+        $postData = (array) $this->getParsedBody();
+
+        return validate($validation, $postData, $fields);
+    }
+
+    /**
+     * @param string|Validation $validation
+     * @param Field[]           $fields
+     */
+    public function checkParsedBody($validation, array $fields = [])
+    {
+        $postData = (array) $this->getParsedBody();
+
+        return validate($validation, $postData, $fields, true);
+    }
+
+    public function getPageInfo(int $pageSize = 0): array
+    {
+        $currentPage = max(1, (int) $this->getParam('page', 1));
+        if (0 === $pageSize) {
+            $pageSize = (int) $this->getParam('pageSize', 0);
+            if ($pageSize <= 0 || $pageSize > 100 || !in_array($pageSize, [10, 20, 50, 100])) {
+                $pageSize = 20;
+            }
+        }
+
+        return [$currentPage, $pageSize];
     }
 }
