@@ -91,16 +91,12 @@ class ServerRequestFactory
 
     protected static function createBody(SwooleRequest $request): StreamInterface
     {
-        $stream = fopen('php://temp', 'w+');
-        $body   = new Stream($stream);
-        if (empty($request->rawContent())) {
-            return $body;
-        }
+        $resource = fopen('php://temp', 'rw+');
 
-        $body->write($request->rawContent());
-        $body->rewind();
+        fwrite($resource, $request->rawContent() ?: '');
+        rewind($resource);
 
-        return $body;
+        return new Stream($resource);
     }
 
     protected static function createUploadFiles(?array $uploadedFiles): array

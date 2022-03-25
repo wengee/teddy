@@ -4,31 +4,30 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-26 17:57:33 +0800
+ * @version  2022-03-25 17:09:23 +0800
  */
 
 namespace Teddy\Auth;
 
 use RuntimeException;
-use Swoole\Timer;
 use Teddy\Auth\Adapaters\JwtAdapater;
 use Teddy\Auth\Adapaters\RedisAdapater;
 use Teddy\Interfaces\AuthAdapaterInterface;
+use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Traits\ContainerAwareTrait;
 
-class Manager
+class Manager implements ContainerAwareInterface
 {
+    use ContainerAwareTrait;
+
     /** @var AuthAdapaterInterface */
     protected $adapater;
-
-    /** @var int */
-    protected $idleTime = 10000;
 
     public function __construct()
     {
         $options = (array) config('auth', []);
 
         $this->adapater = $this->createAdapater($options['adapater'] ?? 'redis', $options);
-        $this->idleTime = intval($options['idleTime'] ?? 10) * 1000;
     }
 
     public function login(array $data, int $expiresIn = 3600): string
@@ -49,13 +48,7 @@ class Manager
     public function refresh(string $token, int $expiresIn = 3600): string
     {
         $data = $this->adapater->decode($token);
-        if ($this->idleTime > 0) {
-            Timer::after($this->idleTime, function () use ($token): void {
-                $this->adapater->block($token);
-            });
-        } elseif ($this->idleTime === 0) {
-            $this->adapater->block($token);
-        }
+        $this->adapater->block($token);
 
         return $this->adapater->encode($data, $expiresIn);
     }

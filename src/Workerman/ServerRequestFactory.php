@@ -85,12 +85,12 @@ class ServerRequestFactory
 
     protected static function createBody(WorkermanRequest $request): StreamInterface
     {
-        $stream = fopen('php://temp', 'w+');
-        $body   = new Stream($stream);
-        $body->write($request->rawBody());
-        $body->rewind();
+        $resource = fopen('php://temp', 'rw+');
 
-        return $body;
+        fwrite($resource, (string) $request->rawBody());
+        rewind($resource);
+
+        return new Stream($resource);
     }
 
     protected static function createUploadFiles(?array $uploadedFiles): array
