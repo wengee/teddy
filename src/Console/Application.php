@@ -4,21 +4,22 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-25 11:37:28 +0800
  */
 
 namespace Teddy\Console;
 
-use fwkit\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Application as TeddyApplication;
 use Teddy\Console\Commands\Migrations;
-use Teddy\Console\Commands\StartCommand;
+use Teddy\Console\Commands\Swoole;
+use Teddy\Console\Commands\Workerman;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Traits\ContainerAwareTrait;
 
-class Application extends ConsoleApplication implements ContainerAwareInterface
+class Application extends SymfonyApplication implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
@@ -38,8 +39,26 @@ class Application extends ConsoleApplication implements ContainerAwareInterface
         $this->appName = config('app.name') ?: 'Teddy App';
         $this->version = config('app.version') ?: 'UNKNOWN';
 
+        /** add swoole commands */
+        if (extension_loaded('swoole') && class_exists('\\Swoole\\Http\\Server')) {
+            $this->addCommands([
+                new Swoole\StartCommand(),
+            ]);
+        }
+
+        /** add workerman commands */
+        if (class_exists('\\Workerman\\Worker')) {
+            $this->addCommands([
+                new Workerman\ConnectionsCommand(),
+                new Workerman\ReloadCommand(),
+                new Workerman\RestartCommand(),
+                new Workerman\StartCommand(),
+                new Workerman\StatusCommand(),
+                new Workerman\StopCommand(),
+            ]);
+        }
+
         $this->addCommands([
-            new StartCommand(),
             new Migrations\MigrationMakeCommand(),
             new Migrations\InstallCommand(),
             new Migrations\MigrateCommand(),
@@ -50,18 +69,22 @@ class Application extends ConsoleApplication implements ContainerAwareInterface
             new Migrations\SqlCommand(),
         ]);
 
-        $commandList = config('command.list', []);
+        $commandList = config('command', []);
         if (!empty($commandList) && is_array($commandList)) {
             $this->addCommands($commandList);
         }
-
-        $defaultCommand = config('command.default', 'start');
-        $this->setDefaultCommand($defaultCommand);
     }
 
     public function getApp(): TeddyApplication
     {
         return $this->app;
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $this->welcome($input, $output);
+
+        return parent::doRun($input, $output);
     }
 
     protected function welcome(InputInterface $input, OutputInterface $output): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-09 15:11:48 +0800
+ * @version  2022-03-14 16:18:41 +0800
  */
 
 namespace Teddy\Http;
@@ -122,16 +122,16 @@ class Response extends SlimResponse implements CookieAwareInterface
         return $this->withJson($data, StatusCodeInterface::STATUS_OK);
     }
 
-    public function setCookie(string $name, ?string $value = null, int $expire = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httponly = true): ResponseInterface
+    public function setCookie(string $name, ?string $value = null, int $maxAge = 0, string $path = '/', string $domain = '', bool $secure = false, bool $httpOnly = true, bool $sameSite = false): ResponseInterface
     {
         if (null === $value) {
-            $expire = 1;
+            $maxAge = 1;
         }
 
         $clone  = clone $this;
         $domain = $domain ?: config('cookie.domain', '');
 
-        $clone->cookies[$name] = compact('value', 'expire', 'path', 'domain', 'secure', 'httponly');
+        $clone->cookies[$name] = compact('value', 'maxAge', 'path', 'domain', 'secure', 'httpOnly', 'sameSite');
 
         return $clone;
     }

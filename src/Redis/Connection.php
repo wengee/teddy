@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-22 17:16:43 +0800
  */
 
 namespace Teddy\Redis;
@@ -87,7 +87,7 @@ class Connection implements ConnectionInterface
     {
         $redis = new \Redis();
         $redis->connect($this->config['host'], $this->config['port']);
-        $redis->setOption(\Redis::OPT_SERIALIZER, (string) \Redis::SERIALIZER_PHP);
+        $redis->setOption(\Redis::OPT_SERIALIZER, \Redis::SERIALIZER_PHP);
 
         if (isset($this->config['password']) && $this->config['password']) {
             $redis->auth($this->config['password']);

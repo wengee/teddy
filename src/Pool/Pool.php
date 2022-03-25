@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-16 14:32:17 +0800
  */
 
 namespace Teddy\Pool;
@@ -54,7 +54,7 @@ abstract class Pool
             throw $throwable;
         }
 
-        return $this->channel->pop($this->poolOptions['waitTimeout']);
+        return $this->channel->pop();
     }
 
     public function release(ConnectionInterface $connection): void
@@ -67,7 +67,7 @@ abstract class Pool
         $num = $this->getConnectionsInChannel();
 
         if ($num > 0) {
-            while ($this->currentConnections > $this->poolOptions['minConnections'] && $conn = $this->channel->pop($this->poolOptions['waitTimeout'])) {
+            while ($this->currentConnections > $this->poolOptions['minConnections'] && $conn = $this->channel->pop()) {
                 $conn->close();
                 --$this->currentConnections;
             }

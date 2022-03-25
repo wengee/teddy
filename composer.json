@@ -19,30 +19,35 @@
     },
     "require": {
         "php": ">=8.1.0",
-        "ext-swoole": ">=4.6.0",
         "slim/slim": "4.8.*",
         "slim/psr7": "^1.4",
         "illuminate/support": "^8.57",
-        "fwkit/console": "^1.0",
         "vlucas/phpdotenv": "^5.3",
         "symfony/yaml": "^5.3",
         "monolog/monolog": "^2.3",
         "league/flysystem": "^2.2",
         "doctrine/dbal": "^3.1",
-        "nette/schema": "^1.2"
+        "nette/schema": "^1.2",
+        "symfony/console": "^6.0"
     },
     "require-dev": {
+        "ext-swoole": ">=4.6.0",
         "swoole/ide-helper": "^4.7",
         "guzzlehttp/guzzle": "^7.3",
         "firebase/php-jwt": "^5.4",
         "aliyuncs/oss-sdk-php": "^2.4",
         "overtrue/flysystem-cos": "^4.0",
-        "ramsey/uuid": "^4.1"
+        "ramsey/uuid": "^4.1",
+        "workerman/workerman": "^4.0",
+        "workerman/redis": "^1.0"
     },
     "suggest": {
+        "ext-swoole": "Allows you to use coroutine(Swoole)",
         "firebase/php-jwt": "Allows you to use JWT",
         "aliyuncs/oss-sdk-php": "Allows you to use Aliyun OSS",
         "overtrue/flysystem-cos": "Allows you to use TencentYun COS",
-        "ramsey/uuid": "Allows you to use db uuid column"
+        "ramsey/uuid": "Allows you to use db uuid column",
+        "workerman/workerman": "Allows you to use workerman",
+        "workerman/redis": "Allows you to use task queue with workerman"
     }
 }

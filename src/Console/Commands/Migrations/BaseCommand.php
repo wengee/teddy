@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-13 20:20:51 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -15,11 +15,6 @@ use Teddy\Database\Migrations\Migrator;
 abstract class BaseCommand extends Command
 {
     protected $migrator;
-
-    public function enableCoroutine(): bool
-    {
-        return true;
-    }
 
     protected function getMigrationPath(): string
     {

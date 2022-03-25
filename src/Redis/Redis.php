@@ -129,12 +129,12 @@ class Redis extends Pool
     protected function initConfig(array $config): void
     {
         $defaultConf = [
-            'cluster'   => Arr::get($config, 'cluster', false),
-            'host'      => Arr::get($config, 'host', '127.0.0.1'),
-            'port'      => Arr::get($config, 'port', 6379),
-            'password'  => Arr::get($config, 'password', ''),
-            'dbIndex'   => Arr::get($config, 'dbIndex', 0),
-            'prefix'    => Arr::get($config, 'prefix', ''),
+            'cluster'  => $config['cluster'] ?? false,
+            'host'     => $config['host'] ?? '127.0.0.1',
+            'port'     => $config['port'] ?? 6379,
+            'password' => $config['password'] ?? '',
+            'dbIndex'  => $config['dbIndex'] ?? 0,
+            'prefix'   => $config['prefix'] ?? '',
         ];
 
         if (is_array($defaultConf['host']) && !$defaultConf['cluster']) {

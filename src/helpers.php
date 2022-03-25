@@ -4,20 +4,42 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-02-23 15:28:21 +0800
+ * @version  2022-03-25 11:40:21 +0800
  */
 
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
+use Teddy\Hook;
+use Teddy\Interfaces\ServerInterface;
+use Teddy\Task;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
 
 defined('INT_STR_INDEX') || define('INT_STR_INDEX', 'l2Vj5aUOBCLpdFRsK6ytAXzGbY1QWewvHhxE4gT38SPqmfioc7Ju9NDr0IZMkn');
+
+if (!function_exists('add_hook')) {
+    /**
+     * Add a hook.
+     */
+    function add_hook(string $name, callable $func): void
+    {
+        Hook::add($name, $func);
+    }
+}
+
+if (!function_exists('run_hook')) {
+    /**
+     * Run hooks.
+     */
+    function run_hook(string $name, ?array $params): void
+    {
+        Hook::run($name, $params);
+    }
+}
 
 if (!function_exists('make')) {
     /**
@@ -75,6 +97,26 @@ if (!function_exists('db')) {
         }
 
         return $db->connection($connection);
+    }
+}
+
+if (!function_exists('run_task')) {
+    /**
+     * Run a task.
+     *
+     * @param null|array|bool|int $extra
+     */
+    function run_task(string $className, array $args = [], $extra = null): void
+    {
+        static $server;
+        if (null === $server) {
+            $server = Container::getInstance()->get(ServerInterface::class);
+        }
+
+        /** @var null|ServerInterface $server */
+        if ($server) {
+            $server->addTask($className, $args, $extra);
+        }
     }
 }
 
@@ -167,7 +209,7 @@ if (!function_exists('config')) {
         $config = Container::getInstance()->get('config');
 
         if (null === $key) {
-            return $config;
+            return $config->all();
         }
 
         return $config->get($key, $default);

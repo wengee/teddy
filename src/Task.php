@@ -4,97 +4,41 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-16 15:21:11 +0800
+ * @version  2022-03-20 19:58:47 +0800
  */
 
 namespace Teddy;
 
 use Exception;
 use InvalidArgumentException;
-use Swoole\Timer;
+use Teddy\Interfaces\TaskInterface;
 use Teddy\Lock\Lock;
 
-abstract class Task
+abstract class Task implements TaskInterface
 {
-    /**
-     * @var float
-     */
-    protected $delay = 0;
+    /** @var int */
+    public $id;
 
-    /**
-     * @var float
-     */
-    protected $waitTimeout = 0;
+    protected static $num = 0;
 
-    /**
-     * @var int
-     */
+    /** @var int */
     protected $timeout = 600;
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     protected $overlapped = false;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     protected $result = false;
 
-    /**
-     * @var Teddy\Lock\Lock
-     */
+    /** @var Teddy\Lock\Lock */
     protected $lock;
 
-    /**
-     * @var null|string
-     */
+    /** @var null|string */
     protected $uniqueKey;
 
-    final public static function deliver(Task $task): void
+    final public function __construct()
     {
-        if (app('swoole')->taskworker) {
-            $task->safeRun();
-
-            return;
-        }
-
-        $deliver = function () use ($task): void {
-            app('swoole')->task($task);
-        };
-
-        if ($task->getDelay() > 0) {
-            Timer::after($task->getDelay(), $deliver);
-        } else {
-            $deliver();
-        }
-    }
-
-    public function getDelay(): int
-    {
-        return (int) $this->delay;
-    }
-
-    public function delay(int $delay): self
-    {
-        if ($delay <= 0) {
-            throw new InvalidArgumentException('The delay must be greater than 0');
-        }
-
-        $this->delay = $delay;
-
-        return $this;
-    }
-
-    public function waitTimeout(float $waitTimeout = 3.0): self
-    {
-        if ($waitTimeout <= 0) {
-            throw new InvalidArgumentException('The waitTimeout must be greater than 0');
-        }
-
-        $this->waitTimeout = $waitTimeout;
-
-        return $this;
+        $this->id = ++self::$num;
     }
 
     public function timeout(int $timeout): self
@@ -115,37 +59,9 @@ abstract class Task
         return $this;
     }
 
-    public function isWaiting(): bool
-    {
-        return $this->waitTimeout > 0;
-    }
-
-    public function send(bool $toQueue = false)
-    {
-        if ($this->isWaiting()) {
-            return $this->sendAndWait();
-        }
-
-        if ($toQueue) {
-            $this->sendToQueue();
-        } else {
-            $this->sendToLocal();
-        }
-    }
-
-    public function queue(): void
-    {
-        $this->sendToQueue();
-    }
-
     public function finish()
     {
         return $this->result;
-    }
-
-    public function safeRun(): void
-    {
-        safe_call([$this, 'run']);
     }
 
     public function run()
@@ -185,29 +101,6 @@ abstract class Task
         $this->uniqueKey = $uniqueKey;
 
         return $this;
-    }
-
-    protected function sendAndWait(float $waitTimeout = 3.0)
-    {
-        $this->waitTimeout($waitTimeout);
-        $ret = app('swoole')->taskCo([$this], $this->waitTimeout);
-
-        return ($ret && isset($ret[0])) ? $ret[0] : null;
-    }
-
-    protected function sendToLocal(): void
-    {
-        static::deliver($this);
-    }
-
-    protected function sendToQueue(): void
-    {
-        $queue = app('queue');
-        if (!$queue) {
-            $this->sendToLocal();
-        } else {
-            $queue->push($this);
-        }
     }
 
     protected function getLock(): Lock

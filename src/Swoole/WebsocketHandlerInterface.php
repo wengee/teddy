@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @version  2021-09-03 11:37:54 +0800
  */
 
-namespace Teddy\Interfaces;
+namespace Teddy\Swoole;
 
 use Swoole\Http\Request;
 use Swoole\WebSocket\Frame;

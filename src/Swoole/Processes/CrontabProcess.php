@@ -4,35 +4,30 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-21 16:40:13 +0800
  */
 
-namespace Teddy\Schedule;
+namespace Teddy\Swoole\Processes;
 
 use Swoole\Http\Server;
 use Swoole\Process;
 use Swoole\Timer;
+use Teddy\Abstracts\AbstractProcess;
+use Teddy\Crontab\Parser;
 use Teddy\Interfaces\ProcessInterface;
 
-class ScheduleProcess implements ProcessInterface
+class CrontabProcess extends AbstractProcess implements ProcessInterface
 {
+    protected $name = 'crontab process';
+
     protected $timerId;
 
-    protected $scheduleList = [];
+    protected $list = [];
 
     public function __construct(array $list)
     {
-        $this->scheduleList = $list;
-    }
-
-    public function getName(): string
-    {
-        return 'schedule process';
-    }
-
-    public function enableCoroutine(): bool
-    {
-        return true;
+        $this->list    = $list;
+        $this->options = ['coroutine' => true];
     }
 
     public function handle(Server $swoole, Process $process): void
@@ -46,7 +41,7 @@ class ScheduleProcess implements ProcessInterface
             $month = (int) date('n', $timestamp);
             $week = (int) date('w', $timestamp);
 
-            foreach ($this->scheduleList as $item) {
+            foreach ($this->list as $item) {
                 $timeCfg = $item[0] ?? null;
                 $taskCls = $item[1] ?? null;
                 $taskArgs = $item[2] ?? [];
@@ -63,7 +58,7 @@ class ScheduleProcess implements ProcessInterface
                     $taskArgs = [$taskArgs];
                 }
 
-                (new $taskCls(...$taskArgs))->send();
+                run_task($taskCls, $taskArgs);
             }
         });
     }

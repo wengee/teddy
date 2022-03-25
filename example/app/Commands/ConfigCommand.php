@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-03 11:24:13 +0800
+ * @version  2022-03-25 11:40:31 +0800
  */
 
 namespace App\Commands;
@@ -19,7 +19,6 @@ class ConfigCommand extends Command
 
     protected function handle(): void
     {
-        $test = config('app.test');
-        var_dump($test);
+        var_dump(array_keys(config()));
     }
 }

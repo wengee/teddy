@@ -4,12 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-30 11:43:58 +0800
+ * @version  2022-03-25 10:52:21 +0800
  */
 
 namespace App\Controllers;
 
 use App\Models\Abc;
+use App\Tasks\Demo;
 use Illuminate\Support\Str;
 use Teddy\Controller;
 use Teddy\Http\Request;
@@ -22,6 +23,9 @@ class IndexController extends Controller
         $model = new Abc();
         $model = $model->save() ? $model : null;
         $token = app('auth')->login(['openId' => 'abcd']);
+
+        run_task(Demo::class, [], ['delay' => 5]);
+        // app('redis')->lPush('abc', 'fdsafsadfasd');
 
         return $response->json(0, [
             'config'    => config(),

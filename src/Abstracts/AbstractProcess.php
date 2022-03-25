@@ -4,33 +4,59 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-23 16:24:54 +0800
  */
 
 namespace Teddy\Abstracts;
 
-use Swoole\Http\Server;
-use Swoole\Process;
 use Teddy\Interfaces\ProcessInterface;
 
 abstract class AbstractProcess implements ProcessInterface
 {
-    protected $name = '';
+    protected static $orderNum = 0;
+
+    protected $name;
+
+    protected $listen = '';
+
+    protected $context = [];
+
+    protected $options = [];
+
+    protected $worker;
 
     public function getName(): string
     {
-        return $this->name;
+        return $this->name ?: ('Custom-'.(++self::$orderNum));
     }
 
-    public function enableCoroutine(): bool
+    public function getListen(): string
     {
-        return true;
+        return $this->listen;
     }
 
-    public function onReload(Server $swoole, Process $process): void
+    public function getContext(): array
     {
-        $process->exit(0);
+        return $this->context;
     }
 
-    abstract public function handle(Server $swoole, Process $process);
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function getOption(string $name, $default = null)
+    {
+        return $this->options[$name] ?? $default;
+    }
+
+    public function setWorker($worker): void
+    {
+        $this->worker = $worker;
+    }
+
+    public function getWorker()
+    {
+        return $this->worker;
+    }
 }

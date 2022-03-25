@@ -1,2 +1,2 @@
 watch:
-  exec: '/usr/bin/env swoole-cli index.php'
+  exec: '/usr/bin/env php81 index.php workerman:start'

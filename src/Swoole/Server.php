@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-25 14:52:46 +0800
  */
 
 namespace Teddy\Swoole;
@@ -24,17 +24,17 @@ use Teddy\Application;
 use Teddy\Console\Command;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
-use Teddy\Interfaces\WebsocketHandlerInterface;
-use Teddy\Queue\Queue;
-use Teddy\Queue\QueueProcess;
-use Teddy\Schedule\ScheduleProcess;
-use Teddy\Task;
-use Teddy\Utils\System;
+use Teddy\Interfaces\ServerInterface;
+use Teddy\Swoole\Processes\ConsumerProcess;
+use Teddy\Swoole\Processes\CrontabProcess;
+use Teddy\Traits\TaskAwareTrait;
 
 defined('IN_SWOOLE') || define('IN_SWOOLE', true);
 
-class Server
+class Server implements ServerInterface
 {
+    use TaskAwareTrait;
+
     /** @var string */
     protected $name;
 
@@ -52,6 +52,9 @@ class Server
 
     /** @var int */
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
+
+    /** @var null|Queue */
+    protected $queue;
 
     public function __construct(Application $app)
     {
@@ -89,7 +92,7 @@ class Server
 
     public function start(): void
     {
-        System::setProcessTitle('master process', $this->name);
+        Util::setProcessTitle('master process', $this->name);
         Coroutine::set(['hook_flags' => $this->coroutineFlags]);
         $this->swoole->start();
     }
@@ -110,7 +113,7 @@ class Server
         }
 
         Runtime::enableCoroutine(true, $this->coroutineFlags);
-        System::setProcessTitle($processName, $this->name);
+        Util::setProcessTitle($processName, $this->name);
     }
 
     public function onRequest(Request $request, Response $response): void
@@ -129,16 +132,9 @@ class Server
         }
     }
 
-    public function onTask(HttpServer $server, SwooleTask $task): void
+    public function onTask(HttpServer $server, SwooleTask $taskData): void
     {
-        $data = $task->data;
-
-        if ($data instanceof Task) {
-            $data->safeRun();
-            if ($data->isWaiting()) {
-                $task->finish($data->finish());
-            }
-        }
+        $this->runTask($taskData->data);
     }
 
     public function stats(): array
@@ -188,9 +184,11 @@ class Server
     {
         $swoole          = $this->swoole;
         $appName         = $this->getName();
-        $enableCoroutine = $process->enableCoroutine();
+        $enableCoroutine = $process->getOption('coroutine');
         $coroutineFlags  = $this->coroutineFlags;
         $processHandler  = function (Process $worker) use ($swoole, $appName, $process, $enableCoroutine, $coroutineFlags): void {
+            $process->setWorker($worker);
+
             if ($enableCoroutine) {
                 Runtime::enableCoroutine(true, $coroutineFlags);
             } else {
@@ -198,57 +196,96 @@ class Server
             }
 
             $name = $process->getName() ?: 'custom';
-            System::setProcessTitle($name, $appName);
+            Util::setProcessTitle($name, $appName);
 
             Process::signal(SIGUSR1, function ($signo) use ($name, $process, $worker, $swoole): void {
                 log_message('info', 'Reloading the process %s [pid=%d].', $name, $worker->pid);
-                $process->onReload($swoole, $worker);
+
+                if (method_exists($process, 'onReload')) {
+                    safe_call([$process, 'onReload'], [$swoole, $worker]);
+                }
             });
 
             log_message('info', 'Run the process %s [pid=%d].', $name, $worker->pid);
-            safe_call([$process, 'handle'], [$swoole, $worker]);
+            if (method_exists($process, 'handle')) {
+                safe_call([$process, 'handle'], [$swoole, $worker]);
+            }
         };
 
         $customProcess = new Process($processHandler, false, 0, $enableCoroutine);
-
-        /** @var \swoole_process $customProcess */
         $swoole->addProcess($customProcess);
 
-        /** @var Process $customProcess */
         return $customProcess;
     }
 
-    protected function addProcesses(array $processes): void
+    /** @param null|array|bool|int $extra */
+    public function addTask(string $className, array $args = [], $extra = null): void
+    {
+        static $queue;
+        if (null === $queue) {
+            $queue = $this->container->get('queue');
+        }
+
+        $local = true;
+        $at    = 0;
+        if (is_bool($extra)) {
+            $local = $extra;
+        } elseif (is_int($extra)) {
+            $at = $extra;
+        } elseif (is_array($extra)) {
+            if (isset($extra['local'])) {
+                $local = $extra['local'];
+            }
+
+            if (isset($extra['at'])) {
+                $at = (int) $extra['at'];
+            } elseif (isset($extra['delay'])) {
+                $at = time() + intval($extra['delay']);
+            }
+        }
+
+        if ($local && (0 === $at)) {
+            $this->swoole->task([$className, $args]);
+        } else {
+            $queue->send('any', [$className, $args], $at);
+        }
+    }
+
+    protected function addCustomProcesses(array $processes): void
     {
         foreach ($processes as $key => $item) {
             $className = null;
             $args      = [];
-            $total     = 1;
 
             if (is_integer($key)) {
                 if (is_string($item)) {
                     $className = $item;
                 } elseif (is_array($item)) {
-                    $className = Arr::get($item, 'class');
-                    $args      = Arr::get($item, 'parameters', []);
-                    $total     = Arr::get($item, 'total', 1);
+                    $className = $item['class'] ?? null;
+                    $args      = $item['parameters'] ?? [];
                 }
             } elseif (is_string($key)) {
                 $className = $key;
                 if (is_array($item)) {
                     $args = $item;
-                } elseif (is_integer($item)) {
-                    $total = $item;
                 }
             }
 
-            if (!$className || !class_exists($className) || $total < 1) {
+            if (!$className || !class_exists($className)) {
                 continue;
             }
 
-            $args = is_array($args) ? $args : [$args];
-            for ($i = 0; $i < $total; ++$i) {
-                $this->addProcess(new $className(...$args));
+            $args    = is_array($args) ? $args : [$args];
+            $process = new $className(...$args);
+            if (!($process instanceof ProcessInterface)) {
+                continue;
+            }
+
+            $count = $process->getOption('count', 0);
+            if ($count > 0) {
+                for ($i = 0; $i < $count; ++$i) {
+                    $this->addProcess($process);
+                }
             }
         }
     }
@@ -326,7 +363,9 @@ class Server
         $this->swoole->set($options);
 
         $this->container->addValue('server', $this);
+        $this->container->addValue(ServerInterface::class, $this);
         $this->container->addValue('swoole', $this->swoole);
+        $this->container->add('queue', Queue::class);
 
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);
@@ -340,25 +379,18 @@ class Server
             }
         }
 
-        $schedule        = $config['schedule'] ?? [];
-        $scheduleEnabled = $schedule['enabled'] ?? !$schedule;
-        if ($scheduleEnabled) {
-            $schedule = $schedule['list'] ?? $schedule;
-            $this->addProcess(new ScheduleProcess($schedule));
+        $crontab = config('crontab');
+        if ($config['crontab'] && is_array($crontab) && $crontab) {
+            $this->addProcess(new CrontabProcess($crontab));
         }
 
-        $queue        = $config['queue'] ?? [];
-        $queueEnabled = $queue['enabled'] ?? false;
-        if ($queueEnabled) {
-            if (isset($queue['consumer']) && $queue['consumer']) {
-                $this->addProcess(new QueueProcess($queue));
-            }
-
-            $this->container->addValue('queue', new Queue($queue));
+        if ($config['consumer']) {
+            $this->addProcess(new ConsumerProcess($this->container));
         }
 
-        if ($config['processes'] && is_array($config['processes'])) {
-            $this->addProcesses($config['processes']);
+        $processes = config('process');
+        if (is_array($processes) && $processes) {
+            $this->addCustomProcesses($processes);
         }
 
         if ($config['tables'] && is_array($config['tables'])) {

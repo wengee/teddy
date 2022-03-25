@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:09:47 +0800
+ * @version  2022-03-25 11:39:57 +0800
  */
 
 namespace Teddy\Config;
@@ -50,6 +50,12 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
     /** @var array */
     protected $cached = [];
 
+    /** @var null|string */
+    protected $basePath;
+
+    /** @var null|string */
+    protected $runtimePath;
+
     public function __construct(ContainerInterface $container)
     {
         $this->container    = $container;
@@ -57,6 +63,8 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 
         $basePath = $container->get('basePath');
         if ($basePath) {
+            $this->basePath = $basePath;
+
             $this->configDirs[]  = FileSystem::joinPath($basePath, 'config');
             $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yml');
             $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yaml');
@@ -66,6 +74,8 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 
         $runtimePath  = Filesystem::getRuntimePath();
         if ($runtimePath) {
+            $this->runtimePath = $runtimePath;
+
             $this->configFiles[] = FileSystem::joinPath($runtimePath, 'config.yml');
             $this->configFiles[] = FileSystem::joinPath($runtimePath, 'config.yaml');
 
@@ -83,6 +93,11 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
     public function has(string $key): bool
     {
         return Arr::has($this->freezedData, $key);
+    }
+
+    public function all(): array
+    {
+        return $this->freezedData;
     }
 
     public function jsonSerialize(): mixed
@@ -148,7 +163,15 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 
     private function loadYamlConfig(string $file): void
     {
-        $config = Yaml::parseFile($file, Yaml::PARSE_CUSTOM_TAGS);
+        $content = file_get_contents($file);
+        $content = strtr($content, [
+            '__DIR__'      => dirname($file),
+            '__CWD__'      => getcwd(),
+            'BASE_PATH'    => $this->basePath,
+            'RUNTIME_PATH' => $this->runtimePath ?: $this->basePath,
+        ]);
+
+        $config = Yaml::parse($content, Yaml::PARSE_CUSTOM_TAGS);
         if ($config && is_array($config)) {
             $config = $this->parseValue($config);
 

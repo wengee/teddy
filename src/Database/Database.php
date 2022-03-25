@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-30 10:48:43 +0800
+ * @version  2022-03-16 14:32:00 +0800
  */
 
 namespace Teddy\Database;
@@ -70,7 +70,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
             throw $throwable;
         }
 
-        return $this->readChannel->pop($this->poolOptions['waitTimeout']);
+        return $this->readChannel->pop();
     }
 
     public function getWriteConnection(): DbConnectionInterface
@@ -94,7 +94,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
         $num = $this->getReadConnectionsInChannel();
         if ($num > 0) {
-            while ($this->currentReadConnections > $this->poolOptions['minConnections'] && $conn = $this->readChannel->pop($this->poolOptions['waitTimeout'])) {
+            while ($this->currentReadConnections > $this->poolOptions['minConnections'] && $conn = $this->readChannel->pop()) {
                 $conn->close();
                 --$this->currentReadConnections;
             }

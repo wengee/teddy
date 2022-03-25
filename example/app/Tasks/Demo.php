@@ -1,9 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2019-08-26 11:31:01 +0800
+ * @version  2022-03-20 17:27:14 +0800
  */
 
 namespace App\Tasks;
@@ -16,7 +17,7 @@ class Demo extends Task
 
     protected function handle()
     {
-        echo 'task handle' . PHP_EOL;
+        echo 'task ('.$this->id.') handle: '.time().PHP_EOL;
         // sleep(1);
         return 'result ok';
     }
