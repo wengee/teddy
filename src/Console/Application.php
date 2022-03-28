@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 11:37:28 +0800
+ * @version  2022-03-28 16:21:33 +0800
  */
 
 namespace Teddy\Console;
@@ -93,7 +93,6 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
         $appVersion    = $this->version;
         $os            = PHP_OS;
         $phpVersion    = PHP_VERSION;
-        $swooleVersion = defined('SWOOLE_VERSION') ? SWOOLE_VERSION : 'UNKNOWN';
 
         $output->writeln(<<<EOL
              _____        _     _         ____  _   _ ____
@@ -103,7 +102,7 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
               |_|\\___|\\__,_|\\__,_|\\__, | |_|   |_| |_|_|
                                   |___/
 
-            OS: <info>{$os}</info>, PHP: <info>{$phpVersion}</info>, Swoole: <info>{$swooleVersion}</info>
+            OS: <info>{$os}</info>, PHP: <info>{$phpVersion}</info>
             Application: <info>{$appName}</info>, Version: <info>{$appVersion}</info>
 
             EOL);

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-14 16:00:45 +0800
+ * @version  2022-03-28 11:35:12 +0800
  */
 
 namespace Teddy\Workerman;
@@ -16,17 +16,18 @@ use Slim\Psr7\Stream;
 use Slim\Psr7\UploadedFile;
 use Slim\Psr7\Uri;
 use Teddy\Container\Container;
+use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Request as WorkermanRequest;
 
 class ServerRequestFactory
 {
-    public static function createServerRequestFromWorkerman(WorkermanRequest $request): ServerRequestInterface
+    public static function createServerRequestFromWorkerman(WorkermanRequest $request, TcpConnection $connection): ServerRequestInterface
     {
         $method        = $request->method();
         $uri           = static::createUri($request);
         $headers       = static::createHeaders($request);
         $cookies       = (array) $request->cookie;
-        $serverParams  = static::createServerParams($request);
+        $serverParams  = static::createServerParams($request, $connection);
         $body          = static::createBody($request);
         $uploadedFiles = static::createUploadFiles($request->file());
 
@@ -72,15 +73,16 @@ class ServerRequestFactory
         return new Headers($request->header());
     }
 
-    protected static function createServerParams(WorkermanRequest $request): array
+    protected static function createServerParams(WorkermanRequest $request, TcpConnection $connection): array
     {
-        $ret = [];
-        foreach ($request->header() as $key => $value) {
-            $key       = str_replace('-', '_', strtoupper('HTTP_'.$key));
-            $ret[$key] = $value;
-        }
-
-        return $ret;
+        return [
+            'REQUEST_TIME'       => time(),
+            'REQUEST_TIME_FLOAT' => microtime(true),
+            'REMOTE_ADDR'        => $connection->getRemoteIp(),
+            'REMOTE_PORT'        => $connection->getRemotePort(),
+            'SERVER_ADDR'        => $connection->getLocalIp(),
+            'SERVER_PORT'        => $connection->getLocalPort(),
+        ];
     }
 
     protected static function createBody(WorkermanRequest $request): StreamInterface

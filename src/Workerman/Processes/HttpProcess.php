@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-18 13:38:14 +0800
+ * @version  2022-03-28 11:35:35 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -70,7 +70,7 @@ class HttpProcess extends AbstractProcess implements ProcessInterface
         ]);
 
         try {
-            $req = ServerRequestFactory::createServerRequestFromWorkerman($request);
+            $req = ServerRequestFactory::createServerRequestFromWorkerman($request, $connection);
             $res = $this->app->handle($req);
             (new ResponseEmitter($connection))->emit($res);
         } catch (Exception $e) {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:05:54 +0800
+ * @version  2022-03-28 17:26:26 +0800
  */
 
 namespace Teddy\Container;
@@ -35,6 +35,9 @@ class DefaultContainer
 
         // Config
         $container->addShared('config', \Teddy\Config\Config::class);
+
+        // Crontab
+        $container->addShared('crontab', \Teddy\Crontab\Crontab::class);
 
         // Logger
         $container->addShared(LoggerInterface::class, \Teddy\Logger\Manager::class);
