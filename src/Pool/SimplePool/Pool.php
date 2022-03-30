@@ -16,7 +16,7 @@ class Pool extends AbstractPool
 {
     protected $callback;
 
-    public function __construct(callable $callback, array $options = [])
+    public function __construct(callable $callback, array|null|bool $options = [])
     {
         $this->callback = $callback;
         parent::__construct($options);

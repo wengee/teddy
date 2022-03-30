@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 11:40:21 +0800
+ * @version  2022-03-29 17:10:45 +0800
  */
 
 use Illuminate\Support\Str;
@@ -345,6 +345,8 @@ if (!function_exists('site_url')) {
 
 if (!function_exists('validate')) {
     /**
+     * Validate data with some rules.
+     *
      * @param string|Validation $validation
      * @param Field[]           $fields
      */
@@ -378,7 +380,10 @@ if (!function_exists('validate')) {
 }
 
 if (!function_exists('int2str')) {
-    function int2str(int $num, $base = 62): string
+    /**
+     * Encode integer to string.
+     */
+    function int2str(int $num, string|int $base = 62): string
     {
         if (is_string($base)) {
             $index = $base;
@@ -400,7 +405,10 @@ if (!function_exists('int2str')) {
 }
 
 if (!function_exists('str2int')) {
-    function str2int(string $num, $base = 62): int
+    /**
+     * Decode string to integer.
+     */
+    function str2int(string $num, string|int $base = 62): int
     {
         if (is_string($base)) {
             $index = $base;
@@ -417,5 +425,25 @@ if (!function_exists('str2int')) {
         }
 
         return (int) $out;
+    }
+}
+
+if (!function_exists('base64_urlencode')) {
+    /**
+     * Encodes data with URL safe base64 string.
+     */
+    function base64_urlencode(string $data): string
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+}
+
+if (!function_exists('base64_urldecode')) {
+    /**
+     * Decodes data encoded with URL safe base64 string.
+     */
+    function base64_urldecode(string $data): string|false
+    {
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 }

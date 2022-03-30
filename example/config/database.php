@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-30 10:54:25 +0800
+ * @version  2022-03-30 10:00:05 +0800
  */
 
 use Teddy\Config\Repository;

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-27 16:29:08 +0800
+ * @version  2022-03-30 10:53:20 +0800
  */
 
 namespace Teddy\Redis;
@@ -88,7 +88,12 @@ class Redis extends Pool
 
     public function __construct(array $config)
     {
-        parent::__construct($config['pool'] ?? []);
+        if (array_key_exists('pool', $config)) {
+            parent::__construct($config['pool']);
+        } else {
+            parent::__construct();
+        }
+
         $this->initConfig($config);
     }
 

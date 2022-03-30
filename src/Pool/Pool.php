@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-16 14:32:17 +0800
+ * @version  2022-03-30 09:44:52 +0800
  */
 
 namespace Teddy\Pool;
@@ -18,28 +18,41 @@ abstract class Pool
     /** @var Channel */
     protected $channel;
 
-    /** @var array */
-    protected $poolOptions;
+    /** @var null|array|bool */
+    protected $poolOptions = false;
 
     /** @var int */
     protected $currentConnections = 0;
 
-    public function __construct(array $options = [])
-    {
-        $this->poolOptions = (new Repository([
-            'minConnections' => 1,
-            'maxConnections' => 10,
-            'connectTimeout' => 10.0,
-            'waitTimeout'    => 3.0,
-            'heartbeat'      => 0,
-            'maxIdleTime'    => 900,
-        ]))->merge($options)->toArray();
+    /** @var null|ConnectionInterface */
+    protected $instance;
 
-        $this->channel = new Channel($this->poolOptions['maxConnections']);
+    public function __construct(array|null|bool $options = [])
+    {
+        if (is_array($options) || ($options === true)) {
+            $this->poolOptions = (new Repository([
+                'minConnections' => 1,
+                'maxConnections' => 10,
+                'connectTimeout' => 10.0,
+                'waitTimeout'    => 3.0,
+                'heartbeat'      => 0,
+                'maxIdleTime'    => 900,
+            ]))->merge($options ?: [])->toArray();
+
+            $this->channel = new Channel($this->poolOptions['maxConnections']);
+        }
     }
 
     public function get(): ConnectionInterface
     {
+        if (!$this->poolOptions) {
+            if (!$this->instance) {
+                $this->instance = $this->createConnection();
+            }
+
+            return $this->instance;
+        }
+
         $num = $this->getConnectionsInChannel();
 
         try {
@@ -59,11 +72,19 @@ abstract class Pool
 
     public function release(ConnectionInterface $connection): void
     {
+        if (!$this->poolOptions) {
+            return;
+        }
+
         $this->channel->push($connection);
     }
 
     public function flush(): void
     {
+        if (!$this->poolOptions) {
+            return;
+        }
+
         $num = $this->getConnectionsInChannel();
 
         if ($num > 0) {
@@ -76,6 +97,10 @@ abstract class Pool
 
     protected function getConnectionsInChannel(): int
     {
+        if (!$this->poolOptions) {
+            return $this->instance ? 1 : 0;
+        }
+
         return $this->channel->length();
     }
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-16 14:32:00 +0800
+ * @version  2022-03-30 09:55:35 +0800
  */
 
 namespace Teddy\Database;
@@ -29,16 +29,25 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
     protected $writeConf = [];
 
+    protected $readInstance;
+
     protected $readChannel;
 
     protected $currentReadConnections = 0;
 
     public function __construct(array $config = [])
     {
-        parent::__construct($config['pool'] ?? []);
+        if (array_key_exists('pool', $config)) {
+            parent::__construct($config['pool']);
+        } else {
+            parent::__construct();
+        }
+
         $this->initConfig($config);
 
-        $this->readChannel = new Channel($this->poolOptions['maxConnections']);
+        if ($this->poolOptions) {
+            $this->readChannel = new Channel($this->poolOptions['maxConnections']);
+        }
     }
 
     public function get(bool $readOnly = false): ConnectionInterface
@@ -54,6 +63,14 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     {
         if (!$this->hasReadOnly) {
             return $this->getWriteConnection();
+        }
+
+        if (!$this->poolOptions) {
+            if (!$this->readInstance) {
+                $this->readInstance = $this->createReadConnection();
+            }
+
+            return $this->readInstance;
         }
 
         $num = $this->getReadConnectionsInChannel();
@@ -80,6 +97,10 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
     public function release(ConnectionInterface $connection): void
     {
+        if (!$this->poolOptions) {
+            return;
+        }
+
         /** @var PDOConnection $connection */
         if ($connection->isReadOnly()) {
             $this->readChannel->push($connection);
@@ -90,6 +111,10 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
     public function flush(): void
     {
+        if (!$this->poolOptions) {
+            return;
+        }
+
         parent::flush();
 
         $num = $this->getReadConnectionsInChannel();
@@ -184,22 +209,30 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
     protected function getReadConnectionsInChannel(): int
     {
+        if (!$this->poolOptions) {
+            return $this->readInstance ? 1 : 0;
+        }
+
         return $this->readChannel->length();
     }
 
     protected function initConfig(array $config, ?bool $readOnly = null): void
     {
         $defaultConf = [
-            'driver'        => 'mysql',
-            'host'          => Arr::get($config, 'host', '127.0.0.1'),
-            'port'          => Arr::get($config, 'port', 3306),
-            'name'          => Arr::get($config, 'name', ''),
-            'user'          => Arr::get($config, 'user', ''),
-            'password'      => Arr::get($config, 'password', ''),
-            'charset'       => Arr::get($config, 'charset', 'utf8mb4'),
-            'options'       => Arr::get($config, 'options', []),
-            'idleTimeout'   => $this->poolOptions['maxIdleTime'],
+            'driver'      => 'mysql',
+            'host'        => Arr::get($config, 'host', '127.0.0.1'),
+            'port'        => Arr::get($config, 'port', 3306),
+            'name'        => Arr::get($config, 'name', ''),
+            'user'        => Arr::get($config, 'user', ''),
+            'password'    => Arr::get($config, 'password', ''),
+            'charset'     => Arr::get($config, 'charset', 'utf8mb4'),
+            'options'     => Arr::get($config, 'options', []),
+            'idleTimeout' => 900,
         ];
+
+        if ($this->poolOptions) {
+            $defaultConf['idleTimeout'] = $this->poolOptions['maxIdleTime'];
+        }
 
         if (null === $readOnly) {
             if (isset($config['read'], $config['write'])) {

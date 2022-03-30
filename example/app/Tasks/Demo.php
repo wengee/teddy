@@ -17,7 +17,7 @@ class Demo extends Task
 
     protected function handle()
     {
-        echo 'task ('.$this->id.') handle: '.time().PHP_EOL;
+        echo 'task handle: '.time().PHP_EOL;
         // sleep(1);
         return 'result ok';
     }

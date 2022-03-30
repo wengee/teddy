@@ -4,14 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-02-21 15:05:01 +0800
+ * @version  2022-03-29 17:06:39 +0800
  */
 
 namespace Teddy\Model\Columns;
 
 use Attribute;
-use Carbon\Carbon;
-use DateTimeInterface;
+use DateTime;
 use Exception;
 
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
@@ -24,7 +23,7 @@ class DateTimeColumn extends Column
     public function convertToDbValue($value)
     {
         if ($this->update) {
-            $value = new Carbon();
+            $value = new DateTime();
         }
 
         if (empty($value)) {
@@ -57,57 +56,35 @@ class DateTimeColumn extends Column
 
     public function defaultValue()
     {
-        if ('now' === $this->default) {
-            return new Carbon();
+        if ($this->default) {
+            return new DateTime($this->default);
         }
 
         return null;
     }
 
-    protected function asDateTime($value): Carbon
+    /**
+     * @param DateTime|int|string $value
+     */
+    protected function asDateTime($value): DateTime
     {
-        // If this value is already a Carbon instance, we shall just return it as is.
-        // This prevents us having to re-instantiate a Carbon instance when we know
-        // it already is one, which wouldn't be fulfilled by the DateTime check.
-        if ($value instanceof Carbon) {
+        if ($value instanceof DateTime) {
             return $value;
         }
 
-        // If the value is already a DateTime instance, we will just skip the rest of
-        // these checks since they will be a waste of time, and hinder performance
-        // when checking the field. We will just return the DateTime right away.
-        if ($value instanceof DateTimeInterface) {
-            return new Carbon(
-                $value->format('Y-m-d H:i:s.u'),
-                $value->getTimezone()
-            );
+        if (is_int($value)) {
+            return new DateTime('@'.$value);
         }
 
-        // If this value is an integer, we will assume it is a UNIX timestamp's value
-        // and format a Carbon object from this timestamp. This allows flexibility
-        // when defining your date fields as they might be UNIX timestamps here.
-        if (is_numeric($value)) {
-            return Carbon::createFromTimestamp($value);
-        }
-
-        // If the value is in simply year, month, day format, we will instantiate the
-        // Carbon instances from that format. Again, this provides for simple date
-        // fields on the database, while still supporting Carbonized conversion.
         if ($this->isStandardDateFormat($value)) {
-            return Carbon::createFromFormat($this->format, $value)->startOfDay();
+            return new DateTime($value);
         }
 
-        // Finally, we will just assume this date is in the format used by default on
-        // the database connection and use that format to create the Carbon object
-        // that is returned back out to the developers after we convert it here.
-        return Carbon::createFromFormat(
-            str_replace('.v', '.u', $this->format),
-            $value
-        );
+        return DateTime::createFromFormat($this->format, $value);
     }
 
-    protected function isStandardDateFormat($value)
+    protected function isStandardDateFormat($value): int|false
     {
-        return preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value);
+        return is_string($value) ? preg_match('/^(\d{4})-(\d{1,2})-(\d{1,2})$/', $value) : false;
     }
 }

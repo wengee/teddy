@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-03-30 10:50:12 +0800
  */
 
 namespace Teddy\Pool\SimplePool;
@@ -38,7 +38,7 @@ class Connection implements ConnectionInterface
 
     public function reconnect()
     {
-        $this->connection  = ($this->callback)();
+        $this->connection  = call_user_func($this->callback);
         $this->lastUseTime = microtime(true);
 
         return $this->connection;
@@ -56,6 +56,7 @@ class Connection implements ConnectionInterface
         if ($now > $maxIdleTime + $this->lastUseTime) {
             return false;
         }
+
         $this->lastUseTime = $now;
 
         return true;

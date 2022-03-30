@@ -17,11 +17,6 @@ use Teddy\Lock\Lock;
 abstract class Task implements TaskInterface
 {
     /** @var int */
-    public $id;
-
-    protected static $num = 0;
-
-    /** @var int */
     protected $timeout = 600;
 
     /** @var bool */
@@ -35,11 +30,6 @@ abstract class Task implements TaskInterface
 
     /** @var null|string */
     protected $uniqueKey;
-
-    final public function __construct()
-    {
-        $this->id = ++self::$num;
-    }
 
     public function timeout(int $timeout): self
     {

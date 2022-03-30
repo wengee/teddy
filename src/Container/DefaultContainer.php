@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-28 17:26:26 +0800
+ * @version  2022-03-29 17:16:26 +0800
  */
 
 namespace Teddy\Container;
@@ -59,7 +59,6 @@ class DefaultContainer
         $container->addShared('fs', \Teddy\Flysystem\Manager::class);
 
         // Others
-        $container->addShared('base64', \Teddy\Base64::class);
         $container->addShared('filter', \Teddy\Filter::class);
         $container->addShared('lock', \Teddy\Lock\Factory::class);
         $container->addShared('auth', \Teddy\Auth\Manager::class);
