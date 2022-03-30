@@ -189,6 +189,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
         $config = Arr::random($this->readConf);
         $pdo    = new PDOConnection($config, true);
+        $pdo->setPool($this);
         if ($this->logger) {
             $pdo->setLogger($this->logger);
         }
@@ -200,6 +201,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     {
         $config = Arr::random($this->writeConf);
         $pdo    = new PDOConnection($config, false);
+        $pdo->setPool($this);
         if ($this->logger) {
             $pdo->setLogger($this->logger);
         }

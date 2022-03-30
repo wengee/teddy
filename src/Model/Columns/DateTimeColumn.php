@@ -11,6 +11,7 @@ namespace Teddy\Model\Columns;
 
 use Attribute;
 use DateTime;
+use DateTimeZone;
 use Exception;
 
 #[Attribute(Attribute::TARGET_CLASS | Attribute::IS_REPEATABLE)]
@@ -19,6 +20,16 @@ class DateTimeColumn extends Column
     protected $format = 'Y-m-d H:i:s';
 
     protected $update = false;
+
+    protected $timezone;
+
+    public function __construct(...$values)
+    {
+        parent::__construct(...$values);
+
+        $defaultTimezone = date_default_timezone_get();
+        $this->timezone = new DateTimeZone($defaultTimezone ?: 'UTC');
+    }
 
     public function convertToDbValue($value)
     {
@@ -36,7 +47,7 @@ class DateTimeColumn extends Column
             return null;
         }
 
-        return $t->format($this->format);
+        return $t->setTimezone($this->timezone)->format($this->format);
     }
 
     public function convertToPhpValue($value)
@@ -51,7 +62,7 @@ class DateTimeColumn extends Column
             return null;
         }
 
-        return $value;
+        return $value->setTimezone($this->timezone);
     }
 
     public function defaultValue()

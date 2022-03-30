@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-30 10:53:20 +0800
+ * @version  2022-03-30 14:43:27 +0800
  */
 
 namespace Teddy\Redis;
@@ -126,9 +126,11 @@ class Redis extends Pool
 
     protected function createConnection(): ConnectionInterface
     {
-        $config = Arr::random($this->config);
+        $config     = Arr::random($this->config);
+        $connection = new Connection($config);
+        $connection->setPool($this);
 
-        return new Connection($config);
+        return $connection;
     }
 
     protected function initConfig(array $config): void

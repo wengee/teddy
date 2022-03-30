@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 10:52:21 +0800
+ * @version  2022-03-30 15:15:51 +0800
  */
 
 namespace App\Controllers;
@@ -27,13 +27,25 @@ class IndexController extends Controller
         run_task(Demo::class, [], ['delay' => 5]);
         // app('redis')->lPush('abc', 'fdsafsadfasd');
 
+        $list = Abc::query()->orderBy('id', 'DESC')->limit(5)->all();
+        $list = array_map(function ($item) {
+            $item = $item->toArray();
+
+            $timeslot = $item['timeslot'] ?? null;
+            if ($timeslot) {
+                $item['timeslot'] = $timeslot->setTimeZone(timezone_open('+0700'))->format('c');
+            }
+
+            return $item;
+        }, $list);
+
         return $response->json(0, [
             'config'    => config(),
             'container' => $this->getContainer(),
             'model'     => $model,
             'token'     => $token,
             'request'   => spl_object_hash($request),
-            'list'      => Abc::query()->orderBy('id', 'DESC')->limit(5)->all(),
+            'list'      => $list,
         ]);
     }
 

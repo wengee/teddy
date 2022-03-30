@@ -29,6 +29,8 @@ class Pool extends AbstractPool
 
     protected function createConnection(): ConnectionInterface
     {
-        return new Connection($this, $this->callback);
+        $connection = new Connection($this, $this->callback);
+        $connection->setPool($this);
+        return $connection;
     }
 }

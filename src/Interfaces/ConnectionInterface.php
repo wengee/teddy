@@ -9,8 +9,12 @@ declare(strict_types=1);
 
 namespace Teddy\Interfaces;
 
+use Teddy\Pool\Pool;
+
 interface ConnectionInterface
 {
+    public function setPool(Pool $pool);
+
     public function connect();
 
     public function reconnect();
@@ -18,4 +22,6 @@ interface ConnectionInterface
     public function close();
 
     public function check();
+
+    public function release();
 }

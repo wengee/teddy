@@ -9,11 +9,13 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Teddy\Model\Columns\DateTimeColumn;
 use Teddy\Model\Columns\IdColumn;
 use Teddy\Model\Columns\TimestampColumn;
 use Teddy\Model\Model;
 
 #[IdColumn()]
+#[DateTimeColumn("timeslot", default: "now")]
 #[TimestampColumn("created", default: "now")]
 #[TimestampColumn("updated", update: true)]
 class Abc extends Model

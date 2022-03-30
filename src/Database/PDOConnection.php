@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-30 14:38:37 +0800
+ * @version  2022-03-30 14:39:41 +0800
  */
 
 namespace Teddy\Database;
@@ -21,12 +21,13 @@ use PDOException;
 use PDOStatement;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Teddy\Abstracts\AbstractConnection;
 use Teddy\Database\DBAL\MysqlDriver;
 use Teddy\Database\Schema\Builder;
 use Teddy\Database\Schema\Grammars\MysqlGrammar;
 use Teddy\Database\Schema\MysqlBuilder;
 
-class PDOConnection implements DbConnectionInterface, LoggerAwareInterface
+class PDOConnection extends AbstractConnection implements DbConnectionInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
@@ -165,7 +166,7 @@ class PDOConnection implements DbConnectionInterface, LoggerAwareInterface
         $sqlType    = Arr::get($options, 'sqlType');
         $retryTotal = 0;
         $maxRetries = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
-        $meta   = Arr::get($options, 'meta');
+        $meta       = Arr::get($options, 'meta');
         $pdo        = $this->stick ? $this->pdo : $this->connect();
         $startTime  = microtime(true);
 

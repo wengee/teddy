@@ -9,9 +9,10 @@ declare(strict_types=1);
 
 namespace Teddy\Pool\SimplePool;
 
+use Teddy\Abstracts\AbstractConnection;
 use Teddy\Interfaces\ConnectionInterface;
 
-class Connection implements ConnectionInterface
+class Connection extends AbstractConnection implements ConnectionInterface
 {
     protected $lastUseTime = 0.0;
 
@@ -60,5 +61,12 @@ class Connection implements ConnectionInterface
         $this->lastUseTime = $now;
 
         return true;
+    }
+
+    public function release()
+    {
+        if ($this->pool) {
+            $this->pool->release($this);
+        }
     }
 }

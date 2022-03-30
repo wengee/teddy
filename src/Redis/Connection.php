@@ -11,9 +11,10 @@ namespace Teddy\Redis;
 
 use BadMethodCallException;
 use Exception;
+use Teddy\Abstracts\AbstractConnection;
 use Teddy\Interfaces\ConnectionInterface;
 
-class Connection implements ConnectionInterface
+class Connection extends AbstractConnection implements ConnectionInterface
 {
     protected $redis;
 
