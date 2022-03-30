@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-30 15:15:51 +0800
+ * @version  2022-03-30 16:49:06 +0800
  */
 
 namespace App\Controllers;
@@ -46,6 +46,7 @@ class IndexController extends Controller
             'token'     => $token,
             'request'   => spl_object_hash($request),
             'list'      => $list,
+            'cpu'       => cpu_count(),
         ]);
     }
 

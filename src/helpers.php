@@ -447,3 +447,39 @@ if (!function_exists('base64_urldecode')) {
         return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 }
+
+if (!function_exists('cpu_count')) {
+    /**
+     * Get number of cpu logical processors.
+     */
+    function cpu_count(): int
+    {
+        static $count;
+        if (!$count) {
+            $os = strtolower(PHP_OS_FAMILY);
+
+            switch ($os) {
+                case 'windows':
+                    $count = (int) shell_exec('echo %NUMBER_OF_PROCESSORS%');
+                break;
+
+                case 'linux':
+                    $count = (int) shell_exec('nproc');
+                break;
+
+                case 'darwin':
+                case 'bsd':
+                case 'solaris':
+                    $count = (int) shell_exec('grep -c ^processor /proc/cpuinfo');
+                break;
+
+                default:
+                    $count = 1;
+            }
+
+            $count = ($count > 0) ? $count : 1;
+        }
+
+        return $count;
+    }
+}
