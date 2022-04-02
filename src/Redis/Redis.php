@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-30 14:43:27 +0800
+ * @version  2022-04-02 10:45:24 +0800
  */
 
 namespace Teddy\Redis;
@@ -109,17 +109,17 @@ class Redis extends Pool
 
     public function runCommand(string $method, array $args)
     {
-        $connection = $this->get();
+        $connection = $this->getConnection();
 
         try {
             $ret = $connection->{$method}(...$args);
         } catch (Exception $e) {
-            $this->release($connection);
+            $this->releaseConnection($connection);
 
             throw $e;
         }
 
-        $this->release($connection);
+        $this->releaseConnection($connection);
 
         return $ret;
     }

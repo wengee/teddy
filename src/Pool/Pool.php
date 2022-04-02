@@ -43,7 +43,7 @@ abstract class Pool
         }
     }
 
-    public function get(): ConnectionInterface
+    public function getConnection(): ConnectionInterface
     {
         if (!$this->poolOptions) {
             if (!$this->instance) {
@@ -70,7 +70,7 @@ abstract class Pool
         return $this->channel->pop();
     }
 
-    public function release(ConnectionInterface $connection): void
+    public function releaseConnection(ConnectionInterface $connection): void
     {
         if (!$this->poolOptions) {
             return;
@@ -79,7 +79,7 @@ abstract class Pool
         $this->channel->push($connection);
     }
 
-    public function flush(): void
+    public function flushConnections(): void
     {
         if (!$this->poolOptions) {
             return;

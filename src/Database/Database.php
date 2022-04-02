@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-30 09:55:35 +0800
+ * @version  2022-04-02 10:44:05 +0800
  */
 
 namespace Teddy\Database;
@@ -50,13 +50,13 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
         }
     }
 
-    public function get(bool $readOnly = false): ConnectionInterface
+    public function getConnection(bool $readOnly = false): ConnectionInterface
     {
         if ($readOnly && $this->hasReadOnly) {
             return $this->getReadConnection();
         }
 
-        return parent::get();
+        return parent::getConnection();
     }
 
     public function getReadConnection(): DbConnectionInterface
@@ -92,10 +92,10 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
     public function getWriteConnection(): DbConnectionInterface
     {
-        return parent::get();
+        return parent::getConnection();
     }
 
-    public function release(ConnectionInterface $connection): void
+    public function releaseConnection(ConnectionInterface $connection): void
     {
         if (!$this->poolOptions) {
             return;
@@ -109,13 +109,13 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
         }
     }
 
-    public function flush(): void
+    public function flushConnections(): void
     {
         if (!$this->poolOptions) {
             return;
         }
 
-        parent::flush();
+        parent::flushConnections();
 
         $num = $this->getReadConnectionsInChannel();
         if ($num > 0) {
@@ -147,12 +147,12 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
             }
 
             $pdoConnection->rollBack();
-            $this->release($pdoConnection);
+            $this->releaseConnection($pdoConnection);
 
             throw $e;
         } catch (Exception $e) {
             $pdoConnection->rollBack();
-            $this->release($pdoConnection);
+            $this->releaseConnection($pdoConnection);
 
             throw $e;
         }
@@ -163,7 +163,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
             $pdoConnection->rollBack();
         }
 
-        $this->release($pdoConnection);
+        $this->releaseConnection($pdoConnection);
     }
 
     public function table(string $table): QueryBuilder
