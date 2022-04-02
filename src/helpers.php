@@ -483,3 +483,12 @@ if (!function_exists('cpu_count')) {
         return $count;
     }
 }
+
+if (!function_exists('defer')) {
+    /**
+     * Defers the execution of a callback function until the surrounding function of a coroutine returns. (for swoole)
+     */
+    function defer(callable $callback)
+    {
+    }
+}
