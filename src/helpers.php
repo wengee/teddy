@@ -484,11 +484,16 @@ if (!function_exists('cpu_count')) {
     }
 }
 
-if (!function_exists('defer')) {
-    /**
-     * Defers the execution of a callback function until the surrounding function of a coroutine returns. (for swoole)
-     */
-    function defer(callable $callback)
+if (!function_exists('in_swoole')) {
+    function in_swoole(): bool
     {
+        return defined('IN_SWOOLE') && IN_SWOOLE;
+    }
+}
+
+if (!function_exists('in_workerman')) {
+    function in_workerman(): bool
+    {
+        return defined('IN_WORKERMAN') && IN_WORKERMAN;
     }
 }
