@@ -5,7 +5,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-04-02 10:49:51 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -42,12 +42,12 @@ class Schema
         try {
             $ret = $connection->getSchemaBuilder()->{$name}(...$arguments);
         } catch (Exception $e) {
-            app('db')->release($connection);
+            app('db')->releaseConnection($connection);
 
             throw $e;
         }
 
-        app('db')->release($connection);
+        app('db')->releaseConnection($connection);
 
         return $ret;
     }

@@ -372,20 +372,20 @@ class QueryBuilder
         try {
             $ret = $pdoConnection->query($sql, $map, $options);
         } catch (Exception $e) {
-            $this->release($pdoConnection);
+            $this->releaseConnection($pdoConnection);
 
             throw $e;
         }
 
-        $this->release($pdoConnection);
+        $this->releaseConnection($pdoConnection);
 
         return $ret;
     }
 
-    protected function release(ConnectionInterface $connection): void
+    protected function releaseConnection(ConnectionInterface $connection): void
     {
         if (!$this->transaction && ($this->db instanceof Database)) {
-            $this->db->release($connection);
+            $this->db->releaseConnection($connection);
         }
     }
 }
