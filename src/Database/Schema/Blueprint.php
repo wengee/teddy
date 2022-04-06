@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-04-06 17:05:39 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -15,6 +15,86 @@ use Illuminate\Support\Traits\Macroable;
 use Teddy\Database\DbConnectionInterface;
 use Teddy\Database\Grammar;
 
+/**
+ * @method void   build(DbConnectionInterface $connection, Grammar $grammar)
+ * @method array  toSql(DbConnectionInterface $connection, Grammar $grammar)
+ * @method void   addFluentCommands(Grammar $grammar)
+ * @method self   create()
+ * @method self   modify()
+ * @method self   drop()
+ * @method self   dropIfExists()
+ * @method self   dropColumn(string|string[] $columns)
+ * @method self   renameColumn(string $from, string $to)
+ * @method self   dropPrimary(null|string $index = null)
+ * @method self   dropUnique(null|string $index)
+ * @method self   dropIndex(null|string $index)
+ * @method self   dropSpatialIndex(null|string $index)
+ * @method self   dropForeign(null|string $index)
+ * @method self   renameIndex(string $from, string $to)
+ * @method void   dropTimestamps()
+ * @method void   dropSoftDeletes()
+ * @method self   rename(string $to)
+ * @method self   primary(string|string[] $columns, ?string $name = null, ?string $algorithm = null)
+ * @method self   unique(string|string[] $columns, ?string $name = null, ?string $algorithm = null)
+ * @method self   index(string|string[] $columns, ?string $name = null, ?string $algorithm = null)
+ * @method self   spatialIndex(string|string[] $columns, ?string $name = null)
+ * @method self   fullTextIndex(string|string[] $columns, ?string $name = null)
+ * @method self   foreign(string|string[] $columns, ?string $name = null)
+ * @method self   increments(string $column)
+ * @method self   tinyIncrements(string $column)
+ * @method self   smallIncrements(string $column)
+ * @method self   mediumIncrements(string $column)
+ * @method self   bigIncrements(string $column)
+ * @method self   char(string $column, ?int $length = null)
+ * @method self   string(string $column, ?int $length = null)
+ * @method self   text(string $column)
+ * @method self   mediumText(string $column)
+ * @method self   longText(string $column)
+ * @method self   integer(string $column, bool $autoIncrement = false, bool $unsigned = false)
+ * @method self   tinyInteger(string $column, bool $autoIncrement = false, bool $unsigned = false)
+ * @method self   smallInteger(string $column, bool $autoIncrement = false, bool $unsigned = false)
+ * @method self   mediumInteger(string $column, bool $autoIncrement = false, bool $unsigned = false)
+ * @method self   bigInteger(string $column, bool $autoIncrement = false, bool $unsigned = false)
+ * @method self   unsignedInteger(string $column, bool $autoIncrement = false)
+ * @method self   unsignedTinyInteger(string $column, bool $autoIncrement = false)
+ * @method self   unsignedSmallInteger(string $column, bool $autoIncrement = false)
+ * @method self   unsignedMediumInteger(string $column, bool $autoIncrement = false)
+ * @method self   unsignedBigInteger(string $column, bool $autoIncrement = false)
+ * @method self   float(string $column, int $total = 8, int $places = 2)
+ * @method self   double(string $column, ?int $total = null, ?int $places = null)
+ * @method self   decimal(string $column, int $total = 8, int $places = 2)
+ * @method self   unsignedDecimal(string $column, int $total = 8, int $places = 2)
+ * @method self   boolean(string $column)
+ * @method self   enum(string $column, array $allowed)
+ * @method self   json(string $column)
+ * @method self   jsonb(string $column)
+ * @method self   date(string $column)
+ * @method self   dateTime(string $column, int $precision = 0)
+ * @method self   time(string $column, int $precision = 0)
+ * @method self   timestamp(string $column, int $precision = 0)
+ * @method self   timestamps(int $precision = 0)
+ * @method self   softDeletes(string $column = 'deleted', int $precision = 0)
+ * @method self   year(string $column)
+ * @method self   binary(string $column)
+ * @method self   uuid(string $column)
+ * @method self   ipAddress(string $column)
+ * @method self   macAddress(string $column)
+ * @method self   geometry(string $column)
+ * @method self   point(string $column, ?int $srid = null)
+ * @method self   lineString(string $column)
+ * @method self   polygon(string $column)
+ * @method self   geometryCollection(string $column)
+ * @method self   multiPoint(string $column)
+ * @method self   multiLineString(string $column)
+ * @method self   multiPolygon(string $column)
+ * @method self   addColumn(string $type, string $name, array $parameters = [])
+ * @method self   removeColumn(string $name)
+ * @method string getTable()
+ * @method array  getColumns()
+ * @method array  getCommands()
+ * @method array  getAddedColumns()
+ * @method array  getChangedColumns()
+ */
 class Blueprint
 {
     use Macroable;
@@ -403,8 +483,8 @@ class Blueprint
 
     public function timestamps(int $precision = 0): void
     {
-        $this->integer('created')->nullable();
-        $this->integer('updated')->nullable();
+        $this->bigInteger('created')->nullable();
+        $this->bigInteger('updated')->nullable();
     }
 
     public function softDeletes(string $column = 'deleted', int $precision = 0): Fluent
@@ -576,7 +656,7 @@ class Blueprint
     protected function indexCommand(string $type, $columns, ?string $index, ?string $algorithm = null): Fluent
     {
         $columns = (array) $columns;
-        $index   = $index ?: $this->createIndexName($type, $columns);
+        $index = $index ?: $this->createIndexName($type, $columns);
 
         return $this->addCommand(
             $type,
