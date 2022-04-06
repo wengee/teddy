@@ -10,8 +10,11 @@ This file is part of Teddy Framework.
 @version  $timestamp
 EOF;
 
+$finder = PhpCsFixer\Finder::create()
+    ->exclude('/vendor/*')
+    ->in(__DIR__);
+
 return PhpCsFixer\Config::create()
-    ->setRiskyAllowed(true)
     ->setRules([
         '@PSR2' => true,
         '@PhpCsFixer' => true,
@@ -19,21 +22,13 @@ return PhpCsFixer\Config::create()
         '@PHP73Migration' => true,
 
         'header_comment' => [
-            'commentType' => 'PHPDoc',
+            'comment_type' => 'PHPDoc',
             'header' => $header,
             'separate' => 'bottom'
         ],
         'blank_line_after_opening_tag' => false,
-        'binary_operator_spaces' => [
-            'align_double_arrow' => true,
-            'align_equals' => true,
-        ],
-        'phpdoc_to_comment' => false,
+        'linebreak_after_opening_tag' => false,
     ])
-    ->setFinder(
-        PhpCsFixer\Finder::create()
-            ->exclude('/vendor/*')
-            ->exclude('/src/phar-cli-stub.php')
-            ->in(__DIR__)
-    )
+    ->setFinder($finder)
+    ->setRiskyAllowed(true)
     ->setUsingCache(false);
