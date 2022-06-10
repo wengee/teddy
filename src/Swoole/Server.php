@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 14:52:46 +0800
+ * @version  2022-06-10 14:13:00 +0800
  */
 
 namespace Teddy\Swoole;
@@ -58,12 +58,12 @@ class Server implements ServerInterface
 
     public function __construct(Application $app)
     {
-        if (version_compare(PHP_VERSION, '7.3.0') < 0) {
-            throw new Exception('Teddy require PHP 7.3 or newer.');
+        if (version_compare(PHP_VERSION, '8.1.0') < 0) {
+            throw new Exception('Teddy require PHP 8.1 or newer.');
         }
 
-        if (version_compare(SWOOLE_VERSION, '4.4.0') < 0) {
-            throw new Exception('Teddy require swoole 4.4.0 or newer.');
+        if (version_compare(SWOOLE_VERSION, '4.6.0') < 0) {
+            throw new Exception('Teddy require swoole 4.6.0 or newer.');
         }
 
         $this->app       = $app;
@@ -143,39 +143,39 @@ class Server implements ServerInterface
         $coroutineStats = Coroutine::stats();
 
         return [
-            'hostname'                  => gethostname(),
-            'currentWorkPid'            => getmypid(),
-            'phpVersion'                => PHP_VERSION,
-            'swooleVersion'             => SWOOLE_VERSION,
+            'hostname'       => gethostname(),
+            'currentWorkPid' => getmypid(),
+            'phpVersion'     => PHP_VERSION,
+            'swooleVersion'  => SWOOLE_VERSION,
 
             'server' => [
-                'startTime'             => $serverStats['start_time'] ?? null,
-                'connectionNum'         => $serverStats['connection_num'] ?? null,
-                'acceptCount'           => $serverStats['accept_count'] ?? null,
-                'closeCount'            => $serverStats['close_count'] ?? null,
-                'workerNum'             => $serverStats['worker_num'] ?? null,
-                'idleWorkerNum'         => $serverStats['idle_worker_num'] ?? null,
-                'taskingNum'            => $serverStats['tasking_num'] ?? null,
-                'requestCount'          => $serverStats['request_count'] ?? null,
-                'workerRequestCount'    => $serverStats['worker_request_count'] ?? null,
-                'workerDispatchCount'   => $serverStats['worker_dispatch_count'] ?? null,
-                'taskIdleWorkerNum'     => $serverStats['task_idle_worker_num'] ?? null,
-                'coroutineNum'          => $serverStats['coroutine_num'] ?? null,
+                'startTime'           => $serverStats['start_time'] ?? null,
+                'connectionNum'       => $serverStats['connection_num'] ?? null,
+                'acceptCount'         => $serverStats['accept_count'] ?? null,
+                'closeCount'          => $serverStats['close_count'] ?? null,
+                'workerNum'           => $serverStats['worker_num'] ?? null,
+                'idleWorkerNum'       => $serverStats['idle_worker_num'] ?? null,
+                'taskingNum'          => $serverStats['tasking_num'] ?? null,
+                'requestCount'        => $serverStats['request_count'] ?? null,
+                'workerRequestCount'  => $serverStats['worker_request_count'] ?? null,
+                'workerDispatchCount' => $serverStats['worker_dispatch_count'] ?? null,
+                'taskIdleWorkerNum'   => $serverStats['task_idle_worker_num'] ?? null,
+                'coroutineNum'        => $serverStats['coroutine_num'] ?? null,
             ],
 
             'memory' => [
-                'usage'                 => memory_get_usage(),
-                'allotUsage'            => memory_get_usage(true),
-                'peakUsage'             => memory_get_peak_usage(),
-                'peakAllotUsage'        => memory_get_peak_usage(true),
+                'usage'          => memory_get_usage(),
+                'allotUsage'     => memory_get_usage(true),
+                'peakUsage'      => memory_get_peak_usage(),
+                'peakAllotUsage' => memory_get_peak_usage(true),
             ],
 
             'coroutine' => [
-                'eventNum'              => $coroutineStats['event_num'] ?? null,
-                'signalListenerNum'     => $coroutineStats['signal_listener_num'] ?? null,
-                'aioTaskNum'            => $coroutineStats['aio_task_num'] ?? null,
-                'coroutineNum'          => $coroutineStats['coroutine_num'] ?? null,
-                'coroutinePeakNum'      => $coroutineStats['coroutine_peak_num'] ?? null,
+                'eventNum'          => $coroutineStats['event_num'] ?? null,
+                'signalListenerNum' => $coroutineStats['signal_listener_num'] ?? null,
+                'aioTaskNum'        => $coroutineStats['aio_task_num'] ?? null,
+                'coroutineNum'      => $coroutineStats['coroutine_num'] ?? null,
+                'coroutinePeakNum'  => $coroutineStats['coroutine_peak_num'] ?? null,
             ],
         ];
     }

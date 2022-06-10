@@ -12,9 +12,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
+use Teddy\Exception;
 use Teddy\Hook;
 use Teddy\Interfaces\ServerInterface;
-use Teddy\Task;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
@@ -104,7 +104,7 @@ if (!function_exists('run_task')) {
     /**
      * Run a task.
      *
-     * @param null|array|bool|int $extra
+     * @param null|array|bool|int $extra ['local' => true, 'at' => 0, 'delay' => 0]
      */
     function run_task(string $className, array $args = [], $extra = null): void
     {
@@ -116,6 +116,8 @@ if (!function_exists('run_task')) {
         /** @var null|ServerInterface $server */
         if ($server) {
             $server->addTask($className, $args, $extra);
+        } else {
+            throw new Exception('Unable to run the task ['.$className.'].');
         }
     }
 }
