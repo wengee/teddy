@@ -4,15 +4,15 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-29 17:10:45 +0800
+ * @version  2022-06-21 10:15:08 +0800
  */
 
+use Exception;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
-use Teddy\Exception;
 use Teddy\Hook;
 use Teddy\Interfaces\ServerInterface;
 use Teddy\Utils\FileSystem;
@@ -463,16 +463,19 @@ if (!function_exists('cpu_count')) {
             switch ($os) {
                 case 'windows':
                     $count = (int) shell_exec('echo %NUMBER_OF_PROCESSORS%');
+
                 break;
 
                 case 'linux':
                     $count = (int) shell_exec('nproc');
+
                 break;
 
                 case 'darwin':
                 case 'bsd':
                 case 'solaris':
                     $count = (int) shell_exec('grep -c ^processor /proc/cpuinfo');
+
                 break;
 
                 default:
@@ -488,9 +491,9 @@ if (!function_exists('cpu_count')) {
 
 if (!function_exists('swoole_defer')) {
     /**
-     * Defers the execution of a callback function until the surrounding function of a coroutine returns. (for swoole)
+     * Defers the execution of a callback function until the surrounding function of a coroutine returns. (for swoole).
      */
-    function swoole_defer(callable $callback)
+    function swoole_defer(callable $callback): void
     {
         if (defined('IN_SWOOLE') && IN_SWOOLE) {
             defer($callback);
