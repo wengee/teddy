@@ -4,10 +4,9 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-21 10:15:08 +0800
+ * @version  2022-06-21 10:18:39 +0800
  */
 
-use Exception;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
