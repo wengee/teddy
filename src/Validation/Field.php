@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-04-22 10:47:19 +0800
+ * @version  2022-06-27 14:41:35 +0800
  */
 
 namespace Teddy\Validation;
@@ -233,7 +233,7 @@ class Field
      * * then('idcard', ?string $message = null)
      * * then('in', array $domain, ?string $message = null)
      * * then('ip', int $flag = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6, ?string $message = null)
-     * * then('length', int $minLen, $maxLen = null, ?string $message = null)
+     * * then('length', int|int[] $minLen, ?string $message = null)
      * * then('list', callable|Field|Field[]|Validation $validation)
      * * then('lte', $value, ?string $message = null)
      * * then('lt', $value, ?string $message = null)
@@ -241,7 +241,7 @@ class Field
      * * then('notIn', array $domain, ?string $message = null)
      * * then('number', ?string $message = null)
      * * then('optional', ?string $message = null)
-     * * then('regex' string $pattern, $replacement = null, ?string $message = null)
+     * * then('regex' string|string[] $pattern, ?string $message = null)
      * * then('required', ?string $message = null)
      * * then('same', string $otherField, ?string $message = null)
      * * then('timestamp', ?string $message = null)

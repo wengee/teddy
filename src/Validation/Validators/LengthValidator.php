@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-06-27 14:40:36 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -15,20 +15,20 @@ class LengthValidator extends Validator
 {
     protected $minLen = 0;
 
-    protected $maxLen;
+    protected $maxLen = 0;
 
     protected $message = ':label长度必须介于 :minLen 与 :maxLen 之间';
 
-    public function __construct(Field $field, int $minLen, $maxLen = null, ?string $message = null)
+    /**
+     * @param int|int[] $minLen
+     */
+    public function __construct(Field $field, $minLen, ?string $message = null)
     {
-        if (is_string($maxLen)) {
-            $message = $maxLen;
-            $maxLen  = null;
-        }
-
-        $this->minLen = max($minLen, 0);
-        if (is_int($maxLen)) {
-            $this->maxLen = max($maxLen, 1);
+        if (is_array($minLen)) {
+            $this->minLen = max(intval($minLen[0] ?? 0), 0);
+            $this->maxLen = max(intval($minLen[1] ?? 0), 0);
+        } else {
+            $this->minLen = max(intval($minLen[0]), 0);
         }
 
         parent::__construct($field, $message);
@@ -37,7 +37,7 @@ class LengthValidator extends Validator
     protected function validate($value, array $data, callable $next)
     {
         $len = is_array($value) ? count($value) : $this->strLen((string) $value);
-        if ($len < $this->minLen || (null !== $this->maxLen && $len > $this->maxLen)) {
+        if ($len < $this->minLen || ($this->maxLen > 0 && $len > $this->maxLen)) {
             $this->throwError([
                 ':minLen' => $this->minLen,
                 ':maxLen' => $this->maxLen ?: '无限',

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-06-27 14:37:41 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -20,16 +20,33 @@ class RegexValidator extends Validator
 
     protected $message = ':label不符合指定规则';
 
-    public function __construct(Field $field, string $pattern, $replacement = null, ?string $message = null)
+    /**
+     * @param string|string[] $pattern
+     */
+    public function __construct(Field $field, $pattern, ?string $message = null)
     {
-        $this->pattern     = $pattern;
-        $this->replacement = $replacement;
+        if (is_array($pattern)) {
+            if (count($pattern) >= 2) {
+                $this->pattern     = $pattern[0] ?? null;
+                $this->replacement = $pattern[1] ?? null;
+            } else {
+                $this->pattern     = key($pattern);
+                $this->replacement = current($pattern);
+            }
+        } else {
+            $this->pattern = strval($pattern);
+        }
+
         parent::__construct($field, $message);
     }
 
     protected function validate($value, array $data, callable $next)
     {
         $value = strval($value);
+        if (!$this->pattern) {
+            return $next($value, $data);
+        }
+
         if (!preg_match($this->pattern, $value)) {
             $this->throwError();
         }
