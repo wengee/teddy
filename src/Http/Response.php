@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-14 16:18:41 +0800
+ * @version  2022-06-27 18:35:59 +0800
  */
 
 namespace Teddy\Http;
@@ -29,6 +29,8 @@ class Response extends SlimResponse implements CookieAwareInterface
     protected $sendFile;
 
     protected $isJsonResponse = false;
+
+    protected $jsonEncodingOptions = 0;
 
     protected $jsonData;
 
@@ -61,15 +63,14 @@ class Response extends SlimResponse implements CookieAwareInterface
         return $this;
     }
 
-    public function withJson($data, $status = StatusCodeInterface::STATUS_OK, $encodingOptions = 0): ResponseInterface
+    public function withJson($data, int $status = StatusCodeInterface::STATUS_OK): ResponseInterface
     {
         $this->isJsonResponse = true;
         $this->jsonData       = $data;
 
         $response = $this->withBody(new Stream(fopen('php://temp', 'r+')));
-        $response->body->write($json = json_encode($data, $encodingOptions));
 
-        // Ensure that the json encoding passed successfully
+        $response->body->write($json = json_encode($data, $this->jsonEncodingOptions));
         if (false === $json) {
             throw new RuntimeException(json_last_error_msg(), json_last_error());
         }
