@@ -4,14 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 17:53:50 +0800
+ * @version  2022-06-27 17:53:40 +0800
  */
 
 namespace Teddy\Validation\Validators;
 
 use Teddy\Validation\Field;
 
-class NumberValidator extends Validator
+class DecimalValidator extends Validator
 {
     protected $places = -1;
 
@@ -40,6 +40,8 @@ class NumberValidator extends Validator
                 ':places' => $this->places,
             ]);
         }
+
+        $value = floatval($value);
 
         return $next($value, $data);
     }

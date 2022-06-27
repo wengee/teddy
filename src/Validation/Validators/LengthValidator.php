@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 14:40:36 +0800
+ * @version  2022-06-27 17:47:36 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -22,7 +22,7 @@ class LengthValidator extends Validator
     /**
      * @param int|int[] $minLen
      */
-    public function __construct(Field $field, $minLen, ?string $message = null)
+    public function __construct(Field $field, $minLen = 0, ?string $message = null)
     {
         if (is_array($minLen)) {
             $this->minLen = max(intval($minLen[0] ?? 0), 0);
@@ -36,6 +36,13 @@ class LengthValidator extends Validator
 
     protected function validate($value, array $data, callable $next)
     {
+        $this->doValidate($value);
+
+        return $next($value, $data);
+    }
+
+    protected function doValidate($value): void
+    {
         $len = is_array($value) ? count($value) : $this->strLen((string) $value);
         if ($len < $this->minLen || ($this->maxLen > 0 && $len > $this->maxLen)) {
             $this->throwError([
@@ -43,8 +50,6 @@ class LengthValidator extends Validator
                 ':maxLen' => $this->maxLen ?: '无限',
             ]);
         }
-
-        return $next($value, $data);
     }
 
     protected function strLen(string $str): int

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 14:41:35 +0800
+ * @version  2022-06-27 17:56:22 +0800
  */
 
 namespace Teddy\Validation;
@@ -21,11 +21,13 @@ use Teddy\Validation\Validators\BeforeValidator;
 use Teddy\Validation\Validators\CallbackValidator;
 use Teddy\Validation\Validators\DateTimeValidator;
 use Teddy\Validation\Validators\DateValidator;
+use Teddy\Validation\Validators\DecimalValidator;
 use Teddy\Validation\Validators\DigitValidator;
 use Teddy\Validation\Validators\EmailValidator;
 use Teddy\Validation\Validators\GreatThanOrEqualValidator;
 use Teddy\Validation\Validators\GreatThanValidator;
 use Teddy\Validation\Validators\IdCardValidator;
+use Teddy\Validation\Validators\IntegerValidator;
 use Teddy\Validation\Validators\InValidator;
 use Teddy\Validation\Validators\IpValidator;
 use Teddy\Validation\Validators\LengthValidator;
@@ -39,6 +41,7 @@ use Teddy\Validation\Validators\OptionalValidator;
 use Teddy\Validation\Validators\RegexValidator;
 use Teddy\Validation\Validators\RequiredValidator;
 use Teddy\Validation\Validators\SameValidator;
+use Teddy\Validation\Validators\StringValidator;
 use Teddy\Validation\Validators\TimestampValidator;
 use Teddy\Validation\Validators\UrlValidator;
 use Teddy\Validation\Validators\UuidValidator;
@@ -55,12 +58,14 @@ class Field
         'callback'  => CallbackValidator::class,
         'datetime'  => DateTimeValidator::class,
         'date'      => DateValidator::class,
+        'decimal'   => DecimalValidator::class,
         'digit'     => DigitValidator::class,
         'email'     => EmailValidator::class,
         'gte'       => GreatThanOrEqualValidator::class,
         'gt'        => GreatThanValidator::class,
         'idcard'    => IdCardValidator::class,
         'in'        => InValidator::class,
+        'integer'   => IntegerValidator::class,
         'ip'        => IpValidator::class,
         'length'    => LengthValidator::class,
         'list'      => ListValidator::class,
@@ -73,11 +78,16 @@ class Field
         'regex'     => RegexValidator::class,
         'required'  => RequiredValidator::class,
         'same'      => SameValidator::class,
+        'string'    => StringValidator::class,
         'timestamp' => TimestampValidator::class,
         'url'       => UrlValidator::class,
         'uuid'      => UuidValidator::class,
 
-        'eq' => SameValidator::class,
+        'double' => DecimalValidator::class,
+        'eq'     => SameValidator::class,
+        'float'  => DecimalValidator::class,
+        'int'    => IntegerValidator::class,
+        'str'    => StringValidator::class,
     ];
 
     protected $name;
@@ -225,13 +235,15 @@ class Field
      * * then('before', $value, ?string $message = null)
      * * then('callback', callable $func)
      * * then('datetime', string $format = '', ?string $message = null)
-     * * then('date',, string $format = '' ?string $message = null)
+     * * then('date', string $format = '' ?string $message = null)
+     * * then('decimal', int|string $places = -1, ?string $message = null)
      * * then('digit', ?string $message = null)
      * * then('email', ?string $message = null)
      * * then('gte', $value, ?string $message = null)
      * * then('gt', $value, ?string $message = null)
      * * then('idcard', ?string $message = null)
      * * then('in', array $domain, ?string $message = null)
+     * * then('integer', ?string $message = null)
      * * then('ip', int $flag = FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6, ?string $message = null)
      * * then('length', int|int[] $minLen, ?string $message = null)
      * * then('list', callable|Field|Field[]|Validation $validation)
@@ -239,15 +251,20 @@ class Field
      * * then('lt', $value, ?string $message = null)
      * * then('mobile', ?string $message = null)
      * * then('notIn', array $domain, ?string $message = null)
-     * * then('number', ?string $message = null)
+     * * then('number', int|string $places = -1, ?string $message = null)
      * * then('optional', ?string $message = null)
      * * then('regex' string|string[] $pattern, ?string $message = null)
      * * then('required', ?string $message = null)
      * * then('same', string $otherField, ?string $message = null)
+     * * then('string', bool|string $trim = true, ?string $message = null)
      * * then('timestamp', ?string $message = null)
      * * then('url', ?string $message = null)
      * * then('uuid', ?string $message = null)
+     * * then('double', int|string $places = -1, ?string $message = null)
      * * then('eq', string $otherField, ?string $message = null)
+     * * then('float', int|string $places = -1, ?string $message = null)
+     * * then('int', ?string $message = null)
+     * * then('str', bool|string $trim = true, ?string $message = null)
      *
      * @param callable|Field[]|string|Validation|Validator $validator
      *
