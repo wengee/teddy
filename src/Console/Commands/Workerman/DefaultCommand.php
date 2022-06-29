@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-17 18:12:49 +0800
+ * @version  2022-06-29 14:19:31 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
@@ -63,7 +63,9 @@ abstract class DefaultCommand extends Command
     {
         $loop = config('workerman.loop');
         if (null === $loop) {
-            if (extension_loaded('ev')) {
+            if (extension_loaded('event')) {
+                $loop = 'event';
+            } elseif (extension_loaded('ev')) {
                 $loop = 'ev';
             } elseif (extension_loaded('swoole')) {
                 $loop = 'swoole';
