@@ -13,7 +13,7 @@ class DigitValidator extends Validator
 {
     protected $message = ':label只能包含数字';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (!is_int($value) && !ctype_digit($value)) {
             $this->throwError();

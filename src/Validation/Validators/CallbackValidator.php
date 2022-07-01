@@ -21,7 +21,7 @@ class CallbackValidator extends Validator
         parent::__construct($field);
     }
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $value = call_user_func($this->func, $value, $data);
 

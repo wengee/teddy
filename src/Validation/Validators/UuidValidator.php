@@ -15,7 +15,7 @@ class UuidValidator extends Validator
 
     protected $message = ':label格式不正确';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $value = trim(strval($value));
         if (!preg_match(self::REGEX, $value)) {

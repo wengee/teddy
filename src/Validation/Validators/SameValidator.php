@@ -24,7 +24,7 @@ class SameValidator extends Validator
         parent::__construct($field, $message);
     }
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $otherValue = Arr::get($data, $this->otherField);
         if ($value !== $otherValue) {

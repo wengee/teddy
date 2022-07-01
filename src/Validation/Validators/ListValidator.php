@@ -46,7 +46,7 @@ class ListValidator extends Validator
         parent::__construct($field);
     }
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $ret   = [];
         $value = (array) $value;

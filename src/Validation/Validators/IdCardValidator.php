@@ -15,7 +15,7 @@ class IdCardValidator extends Validator
 
     protected $message = ':label不是正确的身份证号码';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $value = strtoupper(trim($value));
         if (!preg_match(self::REGEX, $value, $m)) {

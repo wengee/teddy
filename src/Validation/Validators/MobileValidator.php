@@ -15,7 +15,7 @@ class MobileValidator extends Validator
 
     protected $message = ':label不是一个合法的手机号码';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $value = trim(strval($value));
         if (!preg_match(self::REGEX, $value)) {

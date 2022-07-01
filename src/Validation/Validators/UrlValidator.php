@@ -13,7 +13,7 @@ class UrlValidator extends Validator
 {
     protected $message = ':label不是一个合法的URL';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (!filter_var($value, FILTER_VALIDATE_URL)) {
             $this->throwError();

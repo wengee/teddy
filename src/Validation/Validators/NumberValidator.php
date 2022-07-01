@@ -31,7 +31,7 @@ class NumberValidator extends Validator
         parent::__construct($field, $message);
     }
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $strVal   = trim(strval($value));
         $isNumber = preg_match('/^-?\\d+(\\.(\\d+))?$/', $strVal, $m);

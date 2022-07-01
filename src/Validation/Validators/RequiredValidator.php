@@ -13,7 +13,7 @@ class RequiredValidator extends Validator
 {
     protected $message = ':label不能为空';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (null === $value
             || (is_string($value) && 0 === strlen($value))

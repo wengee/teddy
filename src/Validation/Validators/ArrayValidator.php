@@ -34,7 +34,7 @@ class ArrayValidator extends Validator
         parent::__construct($field);
     }
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $value = $this->validation->validate((array) $value);
 

@@ -13,7 +13,7 @@ class AlphaValidator extends Validator
 {
     protected $message = ':label只能是字母';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (preg_match('/[^[:alpha:]]/imu', $value)) {
             $this->throwError();

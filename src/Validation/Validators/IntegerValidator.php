@@ -13,7 +13,7 @@ class IntegerValidator extends Validator
 {
     protected $message = ':label必须为整数';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (!is_int($value) && !ctype_digit((string) $value)) {
             $this->throwError();

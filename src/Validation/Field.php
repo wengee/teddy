@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-01 15:15:32 +0800
+ * @version  2022-07-01 16:16:40 +0800
  */
 
 namespace Teddy\Validation;
@@ -13,6 +13,7 @@ use Closure;
 use Exception;
 use Illuminate\Support\Arr;
 use RuntimeException;
+use Teddy\Interfaces\ValidatorInterface;
 use Teddy\Validation\Validators\AfterValidator;
 use Teddy\Validation\Validators\AlphaNumValidator;
 use Teddy\Validation\Validators\AlphaValidator;
@@ -110,11 +111,6 @@ class Field
     {
         $this->label = $label;
         $this->name  = $name;
-    }
-
-    public function __invoke($value, array $data)
-    {
-        return $value;
     }
 
     /**
@@ -266,24 +262,22 @@ class Field
      * * then('int', ?string $message = null)
      * * then('str', bool|string $trim = true, ?string $message = null)
      *
-     * @param callable|Field[]|string|Validation|Validator $validator
+     * @param callable|Field[]|string|Validation|ValidatorInterface $validator
      *
      * @return static
      */
     public function then($validator, ...$arguments): self
     {
-        if (is_string($validator)) {
-            $className = self::VALIDATOR_LIST[$validator] ?? $validator;
-            if (class_exists($className)) {
-                $validator = new $className($this, ...$arguments);
-            }
+        if (is_string($validator) && isset(self::VALIDATOR_LIST[$validator])) {
+            $className = self::VALIDATOR_LIST[$validator];
+            $validator = new $className($this, ...$arguments);
         } elseif (is_array($validator) || ($validator instanceof Validation)) {
             $validator = new ArrayValidator($this, $validator);
-        } elseif (!($validator instanceof Validator) && is_callable($validator)) {
+        } elseif (is_callable($validator)) {
             $validator = new CallbackValidator($this, $validator);
         }
 
-        if ($validator instanceof Validator) {
+        if ($validator instanceof ValidatorInterface) {
             $this->validators[] = $validator;
         }
 
@@ -395,12 +389,14 @@ class Field
             throw new RuntimeException('HandlerStack can only be seeded once.');
         }
 
-        $this->tip = $this;
-        $reversed  = array_reverse($this->validators);
-        foreach ($reversed as $callable) {
-            $next      = $this->tip;
-            $this->tip = function ($value, array $data) use ($callable, $next) {
-                return call_user_func($callable, $value, $data, $next);
+        $this->tip = fn ($value, array $data) => $value;
+        $reversed = array_reverse($this->validators);
+        foreach ($reversed as $validator) {
+            $next = $this->tip;
+
+            // @var ValidatorInterface $validator
+            $this->tip = function ($value, array $data) use ($validator, $next) {
+                return $validator->validate($value, $data, $next);
             };
         }
     }

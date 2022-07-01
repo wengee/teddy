@@ -13,7 +13,7 @@ class EmailValidator extends Validator
 {
     protected $message = ':label不是有效的邮箱格式';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             $this->throwError();

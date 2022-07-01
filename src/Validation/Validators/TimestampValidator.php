@@ -13,7 +13,7 @@ class TimestampValidator extends Validator
 {
     protected $message = ':label不是有效的时间戳';
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         if (null === $value) {
             return null;

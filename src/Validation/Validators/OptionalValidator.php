@@ -13,7 +13,7 @@ use Illuminate\Support\Arr;
 
 class OptionalValidator extends Validator
 {
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $fieldName = $this->field->getName();
         if ($fieldName && !Arr::has($data, $fieldName)) {

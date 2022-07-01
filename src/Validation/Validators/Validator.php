@@ -4,15 +4,16 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-01 16:15:26 +0800
  */
 
 namespace Teddy\Validation\Validators;
 
+use Teddy\Interfaces\ValidatorInterface;
 use Teddy\Validation\Field;
 use Teddy\Validation\ValidationError;
 
-abstract class Validator
+abstract class Validator implements ValidatorInterface
 {
     /**
      * @var Field
@@ -27,10 +28,7 @@ abstract class Validator
         $this->message = $message ?: $this->message;
     }
 
-    public function __invoke($value, array $data, callable $next)
-    {
-        return $this->validate($value, $data, $next);
-    }
+    abstract public function validate($value, array $data, callable $next);
 
     protected function throwError(array $data = []): void
     {
@@ -38,6 +36,4 @@ abstract class Validator
 
         throw new ValidationError(strtr($this->message, $data));
     }
-
-    abstract protected function validate($value, array $data, callable $next);
 }

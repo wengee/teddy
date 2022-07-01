@@ -23,7 +23,7 @@ class BeforeValidator extends TimestampValidator
         parent::__construct($field, $message);
     }
 
-    protected function validate($value, array $data, callable $next)
+    public function validate($value, array $data, callable $next)
     {
         $timestamp   = $this->getTimestamp($value);
         $myTimestamp = $this->getTimestamp($this->value);
