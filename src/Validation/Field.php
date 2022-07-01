@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 17:56:22 +0800
+ * @version  2022-07-01 15:15:32 +0800
  */
 
 namespace Teddy\Validation;
@@ -272,12 +272,14 @@ class Field
      */
     public function then($validator, ...$arguments): self
     {
-        if (is_string($validator) && isset(self::VALIDATOR_LIST[$validator])) {
-            $className = self::VALIDATOR_LIST[$validator];
-            $validator = new $className($this, ...$arguments);
+        if (is_string($validator)) {
+            $className = self::VALIDATOR_LIST[$validator] ?? $validator;
+            if (class_exists($className)) {
+                $validator = new $className($this, ...$arguments);
+            }
         } elseif (is_array($validator) || ($validator instanceof Validation)) {
             $validator = new ArrayValidator($this, $validator);
-        } elseif (is_callable($validator)) {
+        } elseif (!($validator instanceof Validator) && is_callable($validator)) {
             $validator = new CallbackValidator($this, $validator);
         }
 

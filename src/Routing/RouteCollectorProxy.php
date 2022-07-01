@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-06-29 14:35:38 +0800
  */
 
 namespace Teddy\Routing;
@@ -34,7 +34,7 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         $this->responseFactory  = $responseFactory;
         $this->callableResolver = $callableResolver;
         $this->container        = $container;
-        $this->routeCollector   = $routeCollector ?? new RouteCollector($responseFactory, $callableResolver, $container);
+        $this->routeCollector   = $routeCollector;
         $this->groupPattern     = $groupPattern;
     }
 
@@ -65,6 +65,9 @@ class RouteCollectorProxy extends SlimRouteCollectorProxy
         } elseif (is_array($pattern)) {
             $namespace = $pattern['namespace'] ?? '';
             $pattern   = $pattern['pattern'] ?? '';
+        } elseif (is_string($pattern) && preg_match('/^([^:]+):([^:]+)$/i', $pattern, $m)) {
+            $namespace = $m[1];
+            $pattern   = $m[2];
         }
 
         $pattern = $this->groupPattern.$pattern;
