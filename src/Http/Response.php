@@ -4,11 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 18:35:59 +0800
+ * @version  2022-07-01 20:48:52 +0800
  */
 
 namespace Teddy\Http;
 
+use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
@@ -16,7 +17,6 @@ use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Psr7\Stream;
-use Teddy\Exception;
 use Teddy\Interfaces\CookieAwareInterface;
 
 class Response extends SlimResponse implements CookieAwareInterface
