@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-26 17:07:39 +0800
+ * @version  2022-07-05 16:49:25 +0800
  */
 
 namespace Teddy\Auth;
@@ -25,18 +25,17 @@ class Authentication implements MiddlewareInterface
     public function __construct(array $config = [])
     {
         $this->config = (new Repository([
-            'header'    => 'Authorization',
-            'regexp'    => '/^Bearer\\s+(.*)$/i',
-            'cookie'    => 'token',
-            'param'     => 'token',
-            'attribute' => 'user',
-            'callback'  => null,
+            'header'   => 'Authorization',
+            'regexp'   => '/^Bearer\\s+(.*)$/i',
+            'cookie'   => 'token',
+            'param'    => 'token',
+            'callback' => null,
         ]))->merge($config)->toArray();
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $token = $payload = $user = null;
+        $token = $payload = null;
 
         try {
             $token = $this->fetchToken($request);
@@ -47,13 +46,15 @@ class Authentication implements MiddlewareInterface
         if ($token) {
             $payload = app('auth')->load($token);
             if ($payload && is_callable($this->config['callback'])) {
-                $user = call_user_func($this->config['callback'], $request, $payload);
+                $ret = call_user_func($this->config['callback'], $request, $payload);
+                if ($ret instanceof ServerRequestInterface) {
+                    $request = $ret;
+                }
             }
         }
 
         $request = $request->withAttribute('authToken', $token)
             ->withAttribute('authPayload', $payload)
-            ->withAttribute($this->config['attribute'], $user)
         ;
 
         return $handler->handle($request);
