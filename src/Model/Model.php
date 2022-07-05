@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:24:01 +0800
+ * @version  2022-07-05 14:54:05 +0800
  */
 
 namespace Teddy\Model;
@@ -47,6 +47,11 @@ abstract class Model implements ArrayAccess, JsonSerializable
     protected $isNewRecord = true;
 
     /**
+     * @var bool
+     */
+    protected $isModified = false;
+
+    /**
      * @var null|DatabaseInterface|string
      */
     protected $connection;
@@ -61,6 +66,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return [
             'items'       => $this->items,
             'isNewRecord' => $this->isNewRecord,
+            'isModified'  => $this->isModified,
         ];
     }
 
@@ -68,6 +74,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     {
         $this->items       = $data['items'] ?? [];
         $this->isNewRecord = $data['isNewRecord'] ?? false;
+        $this->isModified  = $data['isModified'] ?? false;
     }
 
     final public static function meta(): Meta
@@ -141,6 +148,11 @@ abstract class Model implements ArrayAccess, JsonSerializable
     public function isNewRecord(): bool
     {
         return $this->isNewRecord;
+    }
+
+    public function isModified(): bool
+    {
+        return $this->isModified;
     }
 
     public function setConnection($connection): self
@@ -233,13 +245,11 @@ abstract class Model implements ArrayAccess, JsonSerializable
     protected function setAttribute(string $key, $value): void
     {
         if ($this->hasSetMutator($key)) {
+            $this->isModified = true;
             $this->setMutatedAttributeValue($key, $value);
         } elseif ($this->hasColumn($key)) {
-            if (null === $key) {
-                $this->items[] = $value;
-            } else {
-                $this->items[$key] = $value;
-            }
+            $this->isModified  = $this->isModified || !array_key_exists($key, $this->items) || ($this->items[$key] !== $value);
+            $this->items[$key] = $value;
         }
     }
 
@@ -302,8 +312,8 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $this->items       = [];
         $this->isNewRecord = false;
 
-        $meta = static::meta();
-        $columns  = $meta->getColumns();
+        $meta    = static::meta();
+        $columns = $meta->getColumns();
         foreach ($data as $key => $value) {
             $key = $meta->convertToPhpColumn($key);
             if (isset($columns[$key])) {
@@ -323,8 +333,12 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function doSave(): void
     {
-        $meta    = static::meta();
-        $primaryKeys = $meta->primaryKeys();
+        if (!$this->isNewRecord() && !$this->isModified()) {
+            return;
+        }
+
+        $modalMeta   = static::meta();
+        $primaryKeys = $modalMeta->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
@@ -337,7 +351,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $this->trigger('beforeInsert');
             $id = $query->insert($attributes, true);
 
-            $autoIncrement = $meta->autoIncrement();
+            $autoIncrement = $modalMeta->autoIncrement();
             if ($autoIncrement && $id > 0) {
                 $this->setAttribute($autoIncrement, (int) $id);
             }
@@ -355,6 +369,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $this->trigger('afterUpdate');
         }
 
+        $this->isModified = false;
         $this->trigger('afterSave');
     }
 
