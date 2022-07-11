@@ -20,6 +20,6 @@ class AliOssAdapter extends JacobcylAliOssAdapter
         }
 
         $path = $this->applyPathPrefix($path);
-        return ($this->ssl ? 'https://' : 'http://') . ($this->isCname ? ($this->cdnDomain == '' ? $this->endPoint : $this->cdnDomain) : $this->bucket . '.' . $this->endPoint) . '/' . ltrim($path, '/');
+        return ($this->ssl ? 'https://' : 'http://') . ($this->cdnDomain ?: ($this->bucket . '.' . $this->endPoint)) . '/' . ltrim($path, '/');
     }
 }
