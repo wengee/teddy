@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-12 21:47:42 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -45,7 +45,7 @@ class OssAdapter implements FilesystemAdapter
 
     /** @var array */
     protected $options = [
-        'Multipart'   => 128,
+        'Multipart' => 128,
     ];
 
     public function __construct(array $config)
@@ -67,7 +67,7 @@ class OssAdapter implements FilesystemAdapter
         $this->client->setTimeout($config['timeout'] ?? 600);
         $this->client->setConnectTimeout($config['connectTimeout'] ?? 10);
 
-        $this->prefixer = new PathPrefixer($config['prefix'] ?? '');
+        $this->prefixer = new PathPrefixer($config['prefix'] ?? '', DIRECTORY_SEPARATOR);
     }
 
     /**
@@ -302,6 +302,7 @@ class OssAdapter implements FilesystemAdapter
             if ($prefixList) {
                 foreach ($prefixList as $value) {
                     $dirPath = $this->prefixer->stripPrefix($value->getPrefix());
+
                     yield new DirectoryAttributes($dirPath);
 
                     if ($deep) {
@@ -317,6 +318,7 @@ class OssAdapter implements FilesystemAdapter
                     }
 
                     $filePath = $this->prefixer->stripPrefix($value->getKey());
+
                     yield new FileAttributes(
                         $filePath,
                         (int) $value->getSize(),

@@ -36,7 +36,7 @@
         "guzzlehttp/guzzle": "^7.3",
         "firebase/php-jwt": "^5.4",
         "aliyuncs/oss-sdk-php": "^2.4",
-        "overtrue/flysystem-cos": "^4.0",
+        "qcloud/cos-sdk-v5": "^2.5",
         "ramsey/uuid": "^4.1",
         "workerman/workerman": "^4.0",
         "workerman/redis": "^1.0"
@@ -45,7 +45,7 @@
         "ext-swoole": "Allows you to use coroutine(Swoole)",
         "firebase/php-jwt": "Allows you to use JWT",
         "aliyuncs/oss-sdk-php": "Allows you to use Aliyun OSS",
-        "overtrue/flysystem-cos": "Allows you to use TencentYun COS",
+        "qcloud/cos-sdk-v5": "Allows you to use TencentYun COS",
         "ramsey/uuid": "Allows you to use db uuid column",
         "workerman/workerman": "Allows you to use workerman",
         "workerman/redis": "Allows you to use task queue with workerman"
