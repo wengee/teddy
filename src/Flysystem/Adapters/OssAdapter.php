@@ -4,7 +4,11 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
+<<<<<<< HEAD
  * @version  2022-07-12 21:47:42 +0800
+=======
+ * @version  2022-07-11 14:08:05 +0800
+>>>>>>> 29943081cbabe849005c59e6c0bc687d25b3596e
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -77,7 +81,13 @@ class OssAdapter implements FilesystemAdapter
     {
         $prefixedPath = $this->prefixer->prefixPath($path);
 
-        return $this->client->doesObjectExist($this->bucket, $prefixedPath);
+        try {
+            $ret = $this->client->doesObjectExist($this->bucket, $prefixedPath);
+        } catch (OssException $e) {
+            return false;
+        }
+
+        return $ret;
     }
 
     /**

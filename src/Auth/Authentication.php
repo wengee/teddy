@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-26 17:07:39 +0800
+ * @version  2022-07-06 14:29:20 +0800
  */
 
 namespace Teddy\Auth;
@@ -16,27 +16,31 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RuntimeException;
 use Teddy\Config\Repository;
+use Teddy\Interfaces\AuthHandlerInterface;
 
 class Authentication implements MiddlewareInterface
 {
+    /** @var null|AuthHandlerInterface */
+    protected $handler;
+
     /** @var array */
     protected $config;
 
-    public function __construct(array $config = [])
+    public function __construct(?AuthHandlerInterface $handler = null, array $config = [])
     {
+        $this->handler = $handler;
+
         $this->config = (new Repository([
-            'header'    => 'Authorization',
-            'regexp'    => '/^Bearer\\s+(.*)$/i',
-            'cookie'    => 'token',
-            'param'     => 'token',
-            'attribute' => 'user',
-            'callback'  => null,
+            'header' => 'Authorization',
+            'regexp' => '/^Bearer\\s+(.*)$/i',
+            'cookie' => 'token',
+            'param'  => 'token',
         ]))->merge($config)->toArray();
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $token = $payload = $user = null;
+        $token = $payload = null;
 
         try {
             $token = $this->fetchToken($request);
@@ -46,14 +50,14 @@ class Authentication implements MiddlewareInterface
 
         if ($token) {
             $payload = app('auth')->load($token);
-            if ($payload && is_callable($this->config['callback'])) {
-                $user = call_user_func($this->config['callback'], $request, $payload);
+
+            if ($payload && $this->handler) {
+                $request = $this->handler->handle($request, $payload);
             }
         }
 
         $request = $request->withAttribute('authToken', $token)
             ->withAttribute('authPayload', $payload)
-            ->withAttribute($this->config['attribute'], $user)
         ;
 
         return $handler->handle($request);
