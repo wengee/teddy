@@ -4,11 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
-<<<<<<< HEAD
- * @version  2022-07-12 21:47:42 +0800
-=======
- * @version  2022-07-11 14:08:05 +0800
->>>>>>> 29943081cbabe849005c59e6c0bc687d25b3596e
+ * @version  2022-07-15 23:04:55 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -168,7 +164,7 @@ class OssAdapter implements FilesystemAdapter
         while (true) {
             $options = [
                 'max-keys'  => 500,
-                'prefix'    => ('' === $prefixedPath) ? '' : ($prefixedPath.'/'),
+                'prefix'    => ('' === $prefixedPath) ? '' : (rtrim($prefixedPath, '/').'/'),
                 'delimiter' => '/',
                 'marker'    => $nextMarker,
             ];
@@ -384,9 +380,9 @@ class OssAdapter implements FilesystemAdapter
 
         return new FileAttributes(
             $path,
-            $meta['content-length'] ?? null,
+            (int) $meta['content-length'] ?? 0,
             null,
-            $meta['last-modified'] ?? null,
+            strtotime($meta['last-modified'] ?? ''),
             $meta['content-type'] ?? null,
         );
     }

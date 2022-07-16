@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-15 21:26:39 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -81,17 +81,7 @@ class Manager
 
     protected function createCosFileSystem(array $config): Filesystem
     {
-        $cosConf = [
-            'app_id'     => $config['app_id'] ?? ($config['appId'] ?? ''),
-            'secret_id'  => $config['secret_id'] ?? ($config['secretId'] ?? ''),
-            'secret_key' => $config['secret_key'] ?? ($config['secretKey'] ?? ''),
-            'region'     => $config['region'] ?? '',
-            'bucket'     => $config['bucket'] ?? '',
-            'signed_url' => $config['signed_url'] ?? ($config['signedUrl'] ?? false),
-            'cdn'        => $config['cdn'] ?? '',
-        ];
-
-        return $this->createFlysystem(new CosAdapter($cosConf), $config);
+        return $this->createFlysystem(new CosAdapter($config), $config);
     }
 
     protected function createFlysystem(FilesystemAdapter $adapter, array $config): Filesystem
