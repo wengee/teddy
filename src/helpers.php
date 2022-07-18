@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-21 10:18:39 +0800
+ * @version  2022-07-18 11:16:57 +0800
  */
 
 use Illuminate\Support\Str;
@@ -466,7 +466,7 @@ if (!function_exists('cpu_count')) {
                 break;
 
                 case 'linux':
-                    $count = (int) shell_exec('nproc');
+                    $count = (int) shell_exec('nproc --all');
 
                 break;
 
@@ -501,6 +501,9 @@ if (!function_exists('swoole_defer')) {
 }
 
 if (!function_exists('in_swoole')) {
+    /**
+     * If the current application run on Swoole.
+     */
     function in_swoole(): bool
     {
         return defined('IN_SWOOLE') && IN_SWOOLE;
@@ -508,6 +511,9 @@ if (!function_exists('in_swoole')) {
 }
 
 if (!function_exists('in_workerman')) {
+    /**
+     * If the current application run on Workerman.
+     */
     function in_workerman(): bool
     {
         return defined('IN_WORKERMAN') && IN_WORKERMAN;
