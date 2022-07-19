@@ -28,7 +28,7 @@
         "monolog/monolog": "^2.1",
         "doctrine/annotations": "^1.10",
         "firebase/php-jwt": "^5.2",
-        "league/flysystem": "1.1.*",
+        "league/flysystem": "^2.2",
         "league/event": "^2.2",
         "fwkit/console": "^0.3.0",
         "doctrine/dbal": "^3.0"
@@ -36,15 +36,15 @@
     "require-dev": {
         "mix/guzzle": "^2.2",
         "guzzlehttp/guzzle": "^6.5",
-        "jacobcyl/ali-oss-storage": "^2.1",
-        "overtrue/flysystem-cos": "^2.0",
+        "aliyuncs/oss-sdk-php": "^2.4",
+        "qcloud/cos-sdk-v5": "^2.5",
         "godruoyi/php-snowflake": "^1.0",
         "ramsey/uuid": "^3.9",
         "swoole/ide-helper": "^4.5"
     },
     "suggest": {
-        "jacobcyl/ali-oss-storage": "Allows you to use Aliyun OSS",
-        "overtrue/flysystem-cos": "Allows you to use TencentYun COS",
+        "aliyuncs/oss-sdk-php": "Allows you to use Aliyun OSS",
+        "qcloud/cos-sdk-v5": "Allows you to use TencentYun COS",
         "godruoyi/php-snowflake": "Allows you to use snowflake id generator",
         "ramsey/uuid": "Allows you to use db uuid column"
     }
