@@ -4,15 +4,19 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-18 11:16:57 +0800
+ * @version  2022-07-20 22:03:04 +0800
  */
 
+use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 use Illuminate\Support\Str;
+use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
 use Teddy\Hook;
+use Teddy\Http\Response;
 use Teddy\Interfaces\ServerInterface;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
@@ -69,6 +73,46 @@ if (!function_exists('response')) {
     function response(): ResponseInterface
     {
         return Container::getInstance()->getNew('response');
+    }
+}
+
+if (!function_exists('json')) {
+    /**
+     * Make a JSON response.
+     */
+    function json(...$args): ResponseInterface
+    {
+        $response = response();
+        if ($response instanceof Response) {
+            return $response->json(...$args);
+        }
+
+        $data = ['errmsg' => null, 'errcode' => -1];
+        foreach ($args as $arg) {
+            if ($arg instanceof JsonSerializable) {
+                $data = $arg;
+
+                break;
+            }
+
+            if ($arg instanceof Exception) {
+                $data['errcode'] = $arg->getCode() ?: -1;
+                $data['errmsg']  = $arg->getMessage();
+            } elseif (is_int($arg)) {
+                $data['errcode'] = $arg;
+            } elseif (is_string($arg)) {
+                $data['errmsg'] = $arg;
+            } elseif (is_array($arg)) {
+                $data = array_merge($data, $arg);
+            }
+        }
+
+        $response->getBody()->write(json_encode($data));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(StatusCodeInterface::STATUS_OK)
+        ;
     }
 }
 
