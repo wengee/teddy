@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 14:19:11 +0800
+ * @version  2022-07-21 15:49:58 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -248,8 +248,11 @@ if (!function_exists('config')) {
      */
     function config(?string $key = null, $default = null)
     {
-        /** @var Config */
-        $config = Container::getInstance()->get('config');
+        static $config;
+        if (null === $config) {
+            /** @var Config */
+            $config = Container::getInstance()->get('config');
+        }
 
         if (null === $key) {
             return $config->all();

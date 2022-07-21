@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-26 17:23:38 +0800
+ * @version  2022-07-21 15:57:43 +0800
  */
 
 namespace Teddy\Auth\Adapaters;
@@ -22,9 +22,9 @@ class JwtAdapater implements AuthAdapaterInterface
     public function __construct(array $options)
     {
         $this->options = (new Repository([
-            'secret'       => 'This is a secret!',
-            'algorithm'    => new Repository(['HS256', 'HS512', 'HS384'], Repository::DATA_AS_LIST | Repository::DATA_PROTECTED),
-            'block'        => new Repository([
+            'secret'    => 'This is a secret!',
+            'algorithm' => new Repository(['HS256', 'HS512', 'HS384'], Repository::DATA_AS_LIST | Repository::DATA_PROTECTED),
+            'block'     => new Repository([
                 'enabled' => true,
                 'prefix'  => 'jwt:block:',
                 'expires' => 86400 * 7,

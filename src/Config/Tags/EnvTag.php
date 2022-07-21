@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-27 15:37:13 +0800
+ * @version  2022-07-21 16:06:40 +0800
  */
 
 namespace Teddy\Config\Tags;
@@ -24,6 +24,15 @@ class EnvTag extends AbstractConfigTag
 
             if (isset($value['filter'])) {
                 $envVal = $this->filterValue($value['filter'], $envVal);
+            }
+
+            if (isset($value['if'])) {
+                $ifValue = $value['if'] ?? null;
+                if ($envVal === $ifValue) {
+                    $envVal = $value['then'] ?? $envVal;
+                } else {
+                    $envVal = $value['else'] ?? $envVal;
+                }
             }
 
             return $envVal;

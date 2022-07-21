@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-14 15:23:05 +0800
+ * @version  2022-07-21 15:56:43 +0800
  */
 
 namespace Teddy\Crontab;
@@ -45,12 +45,12 @@ class Parser
 
         if (preg_match('/^(((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+)?((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)\s+((\*(\/[0-9]+)?)|[0-9\-\,\/]+)$/i', trim($crontabStr), $m)) {
             $date = [
-                'second'    => (empty($m[2])) ? [0 => 0] : self::parseCronNum($m[2], 0, 59),
-                'minutes'   => self::parseCronNum($m[5], 0, 59),
-                'hours'     => self::parseCronNum($m[8], 0, 23),
-                'day'       => self::parseCronNum($m[11], 1, 31),
-                'month'     => self::parseCronNum($m[14], 1, 12),
-                'week'      => self::parseCronNum($m[17], 0, 6),
+                'second'  => (empty($m[2])) ? [0 => 0] : self::parseCronNum($m[2], 0, 59),
+                'minutes' => self::parseCronNum($m[5], 0, 59),
+                'hours'   => self::parseCronNum($m[8], 0, 23),
+                'day'     => self::parseCronNum($m[11], 1, 31),
+                'month'   => self::parseCronNum($m[14], 1, 12),
+                'week'    => self::parseCronNum($m[17], 0, 6),
             ];
         }
 
