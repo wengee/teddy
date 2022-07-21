@@ -4,16 +4,16 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 16:06:40 +0800
+ * @version  2022-07-21 17:44:11 +0800
  */
 
 namespace Teddy\Config\Tags;
 
-use Teddy\Abstracts\AbstractConfigTag;
+use Teddy\Interfaces\ConfigTagInterface;
 
-class EnvTag extends AbstractConfigTag
+class EnvTag implements ConfigTagInterface
 {
-    protected function parseValue($value)
+    public function parseValue($value)
     {
         if (is_string($value)) {
             return env($value);

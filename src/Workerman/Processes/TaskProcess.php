@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-28 17:27:52 +0800
+ * @version  2022-07-21 17:27:57 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -32,7 +32,7 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
 
     protected $queue;
 
-    protected $server;
+    protected $serverName;
 
     protected $timerId;
 
@@ -41,16 +41,16 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         $this->app     = $app;
         $this->options = $options;
 
-        $this->crontab = $extra['crontab'] ?? [];
-        $this->server  = $extra['server'] ?? null;
+        $this->crontab    = $extra['crontab'] ?? [];
+        $this->serverName = $extra['serverName'] ?? null;
 
-        $this->consumer = $options['consumer'] ?? false;
+        $this->consumer = $options['consumer'] ?? true;
         if ($options['queue']) {
             $this->queue = new Queue($options['queue']);
         }
     }
 
-    /** @param null|array|bool|int $extra */
+    /** @param null|array|bool|int|string $extra */
     public function send(string $className, array $args = [], $extra = null): void
     {
         run_hook('workerman:task:beforeSend', [
@@ -59,12 +59,21 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
             'extra'     => $extra,
         ]);
 
-        $local = true;
-        $at    = 0;
+        $local      = true;
+        $at         = 0;
+        $serverName = 'any';
         if (is_bool($extra)) {
             $local = $extra;
         } elseif (is_int($extra)) {
             $at = $extra;
+        } elseif (is_string($extra)) {
+            if ('local' === $extra) {
+                $local      = true;
+                $serverName = $this->serverName;
+            } else {
+                $local      = false;
+                $serverName = $extra;
+            }
         } elseif (is_array($extra)) {
             if (isset($extra['local'])) {
                 $local = $extra['local'];
@@ -78,10 +87,10 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         }
 
         if ($this->queue) {
-            if ($local && (0 === $at) && $this->server && $this->consumer) {
-                $this->queue->send($this->server, [$className, $args]);
+            if ($local && $this->serverName && $this->consumer) {
+                $this->queue->send($this->serverName, [$className, $args], $at);
             } else {
-                $this->queue->send('any', [$className, $args], $at);
+                $this->queue->send($this->consumer ? $serverName : 'any', [$className, $args], $at);
             }
         }
 
@@ -99,8 +108,8 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         if ($this->queue) {
             if ($this->consumer) {
                 $channels = ['any'];
-                if ($this->server) {
-                    $channels[] = $this->server;
+                if ($this->serverName) {
+                    $channels[] = $this->serverName;
                 }
 
                 $this->queue->subscribe($channels, function ($data): void {

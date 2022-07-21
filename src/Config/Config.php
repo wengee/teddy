@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 11:39:57 +0800
+ * @version  2022-07-21 17:51:57 +0800
  */
 
 namespace Teddy\Config;
@@ -27,7 +27,7 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 {
     use ContainerAwareTrait;
 
-    protected const TAG_DEFINITIONS = [
+    protected static $tags = [
         'env'  => Tags\EnvTag::class,
         'eval' => Tags\EvalTag::class,
     ];
@@ -72,7 +72,7 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
             $this->dotEnvDir = $basePath;
         }
 
-        $runtimePath  = Filesystem::getRuntimePath();
+        $runtimePath = Filesystem::getRuntimePath();
         if ($runtimePath) {
             $this->runtimePath = $runtimePath;
 
@@ -83,6 +83,11 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
         }
 
         $this->initialize();
+    }
+
+    public static function addTag(string $name, ConfigTagInterface $definition): void
+    {
+        self::$tags[$name] = $definition;
     }
 
     public function get(string $key, $default = null)
@@ -188,7 +193,7 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 
             if ($item instanceof TaggedValue) {
                 $tagName = $item->getTag();
-                $value = $item->getValue();
+                $value   = $item->getValue();
 
                 return $this->parseTagValue($tagName, $value);
             }
@@ -199,12 +204,12 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
 
     private function parseTagValue(string $tag, $value)
     {
-        $definition = self::TAG_DEFINITIONS[$tag] ?? null;
+        $definition = self::$tags[$tag] ?? null;
         if ($definition) {
-            /** @var ConfigTagInterface $obj */
-            $obj = new $definition($value);
+            /** @var ConfigTagInterface */
+            $definition = is_string($definition) ? new $definition() : $definition;
 
-            return $obj->getValue();
+            return $definition->parseValue($value);
         }
 
         return $value;

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-10 14:13:00 +0800
+ * @version  2022-07-21 17:32:51 +0800
  */
 
 namespace Teddy\Swoole;
@@ -38,6 +38,9 @@ class Server implements ServerInterface
     /** @var string */
     protected $name;
 
+    /** @var string */
+    protected $serverName;
+
     /** @var null|Command */
     protected $command;
 
@@ -66,11 +69,17 @@ class Server implements ServerInterface
             throw new Exception('Teddy require swoole 4.6.0 or newer.');
         }
 
-        $this->app       = $app;
-        $this->container = $app->getContainer();
-        $this->name      = config('app.name') ?: 'Teddy App';
+        $this->app        = $app;
+        $this->container  = $app->getContainer();
+        $this->name       = config('app.name') ?: 'Teddy App';
+        $this->serverName = config('app.server') ?: php_uname('n');
 
         $this->initialize();
+    }
+
+    public function getServerName(): string
+    {
+        return $this->serverName;
     }
 
     public function getName(): string
@@ -218,7 +227,7 @@ class Server implements ServerInterface
         return $customProcess;
     }
 
-    /** @param null|array|bool|int $extra */
+    /** @param null|array|bool|int|string $extra */
     public function addTask(string $className, array $args = [], $extra = null): void
     {
         static $queue;
@@ -226,12 +235,21 @@ class Server implements ServerInterface
             $queue = $this->container->get('queue');
         }
 
-        $local = true;
-        $at    = 0;
+        $local      = true;
+        $at         = 0;
+        $serverName = 'any';
         if (is_bool($extra)) {
             $local = $extra;
         } elseif (is_int($extra)) {
             $at = $extra;
+        } elseif (is_string($extra)) {
+            if ('local' === $extra) {
+                $local      = true;
+                $serverName = $this->serverName;
+            } else {
+                $local      = false;
+                $serverName = $extra;
+            }
         } elseif (is_array($extra)) {
             if (isset($extra['local'])) {
                 $local = $extra['local'];
@@ -247,7 +265,7 @@ class Server implements ServerInterface
         if ($local && (0 === $at)) {
             $this->swoole->task([$className, $args]);
         } else {
-            $queue->send('any', [$className, $args], $at);
+            $queue->send($serverName, [$className, $args], $at);
         }
     }
 
@@ -385,7 +403,7 @@ class Server implements ServerInterface
         }
 
         if ($config['consumer']) {
-            $this->addProcess(new ConsumerProcess($this->container));
+            $this->addProcess(new ConsumerProcess($this->container, $this->serverName));
         }
 
         $processes = config('process');

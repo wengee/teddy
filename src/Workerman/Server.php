@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-24 15:19:29 +0800
+ * @version  2022-07-21 17:33:13 +0800
  */
 
 namespace Teddy\Workerman;
@@ -19,6 +19,9 @@ use Teddy\Workerman\Processes\WebsocketProcess;
 
 class Server implements ServerInterface
 {
+    /** @var string */
+    protected $serverName;
+
     /** @var Application */
     protected $app;
 
@@ -36,11 +39,17 @@ class Server implements ServerInterface
 
     public function __construct(Application $app)
     {
-        $this->app       = $app;
-        $this->container = $app->getContainer();
+        $this->app        = $app;
+        $this->container  = $app->getContainer();
+        $this->serverName = config('app.server') ?: php_uname('n');
 
         $this->container->addValue('server', $this);
         $this->container->addValue(ServerInterface::class, $this);
+    }
+
+    public function getServerName(): string
+    {
+        return $this->serverName;
     }
 
     public function start(): void
@@ -64,7 +73,7 @@ class Server implements ServerInterface
         return $process;
     }
 
-    /** @param null|array|bool|int $extra */
+    /** @param null|array|bool|int|string $extra */
     public function addTask(string $className, array $args = [], $extra = null): void
     {
         if ($this->taskProcess) {
@@ -98,7 +107,7 @@ class Server implements ServerInterface
         if ($options['count'] > 0) {
             return $this->addProcess(new TaskProcess($this->app, $options, [
                 'crontab' => config('crontab'),
-                'server'  => config('app.server'),
+                'server'  => $this->serverName,
             ]));
         }
 
