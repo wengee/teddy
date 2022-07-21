@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-28 16:21:33 +0800
+ * @version  2022-07-21 14:16:24 +0800
  */
 
 namespace Teddy\Console;
@@ -39,14 +39,14 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
         $this->appName = config('app.name') ?: 'Teddy App';
         $this->version = config('app.version') ?: 'UNKNOWN';
 
-        /** add swoole commands */
+        // add swoole commands
         if (extension_loaded('swoole') && class_exists('\\Swoole\\Http\\Server')) {
             $this->addCommands([
                 new Swoole\StartCommand(),
             ]);
         }
 
-        /** add workerman commands */
+        // add workerman commands
         if (class_exists('\\Workerman\\Worker')) {
             $this->addCommands([
                 new Workerman\ConnectionsCommand(),
@@ -69,9 +69,13 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
             new Migrations\SqlCommand(),
         ]);
 
-        $commandList = config('command', []);
+        $commandList = config('command.list', []);
         if (!empty($commandList) && is_array($commandList)) {
             $this->addCommands($commandList);
+        }
+
+        if ($defaultCommand = config('command.default')) {
+            $this->setDefaultCommand($defaultCommand);
         }
     }
 
@@ -89,10 +93,10 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
 
     protected function welcome(InputInterface $input, OutputInterface $output): void
     {
-        $appName       = $this->appName;
-        $appVersion    = $this->version;
-        $os            = PHP_OS;
-        $phpVersion    = PHP_VERSION;
+        $appName    = $this->appName;
+        $appVersion = $this->version;
+        $os         = PHP_OS;
+        $phpVersion = PHP_VERSION;
 
         $output->writeln(<<<EOL
              _____        _     _         ____  _   _ ____
