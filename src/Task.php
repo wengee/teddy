@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-22 11:12:10 +0800
+ * @version  2022-07-22 14:34:55 +0800
  */
 
 namespace Teddy;
@@ -19,9 +19,6 @@ abstract class Task implements TaskInterface
     /** @var int */
     protected $timeout = 600;
 
-    /** @var mixed */
-    protected $result = false;
-
     /** @var null|Teddy\Lock\Lock */
     protected $lock;
 
@@ -31,7 +28,7 @@ abstract class Task implements TaskInterface
     public function timeout(int $timeout): self
     {
         if ($timeout <= 0) {
-            throw new InvalidArgumentException('The timeout must be greater than 0');
+            throw new InvalidArgumentException('Timeout must be greater than 0');
         }
 
         $this->timeout = $timeout;
@@ -39,41 +36,21 @@ abstract class Task implements TaskInterface
         return $this;
     }
 
-    public function finish()
-    {
-        return $this->result;
-    }
-
-    public function run()
+    public function run(): void
     {
         if ($this->tryLock()) {
             try {
-                $ret = $this->handle();
+                $this->handle();
             } catch (Exception $e) {
                 $this->unLock();
-                $this->result = false;
 
                 throw $e;
             }
 
             $this->unLock();
-            $this->result = $ret;
-
-            return $ret;
+        } else {
+            throw new Exception('The same task is running.');
         }
-
-        $this->result = false;
-
-        return false;
-    }
-
-    public function isRunning(): bool
-    {
-        if (!($lock = $this->getLock())) {
-            return false;
-        }
-
-        return $lock->isAcquired();
     }
 
     protected function getUniqueId(): ?string
