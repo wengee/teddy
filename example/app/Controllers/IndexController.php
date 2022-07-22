@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-04-01 09:44:55 +0800
+ * @version  2022-07-22 11:23:02 +0800
  */
 
 namespace App\Controllers;
@@ -23,7 +23,7 @@ class IndexController extends Controller
         $model = new Abc();
         $model = $model->save() ? $model : null;
 
-        run_task(Demo::class, [], ['delay' => 5]);
+        run_task(Demo::class, [], ['delay' => 2]);
         // app('redis')->lPush('abc', 'fdsafsadfasd');
 
         $list = Abc::query()->orderBy('id', 'DESC')->limit(3)->all();
@@ -39,11 +39,11 @@ class IndexController extends Controller
         }, $list);
 
         return $response->json(0, [
-            'model'     => $model,
-            'list'      => $list,
-            'cpu'       => cpu_count(),
-            'body'      => (string) $request->getBody(),
-            'post'      => $request->getParsedBody(),
+            'model' => $model,
+            'list'  => $list,
+            'cpu'   => cpu_count(),
+            'body'  => (string) $request->getBody(),
+            'post'  => $request->getParsedBody(),
         ]);
     }
 

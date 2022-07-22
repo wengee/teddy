@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-20 19:58:47 +0800
+ * @version  2022-07-22 11:12:10 +0800
  */
 
 namespace Teddy;
@@ -19,17 +19,14 @@ abstract class Task implements TaskInterface
     /** @var int */
     protected $timeout = 600;
 
-    /** @var bool */
-    protected $overlapped = false;
-
     /** @var mixed */
     protected $result = false;
 
-    /** @var Teddy\Lock\Lock */
+    /** @var null|Teddy\Lock\Lock */
     protected $lock;
 
-    /** @var null|string */
-    protected $uniqueKey;
+    /** @var null|bool|string */
+    protected $uniqueId = true;
 
     public function timeout(int $timeout): self
     {
@@ -38,13 +35,6 @@ abstract class Task implements TaskInterface
         }
 
         $this->timeout = $timeout;
-
-        return $this;
-    }
-
-    public function withOverlapping(bool $overlapped = true): self
-    {
-        $this->overlapped = $overlapped;
 
         return $this;
     }
@@ -79,25 +69,30 @@ abstract class Task implements TaskInterface
 
     public function isRunning(): bool
     {
-        if ($this->overlapped) {
+        if (!($lock = $this->getLock())) {
             return false;
         }
 
-        return $this->getLock()->isAcquired();
+        return $lock->isAcquired();
     }
 
-    public function setUniqueKey(?string $uniqueKey): self
+    protected function getUniqueId(): ?string
     {
-        $this->uniqueKey = $uniqueKey;
+        if (true === $this->uniqueId) {
+            $this->uniqueId = strtolower(strtr(get_class($this), '\\', '_'));
+        }
 
-        return $this;
+        return $this->uniqueId ?: null;
     }
 
-    protected function getLock(): Lock
+    protected function getLock(): ?Lock
     {
-        if (!isset($this->lock)) {
-            $lockKey    = 'task:'.($this->uniqueKey ?: strtr(get_class($this), '\\', '_'));
-            $this->lock = app('lock')->create($lockKey, $this->timeout);
+        if (!($uniqueId = $this->getUniqueId())) {
+            return null;
+        }
+
+        if (null === $this->lock) {
+            $this->lock = app('lock')->create('task:'.$uniqueId, $this->timeout);
         }
 
         return $this->lock;
@@ -105,12 +100,12 @@ abstract class Task implements TaskInterface
 
     protected function tryLock(): bool
     {
-        if ($this->overlapped) {
+        if (!($lock = $this->getLock())) {
             return true;
         }
 
         try {
-            return $this->getLock()->acquire();
+            return $lock->acquire();
         } catch (Exception $e) {
             log_exception($e);
 
@@ -120,12 +115,12 @@ abstract class Task implements TaskInterface
 
     protected function unLock(): bool
     {
-        if ($this->overlapped) {
+        if (!($lock = $this->getLock())) {
             return true;
         }
 
         try {
-            return $this->getLock()->release();
+            return $lock->release();
         } catch (Exception $e) {
             log_exception($e);
 
