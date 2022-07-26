@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-05 14:54:05 +0800
+ * @version  2022-07-26 11:18:14 +0800
  */
 
 namespace Teddy\Model;
@@ -31,30 +31,15 @@ abstract class Model implements ArrayAccess, JsonSerializable
      */
     protected static $metas = [];
 
-    /**
-     * @var array
-     */
-    protected $items = [];
+    protected array $items = [];
 
-    /**
-     * @var array
-     */
-    protected $hidden = [];
+    protected array $hidden = [];
 
-    /**
-     * @var bool
-     */
-    protected $isNewRecord = true;
+    protected bool $isNewRecord = true;
 
-    /**
-     * @var bool
-     */
-    protected $isModified = false;
+    protected bool $isModified = false;
 
-    /**
-     * @var null|DatabaseInterface|string
-     */
-    protected $connection;
+    protected null|DatabaseInterface|string $connection;
 
     final public function __construct()
     {

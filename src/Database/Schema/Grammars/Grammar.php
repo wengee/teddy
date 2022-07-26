@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-26 10:58:59 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
@@ -18,17 +18,13 @@ abstract class Grammar extends BaseGrammar
 {
     /**
      * If this Grammar supports schema changes wrapped in a transaction.
-     *
-     * @var bool
      */
-    protected $transactions = false;
+    protected bool $transactions = false;
 
     /**
      * The commands to be executed outside of create or alter command.
-     *
-     * @var array
      */
-    protected $fluentCommands = [];
+    protected array $fluentCommands = [];
 
     public function compileRenameColumn(Blueprint $blueprint, Fluent $command, PDOConnection $connection)
     {

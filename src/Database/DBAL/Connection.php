@@ -4,12 +4,11 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-26 10:55:18 +0800
  */
 
 namespace Teddy\Database\DBAL;
 
-use function assert;
 use Doctrine\DBAL\Driver\PDO\Exception;
 use Doctrine\DBAL\Driver\PDO\Result;
 use Doctrine\DBAL\Driver\PDO\Statement;
@@ -17,14 +16,14 @@ use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
 use Doctrine\DBAL\ParameterType;
+use function assert;
 use PDO;
 use PDOException;
 use PDOStatement;
 
 final class Connection implements ServerInfoAwareConnection
 {
-    /** @var PDO */
-    private $connection;
+    private PDO $connection;
 
     public function __construct(PDO $connection)
     {

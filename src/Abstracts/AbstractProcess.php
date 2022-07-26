@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-23 16:24:54 +0800
+ * @version  2022-07-26 10:42:41 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -13,15 +13,15 @@ use Teddy\Interfaces\ProcessInterface;
 
 abstract class AbstractProcess implements ProcessInterface
 {
-    protected static $orderNum = 0;
+    protected static int $orderNum = 0;
 
-    protected $name;
+    protected ?string $name;
 
-    protected $listen = '';
+    protected string $listen = '';
 
-    protected $context = [];
+    protected array $context = [];
 
-    protected $options = [];
+    protected array $options = [];
 
     protected $worker;
 

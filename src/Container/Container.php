@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:09:33 +0800
+ * @version  2022-07-26 10:53:27 +0800
  */
 
 namespace Teddy\Container;
@@ -17,13 +17,12 @@ use Teddy\Interfaces\LiteralArgumentInterface;
 
 class Container implements ContainerInterface, JsonSerializable
 {
+    /** @var self */
     protected static $instance;
 
-    /** @var array */
-    protected $aliases = [];
+    protected array $aliases = [];
 
-    /** @var array */
-    protected $concretes = [];
+    protected array $concretes = [];
 
     private function __construct()
     {

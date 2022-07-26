@@ -4,29 +4,26 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-15 21:26:39 +0800
+ * @version  2022-07-26 11:11:28 +0800
  */
 
 namespace Teddy\Flysystem;
 
 use Illuminate\Support\Arr;
 use InvalidArgumentException;
-use League\Flysystem\FilesystemAdapter;
 use Teddy\Flysystem\Adapters\CosAdapter;
 use Teddy\Flysystem\Adapters\LocalAdapter;
 use Teddy\Flysystem\Adapters\OssAdapter;
+use Teddy\Interfaces\TeddyFilesystemAdapter;
 
 class Manager
 {
-    /**
-     * @var array
-     */
-    protected $config = [];
+    protected array $config = [];
 
     /**
      * @var Filesystem[]
      */
-    protected $disks = [];
+    protected array $disks = [];
 
     public function __construct()
     {
@@ -84,7 +81,7 @@ class Manager
         return $this->createFlysystem(new CosAdapter($config), $config);
     }
 
-    protected function createFlysystem(FilesystemAdapter $adapter, array $config): Filesystem
+    protected function createFlysystem(TeddyFilesystemAdapter $adapter, array $config): Filesystem
     {
         return new Filesystem($adapter, $config);
     }

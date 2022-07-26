@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-29 16:42:24 +0800
+ * @version  2022-07-26 11:12:42 +0800
  */
 
 namespace Teddy;
@@ -37,8 +37,7 @@ class Application implements WithContainerInterface, ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    /** @var SlimApp */
-    protected $slimApp;
+    protected SlimApp $slimApp;
 
     public function __construct(ContainerInterface $container)
     {

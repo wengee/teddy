@@ -4,61 +4,41 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:05:01 +0800
+ * @version  2022-07-26 11:17:49 +0800
  */
 
 namespace Teddy\Model;
 
 use Illuminate\Support\Str;
 use ReflectionClass;
+use ReflectionMethod;
 use Teddy\Exception;
 use Teddy\Model\Columns\ColumnInterface;
 
 class Meta
 {
-    /**
-     * @var string
-     */
-    private $className;
+    private string $className;
 
-    /**
-     * @var string
-     */
-    private $connectionName;
+    private string $connectionName;
 
-    /**
-     * @var string
-     */
-    private $tableName;
+    private string $tableName;
 
-    /**
-     * @var array
-     */
-    private $primaryKeys = [];
+    private array $primaryKeys = [];
 
-    /**
-     * @var null|string
-     */
-    private $autoIncrement;
+    private ?string $autoIncrement;
 
-    /**
-     * @var array
-     */
-    private $columnMap = [];
+    private array $columnMap = [];
 
-    /**
-     * @var array
-     */
-    private $dbColumnMap = [];
+    private array $dbColumnMap = [];
 
     /**
      * @var ColumnInterface[]
      */
-    private $columns = [];
+    private array $columns = [];
 
-    private $setDbPropertyMethod;
+    private ReflectionMethod $setDbPropertyMethod;
 
-    private $getDbPropertyMethod;
+    private ReflectionMethod $getDbPropertyMethod;
 
     public function __construct(Model|string $model)
     {

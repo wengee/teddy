@@ -14,7 +14,7 @@ use Teddy\Pool\Pool;
 
 abstract class AbstractConnection implements ConnectionInterface
 {
-    protected $pool;
+    protected ?Pool $pool;
 
     public function setPool(Pool $pool): void
     {

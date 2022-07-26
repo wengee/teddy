@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-27 16:29:45 +0800
+ * @version  2022-07-26 11:15:45 +0800
  */
 
 namespace Teddy\Redis;
@@ -81,9 +81,9 @@ use Teddy\Exception;
  */
 class Manager
 {
-    protected $config = [];
+    protected array $config = [];
 
-    protected $pools = [];
+    protected array $pools = [];
 
     public function __construct()
     {

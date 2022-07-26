@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-13 12:14:48 +0800
+ * @version  2022-07-26 10:51:52 +0800
  */
 
 namespace Teddy\Console;
@@ -24,9 +24,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 abstract class Command extends SymfonyCommand
 {
-    protected $input;
+    protected InputInterface $input;
 
-    protected $output;
+    protected SymfonyStyle $output;
 
     protected $name;
 
@@ -39,11 +39,11 @@ abstract class Command extends SymfonyCommand
     protected $verbosity = OutputInterface::VERBOSITY_NORMAL;
 
     protected $verbosityMap = [
-        'v'         => OutputInterface::VERBOSITY_VERBOSE,
-        'vv'        => OutputInterface::VERBOSITY_VERY_VERBOSE,
-        'vvv'       => OutputInterface::VERBOSITY_DEBUG,
-        'quiet'     => OutputInterface::VERBOSITY_QUIET,
-        'normal'    => OutputInterface::VERBOSITY_NORMAL,
+        'v'      => OutputInterface::VERBOSITY_VERBOSE,
+        'vv'     => OutputInterface::VERBOSITY_VERY_VERBOSE,
+        'vvv'    => OutputInterface::VERBOSITY_DEBUG,
+        'quiet'  => OutputInterface::VERBOSITY_QUIET,
+        'normal' => OutputInterface::VERBOSITY_NORMAL,
     ];
 
     public function __construct()
@@ -203,7 +203,7 @@ abstract class Command extends SymfonyCommand
     public function run(InputInterface $input, OutputInterface $output): int
     {
         return parent::run(
-            $this->input = $input,
+            $this->input  = $input,
             $this->output = new SymfonyStyle($input, $output)
         );
     }

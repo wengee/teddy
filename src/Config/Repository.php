@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 15:24:35 +0800
+ * @version  2022-07-26 10:45:20 +0800
  */
 
 namespace Teddy\Config;
@@ -20,17 +20,14 @@ class Repository implements ArrayableInterface
     public const DATA_AS_LIST   = 2;
     public const DATA_AS_RAW    = 4;
 
-    /** @var array */
-    protected $items = [];
+    protected array $items = [];
 
     /** @var mixed */
     protected $value;
 
-    /** @var int */
-    protected $flags = 0;
+    protected int $flags = 0;
 
-    /** @var null|Schema */
-    protected $schema;
+    protected ?Schema $schema;
 
     public function __construct($items = [], int $flags = 0, ?Schema $schema = null)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-26 11:13:40 +0800
  */
 
 namespace Teddy;
@@ -38,7 +38,7 @@ class Filter
     public const FILTER_JSON_ENCODE   = 'json_encode';
     public const FILTER_UUID          = 'uuid';
 
-    protected $_filters;
+    protected array $_filters = [];
 
     /**
      * Adds a user-defined filter.

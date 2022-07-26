@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-15 23:04:55 +0800
+ * @version  2022-07-26 11:10:02 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -12,7 +12,6 @@ namespace Teddy\Flysystem\Adapters;
 use League\Flysystem\Config;
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\FileAttributes;
-use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\PathPrefixer;
 use League\Flysystem\UnableToRetrieveMetadata;
@@ -20,31 +19,25 @@ use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
 use OSS\Core\OssException;
 use OSS\OssClient;
+use Teddy\Interfaces\TeddyFilesystemAdapter;
 
-class OssAdapter implements FilesystemAdapter
+class OssAdapter implements TeddyFilesystemAdapter
 {
-    /** @var OssClient */
-    protected $client;
+    protected OssClient $client;
 
-    /** @var string */
-    protected $bucket;
+    protected string $bucket;
 
-    /** @var string */
-    protected $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
+    protected string $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
 
-    /** @var string */
-    protected $cdnDomain;
+    protected string $cdnDomain;
 
-    /** @var bool */
-    protected $ssl = false;
+    protected bool $ssl = false;
 
-    /** @var bool */
-    protected $isCName = false;
+    protected bool $isCName = false;
 
     protected PathPrefixer $prefixer;
 
-    /** @var array */
-    protected $options = [
+    protected array $options = [
         'Multipart' => 128,
     ];
 

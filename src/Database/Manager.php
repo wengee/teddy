@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-30 14:36:46 +0800
+ * @version  2022-07-26 11:01:50 +0800
  */
 
 namespace Teddy\Database;
@@ -16,14 +16,13 @@ use Teddy\Interfaces\WithContainerInterface;
 
 class Manager implements WithContainerInterface
 {
-    protected $container;
+    protected ContainerInterface $container;
 
-    protected $config = [];
+    protected array $config = [];
 
-    protected $pools = [];
+    protected array $pools = [];
 
-    /** @var LoggerInterface */
-    protected $logger;
+    protected LoggerInterface $logger;
 
     public function __construct(ContainerInterface $container)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-30 14:39:41 +0800
+ * @version  2022-07-26 11:05:23 +0800
  */
 
 namespace Teddy\Database;
@@ -31,36 +31,36 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 {
     use LoggerAwareTrait;
 
-    protected $pdo;
+    protected ?PDO $pdo;
 
-    protected $config;
+    protected array $config = [];
 
-    protected $idleTimeout = 0;
+    protected int $idleTimeout = 0;
 
-    protected $readOnly = false;
+    protected bool $readOnly = false;
 
-    protected $stick = false;
+    protected bool $stick = false;
 
-    protected $schemeBuilder;
+    protected ?Builder $schemeBuilder;
 
-    protected $schemeGrammer;
+    protected ?Grammar $schemeGrammer;
 
-    protected $doctrineConnection;
+    protected ?DoctrineConnection $doctrineConnection;
 
     public function __construct(array $config, bool $readOnly = false)
     {
-        $driver         = 'mysql';
-        $host           = Arr::get($config, 'host', '127.0.0.1');
-        $port           = Arr::get($config, 'port', 3306);
-        $dbName         = Arr::get($config, 'name', '');
-        $user           = Arr::get($config, 'user', 'root');
-        $password       = Arr::get($config, 'password', '');
-        $charset        = Arr::get($config, 'charset', 'utf8mb4');
-        $engine         = Arr::get($config, 'engine');
-        $collation      = Arr::get($config, 'collation');
-        $tablePrefix    = Arr::get($config, 'tablePrefix', '');
-        $options        = Arr::get($config, 'options', []);
-        $dsn            = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
+        $driver      = 'mysql';
+        $host        = Arr::get($config, 'host', '127.0.0.1');
+        $port        = Arr::get($config, 'port', 3306);
+        $dbName      = Arr::get($config, 'name', '');
+        $user        = Arr::get($config, 'user', 'root');
+        $password    = Arr::get($config, 'password', '');
+        $charset     = Arr::get($config, 'charset', 'utf8mb4');
+        $engine      = Arr::get($config, 'engine');
+        $collation   = Arr::get($config, 'collation');
+        $tablePrefix = Arr::get($config, 'tablePrefix', '');
+        $options     = Arr::get($config, 'options', []);
+        $dsn         = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
 
         $options      = $options + $this->getDefaultOptions();
         $this->config = compact(

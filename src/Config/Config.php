@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:51:57 +0800
+ * @version  2022-07-26 10:44:59 +0800
  */
 
 namespace Teddy\Config;
@@ -33,28 +33,22 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
     ];
 
     /** @var string[] */
-    protected $configDirs = [];
+    protected array $configDirs = [];
 
     /** @var string[] */
-    protected $configFiles = [];
+    protected array $configFiles = [];
 
-    /** @var null|string */
-    protected $dotEnvDir;
+    protected ?string $dotEnvDir;
 
-    /** @var bool */
-    protected $freezed = false;
+    protected bool $freezed = false;
 
-    /** @var array */
-    protected $freezedData = [];
+    protected array $freezedData = [];
 
-    /** @var array */
-    protected $cached = [];
+    protected array $cached = [];
 
-    /** @var null|string */
-    protected $basePath;
+    protected ?string $basePath;
 
-    /** @var null|string */
-    protected $runtimePath;
+    protected ?string $runtimePath;
 
     public function __construct(ContainerInterface $container)
     {

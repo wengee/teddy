@@ -4,13 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-26 11:00:00 +0800
  */
 
 namespace Teddy\Database\Schema;
 
 use Closure;
 use LogicException;
+use Teddy\Database\Grammar;
 use Teddy\Database\PDOConnection;
 
 class Builder
@@ -21,11 +22,12 @@ class Builder
      * @var int
      */
     public static $defaultStringLength = 255;
+
     protected static $callback;
 
-    protected $connection;
+    protected PDOConnection $connection;
 
-    protected $grammar;
+    protected Grammar $grammar;
 
     /**
      * The Blueprint resolver callback.

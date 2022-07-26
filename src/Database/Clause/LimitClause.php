@@ -4,16 +4,16 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-26 10:55:00 +0800
  */
 
 namespace Teddy\Database\Clause;
 
 class LimitClause extends ClauseContainer
 {
-    private $limit;
+    private ?int $limit;
 
-    private $offset = 0;
+    private int $offset = 0;
 
     public function limit(int $number, int $offset = 0): void
     {

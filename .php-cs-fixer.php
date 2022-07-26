@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-04-06 17:30:34 +0800
+ * @version  2022-07-26 10:51:38 +0800
  */
 
 date_default_timezone_set('Asia/Shanghai');
@@ -41,6 +41,9 @@ return $config->setRules([
             '='  => 'align_single_space_minimal',
             '=>' => 'align_single_space_minimal',
         ],
+    ],
+    'phpdoc_to_comment' => [
+        'ignored_tags' => ['var', 'param'],
     ],
 ])
     ->setFinder($finder)

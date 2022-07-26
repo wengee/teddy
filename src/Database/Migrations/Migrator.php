@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-07-26 10:58:45 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -16,11 +16,11 @@ use Teddy\Console\Command;
 
 class Migrator
 {
-    protected $repository;
+    protected MigrationRepository $repository;
 
-    protected $command;
+    protected ?Command $command;
 
-    protected $notes = [];
+    protected array $notes = [];
 
     public function __construct()
     {
@@ -195,14 +195,14 @@ class Migrator
     {
         return Collection::make($files)
             ->reject(function ($file) use ($ran) {
-                    return in_array($this->getMigrationName($file), $ran);
-                })->values()->all();
+                return in_array($this->getMigrationName($file), $ran);
+            })->values()->all();
     }
 
     protected function runUp(string $file, int $batch): void
     {
         $migration = $this->resolve(
-            $name = $this->getMigrationName($file)
+            $name  = $this->getMigrationName($file)
         );
 
         $this->note("<comment>Migrating:</comment> {$name}");

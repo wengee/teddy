@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-16 09:24:38 +0800
+ * @version  2022-07-26 11:09:38 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -13,7 +13,6 @@ use Exception;
 use League\Flysystem\Config;
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\FileAttributes;
-use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\InvalidVisibilityProvided;
 use League\Flysystem\PathPrefixer;
@@ -28,26 +27,21 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
 use Qcloud\Cos\Client as CosClient;
+use Teddy\Interfaces\TeddyFilesystemAdapter;
 
-class CosAdapter implements FilesystemAdapter
+class CosAdapter implements TeddyFilesystemAdapter
 {
-    /** @var CosClient */
-    protected $client;
+    protected CosClient $client;
 
-    /** @var string */
-    protected $schema;
+    protected string $schema;
 
-    /** @var string */
-    protected $region;
+    protected string $region;
 
-    /** @var string */
-    protected $bucket;
+    protected string $bucket;
 
-    /** @var string */
-    protected $cdnDomain;
+    protected string $cdnDomain;
 
-    /** @var PathPrefixer */
-    protected $prefixer;
+    protected PathPrefixer $prefixer;
 
     public function __construct(array $config)
     {

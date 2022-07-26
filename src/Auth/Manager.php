@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 17:09:23 +0800
+ * @version  2022-07-26 10:43:40 +0800
  */
 
 namespace Teddy\Auth;
@@ -20,8 +20,7 @@ class Manager implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    /** @var AuthAdapaterInterface */
-    protected $adapater;
+    protected AuthAdapaterInterface $adapater;
 
     public function __construct()
     {
