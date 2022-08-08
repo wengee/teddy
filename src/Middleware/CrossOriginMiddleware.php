@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 14:21:53 +0800
+ * @version  2022-08-08 17:43:44 +0800
  */
 
 namespace Teddy\Middleware;
@@ -17,18 +17,24 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class CrossOriginMiddleware implements MiddlewareInterface
 {
-    /** @var array */
-    protected $config;
+    /**
+     * @var array
+     */
+    protected $config = [];
 
-    /** @var string */
-    protected $methodLine;
+    /**
+     * @var string
+     */
+    protected $methodLine = '';
 
-    /** @var string */
-    protected $headerLine;
+    /**
+     * @var string
+     */
+    protected $headerLine = '';
 
     public function __construct()
     {
-        $this->config     = config('cors');
+        $this->config     = (array) config('cors');
         $this->methodLine = implode(',', $this->config['methods']);
         $this->headerLine = implode(',', $this->config['headers']);
     }

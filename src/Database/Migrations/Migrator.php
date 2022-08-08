@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:58:45 +0800
+ * @version  2022-08-08 17:22:18 +0800
  */
 
 namespace Teddy\Database\Migrations;
@@ -16,11 +16,14 @@ use Teddy\Console\Command;
 
 class Migrator
 {
-    protected MigrationRepository $repository;
+    /** @var MigrationRepository */
+    protected $repository;
 
-    protected ?Command $command;
+    /** @var null|Command */
+    protected $command;
 
-    protected array $notes = [];
+    /** @var array */
+    protected $notes = [];
 
     public function __construct()
     {

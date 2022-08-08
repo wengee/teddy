@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 11:14:25 +0800
+ * @version  2022-08-08 17:34:46 +0800
  */
 
 namespace Teddy;
@@ -16,11 +16,20 @@ use Teddy\Lock\Lock;
 
 abstract class Task implements TaskInterface
 {
-    protected int $timeout = 600;
+    /**
+     * @var int
+     */
+    protected $timeout = 600;
 
-    protected ?Lock $lock;
+    /**
+     * @var null|Lock
+     */
+    protected $lock;
 
-    protected null|bool|string $uniqueId = true;
+    /**
+     * @var null|bool|string
+     */
+    protected $uniqueId = true;
 
     public function timeout(int $timeout): self
     {

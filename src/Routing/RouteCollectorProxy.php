@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-29 14:35:38 +0800
+ * @version  2022-08-08 17:40:57 +0800
  */
 
 namespace Teddy\Routing;
@@ -22,6 +22,9 @@ use Slim\Routing\RouteCollectorProxy as SlimRouteCollectorProxy;
  */
 class RouteCollectorProxy extends SlimRouteCollectorProxy
 {
+    /**
+     * @var string
+     */
     protected $namespace = '';
 
     public function __construct(

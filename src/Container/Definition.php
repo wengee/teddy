@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:53:49 +0800
+ * @version  2022-08-08 17:24:38 +0800
  */
 
 namespace Teddy\Container;
@@ -22,13 +22,22 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
 {
     use ContainerAwareTrait;
 
-    protected string $id;
+    /**
+     * @var string
+     */
+    protected $id;
 
     protected $concrete;
 
-    protected bool $shared = false;
+    /**
+     * @var bool
+     */
+    protected $shared = false;
 
-    protected array $arguments = [];
+    /**
+     * @var array
+     */
+    protected $arguments = [];
 
     protected $resolved;
 

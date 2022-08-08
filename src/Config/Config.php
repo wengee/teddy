@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:44:59 +0800
+ * @version  2022-08-08 17:30:32 +0800
  */
 
 namespace Teddy\Config;
@@ -32,23 +32,45 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
         'eval' => Tags\EvalTag::class,
     ];
 
-    /** @var string[] */
-    protected array $configDirs = [];
+    /**
+     * @var string[]
+     */
+    protected $configDirs = [];
 
-    /** @var string[] */
-    protected array $configFiles = [];
+    /**
+     * @var string[]
+     */
+    protected $configFiles = [];
 
-    protected ?string $dotEnvDir;
+    /**
+     * @var string
+     */
+    protected $dotEnvDir = '';
 
-    protected bool $freezed = false;
+    /**
+     * @var bool
+     */
+    protected $freezed = false;
 
-    protected array $freezedData = [];
+    /**
+     * @var array
+     */
+    protected $freezedData = [];
 
-    protected array $cached = [];
+    /**
+     * @var array
+     */
+    protected $cached = [];
 
-    protected ?string $basePath;
+    /**
+     * @var string
+     */
+    protected $basePath = '';
 
-    protected ?string $runtimePath;
+    /**
+     * @var string
+     */
+    protected $runtimePath = '';
 
     public function __construct(ContainerInterface $container)
     {

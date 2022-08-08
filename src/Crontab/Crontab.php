@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:54:06 +0800
+ * @version  2022-08-08 17:23:50 +0800
  */
 
 namespace Teddy\Crontab;
@@ -16,7 +16,10 @@ class Crontab implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    protected array $list = [];
+    /**
+     * @var array
+     */
+    protected $list = [];
 
     public function __construct()
     {

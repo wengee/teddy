@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:43:28 +0800
+ * @version  2022-08-08 17:31:24 +0800
  */
 
 namespace Teddy\Auth;
@@ -20,9 +20,15 @@ use Teddy\Interfaces\AuthHandlerInterface;
 
 class Authentication implements MiddlewareInterface
 {
-    protected ?AuthHandlerInterface $handler;
+    /**
+     * @var null|AuthHandlerInterface
+     */
+    protected $handler;
 
-    protected array $config = [];
+    /**
+     * @var array
+     */
+    protected $config = [];
 
     public function __construct(?AuthHandlerInterface $handler = null, array $config = [])
     {

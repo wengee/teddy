@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-08-08 16:40:17 +0800
  */
 
 namespace Teddy\Database;
@@ -129,8 +129,6 @@ class QueryBuilder
 
     /**
      * Constructor.
-     *
-     * @param Model|string $table
      */
     public function __construct(DatabaseInterface $db, Model|string $table)
     {
@@ -254,7 +252,7 @@ class QueryBuilder
     public function setTable($table): self
     {
         if (is_subclass_of($table, Model::class)) {
-            $this->meta = $table::meta();
+            $this->meta = app('modelManager')->getMeta($table);
         }
 
         if (!$this->meta) {

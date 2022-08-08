@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:55:18 +0800
+ * @version  2022-08-08 17:22:33 +0800
  */
 
 namespace Teddy\Database\DBAL;
@@ -23,7 +23,8 @@ use PDOStatement;
 
 final class Connection implements ServerInfoAwareConnection
 {
-    private PDO $connection;
+    /** @var PDO */
+    private $connection;
 
     public function __construct(PDO $connection)
     {

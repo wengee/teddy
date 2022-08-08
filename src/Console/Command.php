@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:51:52 +0800
+ * @version  2022-08-08 17:27:41 +0800
  */
 
 namespace Teddy\Console;
@@ -24,20 +24,44 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  */
 abstract class Command extends SymfonyCommand
 {
-    protected InputInterface $input;
+    /**
+     * @var InputInterface
+     */
+    protected $input;
 
-    protected SymfonyStyle $output;
+    /**
+     * @var SymfonyStyle
+     */
+    protected $output;
 
+    /**
+     * @var null|string
+     */
     protected $name;
 
+    /**
+     * @var null|string
+     */
     protected $signature;
 
+    /**
+     * @var string
+     */
     protected $description = '';
 
+    /**
+     * @var bool
+     */
     protected $hidden = false;
 
+    /**
+     * @var int
+     */
     protected $verbosity = OutputInterface::VERBOSITY_NORMAL;
 
+    /**
+     * @var array
+     */
     protected $verbosityMap = [
         'v'      => OutputInterface::VERBOSITY_VERBOSE,
         'vv'     => OutputInterface::VERBOSITY_VERY_VERBOSE,

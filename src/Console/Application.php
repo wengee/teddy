@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:47:22 +0800
+ * @version  2022-08-08 17:26:16 +0800
  */
 
 namespace Teddy\Console;
@@ -23,11 +23,20 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 
-    protected TeddyApplication $app;
+    /**
+     * @var TeddyApplication
+     */
+    protected $app;
 
-    protected string $appName;
+    /**
+     * @var string
+     */
+    protected $appName;
 
-    protected string $version;
+    /**
+     * @var string
+     */
+    protected $version;
 
     public function __construct(TeddyApplication $app)
     {

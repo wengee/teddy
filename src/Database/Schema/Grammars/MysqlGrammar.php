@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:59:11 +0800
+ * @version  2022-08-08 17:20:32 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
@@ -17,16 +17,20 @@ class MysqlGrammar extends Grammar
 {
     /**
      * The possible column modifiers.
+     *
+     * @var array
      */
-    protected array $modifiers = [
+    protected $modifiers = [
         'Unsigned', 'VirtualAs', 'StoredAs', 'Charset', 'Collate', 'Nullable',
         'Default', 'Increment', 'Comment', 'After', 'First', 'Srid',
     ];
 
     /**
      * The possible column serials.
+     *
+     * @var array
      */
-    protected array $serials = ['bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'];
+    protected $serials = ['bigInteger', 'integer', 'mediumInteger', 'smallInteger', 'tinyInteger'];
 
     /**
      * Compile the query to determine the list of tables.

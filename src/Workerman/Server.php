@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:33:13 +0800
+ * @version  2022-08-08 17:35:53 +0800
  */
 
 namespace Teddy\Workerman;
@@ -19,22 +19,34 @@ use Teddy\Workerman\Processes\WebsocketProcess;
 
 class Server implements ServerInterface
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $serverName;
 
-    /** @var Application */
+    /**
+     * @var Application
+     */
     protected $app;
 
-    /** @var ContainerInterface */
+    /**
+     * @var ContainerInterface
+     */
     protected $container;
 
-    /** @var HttpProcess */
+    /**
+     * @var HttpProcess
+     */
     protected $httpProcess;
 
-    /** @var WebsocketProcess */
+    /**
+     * @var WebsocketProcess
+     */
     protected $websocketProcess;
 
-    /** @var TaskProcess */
+    /**
+     * @var TaskProcess
+     */
     protected $taskProcess;
 
     public function __construct(Application $app)

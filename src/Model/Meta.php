@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 11:17:49 +0800
+ * @version  2022-08-08 17:42:55 +0800
  */
 
 namespace Teddy\Model;
@@ -17,28 +17,55 @@ use Teddy\Model\Columns\ColumnInterface;
 
 class Meta
 {
-    private string $className;
+    /**
+     * @var string
+     */
+    private $className = '';
 
-    private string $connectionName;
+    /**
+     * @var string
+     */
+    private $connectionName = '';
 
-    private string $tableName;
+    /**
+     * @var string
+     */
+    private $tableName = '';
 
-    private array $primaryKeys = [];
+    /**
+     * @var array
+     */
+    private $primaryKeys = [];
 
-    private ?string $autoIncrement;
+    /**
+     * @var string
+     */
+    private $autoIncrement = '';
 
-    private array $columnMap = [];
+    /**
+     * @var array
+     */
+    private $columnMap = [];
 
-    private array $dbColumnMap = [];
+    /**
+     * @var array
+     */
+    private $dbColumnMap = [];
 
     /**
      * @var ColumnInterface[]
      */
-    private array $columns = [];
+    private $columns = [];
 
-    private ReflectionMethod $setDbPropertyMethod;
+    /**
+     * @var ReflectionMethod
+     */
+    private $setDbPropertyMethod;
 
-    private ReflectionMethod $getDbPropertyMethod;
+    /**
+     * @var ReflectionMethod
+     */
+    private $getDbPropertyMethod;
 
     public function __construct(Model|string $model)
     {

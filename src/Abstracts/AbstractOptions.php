@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:42:02 +0800
+ * @version  2022-08-08 17:32:52 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -13,9 +13,15 @@ use ArrayAccess;
 
 abstract class AbstractOptions implements ArrayAccess
 {
-    protected ?array $keys;
+    /**
+     * @var null|array
+     */
+    protected $keys;
 
-    protected array $data = [];
+    /**
+     * @var array
+     */
+    protected $data = [];
 
     public function __construct(?array $data = null)
     {

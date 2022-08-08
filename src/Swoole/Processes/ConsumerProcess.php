@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:14:22 +0800
+ * @version  2022-08-08 17:40:38 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -17,10 +17,14 @@ use Teddy\Interfaces\ProcessInterface;
 
 class ConsumerProcess extends AbstractProcess implements ProcessInterface
 {
-    /** @var ContainerInterface */
+    /**
+     * @var ContainerInterface
+     */
     protected $container;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $serverName;
 
     protected $name = 'consumer process';

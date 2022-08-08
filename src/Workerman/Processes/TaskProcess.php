@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:27:57 +0800
+ * @version  2022-08-08 17:36:29 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -21,7 +21,9 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
 {
     use TaskAwareTrait;
 
-    /** @var Application */
+    /**
+     * @var Application
+     */
     protected $app;
 
     protected $name = 'task';

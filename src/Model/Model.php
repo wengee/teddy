@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 11:18:14 +0800
+ * @version  2022-08-08 17:43:17 +0800
  */
 
 namespace Teddy\Model;
@@ -27,23 +27,39 @@ abstract class Model implements ArrayAccess, JsonSerializable
     use Macroable;
 
     /**
-     * @var Meta[]
+     * @var array
      */
-    protected static $metas = [];
+    protected $items = [];
 
-    protected array $items = [];
+    /**
+     * @var array
+     */
+    protected $hidden = [];
 
-    protected array $hidden = [];
+    /**
+     * @var bool
+     */
+    protected $isNewRecord = true;
 
-    protected bool $isNewRecord = true;
+    /**
+     * @var bool
+     */
+    protected $isModified = false;
 
-    protected bool $isModified = false;
+    /**
+     * @var null|DatabaseInterface|string
+     */
+    protected $connection;
 
-    protected null|DatabaseInterface|string $connection;
+    /**
+     * @var Meta
+     */
+    protected $meta;
 
     final public function __construct()
     {
-        $this->items = static::meta()->getDefaults();
+        $this->meta  = app('modelManager')->getMeta(static::class);
+        $this->items = $this->meta->getDefaults();
     }
 
     public function __serialize(): array
@@ -60,16 +76,6 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $this->items       = $data['items'] ?? [];
         $this->isNewRecord = $data['isNewRecord'] ?? false;
         $this->isModified  = $data['isModified'] ?? false;
-    }
-
-    final public static function meta(): Meta
-    {
-        $className = static::class;
-        if (!isset(static::$metas[$className])) {
-            static::$metas[$className] = new Meta($className);
-        }
-
-        return static::$metas[$className];
     }
 
     public function offsetExists(mixed $offset): bool
@@ -195,7 +201,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
         if (null === $db) {
-            $connectionName = static::meta()->connectionName();
+            $connectionName = app('modelManager')->getMeta(static::class)->connectionName();
 
             return new QueryBuilder(db($connectionName), static::class);
         }
@@ -272,12 +278,12 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function hasColumn(string $key): bool
     {
-        return static::meta()->hasColumn($key);
+        return $this->meta->hasColumn($key);
     }
 
     protected function getDbAttributes(): array
     {
-        $columns = static::meta()->getColumns();
+        $columns = $this->meta->getColumns();
         if (empty($columns)) {
             return [];
         }
@@ -297,10 +303,9 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $this->items       = [];
         $this->isNewRecord = false;
 
-        $meta    = static::meta();
-        $columns = $meta->getColumns();
+        $columns = $this->meta->getColumns();
         foreach ($data as $key => $value) {
-            $key = $meta->convertToPhpColumn($key);
+            $key = $this->meta->convertToPhpColumn($key);
             if (isset($columns[$key])) {
                 $this->items[$key] = $columns[$key]->convertToPhpValue($value);
             } else {
@@ -309,7 +314,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         }
     }
 
-    protected function trigger(string $action, ...$args): void
+    protected function triggerEvent(string $action, ...$args): void
     {
         if (method_exists($this, $action)) {
             $this->{$action}(...$args);
@@ -322,50 +327,49 @@ abstract class Model implements ArrayAccess, JsonSerializable
             return;
         }
 
-        $modalMeta   = static::meta();
-        $primaryKeys = $modalMeta->primaryKeys();
+        $primaryKeys = $this->meta->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
 
-        $this->trigger('beforeSave');
+        $this->triggerEvent('beforeSave');
 
         $query      = $this->buildQuery();
         $attributes = $this->getDbAttributes();
         if ($this->isNewRecord()) {
-            $this->trigger('beforeInsert');
+            $this->triggerEvent('beforeInsert');
             $id = $query->insert($attributes, true);
 
-            $autoIncrement = $modalMeta->autoIncrement();
+            $autoIncrement = $this->meta->autoIncrement();
             if ($autoIncrement && $id > 0) {
                 $this->setAttribute($autoIncrement, (int) $id);
             }
 
-            $this->trigger('afterInsert');
+            $this->triggerEvent('afterInsert');
             $this->isNewRecord = false;
         } else {
-            $this->trigger('beforeUpdate');
+            $this->triggerEvent('beforeUpdate');
             foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
                 $query->where($key, $value);
             }
 
             $data = Arr::except($attributes, $primaryKeys);
             $query->limit(1)->update((array) $data);
-            $this->trigger('afterUpdate');
+            $this->triggerEvent('afterUpdate');
         }
 
         $this->isModified = false;
-        $this->trigger('afterSave');
+        $this->triggerEvent('afterSave');
     }
 
     protected function doDelete(): void
     {
-        $primaryKeys = static::meta()->primaryKeys();
+        $primaryKeys = $this->meta->primaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
 
-        $this->trigger('beforeDelete');
+        $this->triggerEvent('beforeDelete');
 
         $query      = $this->buildQuery();
         $attributes = $this->getDbAttributes();
@@ -377,7 +381,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $query->limit(1)->delete();
         }
 
-        $this->trigger('afterDelete');
+        $this->triggerEvent('afterDelete');
     }
 
     protected function buildQuery(): QueryBuilder
@@ -385,7 +389,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         if ($this->connection) {
             return static::query($this->connection);
         }
-        $connectionName = static::meta()->connectionName();
+        $connectionName = $this->meta->connectionName();
 
         return static::query(db($connectionName));
     }

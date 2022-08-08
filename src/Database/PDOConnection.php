@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 11:05:23 +0800
+ * @version  2022-08-08 17:15:49 +0800
  */
 
 namespace Teddy\Database;
@@ -31,21 +31,29 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 {
     use LoggerAwareTrait;
 
-    protected ?PDO $pdo;
+    /** @var null|PDO */
+    protected $pdo;
 
-    protected array $config = [];
+    /** @var array */
+    protected $config = [];
 
-    protected int $idleTimeout = 0;
+    /** @var int */
+    protected $idleTimeout = 0;
 
-    protected bool $readOnly = false;
+    /** @var bool */
+    protected $readOnly = false;
 
-    protected bool $stick = false;
+    /** @var bool */
+    protected $stick = false;
 
-    protected ?Builder $schemeBuilder;
+    /** @var null|Builder */
+    protected $schemeBuilder;
 
-    protected ?Grammar $schemeGrammer;
+    /** @var null|Grammar */
+    protected $schemeGrammar;
 
-    protected ?DoctrineConnection $doctrineConnection;
+    /** @var null|DoctrineConnection */
+    protected $doctrineConnection;
 
     public function __construct(array $config, bool $readOnly = false)
     {
@@ -250,15 +258,15 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 
     public function getSchemaGrammar(): Grammar
     {
-        if (!$this->schemeGrammer) {
+        if (!$this->schemeGrammar) {
             if ('mysql' === $this->config['driver']) {
-                $this->schemeGrammer = new MysqlGrammar();
+                $this->schemeGrammar = new MysqlGrammar();
             } else {
-                $this->schemeGrammer = new Grammar();
+                $this->schemeGrammar = new Grammar();
             }
         }
 
-        return $this->schemeGrammer;
+        return $this->schemeGrammar;
     }
 
     public function isDoctrineAvailable(): bool

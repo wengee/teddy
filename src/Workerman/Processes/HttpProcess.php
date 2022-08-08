@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-28 11:35:35 +0800
+ * @version  2022-08-08 17:36:21 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -22,7 +22,9 @@ use Workerman\Worker;
 
 class HttpProcess extends AbstractProcess implements ProcessInterface
 {
-    /** @var Application */
+    /**
+     * @var Application
+     */
     protected $app;
 
     protected $name = 'http';

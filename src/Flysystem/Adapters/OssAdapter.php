@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 11:10:02 +0800
+ * @version  2022-08-08 17:12:09 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -23,21 +23,29 @@ use Teddy\Interfaces\TeddyFilesystemAdapter;
 
 class OssAdapter implements TeddyFilesystemAdapter
 {
-    protected OssClient $client;
+    /** @var OssClient */
+    protected $client;
 
-    protected string $bucket;
+    /** @var string */
+    protected $bucket = '';
 
-    protected string $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
+    /** @var string */
+    protected $endpoint = 'oss-cn-hangzhou.aliyuncs.com';
 
-    protected string $cdnDomain;
+    /** @var string */
+    protected $cdnDomain = '';
 
-    protected bool $ssl = false;
+    /** @var bool */
+    protected $ssl = false;
 
-    protected bool $isCName = false;
+    /** @var bool */
+    protected $isCName = false;
 
-    protected PathPrefixer $prefixer;
+    /** @var PathPrefixer */
+    protected $prefixer;
 
-    protected array $options = [
+    /** @var array */
+    protected $options = [
         'Multipart' => 128,
     ];
 

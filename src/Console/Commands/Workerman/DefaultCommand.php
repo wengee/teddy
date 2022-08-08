@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 10:46:46 +0800
+ * @version  2022-08-08 17:28:37 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
@@ -16,15 +16,21 @@ use Workerman\Worker;
 
 abstract class DefaultCommand extends Command
 {
-    protected ?string $action;
+    protected $action = '';
 
-    protected array $optionMap = [
+    /**
+     * @var array
+     */
+    protected $optionMap = [
         'daemon'     => '-d',
         'gracefully' => '-g',
         'live'       => '-d',
     ];
 
-    protected array $availableLoop = [
+    /**
+     * @var array
+     */
+    protected $availableLoop = [
         'ev'             => \Workerman\Events\Ev::class,
         'event'          => \Workerman\Events\Event::class,
         'libevent'       => \Workerman\Events\Libevent::class,

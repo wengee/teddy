@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:32:51 +0800
+ * @version  2022-08-08 17:39:52 +0800
  */
 
 namespace Teddy\Swoole;
@@ -35,28 +35,44 @@ class Server implements ServerInterface
 {
     use TaskAwareTrait;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $name;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $serverName;
 
-    /** @var null|Command */
+    /**
+     * @var null|Command
+     */
     protected $command;
 
-    /** @var HttpServer|WebsocketServer */
+    /**
+     * @var HttpServer|WebsocketServer
+     */
     protected $swoole;
 
-    /** @var Application */
+    /**
+     * @var Application
+     */
     protected $app;
 
-    /** @var ContainerInterface */
+    /**
+     * @var ContainerInterface
+     */
     protected $container;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
-    /** @var null|Queue */
+    /**
+     * @var null|Queue
+     */
     protected $queue;
 
     public function __construct(Application $app)

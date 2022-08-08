@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 16:31:32 +0800
+ * @version  2022-08-08 17:36:06 +0800
  */
 
 namespace Teddy\Workerman;
@@ -17,7 +17,9 @@ use Workerman\Protocols\Http\Response as HttpResponse;
 
 class ResponseEmitter
 {
-    /** @var TcpConnection */
+    /**
+     * @var TcpConnection
+     */
     protected $connection;
 
     public function __construct(TcpConnection $connection)
