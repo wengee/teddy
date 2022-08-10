@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-10 11:12:30 +0800
+ * @version  2022-08-10 11:44:11 +0800
  */
 
 namespace Teddy;
@@ -42,7 +42,7 @@ class Deferred
 
     public function run(): void
     {
-        if ((!defined('IN_SWOOLE') || !IN_SWOOLE) && !$this->executed && $this->callback) {
+        if ((!defined('IN_SWOOLE') || !IN_SWOOLE) && !$this->executed) {
             $this->executed = true;
             safe_call($this->callback);
         }
