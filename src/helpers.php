@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:31:08 +0800
+ * @version  2022-08-10 11:00:47 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
+use Teddy\Deferred;
 use Teddy\Hook;
 use Teddy\Http\Response;
 use Teddy\Interfaces\ServerInterface;
@@ -494,11 +495,11 @@ if (!function_exists('base64_urldecode')) {
     }
 }
 
-if (!function_exists('cpu_count')) {
+if (!function_exists('teddy_cpu_num')) {
     /**
      * Get number of cpu logical processors.
      */
-    function cpu_count(): int
+    function teddy_cpu_num(): int
     {
         static $count;
         if (!$count) {
@@ -533,15 +534,13 @@ if (!function_exists('cpu_count')) {
     }
 }
 
-if (!function_exists('swoole_defer')) {
+if (!function_exists('teddy_defer')) {
     /**
      * Defers the execution of a callback function until the surrounding function of a coroutine returns. (for swoole).
      */
-    function swoole_defer(callable $callback): void
+    function teddy_defer(callable $callback): Deferred
     {
-        if (defined('IN_SWOOLE') && IN_SWOOLE) {
-            defer($callback);
-        }
+        return new Deferred($callback);
     }
 }
 
