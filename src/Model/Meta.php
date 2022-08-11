@@ -4,14 +4,13 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:42:55 +0800
+ * @version  2022-08-11 15:35:06 +0800
  */
 
 namespace Teddy\Model;
 
 use Illuminate\Support\Str;
 use ReflectionClass;
-use ReflectionMethod;
 use Teddy\Exception;
 use Teddy\Model\Columns\ColumnInterface;
 
@@ -57,16 +56,6 @@ class Meta
      */
     private $columns = [];
 
-    /**
-     * @var ReflectionMethod
-     */
-    private $setDbPropertyMethod;
-
-    /**
-     * @var ReflectionMethod
-     */
-    private $getDbPropertyMethod;
-
     public function __construct(Model|string $model)
     {
         if (!is_subclass_of($model, Model::class)) {
@@ -80,11 +69,7 @@ class Meta
         }
         $this->className = $className;
 
-        $ref = new ReflectionClass($className);
-
-        $this->setDbPropertyMethod = $ref->getMethod('setDbAttributes');
-        $this->getDbPropertyMethod = $ref->getMethod('getDbAttributes');
-
+        $ref   = new ReflectionClass($className);
         $attrs = $ref->getAttributes();
         foreach ($attrs as $attr) {
             $annotation = $attr->newInstance();
@@ -201,13 +186,8 @@ class Meta
         return isset($this->columns[$columnName]);
     }
 
-    public function makeInstance(array $data)
+    public function makeInstance(array $data = [])
     {
-        $clsName = $this->className;
-        $object  = new $clsName(false);
-        $closure = $this->setDbPropertyMethod->getClosure($object);
-        call_user_func($closure, $data);
-
-        return $object;
+        return call_user_func($this->className.'::createFromDb', $data);
     }
 }

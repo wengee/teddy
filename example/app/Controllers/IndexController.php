@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-22 11:23:02 +0800
+ * @version  2022-08-11 17:16:00 +0800
  */
 
 namespace App\Controllers;
@@ -20,30 +20,42 @@ class IndexController extends Controller
 {
     public function index(Request $request, Response $response)
     {
+        teddy_defer(function (): void {
+            sleep(3);
+            echo 'defer ok'.PHP_EOL;
+        });
+
+        echo time().PHP_EOL;
         $model = new Abc();
-        $model = $model->save() ? $model : null;
+        // $model = $model->save() ? $model : null;
 
         run_task(Demo::class, [], ['delay' => 2]);
         // app('redis')->lPush('abc', 'fdsafsadfasd');
 
         $list = Abc::query()->orderBy('id', 'DESC')->limit(3)->all();
         $list = array_map(function ($item) {
-            $item = $item->toArray();
+            $data = $item->toArray();
 
             $timeslot = $item['timeslot'] ?? null;
             if ($timeslot) {
-                $item['timeslot'] = $timeslot->setTimeZone(timezone_open('+0700'))->format('c');
+                $data['timeslot'] = $timeslot->setTimeZone(timezone_open('+0700'))->format('c');
             }
 
-            return $item;
+            return [
+                'data'        => $data,
+                'isNewRecord' => $item->isNewRecord(),
+            ];
         }, $list);
 
         return $response->json(0, [
-            'model' => $model,
-            'list'  => $list,
-            'cpu'   => cpu_count(),
-            'body'  => (string) $request->getBody(),
-            'post'  => $request->getParsedBody(),
+            'model' => [
+                'data'        => $model,
+                'isNewRecord' => $model->isNewRecord(),
+            ],
+            'list' => $list,
+            'cpu'  => teddy_cpu_num(),
+            'body' => (string) $request->getBody(),
+            'post' => $request->getParsedBody(),
         ]);
     }
 

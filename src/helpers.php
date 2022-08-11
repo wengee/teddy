@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-10 11:00:47 +0800
+ * @version  2022-08-11 17:23:38 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -538,9 +538,13 @@ if (!function_exists('teddy_defer')) {
     /**
      * Defers the execution of a callback function until the surrounding function of a coroutine returns. (for swoole).
      */
-    function teddy_defer(callable $callback): Deferred
+    function teddy_defer(?callable $callback = null): void
     {
-        return new Deferred($callback);
+        if (null === $callback) {
+            Deferred::run();
+        } else {
+            Deferred::add($callback);
+        }
     }
 }
 

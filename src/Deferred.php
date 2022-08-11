@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-10 11:44:11 +0800
+ * @version  2022-08-11 17:24:22 +0800
  */
 
 namespace Teddy;
@@ -13,38 +13,30 @@ use Swoole\Coroutine;
 class Deferred
 {
     /**
-     * @var null|callable
+     * @var callable[]
      */
-    protected $callback;
+    protected static $funcList = [];
 
-    /**
-     * @var bool
-     */
-    protected $executed = false;
-
-    public function __construct(callable $callback)
+    public static function add(callable $callback): void
     {
-        $this->callback = $callback;
         if (defined('IN_SWOOLE') && IN_SWOOLE) {
             Coroutine::defer($callback);
+        } else {
+            static::$funcList[] = $callback;
         }
     }
 
-    public function __destruct()
+    public static function run(): void
     {
-        $this->run();
-    }
-
-    public static function create(callable $callback): self
-    {
-        return new self($callback);
-    }
-
-    public function run(): void
-    {
-        if ((!defined('IN_SWOOLE') || !IN_SWOOLE) && !$this->executed) {
-            $this->executed = true;
-            safe_call($this->callback);
+        if (!defined('IN_SWOOLE') || !IN_SWOOLE) {
+            while ($func = array_pop(static::$funcList)) {
+                safe_call($func);
+            }
         }
+    }
+
+    public static function clear(): void
+    {
+        static::$funcList = [];
     }
 }

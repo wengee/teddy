@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:43:17 +0800
+ * @version  2022-08-11 16:39:06 +0800
  */
 
 namespace Teddy\Model;
@@ -56,10 +56,13 @@ abstract class Model implements ArrayAccess, JsonSerializable
      */
     protected $meta;
 
-    final public function __construct()
+    final public function __construct(array $data = [])
     {
         $this->meta  = app('modelManager')->getMeta(static::class);
         $this->items = $this->meta->getDefaults();
+        if ($data) {
+            $this->assign($data);
+        }
     }
 
     public function __serialize(): array
@@ -198,6 +201,15 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return true;
     }
 
+    public static function createFromDb(array $data = [])
+    {
+        $obj = new static();
+        $obj->setDbAttributes($data);
+        $obj->isNewRecord = false;
+
+        return $obj;
+    }
+
     public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
         if (null === $db) {
@@ -226,7 +238,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function hasAttribute(string $key)
     {
-        if ($this->hasGetMutator($key) || $this->hasSetMutator($key) || $this->hasColumn($key)) {
+        if ($this->hasGetMutator($key) || $this->hasColumn($key)) {
             return true;
         }
 
@@ -300,9 +312,6 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function setDbAttributes(array $data): void
     {
-        $this->items       = [];
-        $this->isNewRecord = false;
-
         $columns = $this->meta->getColumns();
         foreach ($data as $key => $value) {
             $key = $this->meta->convertToPhpColumn($key);
@@ -389,6 +398,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         if ($this->connection) {
             return static::query($this->connection);
         }
+
         $connectionName = $this->meta->connectionName();
 
         return static::query(db($connectionName));
