@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:15:49 +0800
+ * @version  2022-08-15 17:10:56 +0800
  */
 
 namespace Teddy\Database;
@@ -31,28 +31,44 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 {
     use LoggerAwareTrait;
 
-    /** @var null|PDO */
+    /**
+     * @var null|PDO
+     */
     protected $pdo;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $config = [];
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $idleTimeout = 0;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $readOnly = false;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $stick = false;
 
-    /** @var null|Builder */
+    /**
+     * @var null|Builder
+     */
     protected $schemeBuilder;
 
-    /** @var null|Grammar */
+    /**
+     * @var null|Grammar
+     */
     protected $schemeGrammar;
 
-    /** @var null|DoctrineConnection */
+    /**
+     * @var null|DoctrineConnection
+     */
     protected $doctrineConnection;
 
     public function __construct(array $config, bool $readOnly = false)

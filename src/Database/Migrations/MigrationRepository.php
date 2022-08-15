@@ -4,18 +4,22 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-08-15 17:13:23 +0800
  */
 
 namespace Teddy\Database\Migrations;
 
 use Illuminate\Support\Collection;
+use Teddy\Database\PDOConnection;
 use Teddy\Database\Schema\Blueprint;
 
 class MigrationRepository
 {
     public const TABLE_NAME = 'migrations';
 
+    /**
+     * @var PDOConnection
+     */
     protected $connection;
 
     public function __construct()

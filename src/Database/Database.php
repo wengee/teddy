@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:19:22 +0800
+ * @version  2022-08-15 17:21:13 +0800
  */
 
 namespace Teddy\Database;
@@ -23,22 +23,34 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $hasReadOnly = false;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $readConf = [];
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $writeConf = [];
 
-    /** @var null|ConnectionInterface */
+    /**
+     * @var null|ConnectionInterface
+     */
     protected $readInstance;
 
-    /** @var null|Channel */
+    /**
+     * @var null|Channel
+     */
     protected $readChannel;
 
-    /** @var int */
+    /**
+     * @var int
+     */
     protected $currentReadConnections = 0;
 
     public function __construct(array $config = [])
@@ -102,7 +114,9 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
             return;
         }
 
-        /** @var PDOConnection $connection */
+        /**
+         * @var PDOConnection $connection
+         */
         if ($connection->isReadOnly()) {
             $this->readChannel->push($connection);
         } else {

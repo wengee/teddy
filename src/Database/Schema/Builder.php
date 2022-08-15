@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:21:13 +0800
+ * @version  2022-08-15 17:12:22 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -25,10 +25,14 @@ class Builder
 
     protected static $callback;
 
-    /** @var PDOConnection */
+    /**
+     * @var PDOConnection
+     */
     protected $connection;
 
-    /** @var Grammar */
+    /**
+     * @var Grammar
+     */
     protected $grammar;
 
     /**

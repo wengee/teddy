@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:12:47 +0800
+ * @version  2022-08-15 17:15:20 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -18,10 +18,14 @@ use Teddy\Interfaces\TeddyFilesystemAdapter;
 
 class Manager
 {
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $config = [];
 
-    /** @var Filesystem[] */
+    /**
+     * @var Filesystem[]
+     */
     protected $disks = [];
 
     public function __construct()

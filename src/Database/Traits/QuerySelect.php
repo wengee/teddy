@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:19:47 +0800
+ * @version  2022-08-15 17:11:45 +0800
  */
 
 namespace Teddy\Database\Traits;
@@ -15,10 +15,14 @@ use Teddy\Database\SQL;
 
 trait QuerySelect
 {
-    /** @var bool */
+    /**
+     * @var bool
+     */
     protected $distinct = false;
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $columns = ['*'];
 
     public function select(...$columns): self

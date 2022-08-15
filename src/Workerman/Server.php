@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:35:53 +0800
+ * @version  2022-08-15 17:18:50 +0800
  */
 
 namespace Teddy\Workerman;
@@ -85,7 +85,9 @@ class Server implements ServerInterface
         return $process;
     }
 
-    /** @param null|array|bool|int|string $extra */
+    /**
+     * @param null|array|bool|int|string $extra
+     */
     public function addTask(string $className, array $args = [], $extra = null): void
     {
         if ($this->taskProcess) {

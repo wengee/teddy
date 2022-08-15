@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:27:41 +0800
+ * @version  2022-08-15 17:21:03 +0800
  */
 
 namespace Teddy\Console;
@@ -267,7 +267,9 @@ abstract class Command extends SymfonyCommand
         try {
             $this->handle();
         } catch (Exception $e) {
-            /** @var SymfonyStyle $output */
+            /**
+             * @var SymfonyStyle $output
+             */
             $output->error($e->getMessage());
 
             return 255;

@@ -4,17 +4,21 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:13:31 +0800
+ * @version  2022-08-15 17:10:14 +0800
  */
 
 namespace Teddy\Database;
 
 class RawSQL
 {
-    /** @var string */
+    /**
+     * @var string
+     */
     protected $sql = '';
 
-    /** @var array */
+    /**
+     * @var array
+     */
     protected $data = [];
 
     public function __construct(?string $sql = null, ...$data)

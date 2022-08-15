@@ -5,7 +5,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-04-02 10:49:51 +0800
+ * @version  2022-08-15 16:59:50 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -37,6 +37,9 @@ class Schema
 {
     public static function __callStatic($name, $arguments)
     {
+        /**
+         * @var PDOConnection
+         */
         $connection = app('db')->getWriteConnection();
 
         try {

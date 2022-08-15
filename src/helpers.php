@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 15:50:57 +0800
+ * @version  2022-08-15 17:20:38 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -155,7 +155,9 @@ if (!function_exists('run_task')) {
             $server = Container::getInstance()->get(ServerInterface::class);
         }
 
-        /** @var null|ServerInterface $server */
+        /**
+         * @var null|ServerInterface $server
+         */
         if ($server) {
             $server->addTask($className, $args, $extra);
         } else {
@@ -251,7 +253,9 @@ if (!function_exists('config')) {
     {
         static $config;
         if (null === $config) {
-            /** @var Config */
+            /**
+             * @var Config
+             */
             $config = Container::getInstance()->get('config');
         }
 
@@ -272,7 +276,9 @@ if (!function_exists('log_message')) {
      */
     function log_message($level, string $message, ...$data): void
     {
-        /** @var null|LoggerInterface */
+        /**
+         * @var null|LoggerInterface
+         */
         $logger = Container::getInstance()->get('logger');
         if ($logger) {
             $logger->log($level, $data ? sprintf($message, ...$data) : $message);
@@ -286,7 +292,9 @@ if (!function_exists('log_exception')) {
      */
     function log_exception(Exception $e, string $prefix = ''): void
     {
-        /** @var null|LoggerInterface */
+        /**
+         * @var null|LoggerInterface
+         */
         $logger = Container::getInstance()->get('logger');
         if ($logger) {
             $logger->error(sprintf(

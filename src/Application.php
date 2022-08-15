@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:35:22 +0800
+ * @version  2022-08-15 17:20:03 +0800
  */
 
 namespace Teddy;
@@ -117,7 +117,9 @@ class Application implements WithContainerInterface, ContainerAwareInterface
 
     protected function initRoutes(): void
     {
-        /** @var RouteCollector $routeCollector */
+        /**
+         * @var RouteCollector $routeCollector
+         */
         $routeCollector = $this->slimApp->getRouteCollector();
 
         $dir = base_path('routes');
