@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-11 17:20:39 +0800
+ * @version  2022-08-15 15:36:48 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -54,12 +54,16 @@ class WebsocketProcess extends AbstractProcess implements ProcessInterface
     {
         run_hook('workerman:websocket:beforeWorkerStart', ['worker' => $worker]);
 
+        $this->handleEvent('onWorkerStart', $worker);
+
         run_hook('workerman:websocket:afterWorkerStart', ['worker' => $worker]);
     }
 
     public function onWorkerReload(Worker $worker): void
     {
         run_hook('workerman:websocket:beforeWorkerReload', ['worker' => $worker]);
+
+        $this->handleEvent('onWorkerReload', $worker);
 
         run_hook('workerman:websocket:afterWorkerReload', ['worker' => $worker]);
     }

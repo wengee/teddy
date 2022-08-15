@@ -10,9 +10,14 @@ declare(strict_types=1);
 namespace Teddy\Workerman;
 
 use Workerman\Connection\TcpConnection;
+use Workerman\Worker;
 
 interface WebsocketHandlerInterface
 {
+    public function onWorkerStart(Worker $worker);
+
+    public function onWorkerReload(Worker $worker);
+
     public function onConnect(TcpConnection $connection);
 
     public function onMessage(TcpConnection $connection, string $data);
