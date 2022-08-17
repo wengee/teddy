@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 17:45:22 +0800
+ * @version  2022-08-17 17:50:18 +0800
  */
 
 namespace Teddy\Model;
@@ -80,14 +80,8 @@ class Meta
             $annotation = $attr->newInstance();
 
             if ($annotation instanceof Table) {
-                if ($annotation->getDynamic()) {
-                    $this->dynamicTableName = true;
-                    $this->tableName        = function (?string $suffix) use ($annotation) {
-                        return $annotation->getDynamicName($suffix);
-                    };
-                } else {
-                    $this->tableName = $annotation->getName();
-                }
+                $this->tableName        = $annotation->getName();
+                $this->dynamicTableName = $annotation->getDynamic();
             } elseif ($annotation instanceof Connection) {
                 $this->connectionName = $annotation->getName();
             } elseif ($annotation instanceof ColumnInterface) {
@@ -121,11 +115,15 @@ class Meta
 
     public function getTableName(?string $suffix = null): string
     {
-        if ($this->dynamicTableName) {
-            return call_user_func($this->tableName, $suffix);
+        if (!$this->dynamicTableName) {
+            return $this->tableName;
         }
 
-        return $this->tableName;
+        if (!$suffix) {
+            throw new Exception('Table suffix is required.');
+        }
+
+        return strtr($this->tableName, '{SUFFIX}', $suffix);
     }
 
     public function getPrimaryKeys(): array

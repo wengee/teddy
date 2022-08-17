@@ -4,13 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 17:36:01 +0800
+ * @version  2022-08-17 17:51:27 +0800
  */
 
 namespace Teddy\Model;
 
 use Attribute;
-use Exception;
 use Illuminate\Support\Str;
 
 #[Attribute(Attribute::TARGET_CLASS)]
@@ -54,18 +53,5 @@ class Table
     public function getDynamic(): bool
     {
         return $this->dynamic;
-    }
-
-    public function getDynamicName(?string $suffix): string
-    {
-        if (!$this->dynamic) {
-            return $this->getName();
-        }
-
-        if (!$suffix) {
-            throw new Exception('Table suffix is required.');
-        }
-
-        return strtr($this->name, '{SUFFIX}', $suffix);
     }
 }
