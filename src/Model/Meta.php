@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:21:27 +0800
+ * @version  2022-08-17 17:45:22 +0800
  */
 
 namespace Teddy\Model;
@@ -30,6 +30,11 @@ class Meta
      * @var string
      */
     private $tableName = '';
+
+    /**
+     * @var bool
+     */
+    private $dynamicTableName = false;
 
     /**
      * @var array
@@ -75,7 +80,14 @@ class Meta
             $annotation = $attr->newInstance();
 
             if ($annotation instanceof Table) {
-                $this->tableName = $annotation->getName();
+                if ($annotation->getDynamic()) {
+                    $this->dynamicTableName = true;
+                    $this->tableName        = function (?string $suffix) use ($annotation) {
+                        return $annotation->getDynamicName($suffix);
+                    };
+                } else {
+                    $this->tableName = $annotation->getName();
+                }
             } elseif ($annotation instanceof Connection) {
                 $this->connectionName = $annotation->getName();
             } elseif ($annotation instanceof ColumnInterface) {
@@ -102,22 +114,26 @@ class Meta
         }
     }
 
-    public function connectionName(): string
+    public function getConnectionName(): string
     {
         return $this->connectionName ?: 'default';
     }
 
-    public function tableName(): string
+    public function getTableName(?string $suffix = null): string
     {
+        if ($this->dynamicTableName) {
+            return call_user_func($this->tableName, $suffix);
+        }
+
         return $this->tableName;
     }
 
-    public function primaryKeys(): array
+    public function getPrimaryKeys(): array
     {
         return $this->primaryKeys;
     }
 
-    public function autoIncrement()
+    public function getAutoIncrement()
     {
         return $this->autoIncrement;
     }

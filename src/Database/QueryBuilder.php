@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 16:40:17 +0800
+ * @version  2022-08-17 17:37:30 +0800
  */
 
 namespace Teddy\Database;
@@ -258,7 +258,7 @@ class QueryBuilder
         if (!$this->meta) {
             $this->table = strval($table);
         } else {
-            $this->table = $this->meta->tableName();
+            $this->table = $this->meta->getTableName();
         }
 
         return $this;
@@ -297,7 +297,7 @@ class QueryBuilder
 
     public function getDbTable($table = null, ?string $as = null): string
     {
-        $table = $this->meta ? $this->meta->tableName() : strval($table);
+        $table = $this->meta ? $this->meta->getTableName() : strval($table);
         $table = $this->quote($table);
         $as    = $this->quote($as);
 

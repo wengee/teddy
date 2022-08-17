@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-11 16:39:06 +0800
+ * @version  2022-08-17 17:45:52 +0800
  */
 
 namespace Teddy\Model;
@@ -213,7 +213,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
         if (null === $db) {
-            $connectionName = app('modelManager')->getMeta(static::class)->connectionName();
+            $connectionName = app('modelManager')->getMeta(static::class)->getConnectionName();
 
             return new QueryBuilder(db($connectionName), static::class);
         }
@@ -336,7 +336,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             return;
         }
 
-        $primaryKeys = $this->meta->primaryKeys();
+        $primaryKeys = $this->meta->getPrimaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
@@ -349,7 +349,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $this->triggerEvent('beforeInsert');
             $id = $query->insert($attributes, true);
 
-            $autoIncrement = $this->meta->autoIncrement();
+            $autoIncrement = $this->meta->getAutoIncrement();
             if ($autoIncrement && $id > 0) {
                 $this->setAttribute($autoIncrement, (int) $id);
             }
@@ -373,7 +373,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function doDelete(): void
     {
-        $primaryKeys = $this->meta->primaryKeys();
+        $primaryKeys = $this->meta->getPrimaryKeys();
         if (empty($primaryKeys)) {
             throw new DbException('Primary keys is not defined.');
         }
@@ -399,7 +399,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             return static::query($this->connection);
         }
 
-        $connectionName = $this->meta->connectionName();
+        $connectionName = $this->meta->getConnectionName();
 
         return static::query(db($connectionName));
     }
