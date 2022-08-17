@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 20:19:40 +0800
+ * @version  2022-08-17 21:16:18 +0800
  */
 
 namespace Teddy\Model;
@@ -32,9 +32,9 @@ class Meta
     private $tableName = '';
 
     /**
-     * @var bool
+     * @var string
      */
-    private $tableNameSuffixed = false;
+    private $suffixedTableName = '';
 
     /**
      * @var array
@@ -81,7 +81,7 @@ class Meta
 
             if ($annotation instanceof Table) {
                 $this->tableName         = $annotation->getName();
-                $this->tableNameSuffixed = $annotation->getSuffixed();
+                $this->suffixedTableName = $annotation->getSuffixed();
             } elseif ($annotation instanceof Connection) {
                 $this->connectionName = $annotation->getName();
             } elseif ($annotation instanceof ColumnInterface) {
@@ -115,12 +115,8 @@ class Meta
 
     public function getTableName(?string $suffix = null): string
     {
-        if (!$this->tableNameSuffixed) {
+        if (!$this->suffixedTableName || !$suffix) {
             return $this->tableName;
-        }
-
-        if (!$suffix) {
-            throw new Exception('Table suffix is required.');
         }
 
         return strtr($this->tableName, '{SUFFIX}', $suffix);
