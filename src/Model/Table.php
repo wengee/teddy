@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 17:51:27 +0800
+ * @version  2022-08-17 20:19:02 +0800
  */
 
 namespace Teddy\Model;
@@ -23,7 +23,7 @@ class Table
     /**
      * @var bool
      */
-    protected $dynamic = false;
+    protected $suffixed = false;
 
     public function __construct(...$values)
     {
@@ -50,8 +50,8 @@ class Table
         return $this->name;
     }
 
-    public function getDynamic(): bool
+    public function getSuffixed(): bool
     {
-        return $this->dynamic;
+        return $this->suffixed;
     }
 }

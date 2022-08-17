@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-08-17 20:52:51 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -77,11 +77,15 @@ class JoinClause extends ClauseContainer
                 $sql .= ' INNER JOIN ';
             }
 
-            $as = '';
-            if (is_array($table) && count($table >= 2)) {
-                [$table, $as] = $table;
+            $as     = null;
+            $suffix = null;
+            if (is_array($table)) {
+                $suffix = $table[2] ?? null;
+                $as     = $table[1] ?? null;
+                $table  = $table[0] ?? null;
             }
-            $sql .= $this->query->getDbTable($table, $as);
+
+            $sql .= $this->query->getDbTable($table, $as, $suffix);
 
             $tick = false;
             foreach ($ons as $on) {

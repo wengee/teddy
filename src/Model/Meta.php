@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 17:50:18 +0800
+ * @version  2022-08-17 20:19:40 +0800
  */
 
 namespace Teddy\Model;
@@ -34,7 +34,7 @@ class Meta
     /**
      * @var bool
      */
-    private $dynamicTableName = false;
+    private $tableNameSuffixed = false;
 
     /**
      * @var array
@@ -80,8 +80,8 @@ class Meta
             $annotation = $attr->newInstance();
 
             if ($annotation instanceof Table) {
-                $this->tableName        = $annotation->getName();
-                $this->dynamicTableName = $annotation->getDynamic();
+                $this->tableName         = $annotation->getName();
+                $this->tableNameSuffixed = $annotation->getSuffixed();
             } elseif ($annotation instanceof Connection) {
                 $this->connectionName = $annotation->getName();
             } elseif ($annotation instanceof ColumnInterface) {
@@ -115,7 +115,7 @@ class Meta
 
     public function getTableName(?string $suffix = null): string
     {
-        if (!$this->dynamicTableName) {
+        if (!$this->tableNameSuffixed) {
             return $this->tableName;
         }
 

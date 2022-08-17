@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 17:37:30 +0800
+ * @version  2022-08-17 20:26:24 +0800
  */
 
 namespace Teddy\Database;
@@ -130,10 +130,10 @@ class QueryBuilder
     /**
      * Constructor.
      */
-    public function __construct(DatabaseInterface $db, Model|string $table)
+    public function __construct(DatabaseInterface $db, Model|string $table, ?string $suffix = null)
     {
         $this->db = $db;
-        $this->setTable($table);
+        $this->setTable($table, $suffix);
         $this->transaction = $db instanceof Transaction;
     }
 
@@ -249,7 +249,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function setTable($table): self
+    public function setTable($table, ?string $suffix = null): self
     {
         if (is_subclass_of($table, Model::class)) {
             $this->meta = app('modelManager')->getMeta($table);
@@ -258,7 +258,7 @@ class QueryBuilder
         if (!$this->meta) {
             $this->table = strval($table);
         } else {
-            $this->table = $this->meta->getTableName();
+            $this->table = $this->meta->getTableName($suffix);
         }
 
         return $this;
@@ -295,9 +295,13 @@ class QueryBuilder
         return $this;
     }
 
-    public function getDbTable($table = null, ?string $as = null): string
+    public function getDbTable($table = null, ?string $as = null, ?string $suffix = null): string
     {
-        $table = $this->meta ? $this->meta->getTableName() : strval($table);
+        if (is_subclass_of($table, Model::class)) {
+            $meta = app('modelManager')->getMeta($table);
+        }
+
+        $table = $meta ? $meta->getTableName($suffix) : strval($table);
         $table = $this->quote($table);
         $as    = $this->quote($as);
 
