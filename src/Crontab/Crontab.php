@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:23:50 +0800
+ * @version  2022-08-17 16:12:50 +0800
  */
 
 namespace Teddy\Crontab;
@@ -26,9 +26,16 @@ class Crontab implements ContainerAwareInterface
         $this->list = config('crontab', []);
     }
 
-    public function add(string $time, string $taskClass, array $args = []): void
+    public function add(string $id, string $time, string $taskClass, array $args = []): void
     {
-        $this->list[] = [$time, $taskClass, $args];
+        $this->list[$id] = [$time, $taskClass, $args];
+    }
+
+    public function remove(string $id): void
+    {
+        if (isset($this->list[$id])) {
+            unset($this->list[$id]);
+        }
     }
 
     public function run(): void

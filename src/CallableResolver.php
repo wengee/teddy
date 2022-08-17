@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:35:14 +0800
+ * @version  2022-08-17 15:57:42 +0800
  */
 
 namespace Teddy;
@@ -53,7 +53,7 @@ final class CallableResolver implements WithContainerInterface, CallableResolver
             $method   = null;
 
             // check for slim callable as "class:method"
-            $callablePattern = '!^([^\:]+)\:([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
+            $callablePattern = '!^([^\:]+)\:{1,2}([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)$!';
             if (preg_match($callablePattern, $toResolve, $matches)) {
                 $class  = $matches[1];
                 $method = $matches[2];
