@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 11:11:59 +0800
+ * @version  2022-08-18 17:26:10 +0800
  */
 
 namespace Teddy\Database;
@@ -14,7 +14,6 @@ use Doctrine\DBAL\Driver as DoctrineDriver;
 use Doctrine\DBAL\Schema\AbstractSchemaManager as DoctrineAbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column as DoctrineColumn;
 use Exception;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use PDO;
 use PDOException;
@@ -74,17 +73,18 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
     public function __construct(array $config, bool $readOnly = false)
     {
         $driver      = 'mysql';
-        $host        = Arr::get($config, 'host', '127.0.0.1');
-        $port        = Arr::get($config, 'port', 3306);
-        $dbName      = Arr::get($config, 'name', '');
-        $user        = Arr::get($config, 'user', 'root');
-        $password    = Arr::get($config, 'password', '');
-        $charset     = Arr::get($config, 'charset', 'utf8mb4');
-        $engine      = Arr::get($config, 'engine');
-        $collation   = Arr::get($config, 'collation');
-        $tablePrefix = Arr::get($config, 'tablePrefix', '');
-        $options     = Arr::get($config, 'options', []);
-        $dsn         = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
+        $host        = $config['host'] ?? '127.0.0.1';
+        $port        = $config['port'] ?? 3306;
+        $dbName      = $config['name'] ?? '';
+        $user        = $config['user'] ?? 'root';
+        $password    = $config['password'] ?? '';
+        $charset     = $config['charset'] ?? 'utf8mb4';
+        $engine      = $config['engine'] ?? null;
+        $collation   = $config['collation'] ?? null;
+        $tablePrefix = $config['tablePrefix'] ?? '';
+        $options     = $config['options'] ?? [];
+
+        $dsn = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
 
         $options      = $options + $this->getDefaultOptions();
         $this->config = compact(
@@ -101,23 +101,23 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         );
 
         $this->readOnly    = $readOnly;
-        $this->idleTimeout = (int) Arr::get($config, 'idleTimeout', 0);
+        $this->idleTimeout = (int) $config['idleTimeout'] ?? 0;
         $this->pdo         = $this->createPDOConnection();
     }
 
     public function getConfig(string $key)
     {
-        return Arr::get($this->config, $key);
+        return $this->config[$key] ?? null;
     }
 
     public function getTablePrefix(): string
     {
-        return Arr::get($this->config, 'tablePrefix', '');
+        return $this->config['tablePrefix'] ?? '';
     }
 
     public function getDatabaseName(): string
     {
-        return Arr::get($this->config, 'dbName', '');
+        return $this->config['dbName'] ?? '';
     }
 
     public function connect()
@@ -225,7 +225,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         }
 
         if (SQL::SELECT_SQL === $sqlType) {
-            $fetchType = Arr::get($options, 'fetchType');
+            $fetchType = $options['fetchType'] ?? null;
             if (SQL::FETCH_ALL === $fetchType) {
                 $ret = array_map(function ($data) use ($meta, $tableSuffix) {
                     return $meta ? $meta->makeInstance($data, $tableSuffix) : $data;
@@ -239,7 +239,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
                 }
             }
         } elseif (SQL::INSERT_SQL === $sqlType) {
-            if (Arr::get($options, 'lastInsertId')) {
+            if ($options['lastInsertId'] ?? null) {
                 $ret = $pdo->lastInsertId();
             }
         } else {

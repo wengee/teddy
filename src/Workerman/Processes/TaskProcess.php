@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:19:00 +0800
+ * @version  2022-08-18 17:51:54 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -12,8 +12,8 @@ namespace Teddy\Workerman\Processes;
 use Teddy\Abstracts\AbstractProcess;
 use Teddy\Application;
 use Teddy\Interfaces\ProcessInterface;
+use Teddy\Interfaces\QueueInterface;
 use Teddy\Traits\TaskAwareTrait;
-use Teddy\Workerman\Queue;
 use Workerman\Timer;
 use Workerman\Worker;
 
@@ -32,6 +32,9 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
 
     protected $crontab = [];
 
+    /**
+     * @var QueueInterface
+     */
     protected $queue;
 
     protected $serverName;
@@ -47,9 +50,7 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         $this->serverName = $extra['serverName'] ?? null;
 
         $this->consumer = $options['consumer'] ?? true;
-        if ($options['queue']) {
-            $this->queue = new Queue($options['queue']);
-        }
+        $this->queue    = $app->getContainer()->get(QueueInterface::class);
     }
 
     /**

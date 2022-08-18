@@ -4,18 +4,19 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 10:51:05 +0800
+ * @version  2022-08-18 17:42:09 +0800
  */
 
 namespace Teddy\Swoole;
 
 use Swoole\Timer;
 use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Interfaces\QueueInterface;
 use Teddy\Redis\Redis;
 use Teddy\Traits\ContainerAwareTrait;
 use Throwable;
 
-class Queue implements ContainerAwareInterface
+class Queue implements ContainerAwareInterface, QueueInterface
 {
     use ContainerAwareTrait;
 
@@ -51,7 +52,7 @@ class Queue implements ContainerAwareInterface
         $this->queueDelayed = $prefix.'delayed';
     }
 
-    public function send($queue, $data, int $at = 0): void
+    public function send(string $queue, $data, int $at = 0): void
     {
         static $num = 0;
         $now        = time();
@@ -73,9 +74,7 @@ class Queue implements ContainerAwareInterface
     }
 
     /**
-     * @var string|string[]
-     *
-     * @param mixed $queue
+     * @param string|string[] $queue
      */
     public function subscribe($queue, callable $callback): void
     {
@@ -97,9 +96,9 @@ class Queue implements ContainerAwareInterface
         }
 
         $retryTimer = Timer::tick(1000, function (): void {
-            $now = time();
+            $now     = time();
             $options = ['LIMIT', 0, 50];
-            $items = $this->redis()->zRevRangeByScore($this->queueDelayed, (string) $now, '-inf', $options);
+            $items   = $this->redis()->zRevRangeByScore($this->queueDelayed, (string) $now, '-inf', $options);
             foreach ($items as $package) {
                 $result = $this->redis()->zRem($this->queueDelayed, $package);
                 if (1 !== $result) {

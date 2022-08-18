@@ -4,17 +4,18 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 10:50:51 +0800
+ * @version  2022-08-18 17:48:37 +0800
  */
 
 namespace Teddy\Workerman;
 
 use RuntimeException;
+use Teddy\Interfaces\QueueInterface;
 use Throwable;
 use Workerman\Redis\Client as Redis;
 use Workerman\Timer;
 
-class Queue
+class Queue implements QueueInterface
 {
     protected $queueWaiting = 'queue:waiting:';
 
@@ -34,8 +35,10 @@ class Queue
 
     protected $brPoping = false;
 
-    public function __construct(array $options = [])
+    public function __construct()
     {
+        $options = config('workerman.task.queue', []);
+
         $this->redis        = $options['redis'] ?? 'default';
         $this->redisCfg     = config('redis.'.$this->redis, []);
         $this->retrySeconds = $options['retrySeconds'];
@@ -47,7 +50,7 @@ class Queue
         $this->queueDelayed = $prefix.'delayed';
     }
 
-    public function send($queue, $data, int $at = 0): void
+    public function send(string $queue, $data, int $at = 0): void
     {
         static $num = 0;
         $now        = time();
@@ -69,9 +72,7 @@ class Queue
     }
 
     /**
-     * @var string|string[]
-     *
-     * @param mixed $queue
+     * @param string|string[] $queue
      */
     public function subscribe($queue, callable $callback): void
     {
@@ -93,7 +94,7 @@ class Queue
         }
 
         $retryTimer = Timer::add(1, function (): void {
-            $now = time();
+            $now     = time();
             $options = ['LIMIT', 0, 50];
             $this->redisSend()->zRevRangeByScore($this->queueDelayed, $now, '-inf', $options, function ($items): void {
                 if (false === $items) {

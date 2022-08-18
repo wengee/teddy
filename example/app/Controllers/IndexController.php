@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 11:47:13 +0800
+ * @version  2022-08-18 17:34:50 +0800
  */
 
 namespace App\Controllers;
@@ -21,8 +21,7 @@ class IndexController extends Controller
     public function index(Request $request, Response $response)
     {
         echo time().PHP_EOL;
-        $model = new Abc();
-        $model->setTableSuffix('1');
+        $model = Abc::create('2');
         $model = $model->save() ? $model : null;
 
         run_task(Demo::class, [], ['delay' => 2]);
@@ -43,7 +42,6 @@ class IndexController extends Controller
             return [
                 'data'        => $data,
                 'isNewRecord' => $item->isNewRecord(),
-                'tableSuffix' => $item->getTableSuffix(),
             ];
         }, $list);
 

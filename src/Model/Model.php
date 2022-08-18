@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 11:27:16 +0800
+ * @version  2022-08-18 17:31:58 +0800
  */
 
 namespace Teddy\Model;
@@ -144,16 +144,6 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $values;
     }
 
-    public function setTableSuffix(string $tableSuffix): void
-    {
-        $this->tableSuffix = $tableSuffix;
-    }
-
-    public function getTableSuffix(): string
-    {
-        return $this->tableSuffix ?: '';
-    }
-
     public function isNewRecord(): bool
     {
         return $this->isNewRecord;
@@ -216,7 +206,16 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return true;
     }
 
-    public static function createFromDb(array $data = [], ?string $tableSuffix = '')
+    public static function create(string $tableSuffix = ''): static
+    {
+        $obj              = new static();
+        $obj->isNewRecord = true;
+        $obj->tableSuffix = $tableSuffix ?: '';
+
+        return $obj;
+    }
+
+    public static function createFromDb(array $data = [], ?string $tableSuffix = ''): static
     {
         $obj = new static();
         $obj->setDbAttributes($data);
@@ -371,11 +370,10 @@ abstract class Model implements ArrayAccess, JsonSerializable
         $attributes = $this->getDbAttributes();
         if ($this->isNewRecord()) {
             $this->triggerEvent('beforeInsert');
-            $id = $query->insert($attributes, true);
-
-            $autoIncrement = $this->meta->getAutoIncrement();
-            if ($autoIncrement && $id > 0) {
-                $this->setAttribute($autoIncrement, (int) $id);
+            $autoIncrementKey = $this->meta->getAutoIncrementKey();
+            $lastInsertId     = (int) $query->insert($attributes, (bool) $autoIncrementKey);
+            if ($autoIncrementKey && $lastInsertId > 0) {
+                $this->setAttribute($autoIncrementKey, $lastInsertId);
             }
 
             $this->triggerEvent('afterInsert');
@@ -419,12 +417,13 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     protected function buildQuery(): QueryBuilder
     {
+        $tableSuffix = value($this->tableSuffix);
         if ($this->connection) {
-            return static::query($this->getTableSuffix(), $this->connection);
+            return static::query($tableSuffix, $this->connection);
         }
 
         $connectionName = $this->meta->getConnectionName();
 
-        return static::query($this->getTableSuffix(), db($connectionName));
+        return static::query($tableSuffix, db($connectionName));
     }
 }

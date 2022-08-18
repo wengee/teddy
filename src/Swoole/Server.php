@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:17:46 +0800
+ * @version  2022-08-18 17:52:58 +0800
  */
 
 namespace Teddy\Swoole;
@@ -24,6 +24,7 @@ use Teddy\Application;
 use Teddy\Console\Command;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
+use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
 use Teddy\Swoole\Processes\ConsumerProcess;
 use Teddy\Swoole\Processes\CrontabProcess;
@@ -69,11 +70,6 @@ class Server implements ServerInterface
      * @var int
      */
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
-
-    /**
-     * @var null|Queue
-     */
-    protected $queue;
 
     public function __construct(Application $app)
     {
@@ -250,7 +246,10 @@ class Server implements ServerInterface
     {
         static $queue;
         if (null === $queue) {
-            $queue = $this->container->get('queue');
+            /**
+             * @var QueueInterface
+             */
+            $queue = $this->container->get(QueueInterface::class);
         }
 
         $local      = true;
@@ -401,7 +400,10 @@ class Server implements ServerInterface
         $this->container->addValue('server', $this);
         $this->container->addValue(ServerInterface::class, $this);
         $this->container->addValue('swoole', $this->swoole);
-        $this->container->add('queue', Queue::class);
+
+        if (!$this->container->has(QueueInterface::class)) {
+            $this->container->add(QueueInterface::class, Queue::class);
+        }
 
         $this->swoole->on('start', [$this, 'onStart']);
         $this->swoole->on('workerStart', [$this, 'onWorkerStart']);

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:40:38 +0800
+ * @version  2022-08-18 17:53:27 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -14,6 +14,7 @@ use Swoole\Process;
 use Teddy\Abstracts\AbstractProcess;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
+use Teddy\Interfaces\QueueInterface;
 
 class ConsumerProcess extends AbstractProcess implements ProcessInterface
 {
@@ -51,8 +52,12 @@ class ConsumerProcess extends AbstractProcess implements ProcessInterface
             $channels[] = $this->serverName;
         }
 
-        $queue  = $this->container->get('queue');
         $swoole = $this->container->get('swoole');
+
+        /**
+         * @var QueueInterface
+         */
+        $queue = $this->container->get(QueueInterface::class);
         $queue->subscribe($channels, function ($data) use ($swoole): void {
             $swoole->task($data);
         });

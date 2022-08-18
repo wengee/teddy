@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 11:45:09 +0800
+ * @version  2022-08-18 17:31:31 +0800
  */
 
 namespace Teddy\Model;
@@ -44,7 +44,7 @@ class Meta
     /**
      * @var string
      */
-    private $autoIncrement = '';
+    private $autoIncrementKey = '';
 
     /**
      * @var array
@@ -96,7 +96,7 @@ class Meta
                 }
 
                 if ($annotation->isAutoIncrement()) {
-                    $this->autoIncrement = $propertyName;
+                    $this->autoIncrementKey = $propertyName;
                 }
 
                 $this->columns[$propertyName] = $annotation;
@@ -133,9 +133,9 @@ class Meta
         return $this->primaryKeys;
     }
 
-    public function getAutoIncrement()
+    public function getAutoIncrementKey()
     {
-        return $this->autoIncrement;
+        return $this->autoIncrementKey;
     }
 
     public function convertToPhpColumn(string $key): string
