@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 20:26:24 +0800
+ * @version  2022-08-18 11:33:39 +0800
  */
 
 namespace Teddy\Database;
@@ -125,15 +125,21 @@ class QueryBuilder
     /**
      * @var string
      */
+    protected $tableSuffix = '';
+
+    /**
+     * @var string
+     */
     protected $connection;
 
     /**
      * Constructor.
      */
-    public function __construct(DatabaseInterface $db, Model|string $table, ?string $suffix = null)
+    public function __construct(DatabaseInterface $db, Model|string $table, ?string $tableSuffix = null)
     {
-        $this->db = $db;
-        $this->setTable($table, $suffix);
+        $this->db          = $db;
+        $this->tableSuffix = $tableSuffix ?: '';
+        $this->setTable($table, $tableSuffix);
         $this->transaction = $db instanceof Transaction;
     }
 
@@ -249,7 +255,7 @@ class QueryBuilder
         return $this;
     }
 
-    public function setTable($table, ?string $suffix = null): self
+    public function setTable($table, ?string $tableSuffix = null): self
     {
         if (is_subclass_of($table, Model::class)) {
             $this->meta = app('modelManager')->getMeta($table);
@@ -258,7 +264,7 @@ class QueryBuilder
         if (!$this->meta) {
             $this->table = strval($table);
         } else {
-            $this->table = $this->meta->getTableName($suffix);
+            $this->table = $this->meta->getTableName($tableSuffix);
         }
 
         return $this;
@@ -295,13 +301,13 @@ class QueryBuilder
         return $this;
     }
 
-    public function getDbTable($table = null, ?string $as = null, ?string $suffix = null): string
+    public function getDbTable($table = null, ?string $as = null, ?string $tableSuffix = null): string
     {
         if (is_subclass_of($table, Model::class)) {
             $meta = app('modelManager')->getMeta($table);
         }
 
-        $table = $meta ? $meta->getTableName($suffix) : strval($table);
+        $table = $meta ? $meta->getTableName($tableSuffix) : strval($table);
         $table = $this->quote($table);
         $as    = $this->quote($as);
 
@@ -360,11 +366,12 @@ class QueryBuilder
 
     protected function execute(array $options = [])
     {
-        $map                   = [];
-        $sql                   = $this->getSql($map);
-        $options['connection'] = $this->connection;
-        $options['sqlType']    = $this->sqlType;
-        $options['meta']       = $this->meta;
+        $map                    = [];
+        $sql                    = $this->getSql($map);
+        $options['connection']  = $this->connection;
+        $options['tableSuffix'] = $this->tableSuffix;
+        $options['sqlType']     = $this->sqlType;
+        $options['meta']        = $this->meta;
 
         $readOnly      = $this->sqlType && SQL::SELECT_SQL === $this->sqlType;
         $pdoConnection = $readOnly ?

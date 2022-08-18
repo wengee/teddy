@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 21:27:58 +0800
+ * @version  2022-08-18 11:27:16 +0800
  */
 
 namespace Teddy\Model;
@@ -50,6 +50,11 @@ abstract class Model implements ArrayAccess, JsonSerializable
      * @var null|DatabaseInterface|string
      */
     protected $connection;
+
+    /**
+     * @var string
+     */
+    protected $tableSuffix = '';
 
     /**
      * @var Meta
@@ -139,6 +144,16 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $values;
     }
 
+    public function setTableSuffix(string $tableSuffix): void
+    {
+        $this->tableSuffix = $tableSuffix;
+    }
+
+    public function getTableSuffix(): string
+    {
+        return $this->tableSuffix ?: '';
+    }
+
     public function isNewRecord(): bool
     {
         return $this->isNewRecord;
@@ -201,24 +216,33 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return true;
     }
 
-    public static function createFromDb(array $data = [])
+    public static function createFromDb(array $data = [], ?string $tableSuffix = '')
     {
         $obj = new static();
         $obj->setDbAttributes($data);
         $obj->isNewRecord = false;
+        $obj->tableSuffix = $tableSuffix ?: '';
 
         return $obj;
     }
 
-    public static function query(?DatabaseInterface $db = null): QueryBuilder
+    /**
+     * @param null|DatabaseInterface|string $tableSuffix
+     */
+    public static function query($tableSuffix = null, ?DatabaseInterface $db = null): QueryBuilder
     {
+        if ($tableSuffix instanceof DatabaseInterface) {
+            $db          = $tableSuffix;
+            $tableSuffix = '';
+        }
+
         if (null === $db) {
             $connectionName = app('modelManager')->getMeta(static::class)->getConnectionName();
 
-            return new QueryBuilder(db($connectionName), static::class);
+            return new QueryBuilder(db($connectionName), static::class, $tableSuffix);
         }
 
-        return new QueryBuilder($db, static::class);
+        return new QueryBuilder($db, static::class, $tableSuffix);
     }
 
     public static function raw(string $sql): RawSQL
@@ -396,11 +420,11 @@ abstract class Model implements ArrayAccess, JsonSerializable
     protected function buildQuery(): QueryBuilder
     {
         if ($this->connection) {
-            return static::query($this->connection);
+            return static::query($this->getTableSuffix(), $this->connection);
         }
 
         $connectionName = $this->meta->getConnectionName();
 
-        return static::query(db($connectionName));
+        return static::query($this->getTableSuffix(), db($connectionName));
     }
 }

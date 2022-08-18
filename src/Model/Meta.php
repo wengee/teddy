@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 21:16:18 +0800
+ * @version  2022-08-18 11:45:09 +0800
  */
 
 namespace Teddy\Model;
@@ -103,7 +103,7 @@ class Meta
             }
         }
 
-        if (empty($this->tableName)) {
+        if (!$this->suffixedTableName && !$this->tableName) {
             $this->tableName = Str::snake($ref->getShortName());
         }
     }
@@ -113,13 +113,19 @@ class Meta
         return $this->connectionName ?: 'default';
     }
 
-    public function getTableName(?string $suffix = null): string
+    public function getTableName(?string $tableSuffix = null): string
     {
-        if (!$this->suffixedTableName || !$suffix) {
+        if (!$this->suffixedTableName || !$tableSuffix) {
+            if (!$this->tableName) {
+                throw new Exception('Table suffix is required.');
+            }
+
             return $this->tableName;
         }
 
-        return strtr($this->tableName, '{SUFFIX}', $suffix);
+        return strtr($this->suffixedTableName, [
+            '{SUFFIX}' => $tableSuffix,
+        ]);
     }
 
     public function getPrimaryKeys(): array
@@ -198,8 +204,8 @@ class Meta
         return isset($this->columns[$columnName]);
     }
 
-    public function makeInstance(array $data = [])
+    public function makeInstance(array $data = [], ?string $tableSuffix = '')
     {
-        return call_user_func($this->className.'::createFromDb', $data);
+        return call_user_func($this->className.'::createFromDb', $data, $tableSuffix);
     }
 }

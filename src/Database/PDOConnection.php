@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:10:56 +0800
+ * @version  2022-08-18 11:11:59 +0800
  */
 
 namespace Teddy\Database;
@@ -187,12 +187,13 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 
     public function query(string $sql, array $data = [], array $options = [])
     {
-        $sqlType    = Arr::get($options, 'sqlType');
-        $retryTotal = 0;
-        $maxRetries = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
-        $meta       = Arr::get($options, 'meta');
-        $pdo        = $this->stick ? $this->pdo : $this->connect();
-        $startTime  = microtime(true);
+        $sqlType     = $options['sqlType'] ?? null;
+        $retryTotal  = 0;
+        $maxRetries  = isset($options['maxRetries']) ? intval($options['maxRetries']) : 3;
+        $meta        = $options['meta'] ?? null;
+        $tableSuffix = $options['tableSuffix'] ?? '';
+        $pdo         = $this->stick ? $this->pdo : $this->connect();
+        $startTime   = microtime(true);
 
         RETRY:
         $ret   = true;
@@ -226,15 +227,15 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         if (SQL::SELECT_SQL === $sqlType) {
             $fetchType = Arr::get($options, 'fetchType');
             if (SQL::FETCH_ALL === $fetchType) {
-                $ret = array_map(function ($data) use ($meta) {
-                    return $meta ? $meta->makeInstance($data) : $data;
+                $ret = array_map(function ($data) use ($meta, $tableSuffix) {
+                    return $meta ? $meta->makeInstance($data, $tableSuffix) : $data;
                 }, $stmt->fetchAll());
             } elseif (SQL::FETCH_COLUMN === $fetchType) {
                 $ret = $stmt->fetchColumn();
             } else {
                 $ret = $stmt->fetch();
                 if ($ret && is_array($ret)) {
-                    $ret = $meta ? $meta->makeInstance($ret) : $ret;
+                    $ret = $meta ? $meta->makeInstance($ret, $tableSuffix) : $ret;
                 }
             }
         } elseif (SQL::INSERT_SQL === $sqlType) {

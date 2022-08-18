@@ -181,9 +181,9 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
         $this->releaseConnection($pdoConnection);
     }
 
-    public function table(string $table, ?string $suffix = null): QueryBuilder
+    public function table(string $table, ?string $tableSuffix = null): QueryBuilder
     {
-        return new QueryBuilder($this, $table, $suffix);
+        return new QueryBuilder($this, $table, $tableSuffix);
     }
 
     public function raw(string $sql): RawSQL
