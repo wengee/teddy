@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:31:58 +0800
+ * @version  2022-08-18 20:59:34 +0800
  */
 
 namespace Teddy\Model;
@@ -18,7 +18,6 @@ use JsonSerializable;
 use Teddy\Database\DatabaseInterface;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
-use Teddy\Database\RawSQL;
 use Teddy\Interfaces\ArrayableInterface;
 use Teddy\Interfaces\JsonableInterface;
 
@@ -39,12 +38,12 @@ abstract class Model implements ArrayAccess, JsonSerializable
     /**
      * @var bool
      */
-    protected $isNewRecord = true;
+    protected $newRecord = true;
 
     /**
      * @var bool
      */
-    protected $isModified = false;
+    protected $modified = false;
 
     /**
      * @var null|DatabaseInterface|string
@@ -74,16 +73,16 @@ abstract class Model implements ArrayAccess, JsonSerializable
     {
         return [
             'items'       => $this->items,
-            'isNewRecord' => $this->isNewRecord,
-            'isModified'  => $this->isModified,
+            'isNewRecord' => $this->newRecord,
+            'isModified'  => $this->modified,
         ];
     }
 
     public function __unserialize(array $data): void
     {
-        $this->items       = $data['items'] ?? [];
-        $this->isNewRecord = $data['isNewRecord'] ?? false;
-        $this->isModified  = $data['isModified'] ?? false;
+        $this->items     = $data['items'] ?? [];
+        $this->newRecord = $data['isNewRecord'] ?? false;
+        $this->modified  = $data['isModified'] ?? false;
     }
 
     public function offsetExists(mixed $offset): bool
@@ -146,12 +145,12 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     public function isNewRecord(): bool
     {
-        return $this->isNewRecord;
+        return $this->newRecord;
     }
 
     public function isModified(): bool
     {
-        return $this->isModified;
+        return $this->modified;
     }
 
     public function setConnection($connection): self
@@ -208,8 +207,9 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
     public static function create(string $tableSuffix = ''): static
     {
-        $obj              = new static();
-        $obj->isNewRecord = true;
+        $obj = new static();
+
+        $obj->newRecord   = true;
         $obj->tableSuffix = $tableSuffix ?: '';
 
         return $obj;
@@ -219,7 +219,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     {
         $obj = new static();
         $obj->setDbAttributes($data);
-        $obj->isNewRecord = false;
+        $obj->newRecord   = false;
         $obj->tableSuffix = $tableSuffix ?: '';
 
         return $obj;
@@ -244,21 +244,6 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return new QueryBuilder($db, static::class, $tableSuffix);
     }
 
-    public static function raw(string $sql): RawSQL
-    {
-        return new RawSQL($sql);
-    }
-
-    public static function fetch(array $conditions)
-    {
-        $query = static::query();
-        foreach ($conditions as $key => $value) {
-            $query = $query->where($key, $value);
-        }
-
-        return $query->first();
-    }
-
     protected function hasAttribute(string $key)
     {
         if ($this->hasGetMutator($key) || $this->hasColumn($key)) {
@@ -271,10 +256,10 @@ abstract class Model implements ArrayAccess, JsonSerializable
     protected function setAttribute(string $key, $value): void
     {
         if ($this->hasSetMutator($key)) {
-            $this->isModified = true;
+            $this->modified = true;
             $this->setMutatedAttributeValue($key, $value);
         } elseif ($this->hasColumn($key)) {
-            $this->isModified  = $this->isModified || !array_key_exists($key, $this->items) || ($this->items[$key] !== $value);
+            $this->modified    = $this->modified || !array_key_exists($key, $this->items) || ($this->items[$key] !== $value);
             $this->items[$key] = $value;
         }
     }
@@ -377,7 +362,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             }
 
             $this->triggerEvent('afterInsert');
-            $this->isNewRecord = false;
+            $this->newRecord = false;
         } else {
             $this->triggerEvent('beforeUpdate');
             foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
@@ -389,7 +374,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $this->triggerEvent('afterUpdate');
         }
 
-        $this->isModified = false;
+        $this->modified = false;
         $this->triggerEvent('afterSave');
     }
 
