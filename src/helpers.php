@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 11:23:49 +0800
+ * @version  2022-08-19 15:37:43 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -133,12 +133,37 @@ if (!function_exists('db')) {
      */
     function db(string $connection = 'default')
     {
-        $db = Container::getInstance()->get('db');
+        static $db;
+        if (null === $db) {
+            $db = Container::getInstance()->get('db');
+        }
+
         if (!$db) {
             throw new Teddy\Exception('Database component is not found.');
         }
 
         return $db->connection($connection);
+    }
+}
+
+if (!function_exists('redis')) {
+    /**
+     * Get a redis connection.
+     *
+     * @return Teddy\Redis\Redis
+     */
+    function redis(string $connection = 'default')
+    {
+        static $redis;
+        if (null === $redis) {
+            $redis = Container::getInstance()->get('redis');
+        }
+
+        if (!$redis) {
+            throw new Teddy\Exception('Redis component is not found.');
+        }
+
+        return $redis->connection($connection);
     }
 }
 

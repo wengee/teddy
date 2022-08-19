@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:41:33 +0800
+ * @version  2022-08-19 15:34:22 +0800
  */
 
 namespace Teddy\Redis;
@@ -15,6 +15,8 @@ use Teddy\Interfaces\ConnectionInterface;
 use Teddy\Pool\Pool;
 
 /**
+ * @see https://github.com/ukko/phpredis-phpdoc
+ *
  * @method bool             isConnected()
  * @method bool|string      getHost()
  * @method bool|int         getPort()
