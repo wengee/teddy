@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 15:34:22 +0800
+ * @version  2022-08-19 21:25:31 +0800
  */
 
 namespace Teddy\Redis;
@@ -83,6 +83,33 @@ use Teddy\Pool\Pool;
  * @method bool             mset(array $array)
  * @method array            getMultiple(array $keys)
  * @method array            mget(array $array)
+ * @method bool|int         hSet(string $key, string $hashKey, string $value)
+ * @method bool             hSetNx(string $key, string $hashKey, string $value)
+ * @method string           hGet(string $key, string $hashKey)
+ * @method bool|int         hLen(string $key)
+ * @method bool|int         hDel(string $key, string $hashKey, string ...$otherHashKeys)
+ * @method array            hKeys(string $key)
+ * @method array            hVals(string $key)
+ * @method array            hGetAll(string $key)
+ * @method bool             hExists(string $key, string $hashKey)
+ * @method int              hIncrBy(string $key, string $hashKey, int $value)
+ * @method float            hIncrByFloat(string $key, string $hashKey, float $value)
+ * @method bool             hMSet(string $key, array $hashKeys)
+ * @method array            hMGet(string $key, array $hashKeys)
+ * @method array            hScan(string $key, int &$iterator, ?string $pattern = null, int $count = 0)
+ * @method int              hStrLen(string $key, string $field)
+ * @method int              zAdd(string $key, array $options, float $score1, mixed|string $value1, float $score2 = null, mixed|string $value2 = null, float $scoreN = null, mixed|string $valueN = null)
+ * @method array            zRange(string $key, int $start, int $end, ?bool $withscores = null)
+ * @method int              zRem(string $key, mixed|string $member1, string|mixed  ...$otherMembers)
+ * @method int              zDelete(string $key, mixed|string $member1, string|mixed ...$otherMembers)
+ * @method array            zRevRange(string $key, int $start, int $end, ?bool $withscore = null)
+ * @method array            zRangeByScore(string $key, int $start, int $end, array $options = [])
+ * @method array            zRevRangeByScore(string $key, int $start, int $end, array $options = [])
+ * @method array|bool       zRangeByLex(string $key, int $min, int $max, ?int $offset = null, ?int $limit = null)
+ * @method array|bool       zRevRangeByLex(string $key, int $min, int $max, ?int $offset = null, ?int $limit = null)
+ * @method int              zCount(string $key, int|string $start, int|string $end)
+ * @method int              zRemRangeByScore(string $key, float|string $start, float|string $end)
+ * @method void             zDeleteRangeByScore(string $key, float $start, float $end)
  */
 class Redis extends Pool
 {
