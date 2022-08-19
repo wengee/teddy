@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 20:59:34 +0800
+ * @version  2022-08-19 11:49:24 +0800
  */
 
 namespace Teddy\Model;
@@ -46,11 +46,6 @@ abstract class Model implements ArrayAccess, JsonSerializable
     protected $modified = false;
 
     /**
-     * @var null|DatabaseInterface|string
-     */
-    protected $connection;
-
-    /**
      * @var string
      */
     protected $tableSuffix = '';
@@ -75,14 +70,16 @@ abstract class Model implements ArrayAccess, JsonSerializable
             'items'       => $this->items,
             'isNewRecord' => $this->newRecord,
             'isModified'  => $this->modified,
+            'tableSuffix' => $this->tableSuffix,
         ];
     }
 
     public function __unserialize(array $data): void
     {
-        $this->items     = $data['items'] ?? [];
-        $this->newRecord = $data['isNewRecord'] ?? false;
-        $this->modified  = $data['isModified'] ?? false;
+        $this->items       = $data['items'] ?? [];
+        $this->newRecord   = $data['isNewRecord'] ?? false;
+        $this->modified    = $data['isModified'] ?? false;
+        $this->tableSuffix = $data['tableSuffix'] ?? '';
     }
 
     public function offsetExists(mixed $offset): bool
@@ -153,17 +150,6 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $this->modified;
     }
 
-    public function setConnection($connection): self
-    {
-        if ($connection instanceof DatabaseInterface) {
-            $this->connection = $connection;
-        } elseif (is_string($connection)) {
-            $this->connection = db($connection);
-        }
-
-        return $this;
-    }
-
     public function assign(array $data): self
     {
         foreach ($data as $key => $value) {
@@ -173,33 +159,95 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $this;
     }
 
-    public function save(bool $quiet = true): bool
+    /**
+     * @throws DbException|Exception
+     */
+    public function saveOrError(?DatabaseInterface $db = null): void
     {
-        try {
-            $this->doSave();
-        } catch (Exception $e) {
-            log_exception($e);
-            if ($quiet) {
-                return false;
+        if (!$this->isNewRecord() && !$this->isModified()) {
+            return;
+        }
+
+        $primaryKeys = $this->meta->getPrimaryKeys();
+        if (empty($primaryKeys)) {
+            throw new DbException('Primary keys is not defined.');
+        }
+
+        $this->triggerEvent('beforeSave');
+
+        $query      = static::query($db)->tableSuffix($this->tableSuffix);
+        $attributes = $this->getDbAttributes();
+        if ($this->isNewRecord()) {
+            $this->triggerEvent('beforeInsert');
+            $autoIncrementKey = $this->meta->getAutoIncrementKey();
+            $lastInsertId     = (int) $query->insert($attributes, (bool) $autoIncrementKey);
+            if ($autoIncrementKey && $lastInsertId > 0) {
+                $this->setAttribute($autoIncrementKey, $lastInsertId);
             }
 
-            throw $e;
+            $this->triggerEvent('afterInsert');
+            $this->newRecord = false;
+        } else {
+            $this->triggerEvent('beforeUpdate');
+            foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
+                $query->where($key, $value);
+            }
+
+            $data = Arr::except($attributes, $primaryKeys);
+            $query->limit(1)->update((array) $data);
+            $this->triggerEvent('afterUpdate');
+        }
+
+        $this->modified = false;
+        $this->triggerEvent('afterSave');
+    }
+
+    public function save(?DatabaseInterface $db = null): bool
+    {
+        try {
+            $this->saveOrError($db);
+        } catch (Exception $e) {
+            log_exception($e);
+
+            return false;
         }
 
         return true;
     }
 
-    public function delete(bool $quiet = true): bool
+    /**
+     * @throws DbException|Exception
+     */
+    public function deleteOrError(?DatabaseInterface $db = null): void
     {
-        try {
-            $this->doDelete();
-        } catch (Exception $e) {
-            log_exception($e);
-            if ($quiet) {
-                return false;
+        $primaryKeys = $this->meta->getPrimaryKeys();
+        if (empty($primaryKeys)) {
+            throw new DbException('Primary keys is not defined.');
+        }
+
+        $this->triggerEvent('beforeDelete');
+
+        $query      = static::query($db)->tableSuffix($this->tableSuffix);
+        $attributes = $this->getDbAttributes();
+        if (!$this->isNewRecord()) {
+            foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
+                $query->where($key, $value);
             }
 
-            throw $e;
+            $query->limit(1)->delete();
+        }
+
+        $this->triggerEvent('afterDelete');
+    }
+
+    public function delete(?DatabaseInterface $db = null): bool
+    {
+        try {
+            $this->deleteOrError($db);
+        } catch (Exception $e) {
+            log_exception($e);
+
+            return false;
         }
 
         return true;
@@ -225,23 +273,15 @@ abstract class Model implements ArrayAccess, JsonSerializable
         return $obj;
     }
 
-    /**
-     * @param null|DatabaseInterface|string $tableSuffix
-     */
-    public static function query($tableSuffix = null, ?DatabaseInterface $db = null): QueryBuilder
+    public static function query(?DatabaseInterface $db = null): QueryBuilder
     {
-        if ($tableSuffix instanceof DatabaseInterface) {
-            $db          = $tableSuffix;
-            $tableSuffix = '';
-        }
-
         if (null === $db) {
             $connectionName = app('modelManager')->getMeta(static::class)->getConnectionName();
 
-            return new QueryBuilder(db($connectionName), static::class, $tableSuffix);
+            return new QueryBuilder(db($connectionName), static::class);
         }
 
-        return new QueryBuilder($db, static::class, $tableSuffix);
+        return new QueryBuilder($db, static::class);
     }
 
     protected function hasAttribute(string $key)
@@ -336,79 +376,5 @@ abstract class Model implements ArrayAccess, JsonSerializable
         if (method_exists($this, $action)) {
             $this->{$action}(...$args);
         }
-    }
-
-    protected function doSave(): void
-    {
-        if (!$this->isNewRecord() && !$this->isModified()) {
-            return;
-        }
-
-        $primaryKeys = $this->meta->getPrimaryKeys();
-        if (empty($primaryKeys)) {
-            throw new DbException('Primary keys is not defined.');
-        }
-
-        $this->triggerEvent('beforeSave');
-
-        $query      = $this->buildQuery();
-        $attributes = $this->getDbAttributes();
-        if ($this->isNewRecord()) {
-            $this->triggerEvent('beforeInsert');
-            $autoIncrementKey = $this->meta->getAutoIncrementKey();
-            $lastInsertId     = (int) $query->insert($attributes, (bool) $autoIncrementKey);
-            if ($autoIncrementKey && $lastInsertId > 0) {
-                $this->setAttribute($autoIncrementKey, $lastInsertId);
-            }
-
-            $this->triggerEvent('afterInsert');
-            $this->newRecord = false;
-        } else {
-            $this->triggerEvent('beforeUpdate');
-            foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
-                $query->where($key, $value);
-            }
-
-            $data = Arr::except($attributes, $primaryKeys);
-            $query->limit(1)->update((array) $data);
-            $this->triggerEvent('afterUpdate');
-        }
-
-        $this->modified = false;
-        $this->triggerEvent('afterSave');
-    }
-
-    protected function doDelete(): void
-    {
-        $primaryKeys = $this->meta->getPrimaryKeys();
-        if (empty($primaryKeys)) {
-            throw new DbException('Primary keys is not defined.');
-        }
-
-        $this->triggerEvent('beforeDelete');
-
-        $query      = $this->buildQuery();
-        $attributes = $this->getDbAttributes();
-        if (!$this->isNewRecord()) {
-            foreach (Arr::only($attributes, $primaryKeys) as $key => $value) {
-                $query->where($key, $value);
-            }
-
-            $query->limit(1)->delete();
-        }
-
-        $this->triggerEvent('afterDelete');
-    }
-
-    protected function buildQuery(): QueryBuilder
-    {
-        $tableSuffix = value($this->tableSuffix);
-        if ($this->connection) {
-            return static::query($tableSuffix, $this->connection);
-        }
-
-        $connectionName = $this->meta->getConnectionName();
-
-        return static::query($tableSuffix, db($connectionName));
     }
 }

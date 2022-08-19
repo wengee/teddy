@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:34:50 +0800
+ * @version  2022-08-19 11:44:25 +0800
  */
 
 namespace App\Controllers;
@@ -13,6 +13,7 @@ use App\Models\Abc;
 use App\Tasks\Demo;
 use Illuminate\Support\Str;
 use Teddy\Controller;
+use Teddy\Database\DatabaseInterface;
 use Teddy\Http\Request;
 use Teddy\Http\Response;
 
@@ -26,8 +27,18 @@ class IndexController extends Controller
 
         run_task(Demo::class, [], ['delay' => 2]);
         // app('redis')->lPush('abc', 'fdsafsadfasd');
+        db()->transaction(function (DatabaseInterface $db) {
+            $a = Abc::query($db)->tableSuffix('2')->first();
 
-        $list = Abc::query('1')->orderBy('id', 'DESC')->limit(3)->all();
+            var_dump($a);
+
+            $b = Abc::create('3');
+            $b->save($db);
+
+            return true;
+        });
+
+        $list = Abc::query()->tableSuffix('1')->orderBy('id', 'DESC')->limit(3)->all();
         $list = array_map(function ($item) {
             /**
              * @var Abc $item

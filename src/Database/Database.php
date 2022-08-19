@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-17 21:17:39 +0800
+ * @version  2022-08-19 10:58:45 +0800
  */
 
 namespace Teddy\Database;
@@ -14,6 +14,7 @@ use Illuminate\Support\Arr;
 use PDOException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Teddy\Database\Traits\DatabaseTrait;
 use Teddy\Interfaces\ConnectionInterface;
 use Teddy\Pool\Channel;
 use Teddy\Pool\Pool;
@@ -22,6 +23,7 @@ use Throwable;
 class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
+    use DatabaseTrait;
 
     /**
      * @var bool
@@ -179,16 +181,6 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
         }
 
         $this->releaseConnection($pdoConnection);
-    }
-
-    public function table(string $table, ?string $tableSuffix = null): QueryBuilder
-    {
-        return new QueryBuilder($this, $table, $tableSuffix);
-    }
-
-    public function raw(string $sql): RawSQL
-    {
-        return new RawSQL($sql);
     }
 
     protected function createConnection(): ConnectionInterface

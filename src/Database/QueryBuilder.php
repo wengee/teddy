@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:18:58 +0800
+ * @version  2022-08-19 11:30:47 +0800
  */
 
 namespace Teddy\Database;
@@ -58,9 +58,14 @@ class QueryBuilder
     protected $db;
 
     /**
+     * @var Model|string
+     */
+    protected $table = '';
+
+    /**
      * @var string
      */
-    protected $table;
+    protected $tableSuffix = '';
 
     /**
      * @var bool
@@ -123,24 +128,17 @@ class QueryBuilder
     protected $meta;
 
     /**
-     * @var string
-     */
-    protected $tableSuffix = '';
-
-    /**
-     * @var string
-     */
-    protected $connection;
-
-    /**
      * Constructor.
      */
-    public function __construct(DatabaseInterface $db, Model|string $table, ?string $tableSuffix = null)
+    public function __construct(DatabaseInterface $db, Model|string $table)
     {
         $this->db          = $db;
-        $this->tableSuffix = $tableSuffix ?: '';
-        $this->setTable($table, $tableSuffix);
+        $this->table       = $table;
         $this->transaction = $db instanceof Transaction;
+
+        if (is_subclass_of($table, Model::class)) {
+            $this->meta = app('modelManager')->getMeta($table);
+        }
     }
 
     public function __clone()
@@ -248,24 +246,9 @@ class QueryBuilder
         return $this;
     }
 
-    public function connect(string $connection): self
+    public function tableSuffix(string $tableSuffix): self
     {
-        $this->connection = $connection;
-
-        return $this;
-    }
-
-    public function setTable($table, ?string $tableSuffix = null): self
-    {
-        if (is_subclass_of($table, Model::class)) {
-            $this->meta = app('modelManager')->getMeta($table);
-        }
-
-        if (!$this->meta) {
-            $this->table = strval($table);
-        } else {
-            $this->table = $this->meta->getTableName($tableSuffix);
-        }
+        $this->tableSuffix = $tableSuffix;
 
         return $this;
     }
@@ -358,10 +341,7 @@ class QueryBuilder
     {
         $as = $as ?: $this->as;
 
-        $table = $this->quote($this->table);
-        $as    = $this->quote($as);
-
-        return empty($as) ? $table : $table.' AS '.$as;
+        return $this->getDbTable($this->table, $as, $this->tableSuffix);
     }
 
     protected function execute(array $options = [])
@@ -369,7 +349,6 @@ class QueryBuilder
         $map = [];
         $sql = $this->getSql($map);
 
-        $options['connection']  = $this->connection;
         $options['tableSuffix'] = $this->tableSuffix;
         $options['sqlType']     = $this->sqlType;
         $options['meta']        = $this->meta;

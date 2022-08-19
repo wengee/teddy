@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:20:38 +0800
+ * @version  2022-08-19 11:23:49 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -129,13 +129,13 @@ if (!function_exists('db')) {
     /**
      * Get a database connection.
      *
-     * @return null|Teddy\Database\Database
+     * @return Teddy\Database\Database
      */
     function db(string $connection = 'default')
     {
         $db = Container::getInstance()->get('db');
         if (!$db) {
-            return null;
+            throw new Teddy\Exception('Database component is not found.');
         }
 
         return $db->connection($connection);
