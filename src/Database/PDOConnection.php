@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:26:10 +0800
+ * @version  2022-08-19 14:07:18 +0800
  */
 
 namespace Teddy\Database;
@@ -239,7 +239,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
                 }
             }
         } elseif (SQL::INSERT_SQL === $sqlType) {
-            if ($options['lastInsertId'] ?? null) {
+            if ($options['returnId'] ?? null) {
                 $ret = $pdo->lastInsertId();
             }
         } else {

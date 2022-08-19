@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 11:49:24 +0800
+ * @version  2022-08-19 14:41:24 +0800
  */
 
 namespace Teddy\Model;
@@ -121,9 +121,11 @@ abstract class Model implements ArrayAccess, JsonSerializable
             if ($value instanceof ArrayableInterface) {
                 return $value->toArray();
             }
+
             if ($value instanceof JsonSerializable) {
                 return $value->jsonSerialize();
             }
+
             if ($value instanceof JsonableInterface) {
                 return json_decode($value->toJson(), true);
             }
@@ -173,6 +175,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             throw new DbException('Primary keys is not defined.');
         }
 
+        $this->triggerEvent('beforeSaveOrDelete');
         $this->triggerEvent('beforeSave');
 
         $query      = static::query($db)->tableSuffix($this->tableSuffix);
@@ -200,6 +203,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
 
         $this->modified = false;
         $this->triggerEvent('afterSave');
+        $this->triggerEvent('afterSaveOrDelete');
     }
 
     public function save(?DatabaseInterface $db = null): bool
@@ -225,6 +229,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
             throw new DbException('Primary keys is not defined.');
         }
 
+        $this->triggerEvent('beforeSaveOrDelete');
         $this->triggerEvent('beforeDelete');
 
         $query      = static::query($db)->tableSuffix($this->tableSuffix);
@@ -238,6 +243,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
         }
 
         $this->triggerEvent('afterDelete');
+        $this->triggerEvent('afterSaveOrDelete');
     }
 
     public function delete(?DatabaseInterface $db = null): bool
@@ -299,7 +305,8 @@ abstract class Model implements ArrayAccess, JsonSerializable
             $this->modified = true;
             $this->setMutatedAttributeValue($key, $value);
         } elseif ($this->hasColumn($key)) {
-            $this->modified    = $this->modified || !array_key_exists($key, $this->items) || ($this->items[$key] !== $value);
+            $this->modified = $this->modified || !array_key_exists($key, $this->items) || ($this->items[$key] !== $value);
+
             $this->items[$key] = $value;
         }
     }
