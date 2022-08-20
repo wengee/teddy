@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-20 09:44:49 +0800
+ * @version  2022-08-20 17:20:07 +0800
  */
 
 namespace Teddy\Redis;
@@ -123,6 +123,10 @@ use Teddy\Pool\Pool;
  * @method int              zInterStore(string $output, array $zSetKeys, ?array $Weights = null, string $aggregateFunction = 'SUM')
  * @method mixed            zInter(string $output, array $zSetKeys, ?array $Weights = null, string $aggregateFunction = 'SUM')
  * @method array|bool       zScan(string $key, int &$iterator, ?string $pattern = null, int $count = 0)
+ * @method array            bzPopMax(string $key1, string $key2, int $timeout)
+ * @method array            bzPopMin(string $key1, string $key2, int $timeout)
+ * @method array            zPopMax(string $key, int $count = 1)
+ * @method array            zPopMin(string $key, int $count = 1)
  */
 class Redis extends Pool
 {
