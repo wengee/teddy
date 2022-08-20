@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:41:54 +0800
+ * @version  2022-08-20 17:03:01 +0800
  */
 
 namespace Teddy\Pool;
@@ -40,7 +40,7 @@ abstract class Pool
      */
     public function __construct($options = null)
     {
-        if (is_array($options) || (true === $options)) {
+        if (is_array($options) || (true === $options) || (defined('IN_SWOOLE') && IN_SWOOLE)) {
             $this->poolOptions = (new Repository([
                 'minConnections' => 1,
                 'maxConnections' => 10,
@@ -48,7 +48,7 @@ abstract class Pool
                 'waitTimeout'    => 3.0,
                 'heartbeat'      => 0,
                 'maxIdleTime'    => 900,
-            ]))->merge($options ?: [])->toArray();
+            ]))->merge(is_array($options) ? $options : [])->toArray();
 
             $this->channel = new Channel($this->poolOptions['maxConnections']);
         }
