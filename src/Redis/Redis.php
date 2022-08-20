@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 21:25:31 +0800
+ * @version  2022-08-20 09:44:49 +0800
  */
 
 namespace Teddy\Redis;
@@ -110,6 +110,19 @@ use Teddy\Pool\Pool;
  * @method int              zCount(string $key, int|string $start, int|string $end)
  * @method int              zRemRangeByScore(string $key, float|string $start, float|string $end)
  * @method void             zDeleteRangeByScore(string $key, float $start, float $end)
+ * @method int              zRemRangeByRank(string $key, int $start, int $end)
+ * @method void             zDeleteRangeByRank(string $key, int $start, int $end)
+ * @method int              zCard(string $key)
+ * @method int              zSize(string $key)
+ * @method bool|float       zScore(string $key, mixed|string $member)
+ * @method bool|int         zRank(string $key, mixed|string $member)
+ * @method bool|int         zRevRank(string $key, mixed|string $member)
+ * @method float            zIncrBy(string $key, float $value, mixed|string $member)
+ * @method int              zUnionStore(string $output, array $zSetKeys, ?array $weights = null, string $aggregateFunction = 'SUM')
+ * @method mixed            zUnion(string $output, array $zSetKeys, ?array $Weights = null, string $aggregateFunction = 'SUM')
+ * @method int              zInterStore(string $output, array $zSetKeys, ?array $Weights = null, string $aggregateFunction = 'SUM')
+ * @method mixed            zInter(string $output, array $zSetKeys, ?array $Weights = null, string $aggregateFunction = 'SUM')
+ * @method array|bool       zScan(string $key, int &$iterator, ?string $pattern = null, int $count = 0)
  */
 class Redis extends Pool
 {
