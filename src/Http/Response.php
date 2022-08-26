@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:44:22 +0800
+ * @version  2022-08-26 15:26:12 +0800
  */
 
 namespace Teddy\Http;
@@ -18,8 +18,9 @@ use RuntimeException;
 use Slim\Psr7\Response as SlimResponse;
 use Slim\Psr7\Stream;
 use Teddy\Interfaces\CookieAwareInterface;
+use Teddy\Interfaces\FileResponseInterface;
 
-class Response extends SlimResponse implements CookieAwareInterface
+class Response extends SlimResponse implements CookieAwareInterface, FileResponseInterface
 {
     use Macroable;
 
@@ -28,7 +29,10 @@ class Response extends SlimResponse implements CookieAwareInterface
      */
     protected $cookies = [];
 
-    protected $sendFile;
+    /**
+     * @var string
+     */
+    protected $sendFile = '';
 
     /**
      * @var bool
@@ -40,6 +44,9 @@ class Response extends SlimResponse implements CookieAwareInterface
      */
     protected $jsonEncodingOptions = 0;
 
+    /**
+     * @var mixed
+     */
     protected $jsonData;
 
     public function isJsonResponse(&$data): bool
@@ -53,7 +60,8 @@ class Response extends SlimResponse implements CookieAwareInterface
 
     public function withSendFile(string $file): ResponseInterface
     {
-        $clone           = clone $this;
+        $clone = clone $this;
+
         $clone->sendFile = $file;
 
         return $clone;
@@ -61,7 +69,7 @@ class Response extends SlimResponse implements CookieAwareInterface
 
     public function getSendFile(): string
     {
-        return (string) $this->sendFile;
+        return $this->sendFile;
     }
 
     public function write($data): ResponseInterface

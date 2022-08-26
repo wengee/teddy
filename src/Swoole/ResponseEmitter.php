@@ -4,15 +4,15 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:40:17 +0800
+ * @version  2022-08-26 15:24:41 +0800
  */
 
 namespace Teddy\Swoole;
 
 use Psr\Http\Message\ResponseInterface;
 use Swoole\Http\Response as SwooleResponse;
-use Teddy\Http\Response;
 use Teddy\Interfaces\CookieAwareInterface;
+use Teddy\Interfaces\FileResponseInterface;
 
 class ResponseEmitter
 {
@@ -32,7 +32,7 @@ class ResponseEmitter
         $this->emitCookies($res);
         $this->emitStatusLine($res);
 
-        if (($res instanceof Response) && ($sendFile = $res->getSendFile())) {
+        if (($res instanceof FileResponseInterface) && ($sendFile = $res->getSendFile())) {
             $this->response->sendfile($sendFile);
 
             return;

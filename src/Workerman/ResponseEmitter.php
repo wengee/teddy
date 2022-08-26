@@ -4,14 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:36:06 +0800
+ * @version  2022-08-26 15:24:56 +0800
  */
 
 namespace Teddy\Workerman;
 
 use Psr\Http\Message\ResponseInterface;
-use Teddy\Http\Response;
 use Teddy\Interfaces\CookieAwareInterface;
+use Teddy\Interfaces\FileResponseInterface;
 use Workerman\Connection\TcpConnection;
 use Workerman\Protocols\Http\Response as HttpResponse;
 
@@ -49,7 +49,7 @@ class ResponseEmitter
             }
         }
 
-        if (($res instanceof Response) && ($sendFile = $res->getSendFile())) {
+        if (($res instanceof FileResponseInterface) && ($sendFile = $res->getSendFile())) {
             $response->withFile($sendFile);
         } else {
             $body = $res->getBody();
