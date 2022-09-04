@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 15:37:43 +0800
+ * @version  2022-09-04 15:16:48 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -578,25 +578,5 @@ if (!function_exists('teddy_defer')) {
         } else {
             Deferred::add($callback);
         }
-    }
-}
-
-if (!function_exists('in_swoole')) {
-    /**
-     * If the current application run on Swoole.
-     */
-    function in_swoole(): bool
-    {
-        return defined('IN_SWOOLE') && IN_SWOOLE;
-    }
-}
-
-if (!function_exists('in_workerman')) {
-    /**
-     * If the current application run on Workerman.
-     */
-    function in_workerman(): bool
-    {
-        return defined('IN_WORKERMAN') && IN_WORKERMAN;
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:26:16 +0800
+ * @version  2022-09-04 15:15:00 +0800
  */
 
 namespace Teddy\Console;
@@ -17,6 +17,7 @@ use Teddy\Console\Commands\Migrations;
 use Teddy\Console\Commands\Swoole;
 use Teddy\Console\Commands\Workerman;
 use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Runtime;
 use Teddy\Traits\ContainerAwareTrait;
 
 class Application extends SymfonyApplication implements ContainerAwareInterface
@@ -46,14 +47,14 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
         $this->version = config('app.version') ?: 'UNKNOWN';
 
         // add swoole commands
-        if (extension_loaded('swoole') && class_exists('\\Swoole\\Http\\Server')) {
+        if (Runtime::swooleEnabled()) {
             $this->addCommands([
                 new Swoole\StartCommand(),
             ]);
         }
 
         // add workerman commands
-        if (class_exists('\\Workerman\\Worker')) {
+        if (Runtime::workermanEnabled()) {
             $this->addCommands([
                 new Workerman\ConnectionsCommand(),
                 new Workerman\ReloadCommand(),

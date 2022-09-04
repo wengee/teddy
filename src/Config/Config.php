@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:20:57 +0800
+ * @version  2022-09-04 15:39:04 +0800
  */
 
 namespace Teddy\Config;
@@ -20,6 +20,7 @@ use Teddy\Interfaces\ConfigTagInterface;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\WithContainerInterface;
+use Teddy\Runtime;
 use Teddy\Traits\ContainerAwareTrait;
 use Teddy\Utils\FileSystem;
 
@@ -168,7 +169,12 @@ class Config extends Repository implements WithContainerInterface, ContainerAwar
         while (false !== ($file = readdir($handle))) {
             $filepath = FileSystem::joinPath($dir, $file);
             if (Str::endsWith($file, '.php') && is_file($filepath)) {
-                $key    = substr($file, 0, -4);
+                $key = substr($file, 0, -4);
+                if (('swoole' === $key && (false === Runtime::is(Runtime::SWOOLE)))
+                || ('workerman' === $key && (false === Runtime::is(Runtime::WORKERMAN)))) {
+                    continue;
+                }
+
                 $config = require $filepath;
                 if (is_array($config)) {
                     $config = new Repository($config);
