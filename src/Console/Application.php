@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-04 15:15:00 +0800
+ * @version  2022-09-04 16:08:22 +0800
  */
 
 namespace Teddy\Console;
@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Application as TeddyApplication;
 use Teddy\Console\Commands\Migrations;
+use Teddy\Console\Commands\StartCommand;
 use Teddy\Console\Commands\Swoole;
 use Teddy\Console\Commands\Workerman;
 use Teddy\Interfaces\ContainerAwareInterface;
@@ -74,6 +75,8 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
             new Migrations\RollbackCommand(),
             new Migrations\StatusCommand(),
             new Migrations\SqlCommand(),
+
+            new StartCommand(),
         ]);
 
         $commandList = config('command.list', []);
