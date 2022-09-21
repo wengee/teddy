@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:24:38 +0800
+ * @version  2022-09-21 15:58:50 +0800
  */
 
 namespace Teddy\Container;
@@ -17,10 +17,12 @@ use Teddy\Interfaces\DefinitionInterface;
 use Teddy\Interfaces\LiteralArgumentInterface;
 use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Traits\ContainerAwareTrait;
+use Teddy\Traits\ResolveArgumentsTrait;
 
 class Definition implements ContainerAwareInterface, DefinitionInterface
 {
     use ContainerAwareTrait;
+    use ResolveArgumentsTrait;
 
     /**
      * @var string
@@ -69,6 +71,20 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
     public function addArgument($arg): self
     {
         $this->arguments[] = $arg;
+
+        return $this;
+    }
+
+    public function addCollectionArgument(array $args): self
+    {
+        $this->arguments[] = new CollectionArgument($args);
+
+        return $this;
+    }
+
+    public function addLiteralArgument($value, string $type = null): self
+    {
+        $this->arguments[] = new LiteralArgument($value, $type);
 
         return $this;
     }
@@ -130,38 +146,6 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
         }
 
         return $concrete;
-    }
-
-    protected function resolveArguments(array $arguments): array
-    {
-        try {
-            $container = $this->getContainer();
-        } catch (Exception $e) {
-            $container = null;
-        }
-
-        $newArgs = [];
-        foreach ($arguments as $arg) {
-            if ('container' === $arg) {
-                $newArgs[] = $container;
-
-                continue;
-            }
-
-            if ($arg instanceof LiteralArgumentInterface) {
-                $newArgs[] = $arg->getValue();
-
-                continue;
-            }
-
-            if (is_string($arg) && ($container instanceof ContainerInterface) && $container->has($arg)) {
-                $newArgs[] = $container->get($arg);
-            } else {
-                $newArgs[] = $arg;
-            }
-        }
-
-        return $newArgs;
     }
 
     protected function resolveCallable(callable $concrete, ?array $arguments = null)
