@@ -4,33 +4,17 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-05 15:58:01 +0800
+ * @version  2022-09-26 15:59:47 +0800
  */
 
 namespace Teddy\Routing;
 
-use Psr\Http\Message\ResponseFactoryInterface;
-use Slim\Interfaces\CallableResolverInterface;
-use Slim\Interfaces\InvocationStrategyInterface;
 use Slim\Interfaces\RouteGroupInterface;
 use Slim\Routing\RouteCollector as SlimRouteCollector;
 use Slim\Routing\RouteGroup;
-use Teddy\Interfaces\ContainerInterface;
-use Teddy\Interfaces\WithContainerInterface;
 
-class RouteCollector extends SlimRouteCollector implements WithContainerInterface
+class RouteCollector extends SlimRouteCollector
 {
-    public function __construct(ContainerInterface $container)
-    {
-        parent::__construct(
-            $container->get(ResponseFactoryInterface::class),
-            $container->get(CallableResolverInterface::class),
-            $container,
-            $container->get(InvocationStrategyInterface::class),
-            $container->get(RouteParserInterface::class)
-        );
-    }
-
     /**
      * @param null|array|callable|string $pattern
      * @param null|callable              $callable

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:20:03 +0800
+ * @version  2022-09-26 15:55:47 +0800
  */
 
 namespace Teddy;
@@ -21,7 +21,6 @@ use Slim\Middleware\RoutingMiddleware;
 use Teddy\Console\Application as ConsoleApplication;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
-use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Middleware\CrossOriginMiddleware;
 use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
@@ -33,7 +32,7 @@ use Teddy\Traits\ContainerAwareTrait;
  * @method RoutingMiddleware     addRoutingMiddleware()
  * @method ErrorMiddleware       addErrorMiddleware(bool $displayErrorDetails, bool $logErrors, bool $logErrorDetails, ?LoggerInterface $logger = null)
  */
-class Application implements WithContainerInterface, ContainerAwareInterface
+class Application implements ContainerAwareInterface
 {
     use ContainerAwareTrait;
 

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-04 15:39:04 +0800
+ * @version  2022-09-26 15:58:41 +0800
  */
 
 namespace Teddy\Config;
@@ -19,12 +19,11 @@ use Symfony\Component\Yaml\Yaml;
 use Teddy\Interfaces\ConfigTagInterface;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
-use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Runtime;
 use Teddy\Traits\ContainerAwareTrait;
 use Teddy\Utils\FileSystem;
 
-class Config extends Repository implements WithContainerInterface, ContainerAwareInterface, JsonSerializable
+class Config extends Repository implements ContainerAwareInterface, JsonSerializable
 {
     use ContainerAwareTrait;
 

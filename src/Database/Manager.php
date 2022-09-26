@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:09:51 +0800
+ * @version  2022-09-26 16:08:22 +0800
  */
 
 namespace Teddy\Database;
@@ -12,9 +12,8 @@ namespace Teddy\Database;
 use Psr\Log\LoggerInterface;
 use Teddy\Exception;
 use Teddy\Interfaces\ContainerInterface;
-use Teddy\Interfaces\WithContainerInterface;
 
-class Manager implements WithContainerInterface
+class Manager
 {
     /**
      * @var ContainerInterface

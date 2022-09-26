@@ -55,7 +55,7 @@ trait ResolveArgumentsTrait
             if (is_string($arg) && ($container instanceof ContainerInterface) && $container->has($arg)) {
                 $newArgs[] = $container->get($arg);
             } else {
-                $newArgs[] = $arg;
+                $newArgs[] = null;
             }
         }
 

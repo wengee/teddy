@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:21:20 +0800
+ * @version  2022-09-26 15:59:16 +0800
  */
 
 namespace Teddy\Http;
@@ -14,10 +14,9 @@ use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
-use Teddy\Interfaces\WithContainerInterface;
 use Teddy\Traits\ContainerAwareTrait;
 
-class ResponseFactory implements WithContainerInterface, ContainerAwareInterface, ResponseFactoryInterface
+class ResponseFactory implements ContainerAwareInterface, ResponseFactoryInterface
 {
     use ContainerAwareTrait;
 
