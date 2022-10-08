@@ -9,6 +9,7 @@
 namespace Teddy\Traits;
 
 use Exception;
+use Psr\Container\ContainerInterface as PsrContainerInterface;
 use Teddy\Interfaces\CollectionArgumentInterface;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
@@ -30,32 +31,20 @@ trait ResolveArgumentsTrait
 
         $newArgs = [];
         foreach ($arguments as $arg) {
-            if ('container' === $arg) {
+            if (in_array($arg, ['container', ContainerInterface::class, PsrContainerInterface::class])) {
                 $newArgs[] = $container;
-
-                continue;
-            }
-
-            if ($arg instanceof LiteralArgumentInterface) {
+            } elseif ($arg instanceof LiteralArgumentInterface) {
                 $newArgs[] = $arg->getValue();
-
-                continue;
-            }
-
-            if ($arg instanceof CollectionArgumentInterface) {
+            } elseif ($arg instanceof CollectionArgumentInterface) {
                 if ($container && ($arg instanceof ContainerAwareInterface)) {
                     $arg->setContainer($container);
                 }
 
                 $newArgs[] = $arg->getValue();
-
-                continue;
-            }
-
-            if (is_string($arg) && ($container instanceof ContainerInterface) && $container->has($arg)) {
+            } elseif (is_string($arg) && ($container instanceof ContainerInterface)) {
                 $newArgs[] = $container->get($arg);
             } else {
-                $newArgs[] = null;
+                $newArgs[] = $arg;
             }
         }
 
