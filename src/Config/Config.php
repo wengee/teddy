@@ -43,9 +43,9 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
     protected $configFiles = [];
 
     /**
-     * @var string
+     * @var string[]
      */
-    protected $dotEnvDir = '';
+    protected $dotEnvDir = [];
 
     /**
      * @var bool
@@ -85,7 +85,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
             $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yml');
             $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yaml');
 
-            $this->dotEnvDir = $basePath;
+            $this->dotEnvDir[] = $basePath;
         }
 
         $runtimePath = Filesystem::getRuntimePath();
@@ -95,7 +95,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
             $this->configFiles[] = FileSystem::joinPath($runtimePath, 'config.yml');
             $this->configFiles[] = FileSystem::joinPath($runtimePath, 'config.yaml');
 
-            $this->dotEnvDir = $runtimePath;
+            $this->dotEnvDir[] = $runtimePath;
         }
 
         $this->initialize();
@@ -141,7 +141,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
     private function initialize(): void
     {
         try {
-            Dotenv::createMutable($this->dotEnvDir, '.env')->load();
+            Dotenv::createMutable($this->dotEnvDir, '.env', false)->load();
         } catch (Exception $e) {
         }
 
