@@ -4,21 +4,29 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-10-20 15:17:38 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
 
-use Teddy\Console\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
+use Teddy\Abstracts\AbstractCommand;
 use Teddy\Database\Migrations\MigrationCreator;
 
-class MigrationMakeCommand extends Command
+class MigrationMakeCommand extends AbstractCommand
 {
-    protected $description = 'Generate a migration file';
-
-    protected $signature = 'make:migration {name : The name of the migration}
-        {--c|create : The table to be created}
-        {--t|table= : The table to migrate}';
+    protected function configure(): void
+    {
+        $this->setName('make:migration')
+            ->setDefinition([
+                new InputArgument('name', InputArgument::REQUIRED, 'The name of the migration'),
+                new InputOption('create', 'c', InputOption::VALUE_NONE, 'The table to be created'),
+                new InputOption('table', 't', InputOption::VALUE_OPTIONAL, 'The table to migrate'),
+            ])
+            ->setDescription('Generate a migration file')
+        ;
+    }
 
     protected function handle(): void
     {

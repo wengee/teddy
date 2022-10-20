@@ -5,18 +5,25 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:28:45 +0800
+ * @version  2022-10-20 14:42:55 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
 
+use Symfony\Component\Console\Input\InputOption;
+
 class RestartCommand extends DefaultCommand
 {
-    protected $signature = 'workerman:restart
-        {--d|daemon : Start in DAEMON mode}
-        {--g|gracefully : Stop gracefully}';
-
-    protected $description = 'Restart workerman workers';
-
     protected $action = 'restart';
+
+    protected function configure(): void
+    {
+        $this->setName('workerman:restart')
+            ->setDefinition([
+                new InputOption('daemon', 'd', InputOption::VALUE_NONE, 'Start in DAEMON mode'),
+                new InputOption('gracefully', 'g', InputOption::VALUE_NONE, 'Stop gracefully'),
+            ])
+            ->setDescription('Restart workerman workers')
+        ;
+    }
 }

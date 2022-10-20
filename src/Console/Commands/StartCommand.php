@@ -4,24 +4,31 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-04 16:16:21 +0800
+ * @version  2022-10-20 14:36:38 +0800
  */
 
 namespace Teddy\Console\Commands;
 
 use Symfony\Component\Console\Input\ArrayInput;
-use Teddy\Console\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Teddy\Abstracts\AbstractCommand;
 use Teddy\Runtime;
 
-class StartCommand extends Command
+class StartCommand extends AbstractCommand
 {
-    protected $signature = 'start {server? : Server type}';
-
-    protected $description = 'Start server';
+    protected function configure(): void
+    {
+        $this->setName('start')
+            ->setDefinition([
+                new InputArgument('server', InputArgument::OPTIONAL, 'Server type'),
+            ])
+            ->setDescription('Start server')
+        ;
+    }
 
     protected function handle(): void
     {
-        $commandName = null;
+        $commandName = 'workerman:start';
         if (Runtime::isSwoole()) {
             $commandName = 'swoole:start';
         } elseif (Runtime::isWorkerman()) {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-26 15:55:47 +0800
+ * @version  2022-10-14 17:12:36 +0800
  */
 
 namespace Teddy;
@@ -18,9 +18,11 @@ use Slim\App as SlimApp;
 use Slim\Middleware\BodyParsingMiddleware;
 use Slim\Middleware\ErrorMiddleware;
 use Slim\Middleware\RoutingMiddleware;
-use Teddy\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
+use Teddy\Interfaces\KernelInterface;
 use Teddy\Middleware\CrossOriginMiddleware;
 use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
@@ -108,10 +110,10 @@ class Application implements ContainerAwareInterface
 
     public function run(): void
     {
-        $console = new ConsoleApplication($this);
-        $console->setContainer($this->getContainer());
-
-        $console->run();
+        $this->getContainer()
+            ->get(KernelInterface::class)
+            ->handle(new ArgvInput(), new ConsoleOutput())
+        ;
     }
 
     protected function initRoutes(): void

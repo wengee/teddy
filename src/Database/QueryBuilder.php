@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 11:30:47 +0800
+ * @version  2022-10-20 15:19:16 +0800
  */
 
 namespace Teddy\Database;
@@ -286,6 +286,7 @@ class QueryBuilder
 
     public function getDbTable($table = null, ?string $as = null, ?string $tableSuffix = null): string
     {
+        $meta = null;
         if (is_subclass_of($table, Model::class)) {
             $meta = app('modelManager')->getMeta($table);
         }

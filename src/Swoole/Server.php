@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:52:58 +0800
+ * @version  2022-10-20 14:55:51 +0800
  */
 
 namespace Teddy\Swoole;
@@ -20,8 +20,8 @@ use Swoole\Runtime;
 use Swoole\Server\Task as SwooleTask;
 use Swoole\Table;
 use Swoole\Websocket\Server as WebsocketServer;
+use Teddy\Abstracts\AbstractCommand;
 use Teddy\Application;
-use Teddy\Console\Command;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
@@ -47,7 +47,7 @@ class Server implements ServerInterface
     protected $serverName;
 
     /**
-     * @var null|Command
+     * @var null|AbstractCommand
      */
     protected $command;
 
@@ -71,7 +71,7 @@ class Server implements ServerInterface
      */
     protected $coroutineFlags = SWOOLE_HOOK_ALL;
 
-    public function __construct(Application $app)
+    public function __construct()
     {
         if (version_compare(PHP_VERSION, '8.1.0') < 0) {
             throw new Exception('Teddy require PHP 8.1 or newer.');
@@ -81,8 +81,8 @@ class Server implements ServerInterface
             throw new Exception('Teddy require swoole 4.6.0 or newer.');
         }
 
-        $this->app        = $app;
-        $this->container  = $app->getContainer();
+        $this->app        = app();
+        $this->container  = $this->app->getContainer();
         $this->name       = config('app.name') ?: 'Teddy App';
         $this->serverName = config('app.server') ?: php_uname('n');
 
@@ -104,7 +104,7 @@ class Server implements ServerInterface
         return $this->swoole;
     }
 
-    public function setCommand(Command $command): self
+    public function setCommand(AbstractCommand $command): self
     {
         $this->command = $command;
 

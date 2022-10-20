@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-10-20 15:15:55 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
@@ -13,9 +13,12 @@ use Illuminate\Support\Collection;
 
 class StatusCommand extends BaseCommand
 {
-    protected $name = 'migrate:status';
-
-    protected $description = 'Show the status of each migration';
+    protected function configure(): void
+    {
+        $this->setName('migrate:status')
+            ->setDescription('Show the status of each migration')
+        ;
+    }
 
     protected function handle()
     {

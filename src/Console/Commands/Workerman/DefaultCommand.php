@@ -4,18 +4,17 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-02 11:04:36 +0800
+ * @version  2022-10-20 14:39:47 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
 
-use Teddy\Application as TeddyApplication;
-use Teddy\Console\Command;
+use Teddy\Abstracts\AbstractCommand;
 use Teddy\Runtime;
 use Teddy\Workerman\Server;
 use Workerman\Worker;
 
-abstract class DefaultCommand extends Command
+abstract class DefaultCommand extends AbstractCommand
 {
     protected $action = '';
 
@@ -58,12 +57,7 @@ abstract class DefaultCommand extends Command
             }
         }
 
-        $app = $this->getApplication()->getApp();
-        if (!$app || !($app instanceof TeddyApplication)) {
-            $this->error('app is invalid.');
-        }
-
-        $server = new Server($app);
+        $server = new Server();
         $server->start();
     }
 

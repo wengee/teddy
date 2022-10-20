@@ -1,13 +1,12 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:21:03 +0800
+ * @version  2022-10-20 14:32:27 +0800
  */
 
-namespace Teddy\Console;
+namespace Teddy\Abstracts;
 
 use Exception;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
@@ -19,10 +18,7 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-/**
- * @method Application getApplication()
- */
-abstract class Command extends SymfonyCommand
+abstract class AbstractCommand extends SymfonyCommand
 {
     /**
      * @var InputInterface
@@ -33,26 +29,6 @@ abstract class Command extends SymfonyCommand
      * @var SymfonyStyle
      */
     protected $output;
-
-    /**
-     * @var null|string
-     */
-    protected $name;
-
-    /**
-     * @var null|string
-     */
-    protected $signature;
-
-    /**
-     * @var string
-     */
-    protected $description = '';
-
-    /**
-     * @var bool
-     */
-    protected $hidden = false;
 
     /**
      * @var int
@@ -70,20 +46,12 @@ abstract class Command extends SymfonyCommand
         'normal' => OutputInterface::VERBOSITY_NORMAL,
     ];
 
-    public function __construct()
+    public function run(InputInterface $input, OutputInterface $output): int
     {
-        if (isset($this->signature)) {
-            $this->configureUsingFluentDefinition();
-        } else {
-            parent::__construct($this->name);
-        }
-
-        $this->setDescription($this->description);
-        $this->setHidden($this->hidden);
-
-        if (!isset($this->signature)) {
-            $this->specifyParameters();
-        }
+        return parent::run(
+            $this->input  = $input,
+            $this->output = new SymfonyStyle($input, $output)
+        );
     }
 
     public function hasArgument(string $name): bool
@@ -224,42 +192,20 @@ abstract class Command extends SymfonyCommand
         $this->output->newLine();
     }
 
-    public function run(InputInterface $input, OutputInterface $output): int
+    protected function setVerbosity($level): void
     {
-        return parent::run(
-            $this->input  = $input,
-            $this->output = new SymfonyStyle($input, $output)
-        );
+        $this->verbosity = $this->parseVerbosity($level);
     }
 
-    protected function configureUsingFluentDefinition(): void
+    protected function parseVerbosity($level = null)
     {
-        [$name, $arguments, $options] = Parser::parse($this->signature);
-
-        parent::__construct($this->name = $name);
-        $this->getDefinition()->addArguments($arguments);
-        $this->getDefinition()->addOptions($options);
-    }
-
-    protected function specifyParameters(): void
-    {
-        foreach ($this->getArguments() as $arguments) {
-            call_user_func_array([$this, 'addArgument'], $arguments);
+        if (isset($this->verbosityMap[$level])) {
+            $level = $this->verbosityMap[$level];
+        } elseif (!is_int($level)) {
+            $level = $this->verbosity;
         }
 
-        foreach ($this->getOptions() as $options) {
-            call_user_func_array([$this, 'addOption'], $options);
-        }
-    }
-
-    protected function getArguments(): array
-    {
-        return [];
-    }
-
-    protected function getOptions(): array
-    {
-        return [];
+        return $level;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -276,22 +222,6 @@ abstract class Command extends SymfonyCommand
         }
 
         return 0;
-    }
-
-    protected function setVerbosity($level): void
-    {
-        $this->verbosity = $this->parseVerbosity($level);
-    }
-
-    protected function parseVerbosity($level = null)
-    {
-        if (isset($this->verbosityMap[$level])) {
-            $level = $this->verbosityMap[$level];
-        } elseif (!is_int($level)) {
-            $level = $this->verbosity;
-        }
-
-        return $level;
     }
 
     abstract protected function handle();

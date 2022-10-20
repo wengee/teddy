@@ -4,21 +4,24 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-21 17:55:15 +0800
+ * @version  2022-10-20 15:16:53 +0800
  */
 
 namespace App\Commands;
 
-use Teddy\Console\Command;
+use Teddy\Abstracts\AbstractCommand;
 
-class ConfigCommand extends Command
+class ConfigCommand extends AbstractCommand
 {
-    protected $name = 'config';
-
-    protected $description = 'Print the config';
+    protected function configure(): void
+    {
+        $this->setName('config')
+            ->setDescription('Print the config')
+        ;
+    }
 
     protected function handle(): void
     {
-        var_dump(config('test'));
+        print_r(json_encode(config(), JSON_PRETTY_PRINT));
     }
 }

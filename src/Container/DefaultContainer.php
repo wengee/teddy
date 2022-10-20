@@ -23,6 +23,7 @@ use Slim\Interfaces\MiddlewareDispatcherInterface;
 use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
+use Teddy\Interfaces\KernelInterface;
 
 class DefaultContainer
 {
@@ -30,6 +31,9 @@ class DefaultContainer
     {
         $container = Container::getInstance();
         $container->addValue('basePath', $basePath);
+
+        // Console Application
+        $container->addShared(KernelInterface::class, \Teddy\Console\Kernel::class);
 
         // Slim Application
         $container->addShared(ResponseFactoryInterface::class, \Teddy\Http\ResponseFactory::class)

@@ -4,16 +4,19 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2022-10-20 15:10:10 +0800
  */
 
 namespace Teddy\Console\Commands\Migrations;
 
 class MigrateCommand extends BaseCommand
 {
-    protected $name = 'migrate';
-
-    protected $description = 'Run the database migrations';
+    protected function configure(): void
+    {
+        $this->setName('migrate')
+            ->setDescription('Run the database migrations')
+        ;
+    }
 
     protected function handle(): void
     {

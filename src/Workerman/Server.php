@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:50:15 +0800
+ * @version  2022-10-14 17:17:41 +0800
  */
 
 namespace Teddy\Workerman;
@@ -50,10 +50,10 @@ class Server implements ServerInterface
      */
     protected $taskProcess;
 
-    public function __construct(Application $app)
+    public function __construct()
     {
-        $this->app        = $app;
-        $this->container  = $app->getContainer();
+        $this->app        = app();
+        $this->container  = $this->app->getContainer();
         $this->serverName = config('app.server') ?: php_uname('n');
 
         $this->container->addValue('server', $this);

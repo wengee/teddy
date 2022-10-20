@@ -1,34 +1,33 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-04 16:08:22 +0800
+ * @version  2022-10-14 17:19:30 +0800
  */
 
 namespace Teddy\Console;
 
-use Symfony\Component\Console\Application as SymfonyApplication;
+use Symfony\Component\Console\Application as ConsoleApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Teddy\Application as TeddyApplication;
 use Teddy\Console\Commands\Migrations;
 use Teddy\Console\Commands\StartCommand;
 use Teddy\Console\Commands\Swoole;
 use Teddy\Console\Commands\Workerman;
 use Teddy\Interfaces\ContainerAwareInterface;
+use Teddy\Interfaces\KernelInterface;
 use Teddy\Runtime;
 use Teddy\Traits\ContainerAwareTrait;
 
-class Application extends SymfonyApplication implements ContainerAwareInterface
+class Kernel implements ContainerAwareInterface, KernelInterface
 {
     use ContainerAwareTrait;
 
     /**
-     * @var TeddyApplication
+     * @var ConsoleApplication
      */
-    protected $app;
+    protected $console;
 
     /**
      * @var string
@@ -40,23 +39,23 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
      */
     protected $version;
 
-    public function __construct(TeddyApplication $app)
+    public function __construct()
     {
-        parent::__construct('');
-        $this->app     = $app;
         $this->appName = config('app.name') ?: 'Teddy App';
         $this->version = config('app.version') ?: 'UNKNOWN';
 
+        $console = $this->getConsole();
+
         // add swoole commands
         if (Runtime::swooleEnabled()) {
-            $this->addCommands([
+            $console->addCommands([
                 new Swoole\StartCommand(),
             ]);
         }
 
         // add workerman commands
         if (Runtime::workermanEnabled()) {
-            $this->addCommands([
+            $console->addCommands([
                 new Workerman\ConnectionsCommand(),
                 new Workerman\ReloadCommand(),
                 new Workerman\RestartCommand(),
@@ -66,7 +65,7 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
             ]);
         }
 
-        $this->addCommands([
+        $console->addCommands([
             new Migrations\MigrationMakeCommand(),
             new Migrations\InstallCommand(),
             new Migrations\MigrateCommand(),
@@ -81,27 +80,15 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
 
         $commandList = config('command.list', []);
         if (!empty($commandList) && is_array($commandList)) {
-            $this->addCommands($commandList);
+            $console->addCommands($commandList);
         }
 
         if ($defaultCommand = config('command.default')) {
-            $this->setDefaultCommand($defaultCommand);
+            $console->setDefaultCommand($defaultCommand);
         }
     }
 
-    public function getApp(): TeddyApplication
-    {
-        return $this->app;
-    }
-
-    public function doRun(InputInterface $input, OutputInterface $output)
-    {
-        $this->welcome($input, $output);
-
-        return parent::doRun($input, $output);
-    }
-
-    protected function welcome(InputInterface $input, OutputInterface $output): void
+    public function handle(InputInterface $input, ?OutputInterface $output = null): void
     {
         $appName    = $this->appName;
         $appVersion = $this->version;
@@ -120,5 +107,16 @@ class Application extends SymfonyApplication implements ContainerAwareInterface
             Application: <info>{$appName}</info>, Version: <info>{$appVersion}</info>
 
             EOL);
+
+        $this->getConsole()->run($input, $output);
+    }
+
+    protected function getConsole(): ConsoleApplication
+    {
+        if (null === $this->console) {
+            $this->console = new ConsoleApplication('');
+        }
+
+        return $this->console;
     }
 }
