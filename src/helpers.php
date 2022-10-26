@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-04 15:16:48 +0800
+ * @version  2022-10-26 17:10:41 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -56,9 +56,9 @@ if (!function_exists('make')) {
         }
 
         if (is_string($concrete) && class_exists($concrete)) {
-            $reflection = new ReflectionClass($concrete);
+            $arguments = $arguments ?: [];
 
-            return $reflection->newInstanceArgs($arguments ?: []);
+            return new $concrete(...$arguments);
         }
 
         return null;
@@ -164,6 +164,30 @@ if (!function_exists('redis')) {
         }
 
         return $redis->connection($connection);
+    }
+}
+
+if (!function_exists('logger')) {
+    /**
+     * Get a logger.
+     *
+     * @return Teddy\Log\Logger
+     */
+    function logger(?string $channel = null)
+    {
+        static $logger;
+        if (null === $logger) {
+            /**
+             * @var Teddy\Log\LogManager $logger
+             */
+            $logger = Container::getInstance()->get('logger');
+        }
+
+        if (null === $channel) {
+            return $logger->getDefaultChannel();
+        }
+
+        return $logger->channel($channel);
     }
 }
 
@@ -296,8 +320,9 @@ if (!function_exists('log_message')) {
     /**
      * Write the message to logger.
      *
-     * @param int|string $level
-     * @param array      $data
+     * @param int|string        $level
+     * @param string|Stringable $message
+     * @param array             $data
      */
     function log_message($level, string $message, ...$data): void
     {

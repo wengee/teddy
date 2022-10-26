@@ -7,7 +7,7 @@ declare(strict_types=1);
  * @version  2021-09-03 11:37:54 +0800
  */
 
-namespace Teddy\Logger;
+namespace Teddy\Log;
 
 use Illuminate\Support\Arr;
 use Monolog\Logger as MonoLogger;

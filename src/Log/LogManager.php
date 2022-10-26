@@ -4,10 +4,10 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-30 10:26:44 +0800
+ * @version  2022-10-26 16:49:44 +0800
  */
 
-namespace Teddy\Logger;
+namespace Teddy\Log;
 
 use Illuminate\Support\Arr;
 use Monolog\Formatter\FormatterInterface;
@@ -22,8 +22,9 @@ use Monolog\Handler\RotatingFileHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogHandler;
 use Psr\Log\LoggerInterface;
+use Stringable;
 
-class Manager implements LoggerInterface
+class LogManager implements LoggerInterface
 {
     protected $appName;
 
@@ -67,47 +68,47 @@ class Manager implements LoggerInterface
         return $channel;
     }
 
-    public function emergency($message, array $context = []): void
+    public function emergency(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->emergency($message, $context);
     }
 
-    public function alert($message, array $context = []): void
+    public function alert(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->alert($message, $context);
     }
 
-    public function critical($message, array $context = []): void
+    public function critical(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->critical($message, $context);
     }
 
-    public function error($message, array $context = []): void
+    public function error(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->error($message, $context);
     }
 
-    public function warning($message, array $context = []): void
+    public function warning(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->warning($message, $context);
     }
 
-    public function notice($message, array $context = []): void
+    public function notice(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->notice($message, $context);
     }
 
-    public function info($message, array $context = []): void
+    public function info(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->info($message, $context);
     }
 
-    public function debug($message, array $context = []): void
+    public function debug(string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->debug($message, $context);
     }
 
-    public function log($level, $message, array $context = []): void
+    public function log($level, string|Stringable $message, array $context = []): void
     {
         $this->getDefaultChannel()->log($level, $message, $context);
     }

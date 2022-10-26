@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-26 16:08:22 +0800
+ * @version  2022-10-24 11:32:02 +0800
  */
 
 namespace Teddy\Database;
@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
 use Teddy\Exception;
 use Teddy\Interfaces\ContainerInterface;
 
-class Manager
+class DbManager
 {
     /**
      * @var ContainerInterface

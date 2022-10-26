@@ -4,14 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 21:08:10 +0800
+ * @version  2022-10-24 11:33:01 +0800
  */
 
 namespace Teddy\Redis;
 
 use Teddy\Exception;
 
-class Manager
+class RedisManager
 {
     /**
      * @var array

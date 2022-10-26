@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-26 15:57:00 +0800
+ * @version  2022-10-24 11:36:30 +0800
  */
 
 namespace Teddy\Container;
@@ -67,7 +67,7 @@ class DefaultContainer
         $container->addShared('crontab', \Teddy\Crontab\Crontab::class);
 
         // Logger
-        $container->addShared(LoggerInterface::class, \Teddy\Logger\Manager::class);
+        $container->addShared(LoggerInterface::class, \Teddy\Log\LogManager::class);
         $container->addAlias('logger', LoggerInterface::class);
 
         // Request & Response
@@ -77,19 +77,20 @@ class DefaultContainer
         $container->addAlias('response', ResponseInterface::class);
 
         // Database
-        $container->addShared('db', \Teddy\Database\Manager::class)->addArgument('container');
-        $container->addShared('modelManager', \Teddy\Model\Manager::class);
+        $container->addShared('db', \Teddy\Database\DbManager::class)->addArgument('container');
+        $container->addShared('modelManager', \Teddy\Model\ModelManager::class);
 
         // Redis
-        $container->addShared('redis', \Teddy\Redis\Manager::class);
+        $container->addShared('redis', \Teddy\Redis\RedisManager::class);
 
         // Flysystem
-        $container->addShared('fs', \Teddy\Flysystem\Manager::class);
+        $container->addShared('fs', \Teddy\Flysystem\FilesystemManager::class);
 
         // Others
         $container->addShared('filter', \Teddy\Filter::class);
-        $container->addShared('lock', \Teddy\Lock\Factory::class);
-        $container->addShared('auth', \Teddy\Auth\Manager::class);
+        $container->addShared('lock', \Teddy\Lock\LockManager::class);
+        $container->addShared('auth', \Teddy\Auth\AuthManager::class);
+        $container->addShared('pool', \Teddy\Pool\SimplePool\PoolManager::class);
 
         return $container;
     }

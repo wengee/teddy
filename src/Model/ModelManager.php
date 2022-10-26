@@ -3,14 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:42:25 +0800
+ * @version  2022-10-24 11:32:35 +0800
  */
 
 namespace Teddy\Model;
 
 use Exception;
 
-class Manager
+class ModelManager
 {
     /**
      * @var Meta[]

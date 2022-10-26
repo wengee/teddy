@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 11:44:25 +0800
+ * @version  2022-10-26 16:52:52 +0800
  */
 
 namespace App\Controllers;
@@ -29,8 +29,6 @@ class IndexController extends Controller
         // app('redis')->lPush('abc', 'fdsafsadfasd');
         db()->transaction(function (DatabaseInterface $db) {
             $a = Abc::query($db)->tableSuffix('2')->first();
-
-            var_dump($a);
 
             $b = Abc::create('3');
             $b->save($db);

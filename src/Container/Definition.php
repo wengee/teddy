@@ -4,13 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-26 15:58:54 +0800
+ * @version  2022-10-26 17:11:08 +0800
  */
 
 namespace Teddy\Container;
 
 use Exception;
-use ReflectionClass;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\DefinitionInterface;
@@ -158,11 +157,10 @@ class Definition implements ContainerAwareInterface, DefinitionInterface
 
     protected function resolveClass(string $concrete, ?array $arguments = null): object
     {
-        $reflection = new ReflectionClass($concrete);
         if (null === $arguments) {
             $arguments = $this->resolveArguments($this->arguments);
         }
 
-        return $reflection->newInstanceArgs($arguments);
+        return new $concrete(...$arguments);
     }
 }
