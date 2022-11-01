@@ -9,7 +9,7 @@ declare(strict_types=1);
 
 namespace Teddy\Console;
 
-use fwkit\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Application as TeddyApplication;
@@ -17,7 +17,7 @@ use Teddy\Console\Commands\Migrations;
 use Teddy\Console\Commands\Models;
 use Teddy\Console\Commands\ServerStartCommand;
 
-class Application extends ConsoleApplication
+class Application extends SymfonyApplication
 {
     protected $app;
 
@@ -54,6 +54,12 @@ class Application extends ConsoleApplication
     public function getApp(): TeddyApplication
     {
         return $this->app;
+    }
+
+    public function doRun(InputInterface $input, OutputInterface $output)
+    {
+        $this->welcome($input, $output);
+        return parent::doRun($input, $output);
     }
 
     protected function welcome(InputInterface $input, OutputInterface $output): void
