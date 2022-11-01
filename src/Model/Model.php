@@ -2,9 +2,8 @@
 declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
- *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-03-08 11:13:50 +0800
+ * @version  2022-11-01 16:15:00 +0800
  */
 
 namespace Teddy\Model;
@@ -15,7 +14,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
-use Serializable;
 use Teddy\Database\DatabaseInterface;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
@@ -23,7 +21,7 @@ use Teddy\Database\RawSQL;
 use Teddy\Interfaces\ArrayableInterface;
 use Teddy\Interfaces\JsonableInterface;
 
-abstract class Model implements ArrayAccess, JsonSerializable, Serializable
+abstract class Model implements ArrayAccess, JsonSerializable
 {
     use Macroable;
 
@@ -57,6 +55,20 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         $this->items = static::metaInfo()->getDefaults();
     }
 
+    public function __serialize(): array
+    {
+        return [
+            'items'       => $this->items,
+            'isNewRecord' => $this->isNewRecord,
+        ];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $this->items       = $data['items'] ?? [];
+        $this->isNewRecord = $data['isNewRecord'] ?? false;
+    }
+
     final public static function metaInfo(): MetaInfo
     {
         $className = static::class;
@@ -67,12 +79,12 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         return static::$metaInfos[$className];
     }
 
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return is_string($offset) && $this->hasAttribute($offset);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset): mixed
     {
         if (is_string($offset)) {
             return $this->getAttribute($offset);
@@ -81,14 +93,14 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         return null;
     }
 
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if (is_string($offset)) {
             $this->setAttribute($offset, $value);
         }
     }
 
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         if (is_string($offset) && $this->hasAttribute($offset)) {
             $this->setAttribute($offset, null);
@@ -123,21 +135,6 @@ abstract class Model implements ArrayAccess, JsonSerializable, Serializable
         }
 
         return $values;
-    }
-
-    public function serialize(): string
-    {
-        return serialize([
-            'items'       => $this->items,
-            'isNewRecord' => $this->isNewRecord,
-        ]);
-    }
-
-    public function unserialize($serialized): void
-    {
-        $data              = (array) unserialize($serialized);
-        $this->items       = $data['items'] ?? [];
-        $this->isNewRecord = $data['isNewRecord'] ?? false;
     }
 
     public function isNewRecord(): bool

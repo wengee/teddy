@@ -117,24 +117,24 @@ class Container implements ContainerInterface, ArrayAccess
         static::$instance = $container;
     }
 
-    public function offsetExists($key)
+    public function offsetExists(mixed $key): bool
     {
         return $this->bound($key);
     }
 
-    public function offsetGet($key)
+    public function offsetGet(mixed $key): mixed
     {
         return $this->make($key);
     }
 
-    public function offsetSet($key, $value): void
+    public function offsetSet(mixed $key, mixed $value): void
     {
         $this->bind($key, $value instanceof Closure ? $value : function () use ($value) {
             return $value;
         });
     }
 
-    public function offsetUnset($key): void
+    public function offsetUnset(mixed $key): void
     {
         unset($this->bindings[$key], $this->instances[$key]);
     }
