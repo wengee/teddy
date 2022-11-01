@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-26 15:58:41 +0800
+ * @version  2022-11-01 14:23:13 +0800
  */
 
 namespace Teddy\Config;
@@ -79,23 +79,17 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
 
         $basePath = $container->get('basePath');
         if ($basePath) {
-            $this->basePath = $basePath;
-
+            $this->basePath      = $basePath;
             $this->configDirs[]  = FileSystem::joinPath($basePath, 'config');
             $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yml');
-            $this->configFiles[] = FileSystem::joinPath($basePath, 'config.yaml');
-
-            $this->dotEnvDir[] = $basePath;
+            $this->dotEnvDir[]   = $basePath;
         }
 
         $runtimePath = Filesystem::getRuntimePath();
         if ($runtimePath) {
-            $this->runtimePath = $runtimePath;
-
+            $this->runtimePath   = $runtimePath;
             $this->configFiles[] = FileSystem::joinPath($runtimePath, 'config.yml');
-            $this->configFiles[] = FileSystem::joinPath($runtimePath, 'config.yaml');
-
-            $this->dotEnvDir[] = $runtimePath;
+            $this->dotEnvDir[]   = $runtimePath;
         }
 
         $this->initialize();
@@ -153,7 +147,17 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
         }
 
         foreach ($this->configFiles as $file) {
-            if (is_file($file)) {
+            $this->loadYamlConfig($file);
+        }
+
+        if ($env = env('TEDDY_ENV')) {
+            if ($this->basePath) {
+                $file = FileSystem::joinPath($this->basePath, 'config.'.$env.'.yml');
+                $this->loadYamlConfig($file);
+            }
+
+            if ($this->runtimePath) {
+                $file = FileSystem::joinPath($this->runtimePath, 'config.'.$env.'.yml');
                 $this->loadYamlConfig($file);
             }
         }
@@ -189,6 +193,10 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
 
     private function loadYamlConfig(string $file): void
     {
+        if (!is_file($file)) {
+            return;
+        }
+
         $content = file_get_contents($file);
         $content = strtr($content, [
             '__DIR__'      => dirname($file),
