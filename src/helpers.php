@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-26 17:10:41 +0800
+ * @version  2022-11-04 16:00:25 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -17,6 +17,7 @@ use Teddy\Deferred;
 use Teddy\Hook;
 use Teddy\Http\Response;
 use Teddy\Interfaces\ServerInterface;
+use Teddy\Log\LogManager;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
@@ -324,12 +325,20 @@ if (!function_exists('log_message')) {
      * @param string|Stringable $message
      * @param array             $data
      */
-    function log_message($level, string $message, ...$data): void
+    function log_message(?string $channel, $level, string $message, ...$data): void
     {
+        static $logManager;
+        if (null === $logManager) {
+            /**
+             * @var LogManager
+             */
+            $logManager = Container::getInstance()->get('logger');
+        }
+
         /**
-         * @var null|LoggerInterface
+         * @var LoggerInterface
          */
-        $logger = Container::getInstance()->get('logger');
+        $logger = $channel ? ($logManager->channel($channel) ?: $logManager) : $logManager;
         if ($logger) {
             $logger->log($level, $data ? sprintf($message, ...$data) : $message);
         }

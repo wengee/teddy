@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:48:37 +0800
+ * @version  2022-11-04 16:01:29 +0800
  */
 
 namespace Teddy\Workerman;
@@ -109,7 +109,7 @@ class Queue implements QueueInterface
 
                         $package = unserialize($packageStr);
                         if (!$package || !is_array($package)) {
-                            log_message('ERROR', 'Queue error: '.$packageStr);
+                            log_message(null, 'ERROR', 'Queue error: '.$packageStr);
 
                             return;
                         }
@@ -135,7 +135,7 @@ class Queue implements QueueInterface
                 $packageStr     = $data[1];
                 $package        = unserialize($packageStr);
                 if (!$package || !is_array($package)) {
-                    log_message('ERROR', 'Queue error: '.$packageStr);
+                    log_message(null, 'ERROR', 'Queue error: '.$packageStr);
                 } else {
                     $func = $this->subscribeCallback[$redisKey];
 
@@ -170,7 +170,7 @@ class Queue implements QueueInterface
 
     protected function fail($package): void
     {
-        log_message('ERROR', 'Queue fail: '.json_encode($package));
+        log_message(null, 'ERROR', 'Queue fail: '.json_encode($package));
     }
 
     protected function redisSend(): Redis

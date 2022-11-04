@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-20 14:55:51 +0800
+ * @version  2022-11-04 16:01:11 +0800
  */
 
 namespace Teddy\Swoole;
@@ -220,14 +220,14 @@ class Server implements ServerInterface
             Util::setProcessTitle($name, $appName);
 
             Process::signal(SIGUSR1, function ($signo) use ($name, $process, $worker, $swoole): void {
-                log_message('info', 'Reloading the process %s [pid=%d].', $name, $worker->pid);
+                log_message(null, 'INFO', 'Reloading the process %s [pid=%d].', $name, $worker->pid);
 
                 if (method_exists($process, 'onReload')) {
                     safe_call([$process, 'onReload'], [$swoole, $worker]);
                 }
             });
 
-            log_message('info', 'Run the process %s [pid=%d].', $name, $worker->pid);
+            log_message(null, 'INFO', 'Run the process %s [pid=%d].', $name, $worker->pid);
             if (method_exists($process, 'handle')) {
                 safe_call([$process, 'handle'], [$swoole, $worker]);
             }

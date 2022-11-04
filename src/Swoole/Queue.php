@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:42:09 +0800
+ * @version  2022-11-04 16:00:56 +0800
  */
 
 namespace Teddy\Swoole;
@@ -155,7 +155,7 @@ class Queue implements ContainerAwareInterface, QueueInterface
 
     protected function fail($package): void
     {
-        log_message('ERROR', 'Queue fail: '.json_encode($package));
+        log_message(null, 'ERROR', 'Queue fail: '.json_encode($package));
     }
 
     protected function redis(): Redis
