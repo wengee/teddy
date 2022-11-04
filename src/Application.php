@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-14 17:12:36 +0800
+ * @version  2022-11-04 16:46:56 +0800
  */
 
 namespace Teddy;
@@ -13,6 +13,7 @@ use BadMethodCallException;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 use Slim\App as SlimApp;
 use Slim\Middleware\BodyParsingMiddleware;
@@ -72,6 +73,23 @@ class Application implements ContainerAwareInterface
     public static function create(ContainerInterface $container): self
     {
         return new static($container);
+    }
+
+    /**
+     * @param callable|MiddlewareInterface|string $middleware
+     */
+    public function add($middleware): self
+    {
+        $this->slimApp->add($middleware);
+
+        return $this;
+    }
+
+    public function addMiddleware(MiddlewareInterface $middleware): self
+    {
+        $this->slimApp->addMiddleware($middleware);
+
+        return $this;
     }
 
     public function addCorsMiddleware(): CrossOriginMiddleware
