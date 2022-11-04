@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:20:48 +0800
+ * @version  2022-11-04 16:33:05 +0800
  */
 
 namespace Teddy\Auth;
@@ -70,7 +70,7 @@ class Authentication implements MiddlewareInterface
     /**
      * Fetch the access token.
      */
-    protected function fetchToken(ServerRequestInterface $request): string
+    protected function fetchToken(ServerRequestInterface $request): ?string
     {
         $header = '';
 
@@ -97,6 +97,7 @@ class Authentication implements MiddlewareInterface
         }
 
         // If everything fails log and throw.
-        throw new RuntimeException('Token not found.');
+        // throw new RuntimeException('Token not found.');
+        return null;
     }
 }
