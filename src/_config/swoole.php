@@ -4,12 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-24 16:10:22 +0800
+ * @version  2022-11-09 15:23:14 +0800
  */
 
 use Teddy\Config\Repository;
 
-$cpuNum  = function_exists('swoole_cpu_num') ? swoole_cpu_num() : 1;
+$cpuNum = function_exists('swoole_cpu_num') ? swoole_cpu_num() : 1;
 
 return [
     'host'     => '127.0.0.1',
@@ -20,13 +20,6 @@ return [
     'websocket' => new Repository([
         'enabled' => false,
         'handler' => new Repository(null, Repository::DATA_AS_RAW | Repository::DATA_PROTECTED),
-    ]),
-
-    'queue' => new Repository([
-        'key'          => 'queue:',
-        'redis'        => 'default',
-        'retrySeconds' => 5,
-        'maxAttempts'  => 5,
     ]),
 
     'tables' => new Repository([], Repository::DATA_PROTECTED),

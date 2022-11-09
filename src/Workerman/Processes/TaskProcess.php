@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:51:54 +0800
+ * @version  2022-11-09 15:57:55 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -28,8 +28,6 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
 
     protected $name = 'task';
 
-    protected $consumer = true;
-
     protected $crontab = [];
 
     /**
@@ -46,64 +44,10 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         $this->app     = $app;
         $this->options = $options;
 
-        $this->crontab    = $extra['crontab'] ?? [];
+        $this->crontab    = $extra['crontab'] ?? null;
         $this->serverName = $extra['serverName'] ?? null;
 
-        $this->consumer = $options['consumer'] ?? true;
-        $this->queue    = $app->getContainer()->get(QueueInterface::class);
-    }
-
-    /**
-     * @param null|array|bool|int|string $extra
-     */
-    public function send(string $className, array $args = [], $extra = null): void
-    {
-        run_hook('workerman:task:beforeSend', [
-            'className' => $className,
-            'args'      => $args,
-            'extra'     => $extra,
-        ]);
-
-        $local      = true;
-        $at         = 0;
-        $serverName = 'any';
-        if (is_bool($extra)) {
-            $local = $extra;
-        } elseif (is_int($extra)) {
-            $at = $extra;
-        } elseif (is_string($extra)) {
-            if ('local' === $extra) {
-                $local      = true;
-                $serverName = $this->serverName;
-            } else {
-                $local      = false;
-                $serverName = $extra;
-            }
-        } elseif (is_array($extra)) {
-            if (isset($extra['local'])) {
-                $local = $extra['local'];
-            }
-
-            if (isset($extra['at'])) {
-                $at = (int) $extra['at'];
-            } elseif (isset($extra['delay'])) {
-                $at = time() + intval($extra['delay']);
-            }
-        }
-
-        if ($this->queue) {
-            if ($local && $this->serverName && $this->consumer) {
-                $this->queue->send($this->serverName, [$className, $args], $at);
-            } else {
-                $this->queue->send($this->consumer ? $serverName : 'any', [$className, $args], $at);
-            }
-        }
-
-        run_hook('workerman:task:afterSend', [
-            'className' => $className,
-            'args'      => $args,
-            'extra'     => $extra,
-        ]);
+        $this->queue = $app->getContainer()->get(QueueInterface::class);
     }
 
     public function onWorkerStart(Worker $worker): void
@@ -111,16 +55,14 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         run_hook('workerman:task:beforeWorkerStart', ['worker' => $worker]);
 
         if ($this->queue) {
-            if ($this->consumer) {
-                $channels = ['any'];
-                if ($this->serverName) {
-                    $channels[] = $this->serverName;
-                }
-
-                $this->queue->subscribe($channels, function ($data): void {
-                    $this->runTask($data);
-                });
+            $channels = ['any'];
+            if ($this->serverName) {
+                $channels[] = $this->serverName;
             }
+
+            $this->queue->subscribe($channels, function ($data): void {
+                $this->runTask($data);
+            });
 
             if ((0 === $worker->id) && $this->crontab) {
                 $this->timerId = Timer::add(1, function (): void {

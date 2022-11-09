@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-04 16:00:56 +0800
+ * @version  2022-11-09 15:22:30 +0800
  */
 
 namespace Teddy\Swoole;
@@ -40,7 +40,7 @@ class Queue implements ContainerAwareInterface, QueueInterface
 
     public function __construct()
     {
-        $options = config('swoole.queue', []);
+        $options = config('queue', []);
 
         $this->redis        = $options['redis'] ?? 'default';
         $this->retrySeconds = $options['retrySeconds'];

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-14 17:17:41 +0800
+ * @version  2022-11-09 16:26:04 +0800
  */
 
 namespace Teddy\Workerman;
@@ -50,6 +50,11 @@ class Server implements ServerInterface
      */
     protected $taskProcess;
 
+    /**
+     * @var QueueInterface
+     */
+    protected $queue;
+
     public function __construct()
     {
         $this->app        = app();
@@ -58,6 +63,11 @@ class Server implements ServerInterface
 
         $this->container->addValue('server', $this);
         $this->container->addValue(ServerInterface::class, $this);
+
+        if (!$this->container->has(QueueInterface::class)) {
+            $this->container->add(QueueInterface::class, Queue::class);
+        }
+        $this->queue = $this->container->get(QueueInterface::class);
     }
 
     public function getServerName(): string
@@ -91,9 +101,49 @@ class Server implements ServerInterface
      */
     public function addTask(string $className, array $args = [], $extra = null): void
     {
-        if ($this->taskProcess) {
-            $this->taskProcess->send($className, $args, $extra);
+        run_hook('workerman:task:beforeSend', [
+            'className' => $className,
+            'args'      => $args,
+            'extra'     => $extra,
+        ]);
+
+        $local      = true;
+        $at         = 0;
+        $serverName = 'any';
+        if (is_bool($extra)) {
+            $local = $extra;
+        } elseif (is_int($extra)) {
+            $at = $extra;
+        } elseif (is_string($extra)) {
+            if ('local' === $extra) {
+                $local = true;
+            } else {
+                $local      = false;
+                $serverName = $extra;
+            }
+        } elseif (is_array($extra)) {
+            if (isset($extra['local'])) {
+                $local = $extra['local'];
+            }
+
+            if (isset($extra['at'])) {
+                $at = (int) $extra['at'];
+            } elseif (isset($extra['delay'])) {
+                $at = time() + intval($extra['delay']);
+            }
         }
+
+        if ($local) {
+            $this->queue->send($this->taskProcess ? $this->serverName : 'any', [$className, $args], $at);
+        } else {
+            $this->queue->send($serverName, [$className, $args], $at);
+        }
+
+        run_hook('workerman:task:afterSend', [
+            'className' => $className,
+            'args'      => $args,
+            'extra'     => $extra,
+        ]);
     }
 
     protected function addHttpProcess(): ?ProcessInterface
@@ -120,13 +170,9 @@ class Server implements ServerInterface
     {
         $options = config('workerman.task');
         if ($options['count'] > 0) {
-            if (!$this->container->has(QueueInterface::class)) {
-                $this->container->add(QueueInterface::class, Queue::class);
-            }
-
             return $this->addProcess(new TaskProcess($this->app, $options, [
-                'crontab' => config('crontab'),
-                'server'  => $this->serverName,
+                'crontab'    => config('crontab'),
+                'serverName' => $this->serverName,
             ]));
         }
 

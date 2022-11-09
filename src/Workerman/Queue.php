@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-04 16:01:29 +0800
+ * @version  2022-11-09 15:22:40 +0800
  */
 
 namespace Teddy\Workerman;
@@ -37,7 +37,7 @@ class Queue implements QueueInterface
 
     public function __construct()
     {
-        $options = config('workerman.task.queue', []);
+        $options = config('queue', []);
 
         $this->redis        = $options['redis'] ?? 'default';
         $this->redisCfg     = config('redis.'.$this->redis, []);
