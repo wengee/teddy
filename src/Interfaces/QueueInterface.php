@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:41:54 +0800
+ * @version  2022-11-09 22:30:23 +0800
  */
 
 namespace Teddy\Interfaces;
@@ -16,4 +16,6 @@ interface QueueInterface
      * @param string|string[] $queue
      */
     public function subscribe($queue, callable $callback);
+
+    public function addTask(string $className, array $args = [], array $options = []);
 }

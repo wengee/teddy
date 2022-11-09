@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 15:57:55 +0800
+ * @version  2022-11-09 22:43:54 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -35,17 +35,19 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
      */
     protected $queue;
 
-    protected $serverName;
+    /**
+     * @var array
+     */
+    protected $channels = [];
 
     protected $timerId;
 
     public function __construct(Application $app, array $options, array $extra = [])
     {
-        $this->app     = $app;
-        $this->options = $options;
-
-        $this->crontab    = $extra['crontab'] ?? null;
-        $this->serverName = $extra['serverName'] ?? null;
+        $this->app      = $app;
+        $this->options  = $options;
+        $this->crontab  = $extra['crontab'] ?? null;
+        $this->channels = $extra['channels'] ?? [];
 
         $this->queue = $app->getContainer()->get(QueueInterface::class);
     }
@@ -55,10 +57,7 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         run_hook('workerman:task:beforeWorkerStart', ['worker' => $worker]);
 
         if ($this->queue) {
-            $channels = ['any'];
-            if ($this->serverName) {
-                $channels[] = $this->serverName;
-            }
+            $channels = $this->channels ?: ['default'];
 
             $this->queue->subscribe($channels, function ($data): void {
                 $this->runTask($data);

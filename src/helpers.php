@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-04 16:00:25 +0800
+ * @version  2022-11-09 22:41:02 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -16,7 +16,7 @@ use Teddy\Container\Container;
 use Teddy\Deferred;
 use Teddy\Hook;
 use Teddy\Http\Response;
-use Teddy\Interfaces\ServerInterface;
+use Teddy\Interfaces\QueueInterface;
 use Teddy\Log\LogManager;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
@@ -196,20 +196,20 @@ if (!function_exists('run_task')) {
     /**
      * Run a task.
      *
-     * @param null|array|bool|int|string $extra ['local' => true, 'at' => 0, 'delay' => 0]
+     * @param array $options Default: ['queue' => 'default', 'at' => 0, 'delay' => 0]
      */
-    function run_task(string $className, array $args = [], $extra = null): void
+    function run_task(string $className, array $args = [], array $options = []): void
     {
-        static $server;
-        if (null === $server) {
-            $server = Container::getInstance()->get(ServerInterface::class);
+        static $queue;
+        if (null === $queue) {
+            $queue = Container::getInstance()->get(QueueInterface::class);
         }
 
         /**
-         * @var null|ServerInterface $server
+         * @var null|QueueInterface $queue
          */
-        if ($server) {
-            $server->addTask($className, $args, $extra);
+        if ($queue) {
+            $queue->addTask($className, $args, $options);
         } else {
             throw new Exception('Unable to run the task ['.$className.'].');
         }

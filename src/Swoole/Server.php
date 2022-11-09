@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-04 16:01:11 +0800
+ * @version  2022-11-09 22:55:19 +0800
  */
 
 namespace Teddy\Swoole;
@@ -30,8 +30,6 @@ use Teddy\Swoole\Processes\ConsumerProcess;
 use Teddy\Swoole\Processes\CrontabProcess;
 use Teddy\Traits\TaskAwareTrait;
 
-defined('IN_SWOOLE') || define('IN_SWOOLE', true);
-
 class Server implements ServerInterface
 {
     use TaskAwareTrait;
@@ -40,11 +38,6 @@ class Server implements ServerInterface
      * @var string
      */
     protected $name;
-
-    /**
-     * @var string
-     */
-    protected $serverName;
 
     /**
      * @var null|AbstractCommand
@@ -81,17 +74,11 @@ class Server implements ServerInterface
             throw new Exception('Teddy require swoole 4.6.0 or newer.');
         }
 
-        $this->app        = app();
-        $this->container  = $this->app->getContainer();
-        $this->name       = config('app.name') ?: 'Teddy App';
-        $this->serverName = config('app.server') ?: php_uname('n');
+        $this->app       = app();
+        $this->container = $this->app->getContainer();
+        $this->name      = config('app.name') ?: 'Teddy App';
 
         $this->initialize();
-    }
-
-    public function getServerName(): string
-    {
-        return $this->serverName;
     }
 
     public function getName(): string
@@ -239,53 +226,6 @@ class Server implements ServerInterface
         return $customProcess;
     }
 
-    /**
-     * @param null|array|bool|int|string $extra
-     */
-    public function addTask(string $className, array $args = [], $extra = null): void
-    {
-        static $queue;
-        if (null === $queue) {
-            /**
-             * @var QueueInterface
-             */
-            $queue = $this->container->get(QueueInterface::class);
-        }
-
-        $local      = true;
-        $at         = 0;
-        $serverName = 'any';
-        if (is_bool($extra)) {
-            $local = $extra;
-        } elseif (is_int($extra)) {
-            $at = $extra;
-        } elseif (is_string($extra)) {
-            if ('local' === $extra) {
-                $local      = true;
-                $serverName = $this->serverName;
-            } else {
-                $local      = false;
-                $serverName = $extra;
-            }
-        } elseif (is_array($extra)) {
-            if (isset($extra['local'])) {
-                $local = $extra['local'];
-            }
-
-            if (isset($extra['at'])) {
-                $at = (int) $extra['at'];
-            } elseif (isset($extra['delay'])) {
-                $at = time() + intval($extra['delay']);
-            }
-        }
-
-        if ($local && (0 === $at)) {
-            $this->swoole->task([$className, $args]);
-        } else {
-            $queue->send($serverName, [$className, $args], $at);
-        }
-    }
-
     protected function addCustomProcesses(array $processes): void
     {
         foreach ($processes as $key => $item) {
@@ -423,7 +363,8 @@ class Server implements ServerInterface
         }
 
         if ($config['consumer']) {
-            $this->addProcess(new ConsumerProcess($this->container, $this->serverName));
+            $channels = config('queue.channels');
+            $this->addProcess(new ConsumerProcess($this->container, $channels));
         }
 
         $processes = config('process');

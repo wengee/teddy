@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 15:22:05 +0800
+ * @version  2022-11-09 22:42:34 +0800
  */
 
 return [
@@ -11,4 +11,5 @@ return [
     'redis'        => 'default',
     'retrySeconds' => 5,
     'maxAttempts'  => 5,
+    'channels'     => null,
 ];

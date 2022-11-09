@@ -4,19 +4,25 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 15:22:40 +0800
+ * @version  2022-11-09 22:37:09 +0800
  */
 
 namespace Teddy\Workerman;
 
 use RuntimeException;
+use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\QueueInterface;
+use Teddy\Traits\AddTaskTrait;
+use Teddy\Traits\ContainerAwareTrait;
 use Throwable;
 use Workerman\Redis\Client as Redis;
 use Workerman\Timer;
 
-class Queue implements QueueInterface
+class Queue implements ContainerAwareInterface, QueueInterface
 {
+    use ContainerAwareTrait;
+    use AddTaskTrait;
+
     protected $queueWaiting = 'queue:waiting:';
 
     protected $queueDelayed = 'queue:delayed';

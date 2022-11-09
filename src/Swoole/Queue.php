@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 15:22:30 +0800
+ * @version  2022-11-09 22:36:35 +0800
  */
 
 namespace Teddy\Swoole;
@@ -13,12 +13,14 @@ use Swoole\Timer;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Redis\Redis;
+use Teddy\Traits\AddTaskTrait;
 use Teddy\Traits\ContainerAwareTrait;
 use Throwable;
 
 class Queue implements ContainerAwareInterface, QueueInterface
 {
     use ContainerAwareTrait;
+    use AddTaskTrait;
 
     protected $queueWaiting = 'queue:waiting:';
 

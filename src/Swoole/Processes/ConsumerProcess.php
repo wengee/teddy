@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 17:53:27 +0800
+ * @version  2022-11-09 22:46:15 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -24,9 +24,9 @@ class ConsumerProcess extends AbstractProcess implements ProcessInterface
     protected $container;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $serverName;
+    protected $channels = [];
 
     protected $name = 'consumer process';
 
@@ -38,21 +38,17 @@ class ConsumerProcess extends AbstractProcess implements ProcessInterface
 
     protected $busy = false;
 
-    public function __construct(ContainerInterface $container, string $serverName)
+    public function __construct(ContainerInterface $container, ?array $channels = [])
     {
-        $this->container  = $container;
-        $this->options    = ['coroutine' => true];
-        $this->serverName = $this->serverName;
+        $this->container = $container;
+        $this->options   = ['coroutine' => true];
+        $this->channels  = $channels;
     }
 
     public function handle(Server $swoole, Process $process): void
     {
-        $channels = ['any'];
-        if ($this->serverName) {
-            $channels[] = $this->serverName;
-        }
-
-        $swoole = $this->container->get('swoole');
+        $channels = $this->channels ?: ['default'];
+        $swoole   = $this->container->get('swoole');
 
         /**
          * @var QueueInterface

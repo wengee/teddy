@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 16:26:04 +0800
+ * @version  2022-11-09 23:24:58 +0800
  */
 
 namespace Teddy\Workerman;
@@ -21,11 +21,6 @@ use Teddy\Workerman\Processes\WebsocketProcess;
 class Server implements ServerInterface
 {
     /**
-     * @var string
-     */
-    protected $serverName;
-
-    /**
      * @var Application
      */
     protected $app;
@@ -34,6 +29,11 @@ class Server implements ServerInterface
      * @var ContainerInterface
      */
     protected $container;
+
+    /**
+     * @var ProcessInterface[]
+     */
+    protected $processes = [];
 
     /**
      * @var HttpProcess
@@ -57,9 +57,8 @@ class Server implements ServerInterface
 
     public function __construct()
     {
-        $this->app        = app();
-        $this->container  = $this->app->getContainer();
-        $this->serverName = config('app.server') ?: php_uname('n');
+        $this->app       = app();
+        $this->container = $this->app->getContainer();
 
         $this->container->addValue('server', $this);
         $this->container->addValue(ServerInterface::class, $this);
@@ -68,115 +67,61 @@ class Server implements ServerInterface
             $this->container->add(QueueInterface::class, Queue::class);
         }
         $this->queue = $this->container->get(QueueInterface::class);
-    }
 
-    public function getServerName(): string
-    {
-        return $this->serverName;
+        $this->initialize();
     }
 
     public function start(): void
     {
-        $this->httpProcess      = $this->addHttpProcess();
-        $this->websocketProcess = $this->addWebsocketProcess();
-        $this->taskProcess      = $this->addTaskProcess();
-
-        $processes = config('process');
-        if (is_array($processes) && $processes) {
-            $this->addCustomProcesses($processes);
+        foreach ($this->processes as $process) {
+            Util::startWorker($process);
         }
 
         Util::runAll();
     }
 
-    public function addProcess(ProcessInterface $process): ProcessInterface
+    public function addProcess(ProcessInterface $process): void
     {
-        Util::startWorker($process);
-
-        return $process;
+        $this->processes[] = $process;
     }
 
-    /**
-     * @param null|array|bool|int|string $extra
-     */
-    public function addTask(string $className, array $args = [], $extra = null): void
+    protected function initialize(): void
     {
-        run_hook('workerman:task:beforeSend', [
-            'className' => $className,
-            'args'      => $args,
-            'extra'     => $extra,
-        ]);
+        $this->addHttpProcess();
+        $this->addWebsocketProcess();
+        $this->addTaskProcess();
 
-        $local      = true;
-        $at         = 0;
-        $serverName = 'any';
-        if (is_bool($extra)) {
-            $local = $extra;
-        } elseif (is_int($extra)) {
-            $at = $extra;
-        } elseif (is_string($extra)) {
-            if ('local' === $extra) {
-                $local = true;
-            } else {
-                $local      = false;
-                $serverName = $extra;
-            }
-        } elseif (is_array($extra)) {
-            if (isset($extra['local'])) {
-                $local = $extra['local'];
-            }
-
-            if (isset($extra['at'])) {
-                $at = (int) $extra['at'];
-            } elseif (isset($extra['delay'])) {
-                $at = time() + intval($extra['delay']);
-            }
+        $processes = config('process');
+        if (is_array($processes) && $processes) {
+            $this->addCustomProcesses($processes);
         }
-
-        if ($local) {
-            $this->queue->send($this->taskProcess ? $this->serverName : 'any', [$className, $args], $at);
-        } else {
-            $this->queue->send($serverName, [$className, $args], $at);
-        }
-
-        run_hook('workerman:task:afterSend', [
-            'className' => $className,
-            'args'      => $args,
-            'extra'     => $extra,
-        ]);
     }
 
-    protected function addHttpProcess(): ?ProcessInterface
+    protected function addHttpProcess(): void
     {
         $options = config('workerman.http');
         if ($options['count'] > 0) {
-            return $this->addProcess(new HttpProcess($this->app, $options));
+            $this->addProcess(new HttpProcess($this->app, $options));
         }
-
-        return null;
     }
 
-    protected function addWebsocketProcess(): ?ProcessInterface
+    protected function addWebsocketProcess(): void
     {
         $options = config('workerman.websocket');
         if ($options['count'] > 0) {
-            return $this->addProcess(new WebsocketProcess($this->app, $options));
+            $this->addProcess(new WebsocketProcess($this->app, $options));
         }
-
-        return null;
     }
 
-    protected function addTaskProcess(): ?ProcessInterface
+    protected function addTaskProcess(): void
     {
         $options = config('workerman.task');
         if ($options['count'] > 0) {
-            return $this->addProcess(new TaskProcess($this->app, $options, [
-                'crontab'    => config('crontab'),
-                'serverName' => $this->serverName,
+            $this->addProcess(new TaskProcess($this->app, $options, [
+                'crontab'  => config('crontab'),
+                'channels' => config('queue.channels'),
             ]));
         }
-
-        return null;
     }
 
     protected function addCustomProcesses(array $processes): void
@@ -190,7 +135,7 @@ class Server implements ServerInterface
                     $className = $item;
                 } elseif (is_array($item)) {
                     $className = $item['class'] ?? null;
-                    $args      = $item['parameters'] ?? [];
+                    $args      = $item['arguments'] ?? [];
                 }
             } elseif (is_string($key)) {
                 $className = $key;
