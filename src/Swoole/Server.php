@@ -66,10 +66,6 @@ class Server implements ServerInterface
 
     public function __construct()
     {
-        if (version_compare(PHP_VERSION, '8.1.0') < 0) {
-            throw new Exception('Teddy require PHP 8.1 or newer.');
-        }
-
         if (version_compare(SWOOLE_VERSION, '4.6.0') < 0) {
             throw new Exception('Teddy require swoole 4.6.0 or newer.');
         }

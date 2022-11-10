@@ -14,6 +14,8 @@ use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
+use Teddy\Interfaces\WorkermanProcessInterface;
+use Teddy\Workerman\Processes\CustomProcess;
 use Teddy\Workerman\Processes\HttpProcess;
 use Teddy\Workerman\Processes\TaskProcess;
 use Teddy\Workerman\Processes\WebsocketProcess;
@@ -31,7 +33,7 @@ class Server implements ServerInterface
     protected $container;
 
     /**
-     * @var ProcessInterface[]
+     * @var WorkermanProcessInterface[]
      */
     protected $processes = [];
 
@@ -82,6 +84,11 @@ class Server implements ServerInterface
 
     public function addProcess(ProcessInterface $process): void
     {
+        $this->addWorkermanProcess(new CustomProcess($process));
+    }
+
+    protected function addWorkermanProcess(WorkermanProcessInterface $process): void
+    {
         $this->processes[] = $process;
     }
 
@@ -101,7 +108,7 @@ class Server implements ServerInterface
     {
         $options = config('workerman.http');
         if ($options['count'] > 0) {
-            $this->addProcess(new HttpProcess($this->app, $options));
+            $this->addWorkermanProcess(new HttpProcess($this->app, $options));
         }
     }
 
@@ -109,7 +116,7 @@ class Server implements ServerInterface
     {
         $options = config('workerman.websocket');
         if ($options['count'] > 0) {
-            $this->addProcess(new WebsocketProcess($this->app, $options));
+            $this->addWorkermanProcess(new WebsocketProcess($this->app, $options));
         }
     }
 
@@ -117,7 +124,7 @@ class Server implements ServerInterface
     {
         $options = config('workerman.task');
         if ($options['count'] > 0) {
-            $this->addProcess(new TaskProcess($this->app, $options, [
+            $this->addWorkermanProcess(new TaskProcess($this->app, $options, [
                 'crontab'  => config('crontab'),
                 'channels' => config('queue.channels'),
             ]));
@@ -154,7 +161,7 @@ class Server implements ServerInterface
                 continue;
             }
 
-            $count = $process->getOption('count', 0);
+            $count = $process->getCount();
             if ($count > 0) {
                 $this->addProcess($process);
             }

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-20 14:39:47 +0800
+ * @version  2022-11-10 14:42:10 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
@@ -41,7 +41,6 @@ abstract class DefaultCommand extends AbstractCommand
 
     protected function handle(): void
     {
-        defined('IN_WORKERMAN') || define('IN_WORKERMAN', true);
         Runtime::set(Runtime::WORKERMAN);
         $this->initializeWorker();
 

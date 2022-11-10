@@ -4,15 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-11 17:20:32 +0800
+ * @version  2022-11-10 17:37:43 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
 use Exception;
-use Teddy\Abstracts\AbstractProcess;
 use Teddy\Application;
-use Teddy\Interfaces\ProcessInterface;
+use Teddy\Interfaces\WorkermanProcessInterface;
 use Teddy\Workerman\ResponseEmitter;
 use Teddy\Workerman\ServerRequestFactory;
 use Workerman\Connection\TcpConnection;
@@ -20,14 +19,12 @@ use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
 
-class HttpProcess extends AbstractProcess implements ProcessInterface
+class HttpProcess extends AbstractWorkermanProcess implements WorkermanProcessInterface
 {
     /**
      * @var Application
      */
     protected $app;
-
-    protected $name = 'http';
 
     public function __construct(Application $app, array $options = [])
     {
@@ -41,6 +38,11 @@ class HttpProcess extends AbstractProcess implements ProcessInterface
 
         $this->context = $options['context'] ?? [];
         $this->options = $options;
+    }
+
+    public function getName(): string
+    {
+        return 'http';
     }
 
     public function onWorkerStart(Worker $worker): void

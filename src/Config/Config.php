@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-01 14:23:13 +0800
+ * @version  2022-11-10 14:43:16 +0800
  */
 
 namespace Teddy\Config;
@@ -173,8 +173,8 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
             $filepath = FileSystem::joinPath($dir, $file);
             if (Str::endsWith($file, '.php') && is_file($filepath)) {
                 $key = substr($file, 0, -4);
-                if (('swoole' === $key && (false === Runtime::is(Runtime::SWOOLE)))
-                || ('workerman' === $key && (false === Runtime::is(Runtime::WORKERMAN)))) {
+                if (('swoole' === $key && !Runtime::is(Runtime::SWOOLE))
+                || ('workerman' === $key && !Runtime::is(Runtime::WORKERMAN))) {
                     continue;
                 }
 

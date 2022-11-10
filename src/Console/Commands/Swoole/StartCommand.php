@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-20 14:55:13 +0800
+ * @version  2022-11-10 14:41:59 +0800
  */
 
 namespace Teddy\Console\Commands\Swoole;
@@ -24,7 +24,6 @@ class StartCommand extends AbstractCommand
 
     protected function handle(): void
     {
-        defined('IN_SWOOLE') || define('IN_SWOOLE', true);
         Runtime::set(Runtime::SWOOLE);
 
         $now = date('Y-m-d H:i:s');

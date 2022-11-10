@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-24 11:36:30 +0800
+ * @version  2022-11-10 14:32:57 +0800
  */
 
 namespace Teddy\Container;
@@ -24,13 +24,18 @@ use Slim\Interfaces\RouteCollectorInterface;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Interfaces\RouteResolverInterface;
 use Teddy\Interfaces\KernelInterface;
+use Teddy\Runtime;
 
 class DefaultContainer
 {
-    public static function create(string $basePath): Container
+    public static function create(string $basePath, ?string $runtime = null): Container
     {
         $container = Container::getInstance();
         $container->addValue('basePath', $basePath);
+        if ($runtime) {
+            $container->addValue('runtime', $runtime);
+            Runtime::set($runtime);
+        }
 
         // Console Application
         $container->addShared(KernelInterface::class, \Teddy\Console\Kernel::class);

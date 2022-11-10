@@ -3,8 +3,10 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 22:55:55 +0800
+ * @version  2022-11-10 17:52:00 +0800
  */
+
+use App\WebsocketHandler;
 
 return [
     'http' => [
@@ -15,13 +17,13 @@ return [
         'reloadable' => true,
     ],
 
+    'websocket' => [
+        'count'   => 1,
+        'handler' => WebsocketHandler::class,
+    ],
+
     'task' => [
-        'host'       => '127.0.0.1',
-        'port'       => null,
-        'sock'       => null,
-        'count'      => 1,
-        'reusePort'  => false,
-        'reloadable' => true,
+        'count' => 1,
     ],
 
     'stdoutFile' => null,

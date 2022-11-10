@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-04 16:15:57 +0800
+ * @version  2022-11-10 14:39:10 +0800
  */
 
 namespace Teddy;
@@ -12,43 +12,39 @@ final class Runtime
 {
     public const SWOOLE    = 'swoole';
     public const WORKERMAN = 'workerman';
-    public const UNKNOWN   = 'unknown';
 
     private static $initialized = false;
 
     private static $runtime;
 
-    public static function set(?string $runtime): void
+    public static function set(string $runtime): void
     {
         self::initialize();
-        self::$runtime = $runtime ?: self::UNKNOWN;
+        self::$runtime = $runtime;
     }
 
     public static function get(): string
     {
         self::initialize();
 
-        return self::$runtime ?: self::UNKNOWN;
+        return self::$runtime;
     }
 
-    public static function is(string $runtime, bool $strict = false): ?bool
+    public static function is(string $runtime): ?bool
     {
         self::initialize();
-        if (!$strict && self::UNKNOWN === self::$runtime) {
-            return null;
-        }
 
         return self::$runtime === $runtime;
     }
 
     public static function isSwoole(): bool
     {
-        return self::is(self::SWOOLE, true);
+        return self::is(self::SWOOLE);
     }
 
     public static function isWorkerman(): bool
     {
-        return self::is(self::WORKERMAN, true);
+        return self::is(self::WORKERMAN);
     }
 
     public static function swooleEnabled(): bool
@@ -66,15 +62,15 @@ final class Runtime
         if (!self::$initialized) {
             $runtime = env('TEDDY_RUNTIME');
 
-            $swooleEnabled    = self::swooleEnabled();
-            $workermanEnabled = self::workermanEnabled();
-            if ($swooleEnabled && !$workermanEnabled) {
-                $runtime = self::SWOOLE;
-            } elseif ($workermanEnabled && !$swooleEnabled) {
-                $runtime = self::WORKERMAN;
+            if (!$runtime) {
+                if (self::workermanEnabled()) {
+                    $runtime = self::WORKERMAN;
+                } else {
+                    $runtime = self::SWOOLE;
+                }
             }
 
-            self::$runtime     = $runtime ?: self::UNKNOWN;
+            self::$runtime     = $runtime;
             self::$initialized = true;
         }
     }

@@ -4,17 +4,17 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-19 22:26:48 +0800
+ * @version  2022-11-10 17:38:38 +0800
  */
 
 namespace Teddy\Workerman;
 
-use Teddy\Interfaces\ProcessInterface;
+use Teddy\Interfaces\WorkermanProcessInterface;
 use Workerman\Worker;
 
 class Util
 {
-    public static function bindWorker(Worker $worker, ProcessInterface $process): void
+    public static function bindWorker(Worker $worker, WorkermanProcessInterface $process): void
     {
         $callbackMap = [
             'onWorkerStart',
@@ -34,10 +34,9 @@ class Util
         }
     }
 
-    public static function startWorker(ProcessInterface $process): void
+    public static function startWorker(WorkermanProcessInterface $process): void
     {
         $worker = new Worker($process->getListen(), $process->getContext());
-        $process->setWorker($worker);
 
         $worker->name = $process->getName();
 

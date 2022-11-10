@@ -4,30 +4,28 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 15:36:48 +0800
+ * @version  2022-11-10 17:48:52 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
 use Exception;
-use Teddy\Abstracts\AbstractProcess;
+use RuntimeException;
 use Teddy\Application;
-use Teddy\Interfaces\ProcessInterface;
-use Teddy\Workerman\WebsocketHandlerInterface;
+use Teddy\Interfaces\WebsocketHandlerInterface;
+use Teddy\Interfaces\WorkermanProcessInterface;
+use Teddy\Workerman\Websocket\Connection;
 use Workerman\Connection\TcpConnection;
-use Workerman\Worker;
 
-class WebsocketProcess extends AbstractProcess implements ProcessInterface
+class WebsocketProcess extends AbstractWorkermanProcess implements WorkermanProcessInterface
 {
     /**
      * @var Application
      */
     protected $app;
 
-    protected $name = 'websocket';
-
     /**
-     * @var null|WebsocketHandlerInterface
+     * @var WebsocketHandlerInterface
      */
     protected $handler;
 
@@ -45,87 +43,39 @@ class WebsocketProcess extends AbstractProcess implements ProcessInterface
         $this->options = $options;
 
         $handler = $options['handler'] ?? null;
-        if ($handler && is_subclass_of($handler, WebsocketHandlerInterface::class)) {
-            $this->handler = is_string($handler) ? new $handler() : $handler;
+        if (!$handler || !is_subclass_of($handler, WebsocketHandlerInterface::class)) {
+            throw new RuntimeException('Cannot found websocket handler.');
         }
+
+        $this->handler = is_string($handler) ? new $handler() : $handler;
     }
 
-    public function onWorkerStart(Worker $worker): void
+    public function getName(): string
     {
-        run_hook('workerman:websocket:beforeWorkerStart', ['worker' => $worker]);
-
-        $this->handleEvent('onWorkerStart', $worker);
-
-        run_hook('workerman:websocket:afterWorkerStart', ['worker' => $worker]);
-    }
-
-    public function onWorkerReload(Worker $worker): void
-    {
-        run_hook('workerman:websocket:beforeWorkerReload', ['worker' => $worker]);
-
-        $this->handleEvent('onWorkerReload', $worker);
-
-        run_hook('workerman:websocket:afterWorkerReload', ['worker' => $worker]);
+        return 'websocket';
     }
 
     public function onConnect(TcpConnection $connection): void
     {
-        run_hook('workerman:websocket:beforeConnect', ['connection' => $connection]);
-
-        $this->handleEvent('onConnect', $connection);
-
-        run_hook('workerman:websocket:afterConnect', ['connection' => $connection]);
+        $this->handleEvent('onConnect', new Connection($connection));
     }
 
     public function onMessage(TcpConnection $connection, string $data): void
     {
-        run_hook('workerman:websocket:beforeMessage', [
-            'connection' => $connection,
-            'data'       => $data,
-        ]);
-
-        $this->handleEvent('onMessage', $connection, $data);
-
-        run_hook('workerman:websocket:afterMessage', [
-            'connection' => $connection,
-            'data'       => $data,
-        ]);
+        $this->handleEvent('onMessage', new Connection($connection), $data);
     }
 
     public function onClose(TcpConnection $connection): void
     {
-        run_hook('workerman:websocket:beforeClose', ['connection' => $connection]);
-
-        $this->handleEvent('onClose', $connection);
-
-        run_hook('workerman:websocket:afterClose', ['connection' => $connection]);
-    }
-
-    public function onError(TcpConnection $connection, $code, $msg): void
-    {
-        run_hook('workerman:websocket:beforeError', [
-            'connection' => $connection,
-            'code'       => $code,
-            'msg'        => $msg,
-        ]);
-
-        $this->handleEvent('onError', $connection, $code, $msg);
-
-        run_hook('workerman:websocket:afterError', [
-            'connection' => $connection,
-            'code'       => $code,
-            'msg'        => $msg,
-        ]);
+        $this->handleEvent('onClose', new Connection($connection));
     }
 
     protected function handleEvent(string $method, ...$args): void
     {
-        if ($this->handler) {
-            try {
-                call_user_func([$this->handler, $method], ...$args);
-            } catch (Exception $e) {
-                log_exception($e);
-            }
+        try {
+            call_user_func([$this->handler, $method], ...$args);
+        } catch (Exception $e) {
+            log_exception($e);
         }
     }
 }

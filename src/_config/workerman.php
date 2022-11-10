@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 16:01:18 +0800
+ * @version  2022-11-10 14:26:25 +0800
  */
 
 use Teddy\Config\Repository;
@@ -28,12 +28,7 @@ return [
     ]),
 
     'task' => new Repository([
-        'host'       => '127.0.0.1',
-        'port'       => null,
-        'sock'       => null,
-        'count'      => 1,
-        'reusePort'  => false,
-        'reloadable' => true,
+        'count' => 1,
     ]),
 
     'stdoutFile' => null,

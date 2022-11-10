@@ -4,20 +4,19 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 22:43:54 +0800
+ * @version  2022-11-10 17:37:58 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
-use Teddy\Abstracts\AbstractProcess;
 use Teddy\Application;
-use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
+use Teddy\Interfaces\WorkermanProcessInterface;
 use Teddy\Traits\TaskAwareTrait;
 use Workerman\Timer;
 use Workerman\Worker;
 
-class TaskProcess extends AbstractProcess implements ProcessInterface
+class TaskProcess extends AbstractWorkermanProcess implements WorkermanProcessInterface
 {
     use TaskAwareTrait;
 
@@ -25,8 +24,6 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
      * @var Application
      */
     protected $app;
-
-    protected $name = 'task';
 
     protected $crontab = [];
 
@@ -50,6 +47,11 @@ class TaskProcess extends AbstractProcess implements ProcessInterface
         $this->channels = $extra['channels'] ?? [];
 
         $this->queue = $app->getContainer()->get(QueueInterface::class);
+    }
+
+    public function getName(): string
+    {
+        return 'task';
     }
 
     public function onWorkerStart(Worker $worker): void
