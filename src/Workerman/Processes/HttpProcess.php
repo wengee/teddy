@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 17:37:43 +0800
+ * @version  2022-11-10 20:44:14 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -19,7 +19,7 @@ use Workerman\Protocols\Http\Request;
 use Workerman\Protocols\Http\Response;
 use Workerman\Worker;
 
-class HttpProcess extends AbstractWorkermanProcess implements WorkermanProcessInterface
+class HttpProcess extends AbstractProcess implements WorkermanProcessInterface
 {
     /**
      * @var Application

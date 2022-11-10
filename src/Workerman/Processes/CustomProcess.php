@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 16:50:40 +0800
+ * @version  2022-11-10 20:44:07 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -12,7 +12,7 @@ use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\WorkermanProcessInterface;
 use Workerman\Worker;
 
-class CustomProcess extends AbstractWorkermanProcess implements WorkermanProcessInterface
+class CustomProcess extends AbstractProcess implements WorkermanProcessInterface
 {
     /**
      * @var ProcessInterface

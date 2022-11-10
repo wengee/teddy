@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 17:48:52 +0800
+ * @version  2022-11-10 20:44:24 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -17,7 +17,7 @@ use Teddy\Interfaces\WorkermanProcessInterface;
 use Teddy\Workerman\Websocket\Connection;
 use Workerman\Connection\TcpConnection;
 
-class WebsocketProcess extends AbstractWorkermanProcess implements WorkermanProcessInterface
+class WebsocketProcess extends AbstractProcess implements WorkermanProcessInterface
 {
     /**
      * @var Application

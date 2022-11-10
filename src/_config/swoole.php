@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 16:08:21 +0800
+ * @version  2022-11-10 23:38:37 +0800
  */
 
 use Teddy\Config\Repository;
@@ -33,4 +33,6 @@ return [
     'task' => new Repository([
         'count' => 1,
     ]),
+
+    'coroutineFlags' => SWOOLE_HOOK_ALL,
 ];

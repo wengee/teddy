@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 14:41:59 +0800
+ * @version  2022-11-10 23:37:04 +0800
  */
 
 namespace Teddy\Console\Commands\Swoole;
@@ -30,6 +30,6 @@ class StartCommand extends AbstractCommand
         $this->info("[{$now}] Starting swoole server...");
 
         $server = new Server();
-        $server->setCommand($this)->start();
+        $server->start();
     }
 }

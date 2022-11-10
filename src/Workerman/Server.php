@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 23:24:58 +0800
+ * @version  2022-11-10 23:54:00 +0800
  */
 
 namespace Teddy\Workerman;
@@ -36,21 +36,6 @@ class Server implements ServerInterface
      * @var WorkermanProcessInterface[]
      */
     protected $processes = [];
-
-    /**
-     * @var HttpProcess
-     */
-    protected $httpProcess;
-
-    /**
-     * @var WebsocketProcess
-     */
-    protected $websocketProcess;
-
-    /**
-     * @var TaskProcess
-     */
-    protected $taskProcess;
 
     /**
      * @var QueueInterface

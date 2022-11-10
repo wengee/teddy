@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 10:58:45 +0800
+ * @version  2022-11-11 00:05:35 +0800
  */
 
 namespace Teddy\Database;
@@ -102,7 +102,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
             throw $throwable;
         }
 
-        return $this->readChannel->pop();
+        return $this->readChannel->pop($this->poolOptions['waitTimeout']);
     }
 
     public function getWriteConnection(): DbConnectionInterface
