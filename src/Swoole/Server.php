@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 15:33:05 +0800
+ * @version  2022-11-11 16:49:43 +0800
  */
 
 namespace Teddy\Swoole;
@@ -84,6 +84,10 @@ class Server implements ServerInterface
         $coroutineFlags = (int) config('swoole.coroutineFlags');
         Runtime::enableCoroutine($coroutineFlags);
 
+        if ($this->command) {
+            $this->command->table(['process', 'listen', 'count'], $this->message);
+        }
+
         if (1 === count($this->processes)) {
             $process = $this->processes[0];
             if (1 === $process->getCount()) {
@@ -106,10 +110,6 @@ class Server implements ServerInterface
                 },
                 $process->enableCoroutine()
             );
-        }
-
-        if ($this->command) {
-            $this->command->table(['process', 'listen', 'count'], $this->message);
         }
 
         $pm->start();
