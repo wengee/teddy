@@ -14,7 +14,7 @@ return [
         'host'       => '127.0.0.1',
         'port'       => 9500,
         'count'      => 1,
-        'reusePort'  => false,
+        'reusePort'  => true,
         'reloadable' => true,
     ]),
 
@@ -22,7 +22,7 @@ return [
         'host'       => '127.0.0.1',
         'port'       => 9600,
         'count'      => 0,
-        'reusePort'  => false,
+        'reusePort'  => true,
         'reloadable' => true,
         'handler'    => new Repository(null, Repository::DATA_AS_RAW | Repository::DATA_PROTECTED),
     ]),

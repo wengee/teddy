@@ -3,18 +3,16 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 17:52:00 +0800
+ * @version  2022-11-11 16:27:03 +0800
  */
 
 use App\WebsocketHandler;
 
 return [
     'http' => [
-        'host'       => '127.0.0.1',
-        'port'       => 9500,
-        'count'      => 1,
-        'reusePort'  => false,
-        'reloadable' => true,
+        'host'  => '127.0.0.1',
+        'port'  => 9500,
+        'count' => 1,
     ],
 
     'websocket' => [
