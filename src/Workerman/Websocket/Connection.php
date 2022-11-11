@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 17:43:57 +0800
+ * @version  2022-11-11 16:16:06 +0800
  */
 
 namespace Teddy\Workerman\Websocket;
@@ -23,9 +23,24 @@ class Connection implements WebsocketConnectionInterface
         $this->connection = $connection;
     }
 
-    public function send($data): void
+    public function getId(): int
     {
-        $this->connection->send($data);
+        return $this->connection->id;
+    }
+
+    public function getRemoteIp(): string
+    {
+        return $this->connection->getRemoteIp();
+    }
+
+    public function getRemotePort(): int
+    {
+        return $this->connection->getRemotePort();
+    }
+
+    public function send($data, bool $raw = false): void
+    {
+        $this->connection->send($data, $raw);
     }
 
     public function close(): void

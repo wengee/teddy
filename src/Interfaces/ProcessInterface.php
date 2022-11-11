@@ -9,6 +9,7 @@ declare(strict_types=1);
 
 namespace Teddy\Interfaces;
 
+use Swoole\Process;
 use Workerman\Worker;
 
 interface ProcessInterface
@@ -22,12 +23,12 @@ interface ProcessInterface
     public function getOption(string $name, $default = null);
 
     /**
-     * @param Worker $worker
+     * @param Process|Worker $worker
      */
     public function setWorker($worker);
 
     /**
-     * @return Worker
+     * @return Process|Worker
      */
     public function getWorker();
 

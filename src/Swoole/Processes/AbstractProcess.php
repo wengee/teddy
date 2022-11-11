@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 23:53:47 +0800
+ * @version  2022-11-11 15:29:03 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -13,6 +13,11 @@ use Teddy\Swoole\Util;
 
 abstract class AbstractProcess implements SwooleProcessInterface
 {
+    /**
+     * @var bool
+     */
+    protected $isPool = false;
+
     /**
      * @var string
      */
@@ -53,9 +58,14 @@ abstract class AbstractProcess implements SwooleProcessInterface
      */
     protected $options = [];
 
+    public function isPool(): bool
+    {
+        return $this->isPool;
+    }
+
     public function getName(): string
     {
-        return $this->name;
+        return $this->name.' process';
     }
 
     public function getCount(): int
@@ -73,12 +83,20 @@ abstract class AbstractProcess implements SwooleProcessInterface
         return $this->options;
     }
 
-    public function start(): void
+    public function getListen(): string
     {
-        $appName = config('app.name', 'Teddy App');
-        Util::setProcessTitle($this->getName(), $appName);
-        $this->handle();
+        if ($this->host && $this->port) {
+            return $this->host.':'.$this->port;
+        }
+
+        return 'none';
     }
 
-    abstract public function handle();
+    public function start(int $workerId): void
+    {
+        Util::setProcessTitle($this->getName());
+        $this->handle($workerId);
+    }
+
+    abstract public function handle(int $workerId);
 }

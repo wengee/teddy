@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 17:55:10 +0800
+ * @version  2022-11-11 15:49:06 +0800
  */
 
 namespace App;
@@ -15,7 +15,7 @@ class WebsocketHandler implements WebsocketHandlerInterface
 {
     public function onConnect(WebsocketConnectionInterface $connection): void
     {
-        $connection->send('onConnect');
+        $connection->send('onConnect '.$connection->getId());
     }
 
     public function onMessage(WebsocketConnectionInterface $connection, $data): void
@@ -23,7 +23,7 @@ class WebsocketHandler implements WebsocketHandlerInterface
         if ('exit' === $data) {
             $connection->close();
         } else {
-            $connection->send('Receive: '.$data);
+            $connection->send('Receive: '.$connection->getId().', '.$data);
         }
     }
 

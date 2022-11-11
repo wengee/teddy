@@ -13,11 +13,11 @@ trait AddTaskTrait
     public function addTask(string $className, array $args = [], array $options = []): void
     {
         $queue = $options['queue'] ?? 'default';
-        $delay = (int) $options['delay'] ?? 0;
+        $delay = intval($options['delay'] ?? 0);
         if ($delay > 0) {
             $at = time() + $delay;
         } else {
-            $at = (int) $options['at'] ?? 0;
+            $at = intval($options['at'] ?? 0);
         }
 
         $this->send($queue, [$className, $args], $at);

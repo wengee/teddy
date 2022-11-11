@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 20:44:19 +0800
+ * @version  2022-11-11 15:44:01 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -45,8 +45,7 @@ class TaskProcess extends AbstractProcess implements WorkermanProcessInterface
         $this->options  = $options;
         $this->crontab  = $extra['crontab'] ?? null;
         $this->channels = $extra['channels'] ?? [];
-
-        $this->queue = $app->getContainer()->get(QueueInterface::class);
+        $this->queue    = $app->getContainer()->get(QueueInterface::class);
     }
 
     public function getName(): string
@@ -64,12 +63,12 @@ class TaskProcess extends AbstractProcess implements WorkermanProcessInterface
             $this->queue->subscribe($channels, function ($data): void {
                 $this->runTask($data);
             });
+        }
 
-            if ((0 === $worker->id) && $this->crontab) {
-                $this->timerId = Timer::add(1, function (): void {
-                    app('crontab')->run();
-                });
-            }
+        if ((0 === $worker->id) && $this->crontab) {
+            $this->timerId = Timer::add(1, function (): void {
+                app('crontab')->run();
+            });
         }
 
         run_hook('workerman:task:afterWorkerStart', ['worker' => $worker]);

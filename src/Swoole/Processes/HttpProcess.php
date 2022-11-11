@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 23:55:22 +0800
+ * @version  2022-11-11 14:10:52 +0800
  */
 
 namespace Teddy\Swoole\Processes;
 
 use Exception;
+use RuntimeException;
 use Swoole\Coroutine\Http\Server;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
@@ -20,7 +21,7 @@ use Teddy\Swoole\ServerRequestFactory;
 
 class HttpProcess extends AbstractProcess implements SwooleProcessInterface
 {
-    protected $name = 'http process';
+    protected $name = 'http';
 
     protected $enableCoroutine = true;
 
@@ -40,8 +41,12 @@ class HttpProcess extends AbstractProcess implements SwooleProcessInterface
         $this->options   = $options['options'] ?? [];
     }
 
-    public function handle(): void
+    public function handle(int $workerId): void
     {
+        if (!$this->host || !$this->port) {
+            throw new RuntimeException('Invalid parameter. (host or port)');
+        }
+
         $server = new Server($this->host, $this->port, $this->useSSL, $this->reusePort);
         $server->set($this->options);
 

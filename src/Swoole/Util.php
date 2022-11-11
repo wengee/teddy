@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-25 10:56:50 +0800
+ * @version  2022-11-11 14:16:52 +0800
  */
 
 namespace Teddy\Swoole;
@@ -17,9 +17,8 @@ class Util
             return;
         }
 
-        if ($prefix) {
-            $title = $prefix.': '.$title;
-        }
+        $prefix = $prefix ?: app()->getName();
+        $title  = $prefix.': '.$title;
 
         if (function_exists('cli_set_process_title')) {
             cli_set_process_title($title);

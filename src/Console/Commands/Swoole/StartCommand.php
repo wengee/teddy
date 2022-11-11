@@ -30,6 +30,6 @@ class StartCommand extends AbstractCommand
         $this->info("[{$now}] Starting swoole server...");
 
         $server = new Server();
-        $server->start();
+        $server->setCommand($this)->start();
     }
 }

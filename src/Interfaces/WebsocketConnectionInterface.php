@@ -10,7 +10,13 @@ namespace Teddy\Interfaces;
 
 interface WebsocketConnectionInterface
 {
-    public function send($data);
+    public function getId(): int;
+
+    public function getRemoteIp(): string;
+
+    public function getRemotePort(): int;
+
+    public function send($data, bool $raw = false);
 
     public function close();
 }

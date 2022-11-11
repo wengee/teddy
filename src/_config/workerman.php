@@ -28,7 +28,7 @@ return [
     ]),
 
     'task' => new Repository([
-        'count' => 1,
+        'count' => 0,
     ]),
 
     'stdoutFile' => null,

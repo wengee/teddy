@@ -10,16 +10,11 @@ declare(strict_types=1);
 use Teddy\Config\Repository;
 
 return [
-    'default' => 'test',
+    'default' => 'default',
 
     'handlers' => new Repository([
-        'test' => new Repository([
-            'driver'   => 'stack',
-            'handlers' => ['file', 'console'],
-        ]),
-
-        'file' => new Repository([
-            'driver' => 'file',
+        'default' => new Repository([
+            'driver' => 'daily',
             'path'   => runtime_path('runtime/teddy.log'),
         ]),
 

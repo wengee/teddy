@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 16:55:09 +0800
+ * @version  2022-11-11 15:01:25 +0800
  */
 
 namespace App\Processes;
@@ -12,11 +12,21 @@ use Teddy\Abstracts\AbstractProcess;
 
 class TestProcess extends AbstractProcess
 {
-    protected $count = 0;
+    protected $name = 'test';
+
+    protected $count = 1;
 
     public function handle(): void
     {
-        log_message(null, 'INFO', 'test process start');
+        $first = true;
+        while (true) {
+            if ($first) {
+                $first = false;
+                log_message('console', 'INFO', 'test process start');
+            }
+
+            sleep(10);
+        }
     }
 
     public function onReload(): void

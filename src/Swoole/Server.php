@@ -3,21 +3,26 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 23:55:00 +0800
+ * @version  2022-11-11 15:33:05 +0800
  */
 
 namespace Teddy\Swoole;
 
 use function Swoole\Coroutine\run;
 use Swoole\Process\Manager as ProcessManager;
+use Swoole\Process\Pool;
 use Swoole\Runtime;
+use Teddy\Abstracts\AbstractCommand;
 use Teddy\Application;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
 use Teddy\Interfaces\SwooleProcessInterface;
+use Teddy\Swoole\Processes\CustomProcess;
 use Teddy\Swoole\Processes\HttpProcess;
+use Teddy\Swoole\Processes\TaskProcess;
+use Teddy\Swoole\Processes\WebsocketProcess;
 
 class Server implements ServerInterface
 {
@@ -41,6 +46,16 @@ class Server implements ServerInterface
      */
     protected $queue;
 
+    /**
+     * @var null|AbstractCommand
+     */
+    protected $command;
+
+    /**
+     * @var array
+     */
+    protected $message = [];
+
     public function __construct()
     {
         $this->app       = app();
@@ -57,6 +72,13 @@ class Server implements ServerInterface
         $this->initialize();
     }
 
+    public function setCommand(AbstractCommand $command): self
+    {
+        $this->command = $command;
+
+        return $this;
+    }
+
     public function start(): void
     {
         $coroutineFlags = (int) config('swoole.coroutineFlags');
@@ -66,21 +88,28 @@ class Server implements ServerInterface
             $process = $this->processes[0];
             if (1 === $process->getCount()) {
                 run(function () use ($process): void {
-                    $process->start();
+                    $process->start(0);
                 });
 
                 return;
             }
         }
 
-        $appName = config('app.name', 'Teddy App');
-        Util::setProcessTitle('master process', $appName);
+        Util::setProcessTitle('master process');
 
         $pm = new ProcessManager();
         foreach ($this->processes as $process) {
-            $pm->addBatch($process->getCount(), function () use ($process): void {
-                $process->start();
-            }, $process->enableCoroutine());
+            $pm->addBatch(
+                $process->isPool() ? 1 : $process->getCount(),
+                function (Pool $pool, int $workerId) use ($process): void {
+                    $process->start($workerId);
+                },
+                $process->enableCoroutine()
+            );
+        }
+
+        if ($this->command) {
+            $this->command->table(['process', 'listen', 'count'], $this->message);
         }
 
         $pm->start();
@@ -88,30 +117,94 @@ class Server implements ServerInterface
 
     public function addProcess(ProcessInterface $process): void
     {
+        $this->addSwooleProcess(new CustomProcess($process));
     }
 
     protected function addSwooleProcess(SwooleProcessInterface $process): void
     {
         $this->processes[] = $process;
+        $this->message[]   = [$process->getName(), $process->getListen(), $process->getCount()];
     }
 
-    protected function addHttpProcess(): void
+    protected function addServerProcess(): void
     {
-        $options = config('swoole.http');
+        $httpOptions = config('swoole.http');
+        $wsOptions   = config('swoole.websocket');
+        if ($wsOptions['count'] > 0) {
+            if ((!$wsOptions['host'] || !$wsOptions['port']) && $httpOptions['count'] > 0) {
+                $this->addSwooleProcess(new WebsocketProcess($this->app, [
+                    ...$httpOptions,
+                    'path'        => $wsOptions['path'],
+                    'httpProcess' => true,
+                ]));
+
+                return;
+            }
+
+            $this->addSwooleProcess(new WebsocketProcess($this->app, $wsOptions));
+        }
+
+        if ($httpOptions['count'] > 0) {
+            $this->addSwooleProcess(new HttpProcess($this->app, $httpOptions));
+        }
+    }
+
+    protected function addTaskProcess(): void
+    {
+        $options = config('swoole.task');
         if ($options['count'] > 0) {
-            $this->addSwooleProcess(new HttpProcess($this->app, $options));
+            $this->addSwooleProcess(new TaskProcess($this->app, $options, [
+                'crontab'  => config('crontab'),
+                'channels' => config('queue.channels'),
+            ]));
+        }
+    }
+
+    protected function addCustomProcesses(array $processes): void
+    {
+        foreach ($processes as $key => $item) {
+            $className = null;
+            $args      = [];
+
+            if (is_integer($key)) {
+                if (is_string($item)) {
+                    $className = $item;
+                } elseif (is_array($item)) {
+                    $className = $item['class'] ?? null;
+                    $args      = $item['arguments'] ?? [];
+                }
+            } elseif (is_string($key)) {
+                $className = $key;
+                if (is_array($item)) {
+                    $args = $item;
+                }
+            }
+
+            if (!$className || !class_exists($className)) {
+                continue;
+            }
+
+            $args    = is_array($args) ? $args : [$args];
+            $process = new $className(...$args);
+            if (!($process instanceof ProcessInterface)) {
+                continue;
+            }
+
+            $count = $process->getCount();
+            if ($count > 0) {
+                $this->addProcess($process);
+            }
         }
     }
 
     protected function initialize(): void
     {
-        $this->addHttpProcess();
-        // $this->addWebsocketProcess();
-        // $this->addTaskProcess();
+        $this->addServerProcess();
+        $this->addTaskProcess();
 
-        // $processes = config('process');
-        // if (is_array($processes) && $processes) {
-        //     $this->addCustomProcesses($processes);
-        // }
+        $processes = config('process');
+        if (is_array($processes) && $processes) {
+            $this->addCustomProcesses($processes);
+        }
     }
 }
