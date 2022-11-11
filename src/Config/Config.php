@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 14:43:16 +0800
+ * @version  2022-11-11 21:21:34 +0800
  */
 
 namespace Teddy\Config;
@@ -19,7 +19,6 @@ use Symfony\Component\Yaml\Yaml;
 use Teddy\Interfaces\ConfigTagInterface;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
-use Teddy\Runtime;
 use Teddy\Traits\ContainerAwareTrait;
 use Teddy\Utils\FileSystem;
 
@@ -172,12 +171,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
         while (false !== ($file = readdir($handle))) {
             $filepath = FileSystem::joinPath($dir, $file);
             if (Str::endsWith($file, '.php') && is_file($filepath)) {
-                $key = substr($file, 0, -4);
-                if (('swoole' === $key && !Runtime::is(Runtime::SWOOLE))
-                || ('workerman' === $key && !Runtime::is(Runtime::WORKERMAN))) {
-                    continue;
-                }
-
+                $key    = substr($file, 0, -4);
                 $config = require $filepath;
                 if (is_array($config)) {
                     $config = new Repository($config);
@@ -186,6 +180,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
                 $items[$key] = $config;
             }
         }
+
         closedir($handle);
 
         return $items;
