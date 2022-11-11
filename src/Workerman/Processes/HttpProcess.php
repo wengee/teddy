@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 20:44:14 +0800
+ * @version  2022-11-11 16:25:04 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -81,6 +81,8 @@ class HttpProcess extends AbstractProcess implements WorkermanProcessInterface
             log_exception($e);
             $connection->send(new Response(500, [], 'Internal Server Error'));
         }
+
+        $connection->close();
 
         run_hook('workerman:http:afterMessage', [
             'connection' => $connection,
