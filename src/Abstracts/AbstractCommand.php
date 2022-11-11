@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-20 14:32:27 +0800
+ * @version  2022-11-11 23:49:02 +0800
  */
 
 namespace Teddy\Abstracts;
 
 use Exception;
+use function Swoole\Coroutine\run;
 use Symfony\Component\Console\Command\Command as SymfonyCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\Table;
@@ -17,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Teddy\Runtime;
 
 abstract class AbstractCommand extends SymfonyCommand
 {
@@ -45,6 +47,8 @@ abstract class AbstractCommand extends SymfonyCommand
         'quiet'  => OutputInterface::VERBOSITY_QUIET,
         'normal' => OutputInterface::VERBOSITY_NORMAL,
     ];
+
+    protected $enableCoroutine = false;
 
     public function run(InputInterface $input, OutputInterface $output): int
     {
@@ -211,7 +215,13 @@ abstract class AbstractCommand extends SymfonyCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
-            $this->handle();
+            if (Runtime::isSwoole() && $this->enableCoroutine) {
+                run(function (): void {
+                    $this->handle();
+                });
+            } else {
+                $this->handle();
+            }
         } catch (Exception $e) {
             /**
              * @var SymfonyStyle $output
