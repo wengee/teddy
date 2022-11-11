@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:31:04 +0800
+ * @version  2022-11-12 00:06:56 +0800
  */
 
 namespace Teddy\Auth\Adapaters;
@@ -60,14 +60,18 @@ class RedisAdapater implements AuthAdapaterInterface
         return ($data && is_array($data)) ? $data : null;
     }
 
-    public function block(string $token): void
+    public function block(string $token, int $cachedTTL = 0): void
     {
         if (!$this->checkToken($token, true)) {
             return;
         }
 
         $cacheKey = $this->options['prefix'].$token;
-        $this->redis()->del($cacheKey);
+        if ($cachedTTL > 0) {
+            $this->redis()->expire($cacheKey, $cachedTTL);
+        } else {
+            $this->redis()->del($cacheKey);
+        }
     }
 
     protected function redis(): Redis

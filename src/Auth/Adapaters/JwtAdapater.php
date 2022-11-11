@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:30:54 +0800
+ * @version  2022-11-12 00:06:20 +0800
  */
 
 namespace Teddy\Auth\Adapaters;
@@ -60,7 +60,7 @@ class JwtAdapater implements AuthAdapaterInterface
         return $payload ? ($payload['data'] ?? null) : null;
     }
 
-    public function block(string $token): void
+    public function block(string $token, int $cachedTTL = 0): void
     {
         if (empty($this->options['block']['enabled'])) {
             return;

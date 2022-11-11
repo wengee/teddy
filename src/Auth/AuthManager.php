@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-24 11:33:56 +0800
+ * @version  2022-11-12 00:07:16 +0800
  */
 
 namespace Teddy\Auth;
@@ -47,10 +47,10 @@ class AuthManager implements ContainerAwareInterface
         return $this->adapater->decode($token);
     }
 
-    public function refresh(string $token, int $expiresIn = 3600): string
+    public function refresh(string $token, int $expiresIn = 3600, int $cachedTTL = 0): string
     {
         $data = $this->adapater->decode($token);
-        $this->adapater->block($token);
+        $this->adapater->block($token, $cachedTTL);
 
         return $this->adapater->encode($data, $expiresIn);
     }
