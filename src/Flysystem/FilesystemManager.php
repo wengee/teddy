@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-24 11:33:27 +0800
+ * @version  2022-11-14 20:43:57 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -14,7 +14,7 @@ use InvalidArgumentException;
 use Teddy\Flysystem\Adapters\CosAdapter;
 use Teddy\Flysystem\Adapters\LocalAdapter;
 use Teddy\Flysystem\Adapters\OssAdapter;
-use Teddy\Interfaces\TeddyFilesystemAdapter;
+use Teddy\Interfaces\FilesystemAdapter;
 
 class FilesystemManager
 {
@@ -84,7 +84,7 @@ class FilesystemManager
         return $this->createFlysystem(new CosAdapter($config), $config);
     }
 
-    protected function createFlysystem(TeddyFilesystemAdapter $adapter, array $config): Filesystem
+    protected function createFlysystem(FilesystemAdapter $adapter, array $config): Filesystem
     {
         return new Filesystem($adapter, $config);
     }

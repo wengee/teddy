@@ -4,15 +4,15 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 15:44:01 +0800
+ * @version  2022-11-14 20:39:04 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
 use Teddy\Application;
 use Teddy\Interfaces\QueueInterface;
-use Teddy\Interfaces\WorkermanProcessInterface;
 use Teddy\Traits\TaskAwareTrait;
+use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 use Workerman\Timer;
 use Workerman\Worker;
 

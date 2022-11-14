@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 16:16:06 +0800
+ * @version  2022-11-14 20:29:11 +0800
  */
 
 namespace Teddy\Workerman\Websocket;
 
 use Teddy\Interfaces\WebsocketConnectionInterface;
+use Teddy\Websocket\CloseException;
 use Workerman\Connection\TcpConnection;
 
 class Connection implements WebsocketConnectionInterface
@@ -46,5 +47,7 @@ class Connection implements WebsocketConnectionInterface
     public function close(): void
     {
         $this->connection->close();
+
+        throw new CloseException();
     }
 }

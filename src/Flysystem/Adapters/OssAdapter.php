@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:14:59 +0800
+ * @version  2022-11-14 20:44:39 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -19,9 +19,9 @@ use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
 use OSS\Core\OssException;
 use OSS\OssClient;
-use Teddy\Interfaces\TeddyFilesystemAdapter;
+use Teddy\Interfaces\FilesystemAdapter;
 
-class OssAdapter implements TeddyFilesystemAdapter
+class OssAdapter implements FilesystemAdapter
 {
     /**
      * @var OssClient

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 16:17:10 +0800
+ * @version  2022-11-14 20:27:38 +0800
  */
 
 namespace Teddy\Swoole\Websocket;
@@ -11,6 +11,7 @@ namespace Teddy\Swoole\Websocket;
 use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Teddy\Interfaces\WebsocketConnectionInterface;
+use Teddy\Websocket\CloseException;
 
 class Connection implements WebsocketConnectionInterface
 {

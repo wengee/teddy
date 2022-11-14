@@ -3,10 +3,10 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 10:43:04 +0800
+ * @version  2022-11-14 20:26:14 +0800
  */
 
-namespace Teddy\Swoole\Websocket;
+namespace Teddy\Websocket;
 
 use Exception;
 

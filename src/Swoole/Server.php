@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 16:49:43 +0800
+ * @version  2022-11-14 20:40:39 +0800
  */
 
 namespace Teddy\Swoole;
@@ -18,11 +18,11 @@ use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
-use Teddy\Interfaces\SwooleProcessInterface;
 use Teddy\Swoole\Processes\CustomProcess;
 use Teddy\Swoole\Processes\HttpProcess;
 use Teddy\Swoole\Processes\TaskProcess;
 use Teddy\Swoole\Processes\WebsocketProcess;
+use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 
 class Server implements ServerInterface
 {

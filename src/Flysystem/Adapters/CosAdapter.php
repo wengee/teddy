@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:14:29 +0800
+ * @version  2022-11-14 20:44:17 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -27,9 +27,9 @@ use League\Flysystem\UnableToRetrieveMetadata;
 use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
 use Qcloud\Cos\Client as CosClient;
-use Teddy\Interfaces\TeddyFilesystemAdapter;
+use Teddy\Interfaces\FilesystemAdapter;
 
-class CosAdapter implements TeddyFilesystemAdapter
+class CosAdapter implements FilesystemAdapter
 {
     /**
      * @var CosClient

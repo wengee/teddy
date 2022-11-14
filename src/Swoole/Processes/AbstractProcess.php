@@ -3,12 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 15:29:03 +0800
+ * @version  2022-11-14 20:40:20 +0800
  */
 
 namespace Teddy\Swoole\Processes;
 
-use Teddy\Interfaces\SwooleProcessInterface;
+use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 use Teddy\Swoole\Util;
 
 abstract class AbstractProcess implements SwooleProcessInterface

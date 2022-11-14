@@ -4,14 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 16:25:04 +0800
+ * @version  2022-11-14 20:38:59 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
 use Exception;
 use Teddy\Application;
-use Teddy\Interfaces\WorkermanProcessInterface;
+use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 use Teddy\Workerman\ResponseEmitter;
 use Teddy\Workerman\ServerRequestFactory;
 use Workerman\Connection\TcpConnection;
@@ -110,26 +110,5 @@ class HttpProcess extends AbstractProcess implements WorkermanProcessInterface
             'code'       => $code,
             'msg'        => $msg,
         ]);
-    }
-
-    public function initialize(): Worker
-    {
-        $worker = new Worker('http://'.$this->host.':'.$this->port);
-
-        $worker->name       = $this->name;
-        $worker->count      = $this->count;
-        $worker->reusePort  = $this->reusePort;
-        $worker->reloadable = $this->reloadable;
-
-        $worker->onWorkerStart  = [$this, 'onWorkerStart'];
-        $worker->onWorkerReload = [$this, 'onWorkerReload'];
-        $worker->onConnect      = [$this, 'onConnect'];
-        $worker->onMessage      = [$this, 'onMessage'];
-        $worker->onClose        = [$this, 'onClose'];
-        $worker->onError        = [$this, 'onError'];
-
-        $this->worker = $worker;
-
-        return $worker;
     }
 }

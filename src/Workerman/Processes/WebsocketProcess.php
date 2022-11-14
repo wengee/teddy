@@ -4,30 +4,27 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 20:44:24 +0800
+ * @version  2022-11-14 20:39:08 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
-use Exception;
 use RuntimeException;
 use Teddy\Application;
 use Teddy\Interfaces\WebsocketHandlerInterface;
-use Teddy\Interfaces\WorkermanProcessInterface;
+use Teddy\Traits\WebsocketAwareTrait;
+use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 use Teddy\Workerman\Websocket\Connection;
 use Workerman\Connection\TcpConnection;
 
 class WebsocketProcess extends AbstractProcess implements WorkermanProcessInterface
 {
+    use WebsocketAwareTrait;
+
     /**
      * @var Application
      */
     protected $app;
-
-    /**
-     * @var WebsocketHandlerInterface
-     */
-    protected $handler;
 
     public function __construct(Application $app, array $options = [])
     {
@@ -55,27 +52,21 @@ class WebsocketProcess extends AbstractProcess implements WorkermanProcessInterf
         return 'websocket';
     }
 
-    public function onConnect(TcpConnection $connection): void
+    public function onConnect(TcpConnection $tcpConnection): void
     {
-        $this->handleEvent('onConnect', new Connection($connection));
+        $this->handleEvent('onConnect', new Connection($tcpConnection));
     }
 
-    public function onMessage(TcpConnection $connection, string $data): void
+    public function onMessage(TcpConnection $tcpConnection, string $data): void
     {
-        $this->handleEvent('onMessage', new Connection($connection), $data);
-    }
-
-    public function onClose(TcpConnection $connection): void
-    {
-        $this->handleEvent('onClose', new Connection($connection));
-    }
-
-    protected function handleEvent(string $method, ...$args): void
-    {
-        try {
-            call_user_func([$this->handler, $method], ...$args);
-        } catch (Exception $e) {
-            log_exception($e);
+        $connection = new Connection($tcpConnection);
+        if (!$this->handleEvent('onMessage', $connection, $data)) {
+            $this->handleEvent('onClose', $connection);
         }
+    }
+
+    public function onClose(TcpConnection $tcpConnection): void
+    {
+        $this->handleEvent('onClose', new Connection($tcpConnection));
     }
 }

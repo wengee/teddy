@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 15:40:11 +0800
+ * @version  2022-11-14 20:40:24 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -12,7 +12,7 @@ namespace Teddy\Swoole\Processes;
 use Swoole\Process;
 use Swoole\Process\Pool;
 use Teddy\Interfaces\ProcessInterface;
-use Teddy\Interfaces\SwooleProcessInterface;
+use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 use Teddy\Swoole\Util;
 
 class CustomProcess extends AbstractProcess implements SwooleProcessInterface

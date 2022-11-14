@@ -3,14 +3,14 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-07-26 11:09:25 +0800
+ * @version  2022-11-14 20:42:11 +0800
  */
 
 namespace Teddy\Interfaces;
 
-use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\FilesystemAdapter as LeagueFilesystemAdapter;
 
-interface TeddyFilesystemAdapter extends FilesystemAdapter
+interface FilesystemAdapter extends LeagueFilesystemAdapter
 {
     public function getUrl(string $path): string;
 }

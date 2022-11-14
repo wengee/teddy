@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 15:55:02 +0800
+ * @version  2022-11-14 20:40:35 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -16,15 +16,17 @@ use Swoole\Http\Response;
 use Swoole\Process;
 use Swoole\WebSocket\CloseFrame;
 use Teddy\Application;
-use Teddy\Interfaces\SwooleProcessInterface;
 use Teddy\Interfaces\WebsocketHandlerInterface;
+use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 use Teddy\Swoole\ResponseEmitter;
 use Teddy\Swoole\ServerRequestFactory;
-use Teddy\Swoole\Websocket\CloseException;
 use Teddy\Swoole\Websocket\Connection;
+use Teddy\Traits\WebsocketAwareTrait;
 
 class WebsocketProcess extends AbstractProcess implements SwooleProcessInterface
 {
+    use WebsocketAwareTrait;
+
     protected $name = 'websocket';
 
     protected $enableCoroutine = true;
@@ -121,18 +123,5 @@ class WebsocketProcess extends AbstractProcess implements SwooleProcessInterface
         }
 
         $server->start();
-    }
-
-    protected function handleEvent(string $method, ...$args): bool
-    {
-        try {
-            call_user_func([$this->handler, $method], ...$args);
-        } catch (CloseException $e) {
-            return false;
-        } catch (Exception $e) {
-            log_exception($e);
-        }
-
-        return true;
     }
 }

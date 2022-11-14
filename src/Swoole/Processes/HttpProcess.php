@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 14:10:52 +0800
+ * @version  2022-11-14 20:40:28 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -15,7 +15,7 @@ use Swoole\Http\Request;
 use Swoole\Http\Response;
 use Swoole\Process;
 use Teddy\Application;
-use Teddy\Interfaces\SwooleProcessInterface;
+use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 use Teddy\Swoole\ResponseEmitter;
 use Teddy\Swoole\ServerRequestFactory;
 

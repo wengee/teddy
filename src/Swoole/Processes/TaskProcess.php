@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 15:43:42 +0800
+ * @version  2022-11-14 20:40:31 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -13,7 +13,7 @@ use Swoole\Process\Pool;
 use Swoole\Timer;
 use Teddy\Application;
 use Teddy\Interfaces\QueueInterface;
-use Teddy\Interfaces\SwooleProcessInterface;
+use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 use Teddy\Swoole\Util;
 use Teddy\Traits\TaskAwareTrait;
 

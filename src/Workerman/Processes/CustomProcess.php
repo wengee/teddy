@@ -3,13 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 20:44:07 +0800
+ * @version  2022-11-14 20:38:53 +0800
  */
 
 namespace Teddy\Workerman\Processes;
 
 use Teddy\Interfaces\ProcessInterface;
-use Teddy\Interfaces\WorkermanProcessInterface;
+use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 use Workerman\Worker;
 
 class CustomProcess extends AbstractProcess implements WorkermanProcessInterface

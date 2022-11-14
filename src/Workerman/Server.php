@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 23:54:00 +0800
+ * @version  2022-11-14 20:39:14 +0800
  */
 
 namespace Teddy\Workerman;
@@ -14,11 +14,11 @@ use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
-use Teddy\Interfaces\WorkermanProcessInterface;
 use Teddy\Workerman\Processes\CustomProcess;
 use Teddy\Workerman\Processes\HttpProcess;
 use Teddy\Workerman\Processes\TaskProcess;
 use Teddy\Workerman\Processes\WebsocketProcess;
+use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 
 class Server implements ServerInterface
 {
