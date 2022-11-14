@@ -1,17 +1,16 @@
-<?php
-declare(strict_types=1);
+<?php declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 14:16:52 +0800
+ * @version  2022-11-14 21:02:20 +0800
  */
 
-namespace Teddy\Swoole;
+namespace Teddy\Utils;
 
-class Util
+class Process
 {
-    public static function setProcessTitle(string $title, ?string $prefix = null): void
+    public static function setTitle(string $title, ?string $prefix = null): void
     {
         if (PHP_OS === 'Darwin') {
             return;

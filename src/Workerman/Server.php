@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:39:14 +0800
+ * @version  2022-11-14 21:05:02 +0800
  */
 
 namespace Teddy\Workerman;
@@ -14,6 +14,7 @@ use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
+use Teddy\Utils\Workerman;
 use Teddy\Workerman\Processes\CustomProcess;
 use Teddy\Workerman\Processes\HttpProcess;
 use Teddy\Workerman\Processes\TaskProcess;
@@ -61,10 +62,10 @@ class Server implements ServerInterface
     public function start(): void
     {
         foreach ($this->processes as $process) {
-            Util::startWorker($process);
+            Workerman::startWorker($process);
         }
 
-        Util::runAll();
+        Workerman::runAll();
     }
 
     public function addProcess(ProcessInterface $process): void

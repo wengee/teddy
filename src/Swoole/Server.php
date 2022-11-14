@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:40:39 +0800
+ * @version  2022-11-14 21:03:08 +0800
  */
 
 namespace Teddy\Swoole;
@@ -23,6 +23,7 @@ use Teddy\Swoole\Processes\HttpProcess;
 use Teddy\Swoole\Processes\TaskProcess;
 use Teddy\Swoole\Processes\WebsocketProcess;
 use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
+use Teddy\Utils\Process;
 
 class Server implements ServerInterface
 {
@@ -99,7 +100,7 @@ class Server implements ServerInterface
             }
         }
 
-        Util::setProcessTitle('master process');
+        Process::setTitle('master process');
 
         $pm = new ProcessManager();
         foreach ($this->processes as $process) {

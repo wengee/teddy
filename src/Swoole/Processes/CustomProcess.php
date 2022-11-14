@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:40:24 +0800
+ * @version  2022-11-14 21:03:59 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -13,7 +13,7 @@ use Swoole\Process;
 use Swoole\Process\Pool;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
-use Teddy\Swoole\Util;
+use Teddy\Utils\Process as ProcessUtil;
 
 class CustomProcess extends AbstractProcess implements SwooleProcessInterface
 {
@@ -40,7 +40,7 @@ class CustomProcess extends AbstractProcess implements SwooleProcessInterface
         $pool->set($this->process->getOptions() + ['enable_coroutine' => true]);
 
         $pool->on('workerStart', function (Pool $pool, int $workerId): void {
-            Util::setProcessTitle($this->getName().' ('.$workerId.')');
+            ProcessUtil::setTitle($this->getName().' ('.$workerId.')');
             $this->process->setWorker($pool->getProcess($workerId));
 
             Process::signal(SIGTERM, function (): void {

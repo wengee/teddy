@@ -4,15 +4,15 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:38:40 +0800
+ * @version  2022-11-14 21:02:48 +0800
  */
 
-namespace Teddy\Workerman;
+namespace Teddy\Utils;
 
 use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 use Workerman\Worker;
 
-class Util
+class Workerman
 {
     public static function bindWorker(Worker $worker, WorkermanProcessInterface $process): void
     {

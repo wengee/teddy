@@ -3,13 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:40:20 +0800
+ * @version  2022-11-14 21:03:25 +0800
  */
 
 namespace Teddy\Swoole\Processes;
 
 use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
-use Teddy\Swoole\Util;
+use Teddy\Utils\Process;
 
 abstract class AbstractProcess implements SwooleProcessInterface
 {
@@ -94,7 +94,7 @@ abstract class AbstractProcess implements SwooleProcessInterface
 
     public function start(int $workerId): void
     {
-        Util::setProcessTitle($this->getName());
+        Process::setTitle($this->getName());
         $this->handle($workerId);
     }
 

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:40:31 +0800
+ * @version  2022-11-14 21:04:22 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -14,8 +14,8 @@ use Swoole\Timer;
 use Teddy\Application;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
-use Teddy\Swoole\Util;
 use Teddy\Traits\TaskAwareTrait;
+use Teddy\Utils\Process as ProcessUtil;
 
 class TaskProcess extends AbstractProcess implements SwooleProcessInterface
 {
@@ -61,7 +61,7 @@ class TaskProcess extends AbstractProcess implements SwooleProcessInterface
         $pool->set($this->getOptions() + ['enable_coroutine' => true]);
 
         $pool->on('workerStart', function (Pool $pool, int $workerId): void {
-            Util::setProcessTitle($this->getName().' ('.$workerId.')');
+            ProcessUtil::setTitle($this->getName().' ('.$workerId.')');
             if ($this->queue) {
                 $channels = $this->channels ?: ['default'];
 
