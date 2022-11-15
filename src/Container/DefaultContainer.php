@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 14:32:57 +0800
+ * @version  2022-11-15 21:02:02 +0800
  */
 
 namespace Teddy\Container;
@@ -35,6 +35,8 @@ class DefaultContainer
         if ($runtime) {
             $container->addValue('runtime', $runtime);
             Runtime::set($runtime);
+        } else {
+            $container->addValue('runtime', Runtime::get());
         }
 
         // Console Application

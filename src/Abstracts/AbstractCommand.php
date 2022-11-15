@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 23:49:02 +0800
+ * @version  2022-11-15 20:58:10 +0800
  */
 
 namespace Teddy\Abstracts;

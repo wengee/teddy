@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 21:03:08 +0800
+ * @version  2022-11-15 20:59:02 +0800
  */
 
 namespace Teddy\Swoole;
@@ -12,7 +12,8 @@ use function Swoole\Coroutine\run;
 use Swoole\Process\Manager as ProcessManager;
 use Swoole\Process\Pool;
 use Swoole\Runtime;
-use Teddy\Abstracts\AbstractCommand;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Application;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
@@ -48,17 +49,18 @@ class Server implements ServerInterface
     protected $queue;
 
     /**
-     * @var null|AbstractCommand
+     * @var null|OutputInterface
      */
-    protected $command;
+    protected $output;
 
     /**
      * @var array
      */
     protected $message = [];
 
-    public function __construct()
+    public function __construct(?OutputInterface $output = null)
     {
+        $this->output    = $output;
         $this->app       = app();
         $this->container = $this->app->getContainer();
 
@@ -73,20 +75,20 @@ class Server implements ServerInterface
         $this->initialize();
     }
 
-    public function setCommand(AbstractCommand $command): self
-    {
-        $this->command = $command;
-
-        return $this;
-    }
-
     public function start(): void
     {
         $coroutineFlags = (int) config('swoole.coroutineFlags');
         Runtime::enableCoroutine($coroutineFlags);
 
-        if ($this->command) {
-            $this->command->table(['process', 'listen', 'count'], $this->message);
+        if ($this->output && $this->message) {
+            $table = new Table($this->output);
+
+            $table
+                ->setHeaders(['process', 'listen', 'count'])
+                ->setRows($this->message)
+                ->setColumnWidths([50, 25, 8])
+                ->render()
+            ;
         }
 
         if (1 === count($this->processes)) {

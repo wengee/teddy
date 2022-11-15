@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 21:07:22 +0800
+ * @version  2022-11-15 20:45:28 +0800
  */
 
 namespace Teddy;
@@ -66,10 +66,10 @@ final class Runtime
             $runtime = env('TEDDY_RUNTIME');
 
             if (!$runtime) {
-                if (self::workermanEnabled()) {
-                    $runtime = self::WORKERMAN;
-                } else {
+                if (self::swooleEnabled()) {
                     $runtime = self::SWOOLE;
+                } else {
+                    $runtime = self::WORKERMAN;
                 }
             }
 

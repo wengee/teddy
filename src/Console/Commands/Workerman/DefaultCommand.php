@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-10 14:42:10 +0800
+ * @version  2022-11-15 21:00:00 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
@@ -56,8 +56,7 @@ abstract class DefaultCommand extends AbstractCommand
             }
         }
 
-        $server = new Server();
-        $server->start();
+        (new Server($this->output))->start();
     }
 
     protected function initializeWorker(): void

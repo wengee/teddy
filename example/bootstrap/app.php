@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 21:06:50 +0800
+ * @version  2022-11-15 20:45:56 +0800
  */
 
 use App\Http\Request;
@@ -13,9 +13,8 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Teddy\Application;
 use Teddy\Container\DefaultContainer;
-use Teddy\Runtime;
 
-$container = DefaultContainer::create(defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__), Runtime::SWOOLE);
+$container = DefaultContainer::create(defined('BASE_PATH') ? BASE_PATH : dirname(__DIR__));
 $container->add(ServerRequestInterface::class, Request::class);
 $container->add(ResponseInterface::class, Response::class);
 
