@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-15 20:59:02 +0800
+ * @version  2022-11-16 21:39:23 +0800
  */
 
 namespace Teddy\Swoole;
@@ -94,9 +94,13 @@ class Server implements ServerInterface
         if (1 === count($this->processes)) {
             $process = $this->processes[0];
             if (1 === $process->getCount()) {
-                run(function () use ($process): void {
+                if ($process->enableCoroutine()) {
+                    run(function () use ($process): void {
+                        $process->start(0);
+                    });
+                } else {
                     $process->start(0);
-                });
+                }
 
                 return;
             }

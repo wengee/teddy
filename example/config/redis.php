@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-30 10:00:09 +0800
+ * @version  2022-11-16 22:01:15 +0800
  */
 
 use Teddy\Config\Repository;
@@ -15,7 +15,7 @@ return [
         'port'   => 6379,
         'prefix' => 'example:',
         'pool'   => [
-            'maxConnections' => 2,
+            'maxConnections' => 10,
         ],
     ]),
 ];

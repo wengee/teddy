@@ -3,11 +3,11 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 14:32:03 +0800
+ * @version  2022-11-16 21:25:18 +0800
  */
 
 use App\Processes\TestProcess;
 
 return [
-    TestProcess::class,
+    // TestProcess::class,
 ];

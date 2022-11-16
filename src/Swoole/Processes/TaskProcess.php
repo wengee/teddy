@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 21:04:22 +0800
+ * @version  2022-11-16 22:05:55 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -54,7 +54,7 @@ class TaskProcess extends AbstractProcess implements SwooleProcessInterface
         $this->queue    = $app->getContainer()->get(QueueInterface::class);
     }
 
-    public function handle(int $workerId): void
+    public function handle(int $pWorkerId): void
     {
         $pool = new Pool($this->count);
 
@@ -62,6 +62,7 @@ class TaskProcess extends AbstractProcess implements SwooleProcessInterface
 
         $pool->on('workerStart', function (Pool $pool, int $workerId): void {
             ProcessUtil::setTitle($this->getName().' ('.$workerId.')');
+
             if ($this->queue) {
                 $channels = $this->channels ?: ['default'];
 
