@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-16 21:39:23 +0800
+ * @version  2022-11-17 20:17:38 +0800
  */
 
 namespace Teddy\Swoole;
@@ -101,6 +101,12 @@ class Server implements ServerInterface
                 } else {
                     $process->start(0);
                 }
+
+                return;
+            }
+
+            if ($process->isPool()) {
+                $process->start(0);
 
                 return;
             }

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-16 22:05:55 +0800
+ * @version  2022-11-17 20:12:39 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -52,36 +52,49 @@ class TaskProcess extends AbstractProcess implements SwooleProcessInterface
         $this->crontab  = $extra['crontab'] ?? null;
         $this->channels = $extra['channels'] ?? [];
         $this->queue    = $app->getContainer()->get(QueueInterface::class);
+
+        $this->enableCoroutine = 1 === $this->count;
     }
 
     public function handle(int $pWorkerId): void
     {
-        $pool = new Pool($this->count);
+        if (1 === $this->count) {
+            $this->runProcess(0);
+        } else {
+            $pool = new Pool($this->count);
 
-        $pool->set($this->getOptions() + ['enable_coroutine' => true]);
+            $pool->set($this->getOptions() + ['enable_coroutine' => true]);
 
-        $pool->on('workerStart', function (Pool $pool, int $workerId): void {
+            $pool->on('workerStart', function (Pool $pool, int $workerId): void {
+                $this->runProcess($workerId);
+            });
+
+            $pool->start();
+        }
+    }
+
+    protected function runProcess(int $workerId): void
+    {
+        if ($this->count > 1) {
             ProcessUtil::setTitle($this->getName().' ('.$workerId.')');
+        }
 
-            if ($this->queue) {
-                $channels = $this->channels ?: ['default'];
+        if ($this->queue) {
+            $channels = $this->channels ?: ['default'];
 
-                $this->queue->subscribe($channels, function ($data): void {
-                    $this->runTask($data);
-                });
-            }
+            $this->queue->subscribe($channels, function ($data): void {
+                $this->runTask($data);
+            });
+        }
 
-            if ((0 === $workerId) && $this->crontab) {
-                $this->timerId = Timer::tick(1000, function (): void {
-                    app('crontab')->run();
-                });
+        if ((0 === $workerId) && $this->crontab) {
+            $this->timerId = Timer::tick(1000, function (): void {
+                app('crontab')->run();
+            });
 
-                Process::signal(SIGTERM, function (): void {
-                    Timer::clear($this->timerId);
-                });
-            }
-        });
-
-        $pool->start();
+            Process::signal(SIGTERM, function (): void {
+                Timer::clear($this->timerId);
+            });
+        }
     }
 }

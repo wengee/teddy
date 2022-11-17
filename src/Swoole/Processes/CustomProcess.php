@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 21:03:59 +0800
+ * @version  2022-11-17 20:25:18 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -33,23 +33,44 @@ class CustomProcess extends AbstractProcess implements SwooleProcessInterface
         $this->count   = $process->getCount();
     }
 
-    public function handle(int $workerId): void
+    public function enableCoroutine(): bool
     {
-        $pool = new Pool($this->process->getCount());
+        if ($this->count > 1) {
+            return false;
+        }
 
-        $pool->set($this->process->getOptions() + ['enable_coroutine' => true]);
+        return $this->process->getOption('enable_coroutine', true);
+    }
 
-        $pool->on('workerStart', function (Pool $pool, int $workerId): void {
-            ProcessUtil::setTitle($this->getName().' ('.$workerId.')');
-            $this->process->setWorker($pool->getProcess($workerId));
+    public function handle(int $pWorkerId): void
+    {
+        if (1 === $this->count) {
+            $this->runProcess(0);
+        } else {
+            $pool = new Pool($this->process->getCount());
 
-            Process::signal(SIGTERM, function (): void {
-                $this->process->onReload();
+            $pool->set($this->process->getOptions() + ['enable_coroutine' => true]);
+
+            $pool->on('workerStart', function (Pool $pool, int $workerId): void {
+                $this->runProcess($workerId, $pool->getProcess($workerId));
             });
 
-            $this->process->handle();
+            $pool->start();
+        }
+    }
+
+    protected function runProcess(int $workerId, ?Process $process = null): void
+    {
+        if ($this->count > 1) {
+            ProcessUtil::setTitle($this->getName().' ('.$workerId.')');
+        }
+
+        $this->process->setWorker($process);
+
+        Process::signal(SIGTERM, function (): void {
+            $this->process->onReload();
         });
 
-        $pool->start();
+        $this->process->handle();
     }
 }
