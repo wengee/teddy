@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:43:57 +0800
+ * @version  2022-11-19 09:36:22 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -45,7 +45,7 @@ class FilesystemManager
         return $this->disks[$name] = $this->resolve($name);
     }
 
-    protected function resolve($name): Filesystem
+    protected function resolve(string $name): Filesystem
     {
         if (isset($this->disks[$name])) {
             return $this->disks[$name];
@@ -89,13 +89,18 @@ class FilesystemManager
         return new Filesystem($adapter, $config);
     }
 
-    protected function getConfig($name)
+    protected function getConfig(string $name)
     {
+        $alias = $this->config[$name] ?? null;
+        if ($alias && is_string($alias)) {
+            $name = $alias;
+        }
+
         return Arr::get($this->config, "disks.{$name}");
     }
 
     protected function getDefaultDriver(): string
     {
-        return Arr::get($this->config, 'default', 'default');
+        return $this->config['default'] ?? 'default';
     }
 }
