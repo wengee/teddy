@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 22:37:09 +0800
+ * @version  2022-11-21 14:18:35 +0800
  */
 
 namespace Teddy\Workerman;
@@ -148,6 +148,8 @@ class Queue implements ContainerAwareInterface, QueueInterface
                     try {
                         call_user_func($func, $package['data']);
                     } catch (Throwable $e) {
+                        log_exception($e);
+
                         if (++$package['attempts'] > $this->maxAttempts) {
                             $package['error'] = (string) $e;
                             $this->fail($package);

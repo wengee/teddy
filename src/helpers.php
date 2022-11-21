@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 22:41:02 +0800
+ * @version  2022-11-21 14:17:26 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -21,6 +21,7 @@ use Teddy\Log\LogManager;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
+use Throwable;
 
 defined('INT_STR_INDEX') || define('INT_STR_INDEX', 'l2Vj5aUOBCLpdFRsK6ytAXzGbY1QWewvHhxE4gT38SPqmfioc7Ju9NDr0IZMkn');
 
@@ -349,7 +350,7 @@ if (!function_exists('log_exception')) {
     /**
      * Write the exception to logger.
      */
-    function log_exception(Exception $e, string $prefix = ''): void
+    function log_exception(Throwable $e, string $prefix = ''): void
     {
         /**
          * @var null|LoggerInterface
