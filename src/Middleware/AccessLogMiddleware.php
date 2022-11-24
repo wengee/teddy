@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-24 21:43:38 +0800
+ * @version  2022-11-24 21:48:15 +0800
  */
 
 namespace Teddy\Middleware;
@@ -50,6 +50,7 @@ class AccessLogMiddleware implements MiddlewareInterface
             '{client_ip}'    => $request->getClientIp(),
             '{method}'       => $request->getMethod(),
             '{path}'         => $request->getUri()->getPath(),
+            '{query_string}' => $request->getUri()->getQuery(),
             '{status_code}'  => $response->getStatusCode(),
             '{elapsed_time}' => sprintf('%.2fms', ($eTime - $sTime) * 1000),
         ]));
