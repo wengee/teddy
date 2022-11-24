@@ -4,12 +4,11 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-26 15:26:12 +0800
+ * @version  2022-11-24 17:22:48 +0800
  */
 
 namespace Teddy\Http;
 
-use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Illuminate\Support\Traits\Macroable;
 use JsonSerializable;
@@ -19,6 +18,7 @@ use Slim\Psr7\Response as SlimResponse;
 use Slim\Psr7\Stream;
 use Teddy\Interfaces\CookieAwareInterface;
 use Teddy\Interfaces\FileResponseInterface;
+use Throwable;
 
 class Response extends SlimResponse implements CookieAwareInterface, FileResponseInterface
 {
@@ -124,7 +124,7 @@ class Response extends SlimResponse implements CookieAwareInterface, FileRespons
                 break;
             }
 
-            if ($arg instanceof Exception) {
+            if ($arg instanceof Throwable) {
                 $data['errcode'] = $arg->getCode() ?: -1;
                 $data['errmsg']  = $arg->getMessage();
             } elseif (is_int($arg)) {

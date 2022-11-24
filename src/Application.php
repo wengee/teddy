@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 14:16:57 +0800
+ * @version  2022-11-24 17:27:58 +0800
  */
 
 namespace Teddy;
@@ -24,7 +24,9 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Teddy\Interfaces\ContainerAwareInterface;
 use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\KernelInterface;
+use Teddy\Middleware\AccessLogMiddleware;
 use Teddy\Middleware\CrossOriginMiddleware;
+use Teddy\Middleware\JsonResponseMiddleware;
 use Teddy\Middleware\ProxyFixMiddleware;
 use Teddy\Middleware\StaticFileMiddleware;
 use Teddy\Routing\RouteCollector;
@@ -122,6 +124,22 @@ class Application implements ContainerAwareInterface
     public function addStaticFileMiddleware(string $basePath, string $urlPrefix = ''): StaticFileMiddleware
     {
         $middleware = new StaticFileMiddleware($basePath, $urlPrefix);
+        $this->slimApp->add($middleware);
+
+        return $middleware;
+    }
+
+    public function addAccessLogMiddleware(?string $logger = null): AccessLogMiddleware
+    {
+        $middleware = new AccessLogMiddleware($logger);
+        $this->slimApp->add($middleware);
+
+        return $middleware;
+    }
+
+    public function addJsonResponseMiddleware(): JsonResponseMiddleware
+    {
+        $middleware = new JsonResponseMiddleware();
         $this->slimApp->add($middleware);
 
         return $middleware;
