@@ -4,14 +4,16 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-12-16 14:30:35 +0800
+ * @version  2022-12-16 17:31:55 +0800
  */
 
 namespace Teddy\Flysystem;
 
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem as LeagueFilesystem;
 use League\Flysystem\InvalidStreamProvided;
 use League\Flysystem\PathNormalizer;
+use League\Flysystem\WhitespacePathNormalizer;
 use RuntimeException;
 use Teddy\Interfaces\FilesystemAdapter;
 
@@ -22,34 +24,46 @@ class Filesystem extends LeagueFilesystem
      */
     protected $myAdapter;
 
+    /**
+     * @var Config
+     */
+    protected $myConfig;
+
+    /**
+     * @var PathNormalizer
+     */
+    protected $myPathNormalizer;
+
     public function __construct(
         FilesystemAdapter $adapter,
         array $config = [],
         PathNormalizer $pathNormalizer = null
     ) {
-        $this->myAdapter = $adapter;
+        $pathNormalizer = $pathNormalizer ?: new WhitespacePathNormalizer();
+
+        $this->myAdapter        = $adapter;
+        $this->myConfig         = new Config($config);
+        $this->myPathNormalizer = $pathNormalizer;
         parent::__construct($adapter, $config, $pathNormalizer);
     }
 
-    public function append(string $location, string $contents, int $position, array $config = []): void
+    public function append(string $location, string $contents, array $config = []): void
     {
         $this->myAdapter->append(
-            $this->pathNormalizer->normalizePath($location),
+            $this->myPathNormalizer->normalizePath($location),
             $contents,
-            $position,
             $this->config->extend($config)
         );
     }
 
-    public function appendStream(string $location, $contents, int $position, array $config = []): void
+    public function appendStream(string $location, $contents, array $config = []): void
     {
         // @var resource $contents
         $this->assertIsResource($contents);
         $this->rewindStream($contents);
         $this->myAdapter->appendStream(
-            $this->pathNormalizer->normalizePath($location),
+            $this->myPathNormalizer->normalizePath($location),
             $contents,
-            $position,
             $this->config->extend($config)
         );
     }

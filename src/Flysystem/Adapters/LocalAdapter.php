@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-12-16 14:29:38 +0800
+ * @version  2022-12-16 17:25:09 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -12,7 +12,10 @@ namespace Teddy\Flysystem\Adapters;
 use League\Flysystem\Config;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\Local\LocalFilesystemAdapter;
+use League\Flysystem\PathPrefixer;
 use League\Flysystem\UnableToWriteFile;
+use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
+use League\Flysystem\UnixVisibility\VisibilityConverter;
 use Teddy\Interfaces\FilesystemAdapter;
 
 class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
@@ -22,20 +25,34 @@ class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
      */
     protected $urlPrefix = '';
 
+    /**
+     * @var PathPrefixer
+     */
+    private $prefixer;
+
+    /**
+     * @var VisibilityConverter
+     */
+    private $visibility;
+
     public function __construct(array $config)
     {
-        $this->urlPrefix = rtrim($config['url'] ?? '', '/');
-        $location        = $config['location'] ?? ($config['root'] ?? '');
-        parent::__construct($location);
+        $this->urlPrefix  = rtrim($config['url'] ?? '', '/');
+        $location         = $config['location'] ?? ($config['root'] ?? '');
+        $visibility       = new PortableVisibilityConverter();
+        $this->prefixer   = new PathPrefixer($location, DIRECTORY_SEPARATOR);
+        $this->visibility = $visibility;
+
+        parent::__construct($location, $visibility);
     }
 
     /**
      * @throws UnableToWriteFile
      * @throws FilesystemException
      */
-    public function append(string $path, string $contents, int $position, Config $config): void
+    public function append(string $path, string $contents, Config $config): void
     {
-        $this->appendToFile($path, $contents, $position, $config);
+        $this->appendToFile($path, $contents, $config);
     }
 
     /**
@@ -44,9 +61,9 @@ class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
      * @throws UnableToWriteFile
      * @throws FilesystemException
      */
-    public function appendStream(string $path, $contents, int $position, Config $config): void
+    public function appendStream(string $path, $contents, Config $config): void
     {
-        $this->appendToFile($path, \stream_get_contents($contents), $position, $config);
+        $this->appendToFile($path, \stream_get_contents($contents), $config);
     }
 
     public function getUrl(string $path): string
@@ -61,7 +78,7 @@ class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
         );
     }
 
-    private function appendToFile(string $path, string $contents, int $position, Config $config): void
+    private function appendToFile(string $path, string $contents, Config $config): void
     {
         $prefixedLocation = $this->prefixer->prefixPath($path);
         $this->ensureDirectoryExists(
@@ -70,11 +87,10 @@ class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
         );
         error_clear_last();
 
-        if (!($fp = fopen($prefixedLocation, 'w+'))) {
+        if (!($fp = fopen($prefixedLocation, 'a+'))) {
             throw UnableToWriteFile::atLocation($path, 'Cannot open file');
         }
 
-        fseek($fp, $position);
         if (false === fwrite($fp, $contents)) {
             throw UnableToWriteFile::atLocation($path, 'Cannot write to file');
         }

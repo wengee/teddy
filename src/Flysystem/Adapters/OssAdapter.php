@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-12-16 14:30:01 +0800
+ * @version  2022-12-16 17:31:02 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -134,8 +134,15 @@ class OssAdapter implements FilesystemAdapter
      * @throws UnableToWriteFile
      * @throws FilesystemException
      */
-    public function append(string $path, string $contents, int $position, Config $config): void
+    public function append(string $path, string $contents, Config $config): void
     {
+        if (!$this->fileExists($path)) {
+            $this->write($path, $contents, $config);
+
+            return;
+        }
+
+        $position     = (int) $this->fileSize($path)->fileSize();
         $prefixedPath = $this->prefixer->prefixPath($path);
 
         try {
@@ -152,9 +159,9 @@ class OssAdapter implements FilesystemAdapter
      * @throws UnableToWriteFile
      * @throws FilesystemException
      */
-    public function appendStream(string $path, $contents, int $position, Config $config): void
+    public function appendStream(string $path, $contents, Config $config): void
     {
-        $this->append($path, \stream_get_contents($contents), $position, $config);
+        $this->append($path, \stream_get_contents($contents), $config);
     }
 
     /**
