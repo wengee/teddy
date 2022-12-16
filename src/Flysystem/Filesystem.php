@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-12-16 17:31:55 +0800
+ * @version  2022-12-16 17:47:30 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -52,7 +52,7 @@ class Filesystem extends LeagueFilesystem
         $this->myAdapter->append(
             $this->myPathNormalizer->normalizePath($location),
             $contents,
-            $this->config->extend($config)
+            $this->myConfig->extend($config)
         );
     }
 
@@ -64,7 +64,7 @@ class Filesystem extends LeagueFilesystem
         $this->myAdapter->appendStream(
             $this->myPathNormalizer->normalizePath($location),
             $contents,
-            $this->config->extend($config)
+            $this->myConfig->extend($config)
         );
     }
 
