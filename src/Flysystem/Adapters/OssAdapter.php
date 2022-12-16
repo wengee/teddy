@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:44:39 +0800
+ * @version  2022-12-16 14:30:01 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -128,6 +128,33 @@ class OssAdapter implements FilesystemAdapter
     public function writeStream(string $path, $contents, Config $config): void
     {
         $this->write($path, \stream_get_contents($contents), $config);
+    }
+
+    /**
+     * @throws UnableToWriteFile
+     * @throws FilesystemException
+     */
+    public function append(string $path, string $contents, int $position, Config $config): void
+    {
+        $prefixedPath = $this->prefixer->prefixPath($path);
+
+        try {
+            $this->client->appendObject($this->bucket, $prefixedPath, $contents, $position, $this->getOptions($config));
+        } catch (OssException $e) {
+            throw $e;
+            // throw new FilesystemException($e->getMessage(), $e->getCode());
+        }
+    }
+
+    /**
+     * @param resource $contents
+     *
+     * @throws UnableToWriteFile
+     * @throws FilesystemException
+     */
+    public function appendStream(string $path, $contents, int $position, Config $config): void
+    {
+        $this->append($path, \stream_get_contents($contents), $position, $config);
     }
 
     /**
