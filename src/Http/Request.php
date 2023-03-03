@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-02-23 15:20:00 +0800
+ * @version  2023-03-03 10:52:03 +0800
  */
 
 namespace Teddy\Http;
@@ -68,14 +68,14 @@ class Request extends SlimRequest implements ArrayAccess
             return $this->clientIp;
         }
 
-        $ip = $this->getServerParam('REMOTE_ADDR');
+        $ip = $this->getServerParam('HTTP_REMOTEIP') ?: $this->getServerParam('REMOTE_ADDR');
 
         $httpClientIp = $this->getServerParam('HTTP_CLIENT_IP');
         if ($httpClientIp && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $httpClientIp) && !preg_match('#^(127|10|172\.16|192\.168)\.#', $httpClientIp)) {
             $ip = $httpClientIp;
         }
 
-        $forwards = $this->getServerParam('HTTP_X_FORWARDED_FOR');
+        $forwards = $this->getServerParam('HTTP_X_ORIGINAL_FORWARDED_FOR') ?: $this->getServerParam('HTTP_X_FORWARDED_FOR');
         if ($forwards && preg_match_all('#\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}#s', $forwards, $matches)) {
             foreach ($matches[0] as $xip) {
                 if (!preg_match('#^(127|10|172\.16|192\.168)\.#', $xip)) {
