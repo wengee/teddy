@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-20 17:02:59 +0800
+ * @version  2023-03-20 17:12:38 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -501,7 +501,7 @@ if (!function_exists('int2str')) {
     {
         static $intStrIndex;
         if (null === $intStrIndex) {
-            $intStrIndex = defined('INT_STR_INDEX') ? constant('INT_STR_INDEX') : INT_STR_DEFAULT_INDEX;
+            $intStrIndex = env('INT_STR_INDEX', INT_STR_DEFAULT_INDEX);
         }
 
         if (is_string($base)) {
@@ -531,7 +531,7 @@ if (!function_exists('str2int')) {
     {
         static $intStrIndex;
         if (null === $intStrIndex) {
-            $intStrIndex = defined('INT_STR_INDEX') ? constant('INT_STR_INDEX') : INT_STR_DEFAULT_INDEX;
+            $intStrIndex = env('INT_STR_INDEX', INT_STR_DEFAULT_INDEX);
         }
 
         if (is_string($base)) {
