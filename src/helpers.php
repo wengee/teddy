@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-21 14:26:13 +0800
+ * @version  2023-03-20 17:02:59 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -22,7 +22,7 @@ use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
 
-defined('INT_STR_INDEX') || define('INT_STR_INDEX', 'l2Vj5aUOBCLpdFRsK6ytAXzGbY1QWewvHhxE4gT38SPqmfioc7Ju9NDr0IZMkn');
+define('INT_STR_DEFAULT_INDEX', 'l2Vj5aUOBCLpdFRsK6ytAXzGbY1QWewvHhxE4gT38SPqmfioc7Ju9NDr0IZMkn');
 
 if (!function_exists('add_hook')) {
     /**
@@ -499,12 +499,17 @@ if (!function_exists('int2str')) {
      */
     function int2str(int $num, string|int $base = 62): string
     {
+        static $intStrIndex;
+        if (null === $intStrIndex) {
+            $intStrIndex = defined('INT_STR_INDEX') ? constant('INT_STR_INDEX') : INT_STR_DEFAULT_INDEX;
+        }
+
         if (is_string($base)) {
             $index = $base;
             $base  = strlen($index);
         } else {
             $base  = (int) $base;
-            $index = substr(INT_STR_INDEX, 0, $base);
+            $index = substr($intStrIndex, 0, $base);
         }
 
         $out = '';
@@ -524,12 +529,17 @@ if (!function_exists('str2int')) {
      */
     function str2int(string $num, string|int $base = 62): int
     {
+        static $intStrIndex;
+        if (null === $intStrIndex) {
+            $intStrIndex = defined('INT_STR_INDEX') ? constant('INT_STR_INDEX') : INT_STR_DEFAULT_INDEX;
+        }
+
         if (is_string($base)) {
             $index = $base;
             $base  = strlen($index);
         } else {
             $base  = (int) $base;
-            $index = substr(INT_STR_INDEX, 0, $base);
+            $index = substr($intStrIndex, 0, $base);
         }
 
         $out = 0;
