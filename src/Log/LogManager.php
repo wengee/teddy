@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-26 16:49:44 +0800
+ * @version  2023-03-22 16:09:48 +0800
  */
 
 namespace Teddy\Log;
@@ -26,17 +26,17 @@ use Stringable;
 
 class LogManager implements LoggerInterface
 {
-    protected $appName;
+    protected string $appName;
 
-    protected $defaultChannel = 'default';
+    protected string $defaultChannel = 'default';
 
-    protected $defaultLevel = Logger::DEBUG;
+    protected int $defaultLevel = Logger::DEBUG;
 
-    protected $handlers = [];
+    protected array $handlers = [];
 
-    protected $channels = [];
+    protected array $channels = [];
 
-    protected $dateFormat = 'Y-m-d H:i:s';
+    protected string $dateFormat = 'Y-m-d H:i:s';
 
     public function __construct()
     {

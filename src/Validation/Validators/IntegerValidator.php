@@ -4,14 +4,14 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 17:36:10 +0800
+ * @version  2023-03-22 16:30:51 +0800
  */
 
 namespace Teddy\Validation\Validators;
 
 class IntegerValidator extends Validator
 {
-    protected $message = ':label必须为整数';
+    protected string $message = ':label必须为整数';
 
     public function validate($value, array $data, callable $next)
     {

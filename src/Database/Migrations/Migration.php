@@ -4,22 +4,16 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:12:43 +0800
+ * @version  2023-03-22 16:55:36 +0800
  */
 
 namespace Teddy\Database\Migrations;
 
 abstract class Migration
 {
-    /**
-     * @var int
-     */
-    protected $batch = 0;
+    protected int $batch = 0;
 
-    /**
-     * @var string
-     */
-    protected $version = '';
+    protected string $version = '';
 
     public function getBatch(): int
     {

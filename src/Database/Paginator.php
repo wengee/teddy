@@ -4,57 +4,30 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:09:28 +0800
+ * @version  2023-03-22 16:42:45 +0800
  */
 
 namespace Teddy\Database;
 
 class Paginator
 {
-    /**
-     * @var array
-     */
-    public $items = [];
+    public array $items = [];
 
-    /**
-     * @var int
-     */
-    public $totalItems = 0;
+    public int $totalItems = 0;
 
-    /**
-     * @var int
-     */
-    public $totalPages = 0;
+    public int $totalPages = 0;
 
-    /**
-     * @var int
-     */
-    public $pageSize = 0;
+    public int $pageSize = 0;
 
-    /**
-     * @var int
-     */
-    public $first = 0;
+    public int $first = 0;
 
-    /**
-     * @var int
-     */
-    public $before = 0;
+    public int $before = 0;
 
-    /**
-     * @var int
-     */
-    public $current = 0;
+    public int $current = 0;
 
-    /**
-     * @var int
-     */
-    public $next = 0;
+    public int $next = 0;
 
-    /**
-     * @var int
-     */
-    public $last = 0;
+    public int $last = 0;
 
     public function __construct($items, int $total, int $pageSize, int $currentPage = 0)
     {

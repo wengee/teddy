@@ -5,7 +5,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-20 14:41:20 +0800
+ * @version  2023-03-22 16:26:09 +0800
  */
 
 namespace Teddy\Console\Commands\Workerman;
@@ -14,7 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 
 class ReloadCommand extends DefaultCommand
 {
-    protected $action = 'reload';
+    protected string $action = 'reload';
 
     protected function configure(): void
     {

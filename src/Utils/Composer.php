@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:37:23 +0800
+ * @version  2023-03-22 16:18:40 +0800
  */
 
 namespace Teddy\Utils;
@@ -14,10 +14,7 @@ use RuntimeException;
 
 class Composer
 {
-    /**
-     * @var null|ClassLoader
-     */
-    private static $loader;
+    private static ?ClassLoader $loader;
 
     public static function getLoader(): ClassLoader
     {

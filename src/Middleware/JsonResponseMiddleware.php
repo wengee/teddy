@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-24 21:36:19 +0800
+ * @version  2023-03-22 16:11:49 +0800
  */
 
 namespace Teddy\Middleware;
@@ -18,11 +18,9 @@ use Throwable;
 
 class JsonResponseMiddleware implements MiddlewareInterface
 {
-    /** @var array */
-    protected $logExceptions = [];
+    protected array $logExceptions = [];
 
-    /** @var array */
-    protected $exceptExceptions = [Exception::class];
+    protected array $exceptExceptions = [Exception::class];
 
     public function __construct(array $logExceptions = [], array $exceptExceptions = [])
     {

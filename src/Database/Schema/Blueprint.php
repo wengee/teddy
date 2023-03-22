@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-04-06 17:05:39 +0800
+ * @version  2023-03-22 16:53:58 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -118,17 +118,13 @@ class Blueprint
 
     /**
      * Whether to make the table temporary.
-     *
-     * @var bool
      */
-    public $temporary = false;
+    public bool $temporary = false;
 
     /**
      * The table the blueprint describes.
-     *
-     * @var string
      */
-    protected $table;
+    protected string $table;
 
     /**
      * The columns that should be added to the table.
@@ -146,10 +142,8 @@ class Blueprint
 
     /**
      * Create a new schema blueprint.
-     *
-     * @param string $table
      */
-    public function __construct($table, Closure $callback = null)
+    public function __construct(string $table, Closure $callback = null)
     {
         $this->table = $table;
 
@@ -656,7 +650,7 @@ class Blueprint
     protected function indexCommand(string $type, $columns, ?string $index, ?string $algorithm = null): Fluent
     {
         $columns = (array) $columns;
-        $index = $index ?: $this->createIndexName($type, $columns);
+        $index   = $index ?: $this->createIndexName($type, $columns);
 
         return $this->addCommand(
             $type,

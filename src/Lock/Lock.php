@@ -4,20 +4,24 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2023-03-22 15:56:22 +0800
  */
 
 namespace Teddy\Lock;
 
 use Teddy\Exception;
 use Teddy\Interfaces\LockInterface;
+use Teddy\Redis\Redis;
 
 class Lock implements LockInterface
 {
-    protected $key;
+    protected Key $key;
 
-    protected $ttl = -1;
+    protected int $ttl = -1;
 
+    /**
+     * @var Redis
+     */
     protected $redis;
 
     public function __construct(Key $key, int $ttl = -1)

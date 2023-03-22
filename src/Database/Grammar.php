@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:18:07 +0800
+ * @version  2023-03-22 16:43:01 +0800
  */
 
 namespace Teddy\Database;
@@ -17,10 +17,8 @@ abstract class Grammar
 
     /**
      * The grammar table prefix.
-     *
-     * @var string
      */
-    protected $tablePrefix = '';
+    protected string $tablePrefix = '';
 
     /**
      * Wrap an array of values.

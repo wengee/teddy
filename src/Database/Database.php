@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 22:59:36 +0800
+ * @version  2023-03-22 17:00:08 +0800
  */
 
 namespace Teddy\Database;
@@ -25,35 +25,17 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     use LoggerAwareTrait;
     use DatabaseTrait;
 
-    /**
-     * @var bool
-     */
-    protected $hasReadOnly = false;
+    protected bool $hasReadOnly = false;
 
-    /**
-     * @var array
-     */
-    protected $readConf = [];
+    protected array $readConf = [];
 
-    /**
-     * @var array
-     */
-    protected $writeConf = [];
+    protected array $writeConf = [];
 
-    /**
-     * @var null|ConnectionInterface
-     */
-    protected $readInstance;
+    protected ?ConnectionInterface $readInstance = null;
 
-    /**
-     * @var null|Channel
-     */
-    protected $readChannel;
+    protected ?Channel $readChannel = null;
 
-    /**
-     * @var int
-     */
-    protected $currentReadConnections = 0;
+    protected int $currentReadConnections = 0;
 
     public function __construct(array $config = [])
     {

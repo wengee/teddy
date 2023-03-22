@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 17:53:50 +0800
+ * @version  2023-03-22 16:33:31 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -13,9 +13,9 @@ use Teddy\Validation\Field;
 
 class NumberValidator extends Validator
 {
-    protected $places = -1;
+    protected int $places = -1;
 
-    protected $message = ':label不是有效的数字格式';
+    protected string $message = ':label不是有效的数字格式';
 
     /**
      * @param int|string $places

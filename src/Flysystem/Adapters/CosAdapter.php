@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-12-16 17:30:47 +0800
+ * @version  2023-03-22 15:51:46 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -31,35 +31,17 @@ use Teddy\Interfaces\FilesystemAdapter;
 
 class CosAdapter implements FilesystemAdapter
 {
-    /**
-     * @var CosClient
-     */
-    protected $client;
+    protected CosClient $client;
 
-    /**
-     * @var string
-     */
-    protected $schema = '';
+    protected string $schema = '';
 
-    /**
-     * @var string
-     */
-    protected $region = '';
+    protected string $region = '';
 
-    /**
-     * @var string
-     */
-    protected $bucket = '';
+    protected string $bucket = '';
 
-    /**
-     * @var string
-     */
-    protected $cdnDomain = '';
+    protected string $cdnDomain = '';
 
-    /**
-     * @var PathPrefixer
-     */
-    protected $prefixer;
+    protected PathPrefixer $prefixer;
 
     public function __construct(array $config)
     {

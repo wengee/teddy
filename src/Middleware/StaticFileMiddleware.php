@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:43:57 +0800
+ * @version  2023-03-22 16:12:10 +0800
  */
 
 namespace Teddy\Middleware;
@@ -18,7 +18,7 @@ use Teddy\Http\Response;
 
 class StaticFileMiddleware implements MiddlewareInterface
 {
-    protected static $mimeTypes = [
+    protected static array $mimeTypes = [
         'txt'  => 'text/plain',
         'htm'  => 'text/html',
         'html' => 'text/html',
@@ -73,15 +73,9 @@ class StaticFileMiddleware implements MiddlewareInterface
         'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
     ];
 
-    /**
-     * @var string
-     */
-    protected $basePath = '/';
+    protected string $basePath = '/';
 
-    /**
-     * @var string
-     */
-    protected $urlPrefix = '';
+    protected string $urlPrefix = '';
 
     public function __construct(string $basePath, string $urlPrefix = '')
     {

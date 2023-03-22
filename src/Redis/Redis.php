@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-20 17:20:07 +0800
+ * @version  2023-03-22 16:14:56 +0800
  */
 
 namespace Teddy\Redis;
@@ -127,13 +127,12 @@ use Teddy\Pool\Pool;
  * @method array            bzPopMin(string $key1, string $key2, int $timeout)
  * @method array            zPopMax(string $key, int $count = 1)
  * @method array            zPopMin(string $key, int $count = 1)
+ * @method mixed            eval(string $script, array $args = [], int $numKeys = 0)
+ * @method mixed            evalSha(string $script, array $args = [], int $numKeys = 0)
  */
 class Redis extends Pool
 {
-    /**
-     * @var array
-     */
-    protected $config = [];
+    protected array $config = [];
 
     public function __construct(array $config)
     {

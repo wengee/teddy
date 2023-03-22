@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-11-16 14:43:48 +0800
+ * @version  2023-03-22 16:19:06 +0800
  */
 
 namespace Teddy\Validation;
@@ -16,7 +16,7 @@ class Validation
     /**
      * @var Field[]
      */
-    protected $fields = [];
+    protected array $fields = [];
 
     /**
      * @param Field[] $fields

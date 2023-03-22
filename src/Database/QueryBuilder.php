@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-20 15:19:16 +0800
+ * @version  2023-03-22 17:00:42 +0800
  */
 
 namespace Teddy\Database;
@@ -52,80 +52,33 @@ class QueryBuilder
     use QueryUpdate;
     use QueryDelete;
 
-    /**
-     * @var DatabaseInterface
-     */
-    protected $db;
+    protected DatabaseInterface $db;
 
-    /**
-     * @var Model|string
-     */
-    protected $table = '';
+    protected Model|string $table = '';
 
-    /**
-     * @var string
-     */
-    protected $tableSuffix = '';
+    protected string $tableSuffix = '';
 
-    /**
-     * @var bool
-     */
-    protected $transaction = false;
+    protected bool $transaction = false;
 
-    /**
-     * @var callable
-     */
-    protected $callback;
+    protected string $as = '';
 
-    /**
-     * @var string
-     */
-    protected $as;
+    protected array $data = [];
 
-    /**
-     * @var array
-     */
-    protected $data = [];
+    protected ?WhereClause $whereClause = null;
 
-    /**
-     * @var null|WhereClause
-     */
-    protected $whereClause;
+    protected ?OrderClause $orderClause = null;
 
-    /**
-     * @var null|OrderClause
-     */
-    protected $orderClause;
+    protected ?LimitClause $limitClause = null;
 
-    /**
-     * @var null|LimitClause
-     */
-    protected $limitClause;
+    protected ?GroupClause $groupClause = null;
 
-    /**
-     * @var null|GroupClause
-     */
-    protected $groupClause;
+    protected ?JoinClause $joinClause = null;
 
-    /**
-     * @var null|JoinClause
-     */
-    protected $joinClause;
+    protected ?HavingClause $havingClause = null;
 
-    /**
-     * @var null|HavingClause
-     */
-    protected $havingClause;
+    protected int $sqlType = 0;
 
-    /**
-     * @var int
-     */
-    protected $sqlType = 0;
-
-    /**
-     * @var null|Meta
-     */
-    protected $meta;
+    protected ?Meta $meta = null;
 
     /**
      * Constructor.
@@ -295,7 +248,7 @@ class QueryBuilder
         $table = $this->quote($table);
         $as    = $this->quote($as);
 
-        return empty($as) ? $table : $table.' AS '.$as;
+        return $as ? $table.' AS '.$as : $table;
     }
 
     public function toDbColumn($column)

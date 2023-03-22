@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-24 17:22:48 +0800
+ * @version  2023-03-22 15:54:34 +0800
  */
 
 namespace Teddy\Http;
@@ -24,25 +24,13 @@ class Response extends SlimResponse implements CookieAwareInterface, FileRespons
 {
     use Macroable;
 
-    /**
-     * @var array
-     */
-    protected $cookies = [];
+    protected array $cookies = [];
 
-    /**
-     * @var string
-     */
-    protected $sendFile = '';
+    protected string $sendFile = '';
 
-    /**
-     * @var bool
-     */
-    protected $isJsonResponse = false;
+    protected bool $isJsonResponse = false;
 
-    /**
-     * @var int
-     */
-    protected $jsonEncodingOptions = 0;
+    protected int $jsonEncodingOptions = 0;
 
     /**
      * @var mixed

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-03 10:52:03 +0800
+ * @version  2023-03-22 17:01:38 +0800
  */
 
 namespace Teddy\Http;
@@ -20,9 +20,9 @@ class Request extends SlimRequest implements ArrayAccess
 {
     use Macroable;
 
-    private $timestamp;
+    private int|float $timestamp = 0;
 
-    private $clientIp;
+    private ?string $clientIp = null;
 
     public function offsetExists(mixed $offset): bool
     {

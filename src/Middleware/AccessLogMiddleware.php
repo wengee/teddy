@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-24 21:48:15 +0800
+ * @version  2023-03-22 16:11:18 +0800
  */
 
 namespace Teddy\Middleware;
@@ -16,11 +16,9 @@ use Teddy\Http\Request;
 
 class AccessLogMiddleware implements MiddlewareInterface
 {
-    /** @var string */
-    protected $logger = 'access';
+    protected string $logger = 'access';
 
-    /** @var string */
-    protected $format = '{client_ip} - "{method} {path}" - {status_code} - {elapsed_time}';
+    protected string $format = '{client_ip} - "{method} {path}" - {status_code} - {elapsed_time}';
 
     /**
      * @param null|string $logger Default: access

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2023-03-22 16:56:43 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -13,28 +13,28 @@ use Teddy\Database\RawSQL;
 
 class WhereClause extends ClauseContainer
 {
-    public static $operators = [
-        '>='            => '>=',
-        '>'             => '>',
-        '<='            => '<=',
-        '<'             => '<',
-        '='             => '=',
-        '!='            => '!=',
-        '<>'            => 'BETWEEN',
-        '><'            => 'NOT BETWEEN',
-        '~'             => 'LIKE',
-        '!~'            => 'NOT LIKE',
-        '^'             => 'REGEXP',
-        '%'             => 'MATCH',
+    public static array $operators = [
+        '>=' => '>=',
+        '>'  => '>',
+        '<=' => '<=',
+        '<'  => '<',
+        '='  => '=',
+        '!=' => '!=',
+        '<>' => 'BETWEEN',
+        '><' => 'NOT BETWEEN',
+        '~'  => 'LIKE',
+        '!~' => 'NOT LIKE',
+        '^'  => 'REGEXP',
+        '%'  => 'MATCH',
 
-        'IN'            => 'IN',
-        'NOT IN'        => 'NOT IN',
-        'BETWEEN'       => 'BETWEEN',
-        'NOT BETWEEN'   => 'NOT BETWEEN',
-        'LIKE'          => 'LIKE',
-        'NOT LIKE'      => 'NOT LIKE',
-        'REGEXP'        => 'REGEXP',
-        'MATCH'         => 'MATCH',
+        'IN'          => 'IN',
+        'NOT IN'      => 'NOT IN',
+        'BETWEEN'     => 'BETWEEN',
+        'NOT BETWEEN' => 'NOT BETWEEN',
+        'LIKE'        => 'LIKE',
+        'NOT LIKE'    => 'NOT LIKE',
+        'REGEXP'      => 'REGEXP',
+        'MATCH'       => 'MATCH',
     ];
 
     /**

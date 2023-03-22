@@ -3,12 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-10-14 17:19:30 +0800
+ * @version  2023-03-22 16:24:24 +0800
  */
 
 namespace Teddy\Console;
 
-use Symfony\Component\Console\Application as ConsoleApplication;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Teddy\Console\Commands\Migrations;
@@ -24,27 +24,18 @@ class Kernel implements ContainerAwareInterface, KernelInterface
 {
     use ContainerAwareTrait;
 
-    /**
-     * @var ConsoleApplication
-     */
-    protected $console;
+    protected Application $console;
 
-    /**
-     * @var string
-     */
-    protected $appName;
+    protected string $appName;
 
-    /**
-     * @var string
-     */
-    protected $version;
+    protected string $version;
 
     public function __construct()
     {
         $this->appName = config('app.name') ?: 'Teddy App';
         $this->version = config('app.version') ?: 'UNKNOWN';
 
-        $console = $this->getConsole();
+        $console = new Application('', '');
 
         // add swoole commands
         if (Runtime::swooleEnabled()) {
@@ -86,6 +77,8 @@ class Kernel implements ContainerAwareInterface, KernelInterface
         if ($defaultCommand = config('command.default')) {
             $console->setDefaultCommand($defaultCommand);
         }
+
+        $this->console = $console;
     }
 
     public function handle(InputInterface $input, ?OutputInterface $output = null): void
@@ -108,15 +101,6 @@ class Kernel implements ContainerAwareInterface, KernelInterface
 
             EOL);
 
-        $this->getConsole()->run($input, $output);
-    }
-
-    protected function getConsole(): ConsoleApplication
-    {
-        if (null === $this->console) {
-            $this->console = new ConsoleApplication('');
-        }
-
-        return $this->console;
+        $this->console->run($input, $output);
     }
 }

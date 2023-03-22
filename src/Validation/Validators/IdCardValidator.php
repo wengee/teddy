@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2023-03-22 16:30:47 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -13,7 +13,7 @@ class IdCardValidator extends Validator
 {
     public const REGEX = '/^[1-8][0-9]{5}((18|19|20)[0-9]{2})(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[0-9]{3}[0-9xX]$/';
 
-    protected $message = ':label不是正确的身份证号码';
+    protected string $message = ':label不是正确的身份证号码';
 
     public function validate($value, array $data, callable $next)
     {

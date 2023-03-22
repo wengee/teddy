@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 21:21:34 +0800
+ * @version  2023-03-22 15:49:52 +0800
  */
 
 namespace Teddy\Config;
@@ -26,7 +26,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
 {
     use ContainerAwareTrait;
 
-    protected static $tags = [
+    protected static array $tags = [
         'env'  => Tags\EnvTag::class,
         'eval' => Tags\EvalTag::class,
     ];
@@ -34,42 +34,27 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
     /**
      * @var string[]
      */
-    protected $configDirs = [];
+    protected array $configDirs = [];
 
     /**
      * @var string[]
      */
-    protected $configFiles = [];
+    protected array $configFiles = [];
 
     /**
      * @var string[]
      */
-    protected $dotEnvDir = [];
+    protected array $dotEnvDir = [];
 
-    /**
-     * @var bool
-     */
-    protected $freezed = false;
+    protected bool $freezed = false;
 
-    /**
-     * @var array
-     */
-    protected $freezedData = [];
+    protected array $freezedData = [];
 
-    /**
-     * @var array
-     */
-    protected $cached = [];
+    protected array $cached = [];
 
-    /**
-     * @var string
-     */
-    protected $basePath = '';
+    protected string $basePath = '';
 
-    /**
-     * @var string
-     */
-    protected $runtimePath = '';
+    protected string $runtimePath = '';
 
     public function __construct(ContainerInterface $container)
     {

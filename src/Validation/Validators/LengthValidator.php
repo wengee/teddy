@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 17:47:36 +0800
+ * @version  2023-03-22 16:31:28 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -13,11 +13,11 @@ use Teddy\Validation\Field;
 
 class LengthValidator extends Validator
 {
-    protected $minLen = 0;
+    protected int $minLen = 0;
 
-    protected $maxLen = 0;
+    protected int $maxLen = 0;
 
-    protected $message = ':label长度必须介于 :minLen 与 :maxLen 之间';
+    protected string $message = ':label长度必须介于 :minLen 与 :maxLen 之间';
 
     /**
      * @param int|int[] $minLen

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2023-03-22 16:29:50 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -13,9 +13,9 @@ use Teddy\Validation\Field;
 
 class DateTimeValidator extends Validator
 {
-    protected $format = 'Y-m-d H:i:s';
+    protected string $format = 'Y-m-d H:i:s';
 
-    protected $message = ':label不是合法的日期时间格式';
+    protected string $message = ':label不是合法的日期时间格式';
 
     public function __construct(Field $field, string $format = '', ?string $message = null)
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-03-22 17:16:43 +0800
+ * @version  2023-03-22 16:17:34 +0800
  */
 
 namespace Teddy\Redis;
@@ -16,9 +16,12 @@ use Teddy\Interfaces\ConnectionInterface;
 
 class Connection extends AbstractConnection implements ConnectionInterface
 {
+    /**
+     * @var null|\Redis|\RedisCluster
+     */
     protected $redis;
 
-    protected $config;
+    protected array $config;
 
     public function __construct(array $config)
     {

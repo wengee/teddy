@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-15 17:12:22 +0800
+ * @version  2023-03-22 17:00:51 +0800
  */
 
 namespace Teddy\Database\Schema;
@@ -18,29 +18,19 @@ class Builder
 {
     /**
      * The default string length for migrations.
-     *
-     * @var int
      */
-    public static $defaultStringLength = 255;
+    public static int $defaultStringLength = 255;
 
-    protected static $callback;
+    protected static ?Closure $callback;
 
-    /**
-     * @var PDOConnection
-     */
-    protected $connection;
+    protected PDOConnection $connection;
 
-    /**
-     * @var Grammar
-     */
-    protected $grammar;
+    protected Grammar $grammar;
 
     /**
      * The Blueprint resolver callback.
-     *
-     * @var \Closure
      */
-    protected $resolver;
+    protected ?Closure $resolver = null;
 
     public function __construct(PDOConnection $connection)
     {

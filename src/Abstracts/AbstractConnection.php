@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:33:06 +0800
+ * @version  2023-03-22 16:59:40 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -14,10 +14,7 @@ use Teddy\Pool\Pool;
 
 abstract class AbstractConnection implements ConnectionInterface
 {
-    /**
-     * @var null|Pool
-     */
-    protected $pool;
+    protected ?Pool $pool = null;
 
     public function setPool(Pool $pool): void
     {

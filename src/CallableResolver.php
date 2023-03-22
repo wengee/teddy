@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-09-26 15:58:25 +0800
+ * @version  2023-03-22 15:42:51 +0800
  */
 
 namespace Teddy;
@@ -21,10 +21,7 @@ use Teddy\Interfaces\ContainerInterface;
  */
 final class CallableResolver implements CallableResolverInterface
 {
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
+    private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {

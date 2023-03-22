@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-08 17:43:44 +0800
+ * @version  2023-03-22 16:11:35 +0800
  */
 
 namespace Teddy\Middleware;
@@ -17,20 +17,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 class CrossOriginMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var array
-     */
-    protected $config = [];
+    protected array $config = [];
 
-    /**
-     * @var string
-     */
-    protected $methodLine = '';
+    protected string $methodLine = '';
 
-    /**
-     * @var string
-     */
-    protected $headerLine = '';
+    protected string $headerLine = '';
 
     public function __construct()
     {

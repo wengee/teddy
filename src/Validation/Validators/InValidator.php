@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2023-03-22 16:31:00 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -13,9 +13,9 @@ use Teddy\Validation\Field;
 
 class InValidator extends Validator
 {
-    protected $domain = [];
+    protected array $domain = [];
 
-    protected $message = ':label不在有效范围内';
+    protected string $message = ':label不在有效范围内';
 
     public function __construct(Field $field, array $domain, ?string $message = null)
     {

@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-15 20:58:10 +0800
+ * @version  2023-03-22 16:27:50 +0800
  */
 
 namespace Teddy\Abstracts;
@@ -22,25 +22,13 @@ use Teddy\Runtime;
 
 abstract class AbstractCommand extends SymfonyCommand
 {
-    /**
-     * @var InputInterface
-     */
-    protected $input;
+    protected InputInterface $input;
 
-    /**
-     * @var SymfonyStyle
-     */
-    protected $output;
+    protected SymfonyStyle $output;
 
-    /**
-     * @var int
-     */
-    protected $verbosity = OutputInterface::VERBOSITY_NORMAL;
+    protected int $verbosity = OutputInterface::VERBOSITY_NORMAL;
 
-    /**
-     * @var array
-     */
-    protected $verbosityMap = [
+    protected array $verbosityMap = [
         'v'      => OutputInterface::VERBOSITY_VERBOSE,
         'vv'     => OutputInterface::VERBOSITY_VERY_VERBOSE,
         'vvv'    => OutputInterface::VERBOSITY_DEBUG,
@@ -48,7 +36,7 @@ abstract class AbstractCommand extends SymfonyCommand
         'normal' => OutputInterface::VERBOSITY_NORMAL,
     ];
 
-    protected $enableCoroutine = false;
+    protected bool $enableCoroutine = false;
 
     public function run(InputInterface $input, OutputInterface $output): int
     {

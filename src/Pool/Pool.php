@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 22:59:11 +0800
+ * @version  2023-03-22 17:01:08 +0800
  */
 
 namespace Teddy\Pool;
@@ -16,25 +16,13 @@ use Throwable;
 
 abstract class Pool
 {
-    /**
-     * @var null|Channel
-     */
-    protected $channel;
+    protected ?Channel $channel = null;
 
-    /**
-     * @var null|array
-     */
-    protected $poolOptions;
+    protected ?array $poolOptions = null;
 
-    /**
-     * @var int
-     */
-    protected $currentConnections = 0;
+    protected int $currentConnections = 0;
 
-    /**
-     * @var null|ConnectionInterface
-     */
-    protected $instance;
+    protected ?ConnectionInterface $instance = null;
 
     /**
      * @param null|array|bool $options

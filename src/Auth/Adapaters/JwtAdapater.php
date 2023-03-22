@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-12 00:06:20 +0800
+ * @version  2023-03-22 15:47:54 +0800
  */
 
 namespace Teddy\Auth\Adapaters;
@@ -16,10 +16,7 @@ use Teddy\Interfaces\AuthAdapaterInterface;
 
 class JwtAdapater implements AuthAdapaterInterface
 {
-    /**
-     * @var array
-     */
-    protected $options = [];
+    protected array $options = [];
 
     public function __construct(array $options)
     {
@@ -53,9 +50,8 @@ class JwtAdapater implements AuthAdapaterInterface
             return null;
         }
 
-        $secret    = $this->options['secret'];
-        $algorithm = $this->options['algorithm'];
-        $payload   = JWT::decode($token, $secret, $algorithm);
+        $secret  = $this->options['secret'];
+        $payload = JWT::decode($token, $secret);
 
         return $payload ? ($payload['data'] ?? null) : null;
     }

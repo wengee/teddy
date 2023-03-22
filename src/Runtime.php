@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-15 20:45:28 +0800
+ * @version  2023-03-22 15:40:08 +0800
  */
 
 namespace Teddy;
@@ -16,9 +16,9 @@ final class Runtime
     public const Swoole    = 'swoole';
     public const Workerman = 'workerman';
 
-    private static $initialized = false;
+    private static bool $initialized = false;
 
-    private static $runtime;
+    private static ?string $runtime;
 
     public static function set(string $runtime): void
     {

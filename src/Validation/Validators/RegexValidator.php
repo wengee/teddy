@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-06-27 14:37:41 +0800
+ * @version  2023-03-22 16:33:50 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -18,7 +18,7 @@ class RegexValidator extends Validator
 
     protected $replacement;
 
-    protected $message = ':label不符合指定规则';
+    protected string $message = ':label不符合指定规则';
 
     /**
      * @param string|string[] $pattern

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-12-16 17:47:30 +0800
+ * @version  2023-03-22 15:53:02 +0800
  */
 
 namespace Teddy\Flysystem;
@@ -19,20 +19,11 @@ use Teddy\Interfaces\FilesystemAdapter;
 
 class Filesystem extends LeagueFilesystem
 {
-    /**
-     * @var FilesystemAdapter
-     */
-    protected $myAdapter;
+    protected FilesystemAdapter $myAdapter;
 
-    /**
-     * @var Config
-     */
-    protected $myConfig;
+    protected Config $myConfig;
 
-    /**
-     * @var PathNormalizer
-     */
-    protected $myPathNormalizer;
+    protected PathNormalizer $myPathNormalizer;
 
     public function __construct(
         FilesystemAdapter $adapter,

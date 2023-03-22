@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2021-09-03 11:37:54 +0800
+ * @version  2023-03-22 16:34:27 +0800
  */
 
 namespace Teddy\Validation\Validators;
@@ -14,9 +14,9 @@ use Teddy\Validation\Field;
 
 class SameValidator extends Validator
 {
-    protected $otherField;
+    protected string $otherField;
 
-    protected $message = ':label与确认字段不一致';
+    protected string $message = ':label与确认字段不一致';
 
     public function __construct(Field $field, string $otherField, ?string $message = null)
     {
