@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 15:55:28 +0800
+ * @version  2023-03-23 11:18:53 +0800
  */
 
 namespace Teddy\Lock;
@@ -13,16 +13,24 @@ class Key
 {
     protected string $key;
 
+    protected string $name;
+
     protected string $token = '';
 
     public function __construct(string $key)
     {
-        $this->key = $key;
+        $this->key  = $key;
+        $this->name = 'teddyLock:'.$key;
     }
 
     public function __toString(): string
     {
-        return 'teddyLock:'.$this->key;
+        return $this->getName();
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     public function getUniqueToken(): string

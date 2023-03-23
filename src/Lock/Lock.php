@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 15:56:22 +0800
+ * @version  2023-03-23 11:16:23 +0800
  */
 
 namespace Teddy\Lock;
@@ -40,16 +40,17 @@ class Lock implements LockInterface
     public function acquire(): bool
     {
         $script = '
-            if redis.call("EXISTS", KEYS[1]) > 0 then
-                return false
+            if redis.call("SETNX", KEYS[1], ARGV[1]) > 0 then
+                redis.call("EXPIRE", KEYS[1], ARGV[2])
+                return true
             else
-                return redis.call("SET", KEYS[1], ARGV[1], "EX", ARGV[2])
+                return false
             end
         ';
 
         return (bool) $this->evaluate(
             $script,
-            (string) $this->key,
+            $this->key->getName(),
             [$this->key->getUniqueToken(), $this->ttl]
         );
     }
@@ -68,7 +69,7 @@ class Lock implements LockInterface
 
         return (bool) $this->evaluate(
             $script,
-            (string) $this->key,
+            $this->key->getName(),
             [$this->key->getUniqueToken(), $ttl]
         );
     }
@@ -79,7 +80,7 @@ class Lock implements LockInterface
 
         return (bool) $this->evaluate(
             $script,
-            (string) $this->key,
+            $this->key->getName(),
             [$this->key->getUniqueToken()]
         );
     }
@@ -96,13 +97,13 @@ class Lock implements LockInterface
 
         return (bool) $this->evaluate(
             $script,
-            (string) $this->key,
+            $this->key->getName(),
             [$this->key->getUniqueToken()]
         );
     }
 
     protected function evaluate(string $script, string $resource, array $args)
     {
-        return $this->redis->eval($script, array_merge([$resource], $args), 1);
+        return $this->redis->eval($script, [$resource, ...$args], 1);
     }
 }
