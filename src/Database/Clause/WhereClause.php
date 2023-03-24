@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:56:43 +0800
+ * @version  2023-03-24 11:28:35 +0800
  */
 
 namespace Teddy\Database\Clause;
@@ -38,9 +38,9 @@ class WhereClause extends ClauseContainer
     ];
 
     /**
-     * @param RawSQL|string|string[] $column
-     * @param mixed                  $operator
-     * @param mixed                  $value
+     * @param array[]|RawSQL|string|string[] $column
+     * @param mixed                          $operator
+     * @param mixed                          $value
      */
     public function where($column, $operator = null, $value = null, string $chainType = 'AND'): void
     {
@@ -48,9 +48,9 @@ class WhereClause extends ClauseContainer
     }
 
     /**
-     * @param RawSQL|string|string[] $column
-     * @param mixed                  $operator
-     * @param mixed                  $value
+     * @param array[]|RawSQL|string|string[] $column
+     * @param mixed                          $operator
+     * @param mixed                          $value
      */
     public function orWhere($column, $operator = null, $value = null): void
     {
@@ -74,6 +74,7 @@ class WhereClause extends ClauseContainer
             if (!$column) {
                 continue;
             }
+
             if ($ret) {
                 $ret .= $chainType ? " {$chainType} " : ' AND ';
             }
@@ -92,9 +93,9 @@ class WhereClause extends ClauseContainer
     }
 
     /**
-     * @param RawSQL|string|string[] $column
-     * @param mixed                  $operator
-     * @param mixed                  $value
+     * @param array[]|RawSQL|string|string[] $column
+     * @param mixed                          $operator
+     * @param mixed                          $value
      */
     protected function _where($column, $operator = null, $value = null, string $chainType = 'AND', array &$container = []): void
     {
@@ -102,6 +103,10 @@ class WhereClause extends ClauseContainer
             $subContainer = [];
             $subChainType = $operator ?: 'AND';
             foreach ($column as $c) {
+                if (!is_array($c)) {
+                    continue;
+                }
+
                 $subColumn   = $c[0] ?? null;
                 $subOperator = $c[1] ?? null;
                 $subValue    = $c[2] ?? null;
