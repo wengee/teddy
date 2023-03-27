@@ -4,14 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:58:47 +0800
+ * @version  2023-03-27 15:02:50 +0800
  */
 
 namespace Teddy\Config;
 
 use Illuminate\Support\Arr;
-use Nette\Schema\Processor;
-use Nette\Schema\Schema;
 use Teddy\Interfaces\ArrayableInterface;
 
 class Repository implements ArrayableInterface
@@ -29,9 +27,7 @@ class Repository implements ArrayableInterface
 
     protected int $flags = 0;
 
-    protected ?Schema $schema = null;
-
-    public function __construct($items = [], int $flags = 0, $schema = null)
+    public function __construct($items = [], int $flags = 0)
     {
         if (!is_array($items)) {
             $flags = $flags | self::DATA_AS_RAW;
@@ -43,8 +39,7 @@ class Repository implements ArrayableInterface
             $this->items = $items;
         }
 
-        $this->flags  = $flags;
-        $this->schema = $schema;
+        $this->flags = $flags;
     }
 
     public function setFlags(int $flags): self
@@ -62,13 +57,6 @@ class Repository implements ArrayableInterface
     public function addFlags(int $flags): self
     {
         $this->flags = $this->flags | $flags;
-
-        return $this;
-    }
-
-    public function setSchema(Schema $schema): self
-    {
-        $this->schema = $schema;
 
         return $this;
     }
@@ -124,10 +112,6 @@ class Repository implements ArrayableInterface
                     $this->items[$key] = $value;
                 }
             }
-        }
-
-        if ($this->schema) {
-            (new Processor())->process($this->schema, $this->parse());
         }
 
         return $this;

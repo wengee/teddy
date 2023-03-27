@@ -46,8 +46,6 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
      */
     protected array $dotEnvDir = [];
 
-    protected bool $freezed = false;
-
     protected array $freezedData = [];
 
     protected array $cached = [];
@@ -101,19 +99,12 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
 
     public function jsonSerialize(): mixed
     {
-        if (!$this->freezed) {
-            $this->freeze();
-        }
-
         return $this->freezedData;
     }
 
-    private function freeze(): void
+    public function reload(): void
     {
-        if (!$this->freezed) {
-            $this->freezedData = $this->toArray();
-            $this->freezed     = true;
-        }
+        $this->freezedData = $this->toArray();
     }
 
     private function initialize(): void
@@ -146,7 +137,7 @@ class Config extends Repository implements ContainerAwareInterface, JsonSerializ
             }
         }
 
-        $this->freeze();
+        $this->freezedData = $this->toArray();
     }
 
     private function loadConfigDir(string $dir): array
