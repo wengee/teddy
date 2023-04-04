@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 17:00:28 +0800
+ * @version  2023-04-04 17:53:07 +0800
  */
 
 namespace Teddy\Database;
@@ -22,6 +22,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Teddy\Abstracts\AbstractConnection;
 use Teddy\Database\DBAL\MysqlDriver;
+use Teddy\Database\DBAL\SqliteDriver;
 use Teddy\Database\Schema\Builder;
 use Teddy\Database\Schema\Grammars\MysqlGrammar;
 use Teddy\Database\Schema\MysqlBuilder;
@@ -48,7 +49,8 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 
     public function __construct(array $config, bool $readOnly = false)
     {
-        $driver      = 'mysql';
+        $driver      = $config['driver'] ?? 'mysql';
+        $file        = $config['file'] ?? '';
         $host        = $config['host'] ?? '127.0.0.1';
         $port        = $config['port'] ?? 3306;
         $dbName      = $config['name'] ?? '';
@@ -60,7 +62,11 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         $tablePrefix = $config['tablePrefix'] ?? '';
         $options     = $config['options'] ?? [];
 
-        $dsn = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
+        if ('sqlite' === $driver) {
+            $dsn = $driver.':'.$file;
+        } else {
+            $dsn = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
+        }
 
         $options      = $options + $this->getDefaultOptions();
         $this->config = compact(
@@ -275,7 +281,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
             $this->doctrineConnection = new DoctrineConnection([
                 'pdo'    => $this->createPDOConnection(),
                 'dbname' => $this->getConfig('dbName'),
-                'driver' => null,
+                'driver' => $this->getConfig('driver'),
             ], $driver);
         }
 
@@ -301,6 +307,11 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 
     protected function getDoctrineDriver(): DoctrineDriver
     {
+        $driver = $this->getConfig('driver');
+        if ('sqlite' === $driver) {
+            return new SqliteDriver();
+        }
+
         return new MysqlDriver();
     }
 
