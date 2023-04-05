@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-18 11:25:15 +0800
+ * @version  2023-04-05 10:12:21 +0800
  */
 
 use Teddy\Database\Migrations\Migration;
@@ -12,7 +12,7 @@ use Teddy\Database\Schema\Schema;
 
 class AbcMigration_0001 extends Migration
 {
-    protected $version = '1.0.0';
+    protected string $version = '1.0.0';
 
     protected $suffixList = ['', '_0', '_1', '_2', '_3', '_4'];
 

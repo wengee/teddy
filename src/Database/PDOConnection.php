@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-04 17:53:07 +0800
+ * @version  2023-04-05 10:08:37 +0800
  */
 
 namespace Teddy\Database;
@@ -25,6 +25,7 @@ use Teddy\Database\DBAL\MysqlDriver;
 use Teddy\Database\DBAL\SqliteDriver;
 use Teddy\Database\Schema\Builder;
 use Teddy\Database\Schema\Grammars\MysqlGrammar;
+use Teddy\Database\Schema\Grammars\SqliteGrammar;
 use Teddy\Database\Schema\MysqlBuilder;
 
 class PDOConnection extends AbstractConnection implements DbConnectionInterface, LoggerAwareInterface
@@ -50,10 +51,9 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
     public function __construct(array $config, bool $readOnly = false)
     {
         $driver      = $config['driver'] ?? 'mysql';
-        $file        = $config['file'] ?? '';
         $host        = $config['host'] ?? '127.0.0.1';
         $port        = $config['port'] ?? 3306;
-        $dbName      = $config['name'] ?? '';
+        $dbName      = $config['database'] ?? '';
         $user        = $config['user'] ?? 'root';
         $password    = $config['password'] ?? '';
         $charset     = $config['charset'] ?? 'utf8mb4';
@@ -63,7 +63,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         $options     = $config['options'] ?? [];
 
         if ('sqlite' === $driver) {
-            $dsn = $driver.':'.$file;
+            $dsn = $driver.':'.$dbName;
         } else {
             $dsn = $driver.':host='.$host.';port='.$port.';dbname='.$dbName.';charset='.$charset;
         }
@@ -260,6 +260,8 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         if (!$this->schemeGrammar) {
             if ('mysql' === $this->config['driver']) {
                 $this->schemeGrammar = new MysqlGrammar();
+            } elseif ('sqlite' === $this->config['driver']) {
+                $this->schemeGrammar = new SqliteGrammar();
             } else {
                 $this->schemeGrammar = new Grammar();
             }

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 17:00:02 +0800
+ * @version  2023-04-05 10:53:52 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -22,6 +22,10 @@ class PrimaryKeyColumn extends Column
 
     public function convertToDbValue($value)
     {
+        if (null === $value) {
+            return null;
+        }
+
         return (int) $value;
     }
 

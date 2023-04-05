@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:46:39 +0800
+ * @version  2023-04-05 10:12:02 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
@@ -36,41 +36,6 @@ abstract class Grammar extends BaseGrammar
     public function compileChange(Blueprint $blueprint, Fluent $command, PDOConnection $connection)
     {
         return ChangeColumn::compile($this, $blueprint, $command, $connection);
-    }
-
-    public function compileForeign(Blueprint $blueprint, Fluent $command): string
-    {
-        // We need to prepare several of the elements of the foreign key definition
-        // before we can create the SQL, such as wrapping the tables and convert
-        // an array of columns to comma-delimited strings for the SQL queries.
-        $sql = sprintf(
-            'alter table %s add constraint %s ',
-            $this->wrapTable($blueprint),
-            $this->wrap($command->index)
-        );
-
-        // Once we have the initial portion of the SQL statement we will add on the
-        // key name, table name, and referenced columns. These will complete the
-        // main portion of the SQL statement and this SQL will almost be done.
-        $sql .= sprintf(
-            'foreign key (%s) references %s (%s)',
-            $this->columnize($command->columns),
-            $this->wrapTable($command->on),
-            $this->columnize((array) $command->references)
-        );
-
-        // Once we have the basic foreign key creation statement constructed we can
-        // build out the syntax for what should happen on an update or delete of
-        // the affected columns, which will get something like "cascade", etc.
-        if (!is_null($command->onDelete)) {
-            $sql .= " on delete {$command->onDelete}";
-        }
-
-        if (!is_null($command->onUpdate)) {
-            $sql .= " on update {$command->onUpdate}";
-        }
-
-        return $sql;
     }
 
     public function prefixArray($prefix, array $values): array
@@ -135,6 +100,8 @@ abstract class Grammar extends BaseGrammar
         if (count($commands) > 0) {
             return reset($commands);
         }
+
+        return null;
     }
 
     protected function getCommandsByName(Blueprint $blueprint, string $name): array

@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:14:08 +0800
+ * @version  2023-04-05 17:07:10 +0800
  */
 
 namespace Teddy\Pool;
@@ -17,9 +17,9 @@ class Channel
 {
     protected int $size;
 
-    protected CoChannel $channel;
+    protected ?CoChannel $channel = null;
 
-    protected SplQueue $queue;
+    protected ?SplQueue $queue = null;
 
     public function __construct(int $size)
     {

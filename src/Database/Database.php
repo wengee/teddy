@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 17:00:08 +0800
+ * @version  2023-04-05 09:59:36 +0800
  */
 
 namespace Teddy\Database;
@@ -210,14 +210,14 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     protected function initConfig(array $config, ?bool $readOnly = null): void
     {
         $defaultConf = [
-            'driver'      => 'mysql',
-            'host'        => Arr::get($config, 'host', '127.0.0.1'),
-            'port'        => Arr::get($config, 'port', 3306),
-            'name'        => Arr::get($config, 'name', ''),
-            'user'        => Arr::get($config, 'user', ''),
-            'password'    => Arr::get($config, 'password', ''),
-            'charset'     => Arr::get($config, 'charset', 'utf8mb4'),
-            'options'     => Arr::get($config, 'options', []),
+            'driver'      => $config['driver'] ?? 'sqlite',
+            'host'        => $config['host'] ?? '127.0.0.1',
+            'port'        => $config['port'] ?? 3306,
+            'database'    => $config['database'] ?? $config['name'] ?? '',
+            'user'        => $config['user'] ?? '',
+            'password'    => $config['password'] ?? '',
+            'charset'     => $config['charset'] ?? 'utf8mb4',
+            'options'     => $config['options'] ?? [],
             'idleTimeout' => 900,
         ];
 

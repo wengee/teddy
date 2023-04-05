@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-09 22:44:02 +0800
+ * @version  2023-04-05 10:17:58 +0800
  */
 
 namespace App\Controllers;
@@ -57,7 +57,7 @@ class IndexController extends Controller
         return $response->json(0, [
             'model' => [
                 'data'        => $model,
-                'isNewRecord' => $model->isNewRecord(),
+                'isNewRecord' => $model ? $model->isNewRecord() : null,
             ],
             'list' => $list,
             'cpu'  => teddy_cpu_num(),
