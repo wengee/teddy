@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-05 10:08:37 +0800
+ * @version  2023-04-06 22:03:06 +0800
  */
 
 namespace Teddy\Database;
@@ -95,6 +95,11 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
     public function getTablePrefix(): string
     {
         return $this->config['tablePrefix'] ?? '';
+    }
+
+    public function getDriver(): string
+    {
+        return $this->config['driver'] ?? '';
     }
 
     public function getDatabaseName(): string

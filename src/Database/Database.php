@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-05 09:59:36 +0800
+ * @version  2023-04-06 22:11:40 +0800
  */
 
 namespace Teddy\Database;
@@ -25,6 +25,8 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     use LoggerAwareTrait;
     use DatabaseTrait;
 
+    protected string $driver = '';
+
     protected bool $hasReadOnly = false;
 
     protected array $readConf = [];
@@ -40,11 +42,17 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     public function __construct(array $config = [])
     {
         parent::__construct($config['pool'] ?? null);
+        $this->driver = $config['driver'] ?? 'mysql';
         $this->initConfig($config);
 
         if ($this->poolOptions) {
             $this->readChannel = new Channel($this->poolOptions['maxConnections']);
         }
+    }
+
+    public function getDriver(): string
+    {
+        return $this->driver;
     }
 
     public function getConnection(bool $readOnly = false): ConnectionInterface
@@ -176,8 +184,10 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
             return $this->createWriteConnection();
         }
 
-        $config = Arr::random($this->readConf);
-        $pdo    = new PDOConnection($config, true);
+        $config           = Arr::random($this->readConf);
+        $config['driver'] = $this->driver;
+
+        $pdo = new PDOConnection($config, true);
         $pdo->setPool($this);
         if ($this->logger) {
             $pdo->setLogger($this->logger);
@@ -188,8 +198,10 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
 
     protected function createWriteConnection(): ConnectionInterface
     {
-        $config = Arr::random($this->writeConf);
-        $pdo    = new PDOConnection($config, false);
+        $config           = Arr::random($this->writeConf);
+        $config['driver'] = $this->driver;
+
+        $pdo = new PDOConnection($config, false);
         $pdo->setPool($this);
         if ($this->logger) {
             $pdo->setLogger($this->logger);
@@ -210,7 +222,6 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
     protected function initConfig(array $config, ?bool $readOnly = null): void
     {
         $defaultConf = [
-            'driver'      => $config['driver'] ?? 'sqlite',
             'host'        => $config['host'] ?? '127.0.0.1',
             'port'        => $config['port'] ?? 3306,
             'database'    => $config['database'] ?? $config['name'] ?? '',

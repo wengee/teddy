@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 17:00:42 +0800
+ * @version  2023-04-06 22:15:04 +0800
  */
 
 namespace Teddy\Database;
@@ -54,6 +54,8 @@ class QueryBuilder
 
     protected DatabaseInterface $db;
 
+    protected string $quoteStr = '`';
+
     protected Model|string $table = '';
 
     protected string $tableSuffix = '';
@@ -91,6 +93,12 @@ class QueryBuilder
 
         if (is_subclass_of($table, Model::class)) {
             $this->meta = app('modelManager')->getMeta($table);
+        }
+
+        if ('mysql' !== $db->getDriver()) {
+            $this->quoteStr = '"';
+        } else {
+            $this->quoteStr = '`';
         }
     }
 
@@ -285,10 +293,10 @@ class QueryBuilder
 
         $string = (string) $string;
         if (false !== strpos($string, '.')) {
-            return '`'.str_replace('.', '`.`', $string).'`';
+            return $this->quoteStr.str_replace('.', $this->quoteStr.'.'.$this->quoteStr, $string).$this->quoteStr;
         }
 
-        return '`'.$string.'`';
+        return $this->quoteStr.$string.$this->quoteStr;
     }
 
     protected function getTable(?string $as = null): string
