@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-01-26 16:59:09 +0800
+ * @version  2023-04-11 14:29:41 +0800
  */
 
 namespace Teddy\Model\Columns;
@@ -18,7 +18,7 @@ class ArrayColumn extends Column
 
     public function convertToDbValue($value)
     {
-        return json_encode($value ?: []);
+        return json_encode($value ?: [], JSON_UNESCAPED_UNICODE);
     }
 
     public function convertToPhpValue($value)

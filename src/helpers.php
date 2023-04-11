@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-20 17:12:38 +0800
+ * @version  2023-04-11 14:07:06 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -14,7 +14,6 @@ use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
 use Teddy\Deferred;
-use Teddy\Hook;
 use Teddy\Http\Response;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Log\LogManager;
@@ -23,26 +22,6 @@ use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
 
 define('INT_STR_DEFAULT_INDEX', 'l2Vj5aUOBCLpdFRsK6ytAXzGbY1QWewvHhxE4gT38SPqmfioc7Ju9NDr0IZMkn');
-
-if (!function_exists('add_hook')) {
-    /**
-     * Add a hook.
-     */
-    function add_hook(string $name, callable $func): void
-    {
-        Hook::add($name, $func);
-    }
-}
-
-if (!function_exists('run_hook')) {
-    /**
-     * Run hooks.
-     */
-    function run_hook(string $name, ?array $params): void
-    {
-        Hook::run($name, $params);
-    }
-}
 
 if (!function_exists('make')) {
     /**

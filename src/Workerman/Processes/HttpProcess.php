@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-14 20:38:59 +0800
+ * @version  2023-04-11 14:06:32 +0800
  */
 
 namespace Teddy\Workerman\Processes;
@@ -47,32 +47,18 @@ class HttpProcess extends AbstractProcess implements WorkermanProcessInterface
 
     public function onWorkerStart(Worker $worker): void
     {
-        run_hook('workerman:http:beforeWorkerStart', ['worker' => $worker]);
-
-        run_hook('workerman:http:afterWorkerStart', ['worker' => $worker]);
     }
 
     public function onWorkerReload(Worker $worker): void
     {
-        run_hook('workerman:http:beforeWorkerReload', ['worker' => $worker]);
-
-        run_hook('workerman:http:afterWorkerReload', ['worker' => $worker]);
     }
 
     public function onConnect(TcpConnection $connection): void
     {
-        run_hook('workerman:http:beforeConnect', ['connection' => $connection]);
-
-        run_hook('workerman:http:afterConnect', ['connection' => $connection]);
     }
 
     public function onMessage(TcpConnection $connection, Request $request): void
     {
-        run_hook('workerman:http:beforeMessage', [
-            'connection' => $connection,
-            'request'    => $request,
-        ]);
-
         try {
             $req = ServerRequestFactory::createServerRequestFromWorkerman($request, $connection);
             $res = $this->app->handle($req);
@@ -83,32 +69,13 @@ class HttpProcess extends AbstractProcess implements WorkermanProcessInterface
         }
 
         $connection->close();
-
-        run_hook('workerman:http:afterMessage', [
-            'connection' => $connection,
-            'request'    => $request,
-        ]);
     }
 
     public function onClose(TcpConnection $connection): void
     {
-        run_hook('workerman:http:beforeClose', ['connection' => $connection]);
-
-        run_hook('workerman:http:afterClose', ['connection' => $connection]);
     }
 
     public function onError(TcpConnection $connection, $code, $msg): void
     {
-        run_hook('workerman:http:beforeError', [
-            'connection' => $connection,
-            'code'       => $code,
-            'msg'        => $msg,
-        ]);
-
-        run_hook('workerman:http:afterError', [
-            'connection' => $connection,
-            'code'       => $code,
-            'msg'        => $msg,
-        ]);
     }
 }

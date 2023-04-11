@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 15:43:27 +0800
+ * @version  2023-04-11 14:05:55 +0800
  */
 
 namespace Teddy;
@@ -47,20 +47,13 @@ class Application implements ContainerAwareInterface
 
     public function __construct(ContainerInterface $container)
     {
-        run_hook('app:beforeCreate', ['container' => $container]);
-
         $container->addValue('app', $this);
         $this->container = $container;
         $this->slimApp   = $container->get('slim');
+        $this->name      = config('app.name', 'Teddy App');
 
         $this->setDefaultTimezone();
         $this->initRoutes();
-
-        $this->name = config('app.name', 'Teddy App');
-        run_hook('app:afterCreate', [
-            'container' => $container,
-            'app'       => $this,
-        ]);
     }
 
     public function __call(string $method, array $args = [])
