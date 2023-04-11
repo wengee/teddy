@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:24:24 +0800
+ * @version  2023-04-11 11:35:15 +0800
  */
 
 namespace Teddy\Console;
@@ -35,7 +35,7 @@ class Kernel implements ContainerAwareInterface, KernelInterface
         $this->appName = config('app.name') ?: 'Teddy App';
         $this->version = config('app.version') ?: 'UNKNOWN';
 
-        $console = new Application('', '');
+        $console = new Application('');
 
         // add swoole commands
         if (Runtime::swooleEnabled()) {
@@ -89,18 +89,22 @@ class Kernel implements ContainerAwareInterface, KernelInterface
         $phpVersion = PHP_VERSION;
 
         $output->writeln(<<<EOL
-             _____        _     _         ____  _   _ ____
+            <info> _____        _     _         ____  _   _ ____
             |_   _|__  __| | __| |_   _  |  _ \\| | | |  _ \\
               | |/ _ \\/ _` |/ _` | | | | | |_) | |_| | |_) |
               | |  __/ (_| | (_| | |_| | |  __/|  _  |  __/
               |_|\\___|\\__,_|\\__,_|\\__, | |_|   |_| |_|_|
-                                  |___/
+                                  |___/</info>
 
-            OS: <info>{$os}</info>, PHP: <info>{$phpVersion}</info>
-            Application: <info>{$appName}</info>, Version: <info>{$appVersion}</info>
-
+            OS: <comment>{$os}</comment>, PHP: <comment>{$phpVersion}</comment>
+            Application: <comment>{$appName}</comment>, Version: <comment>{$appVersion}</comment>
             EOL);
 
+        if ($input->hasParameterOption(['-V', '--version'], true)) {
+            return;
+        }
+
+        $output->writeln('');
         $this->console->run($input, $output);
     }
 }
