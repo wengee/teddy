@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-11 11:35:15 +0800
+ * @version  2023-04-11 11:38:13 +0800
  */
 
 namespace Teddy\Console;
@@ -81,7 +81,7 @@ class Kernel implements ContainerAwareInterface, KernelInterface
         $this->console = $console;
     }
 
-    public function handle(InputInterface $input, ?OutputInterface $output = null): void
+    public function handle(InputInterface $input, OutputInterface $output = null): void
     {
         $appName    = $this->appName;
         $appVersion = $this->version;
