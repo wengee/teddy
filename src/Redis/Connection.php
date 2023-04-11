@@ -21,7 +21,7 @@ class Connection extends AbstractConnection implements ConnectionInterface
      */
     protected $redis;
 
-    protected array $config;
+    protected array $config = [];
 
     public function __construct(array $config)
     {
