@@ -6,7 +6,7 @@ use Teddy\Database\Migrations\Migration;
 
 class DummyClass extends Migration
 {
-    protected $version = '1.0.0';
+    protected string $version = '1.0.0';
 
     /**
      * Run the migrations.
