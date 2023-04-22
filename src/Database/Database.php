@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-06 22:11:40 +0800
+ * @version  2023-04-22 10:52:56 +0800
  */
 
 namespace Teddy\Database;
@@ -224,7 +224,7 @@ class Database extends Pool implements DatabaseInterface, LoggerAwareInterface
         $defaultConf = [
             'host'        => $config['host'] ?? '127.0.0.1',
             'port'        => $config['port'] ?? 3306,
-            'database'    => $config['database'] ?? $config['name'] ?? '',
+            'database'    => $config['name'] ?? $config['database'] ?? '',
             'user'        => $config['user'] ?? '',
             'password'    => $config['password'] ?? '',
             'charset'     => $config['charset'] ?? 'utf8mb4',
