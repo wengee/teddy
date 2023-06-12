@@ -4,13 +4,12 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-06-12 14:48:46 +0800
+ * @version  2023-06-12 14:51:18 +0800
  */
 
 namespace Teddy\Database\Traits;
 
 use Teddy\Database\Paginator;
-use Teddy\Database\QueryBuilder;
 use Teddy\Database\RawSQL;
 use Teddy\Database\SQL;
 
@@ -23,7 +22,7 @@ trait QuerySelect
     /**
      * @param array|string[] $columns
      *
-     * @return QueryBuilder
+     * @return static
      */
     public function select(...$columns): self
     {
@@ -36,7 +35,7 @@ trait QuerySelect
     }
 
     /**
-     * @return QueryBuilder
+     * @return static
      */
     public function distinct(bool $distinct = true): self
     {
@@ -144,7 +143,7 @@ trait QuerySelect
     }
 
     /**
-     * @return QueryBuilder
+     * @return static
      */
     protected function setColumns(...$columns): self
     {
