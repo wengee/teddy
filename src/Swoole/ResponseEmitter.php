@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-11 21:30:25 +0800
+ * @version  2023-06-27 17:18:42 +0800
  */
 
 namespace Teddy\Swoole;
@@ -30,7 +30,9 @@ class ResponseEmitter
     {
         $this->emitHeaders($res);
         $this->emitCookies($res);
-        $this->emitStatusLine($res);
+
+        $statusCode = $res->getStatusCode();
+        $this->response->status($statusCode);
 
         if (($res instanceof FileResponseInterface) && ($sendFile = $res->getSendFile())) {
             $this->response->sendfile($sendFile);
@@ -38,8 +40,17 @@ class ResponseEmitter
             return;
         }
 
-        if (!$this->isResponseEmpty($res)) {
-            $this->emitBody($res);
+        $body = $res->getBody();
+        $size = (int) $body->getSize();
+        if ($size > 0 && !in_array($statusCode, [204, 205, 304], true)) {
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+
+            // $this->response->header('Content-Length', (string) $size);
+            $this->response->end($body->getContents());
+
+            return;
         }
 
         $this->response->end();
@@ -72,31 +83,5 @@ class ResponseEmitter
                 );
             }
         }
-    }
-
-    private function emitStatusLine(ResponseInterface $res): void
-    {
-        $this->response->status($res->getStatusCode());
-    }
-
-    private function emitBody(ResponseInterface $res): void
-    {
-        $body = $res->getBody();
-        if ($body->isSeekable()) {
-            $body->rewind();
-        }
-
-        $size = $body->getSize();
-        if ($size > 0) {
-            // $this->response->header('Content-Length', (string) $size);
-            $this->response->write($body->getContents());
-        }
-    }
-
-    private function isResponseEmpty(ResponseInterface $res): bool
-    {
-        $contents = (string) $res->getBody();
-
-        return !strlen($contents) || in_array($res->getStatusCode(), [204, 205, 304], true);
     }
 }
