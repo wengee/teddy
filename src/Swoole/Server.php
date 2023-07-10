@@ -3,12 +3,13 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-17 20:17:38 +0800
+ * @version  2023-07-10 17:00:04 +0800
  */
 
 namespace Teddy\Swoole;
 
 use function Swoole\Coroutine\run;
+use Swoole\Coroutine;
 use Swoole\Process\Manager as ProcessManager;
 use Swoole\Process\Pool;
 use Swoole\Runtime;
@@ -58,6 +59,8 @@ class Server implements ServerInterface
      */
     protected $message = [];
 
+    protected int $startTime = 0;
+
     public function __construct(?OutputInterface $output = null)
     {
         $this->output    = $output;
@@ -77,6 +80,10 @@ class Server implements ServerInterface
 
     public function start(): void
     {
+        if (0 === $this->startTime) {
+            $this->startTime = time();
+        }
+
         $coroutineFlags = (int) config('swoole.coroutineFlags');
         Runtime::enableCoroutine($coroutineFlags);
 
@@ -128,9 +135,50 @@ class Server implements ServerInterface
         $pm->start();
     }
 
+    public function getStartTime(): int
+    {
+        return $this->startTime;
+    }
+
     public function addProcess(ProcessInterface $process): void
     {
         $this->addSwooleProcess(new CustomProcess($process));
+    }
+
+    public function stats(): array
+    {
+        $coroutineStats = Coroutine::stats();
+        $workerStats    = array_map(function (SwooleProcessInterface $process) {
+            return ['name' => $process->getName(), 'count' => $process->getCount()];
+        }, $this->processes);
+
+        return [
+            'hostname'       => gethostname(),
+            'currentWorkPid' => getmypid(),
+            'phpVersion'     => PHP_VERSION,
+            'swooleVersion'  => constant('SWOOLE_VERSION'),
+            'startTime'      => $this->startTime,
+
+            'workers' => $workerStats,
+
+            'memory' => [
+                'usage'         => memory_get_usage(),
+                'realUsage'     => memory_get_usage(true),
+                'peakUsage'     => memory_get_peak_usage(),
+                'peakRealUsage' => memory_get_peak_usage(true),
+            ],
+
+            'coroutine' => [
+                'eventNum'          => $coroutineStats['event_num'] ?? null,
+                'signalListenerNum' => $coroutineStats['signal_listener_num'] ?? null,
+                'aioTaskNum'        => $coroutineStats['aio_task_num'] ?? null,
+                'aioWorkerNum'      => $coroutineStats['aio_worker_num'] ?? null,
+                'cStackSize'        => $coroutineStats['c_stack_size'] ?? null,
+                'coroutineNum'      => $coroutineStats['coroutine_num'] ?? null,
+                'coroutinePeakNum'  => $coroutineStats['coroutine_peak_num'] ?? null,
+                'coroutineLastCid'  => $coroutineStats['coroutine_last_cid'] ?? null,
+            ],
+        ];
     }
 
     protected function addSwooleProcess(SwooleProcessInterface $process): void

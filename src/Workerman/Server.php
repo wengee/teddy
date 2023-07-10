@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-15 21:00:37 +0800
+ * @version  2023-07-10 17:00:11 +0800
  */
 
 namespace Teddy\Workerman;
@@ -49,6 +49,8 @@ class Server implements ServerInterface
      */
     protected $output;
 
+    protected int $startTime = 0;
+
     public function __construct(?OutputInterface $output = null)
     {
         $this->output    = $output;
@@ -68,6 +70,10 @@ class Server implements ServerInterface
 
     public function start(): void
     {
+        if (0 === $this->startTime) {
+            $this->startTime = time();
+        }
+
         foreach ($this->processes as $process) {
             Workerman::startWorker($process);
         }
@@ -75,9 +81,38 @@ class Server implements ServerInterface
         Workerman::runAll();
     }
 
+    public function getStartTime(): int
+    {
+        return $this->startTime;
+    }
+
     public function addProcess(ProcessInterface $process): void
     {
         $this->addWorkermanProcess(new CustomProcess($process));
+    }
+
+    public function stats(): array
+    {
+        $workerStats = array_map(function (WorkermanProcessInterface $process) {
+            return ['name' => $process->getName(), 'count' => $process->getCount()];
+        }, $this->processes);
+
+        return [
+            'hostname'       => gethostname(),
+            'currentWorkPid' => getmypid(),
+            'phpVersion'     => PHP_VERSION,
+            'swooleVersion'  => constant('SWOOLE_VERSION'),
+            'startTime'      => $this->startTime,
+
+            'workers' => $workerStats,
+
+            'memory' => [
+                'usage'          => memory_get_usage(),
+                'allotUsage'     => memory_get_usage(true),
+                'peakUsage'      => memory_get_peak_usage(),
+                'peakAllotUsage' => memory_get_peak_usage(true),
+            ],
+        ];
     }
 
     protected function addWorkermanProcess(WorkermanProcessInterface $process): void
