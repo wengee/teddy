@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-07-10 17:00:11 +0800
+ * @version  2023-07-10 17:24:33 +0800
  */
 
 namespace Teddy\Workerman;
@@ -98,11 +98,11 @@ class Server implements ServerInterface
         }, $this->processes);
 
         return [
-            'hostname'       => gethostname(),
-            'currentWorkPid' => getmypid(),
-            'phpVersion'     => PHP_VERSION,
-            'swooleVersion'  => constant('SWOOLE_VERSION'),
-            'startTime'      => $this->startTime,
+            'hostname'         => gethostname(),
+            'currentWorkPid'   => getmypid(),
+            'phpVersion'       => PHP_VERSION,
+            'workermanVersion' => Workerman::version(),
+            'startTime'        => $this->startTime,
 
             'workers' => $workerStats,
 

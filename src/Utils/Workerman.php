@@ -14,6 +14,15 @@ use Workerman\Worker;
 
 class Workerman
 {
+    public static function version(): ?string
+    {
+        if (class_exists(Worker::class)) {
+            return Worker::VERSION;
+        }
+
+        return null;
+    }
+
     public static function bindWorker(Worker $worker, WorkermanProcessInterface $process): void
     {
         $callbackMap = [
