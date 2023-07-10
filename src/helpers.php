@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-11 14:07:06 +0800
+ * @version  2023-07-10 17:16:22 +0800
  */
 
 use Fig\Http\Message\StatusCodeInterface;
@@ -13,10 +13,14 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 use Teddy\Config\Config;
 use Teddy\Container\Container;
+use Teddy\Database\Database;
 use Teddy\Deferred;
 use Teddy\Http\Response;
 use Teddy\Interfaces\QueueInterface;
+use Teddy\Interfaces\ServerInterface;
+use Teddy\Log\Logger;
 use Teddy\Log\LogManager;
+use Teddy\Redis\Redis;
 use Teddy\Utils\FileSystem;
 use Teddy\Validation\Field;
 use Teddy\Validation\Validation;
@@ -105,13 +109,21 @@ if (!function_exists('app')) {
     }
 }
 
+if (!function_exists('server')) {
+    /**
+     * Get the server instance.
+     */
+    function server(): ServerInterface
+    {
+        return Container::getInstance()->get(ServerInterface::class);
+    }
+}
+
 if (!function_exists('db')) {
     /**
      * Get a database connection.
-     *
-     * @return Teddy\Database\Database
      */
-    function db(string $connection = 'default')
+    function db(string $connection = 'default'): Database
     {
         static $db;
         if (null === $db) {
@@ -129,10 +141,8 @@ if (!function_exists('db')) {
 if (!function_exists('redis')) {
     /**
      * Get a redis connection.
-     *
-     * @return Teddy\Redis\Redis
      */
-    function redis(string $connection = 'default')
+    function redis(string $connection = 'default'): Redis
     {
         static $redis;
         if (null === $redis) {
@@ -150,10 +160,8 @@ if (!function_exists('redis')) {
 if (!function_exists('logger')) {
     /**
      * Get a logger.
-     *
-     * @return Teddy\Log\Logger
      */
-    function logger(?string $channel = null)
+    function logger(?string $channel = null): Logger
     {
         static $logger;
         if (null === $logger) {
