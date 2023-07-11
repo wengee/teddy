@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-07-10 17:24:33 +0800
+ * @version  2023-07-11 16:19:30 +0800
  */
 
 namespace Teddy\Workerman;
@@ -107,10 +107,10 @@ class Server implements ServerInterface
             'workers' => $workerStats,
 
             'memory' => [
-                'usage'          => memory_get_usage(),
-                'allotUsage'     => memory_get_usage(true),
-                'peakUsage'      => memory_get_peak_usage(),
-                'peakAllotUsage' => memory_get_peak_usage(true),
+                'usage'         => memory_get_usage(),
+                'realUsage'     => memory_get_usage(true),
+                'peakUsage'     => memory_get_peak_usage(),
+                'peakRealUsage' => memory_get_peak_usage(true),
             ],
         ];
     }
