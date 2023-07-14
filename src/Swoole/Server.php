@@ -3,13 +3,12 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-07-10 17:00:04 +0800
+ * @version  2023-07-14 17:20:24 +0800
  */
 
 namespace Teddy\Swoole;
 
 use function Swoole\Coroutine\run;
-use Swoole\Coroutine;
 use Swoole\Process\Manager as ProcessManager;
 use Swoole\Process\Pool;
 use Swoole\Runtime;
