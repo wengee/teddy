@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:42:45 +0800
+ * @version  2023-08-03 17:39:14 +0800
  */
 
 namespace Teddy\Database;
@@ -31,7 +31,7 @@ class Paginator
 
     public function __construct($items, int $total, int $pageSize, int $currentPage = 0)
     {
-        $totalPages  = max(1, ceil($total / $pageSize));
+        $totalPages  = (int) max(1, ceil($total / $pageSize));
         $currentPage = max(1, $currentPage);
 
         $this->items      = $items;
