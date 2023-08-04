@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-07-11 16:19:30 +0800
+ * @version  2023-08-04 17:27:19 +0800
  */
 
 namespace Teddy\Workerman;
@@ -15,6 +15,7 @@ use Teddy\Interfaces\ContainerInterface;
 use Teddy\Interfaces\ProcessInterface;
 use Teddy\Interfaces\QueueInterface;
 use Teddy\Interfaces\ServerInterface;
+use Teddy\Traits\ServerTrait;
 use Teddy\Utils\Workerman;
 use Teddy\Workerman\Processes\CustomProcess;
 use Teddy\Workerman\Processes\HttpProcess;
@@ -24,6 +25,8 @@ use Teddy\Workerman\ProcessInterface as WorkermanProcessInterface;
 
 class Server implements ServerInterface
 {
+    use ServerTrait;
+
     /**
      * @var Application
      */
@@ -97,22 +100,10 @@ class Server implements ServerInterface
             return ['name' => $process->getName(), 'count' => $process->getCount()];
         }, $this->processes);
 
-        return [
-            'hostname'         => gethostname(),
-            'currentWorkPid'   => getmypid(),
-            'phpVersion'       => PHP_VERSION,
+        return $this->generateStats([
             'workermanVersion' => Workerman::version(),
-            'startTime'        => $this->startTime,
-
-            'workers' => $workerStats,
-
-            'memory' => [
-                'usage'         => memory_get_usage(),
-                'realUsage'     => memory_get_usage(true),
-                'peakUsage'     => memory_get_peak_usage(),
-                'peakRealUsage' => memory_get_peak_usage(true),
-            ],
-        ];
+            'workers'          => $workerStats,
+        ]);
     }
 
     protected function addWorkermanProcess(WorkermanProcessInterface $process): void

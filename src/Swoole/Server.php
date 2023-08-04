@@ -3,7 +3,7 @@
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-07-14 17:20:24 +0800
+ * @version  2023-08-04 17:26:29 +0800
  */
 
 namespace Teddy\Swoole;
@@ -24,10 +24,13 @@ use Teddy\Swoole\Processes\HttpProcess;
 use Teddy\Swoole\Processes\TaskProcess;
 use Teddy\Swoole\Processes\WebsocketProcess;
 use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
+use Teddy\Traits\ServerTrait;
 use Teddy\Utils\Process;
 
 class Server implements ServerInterface
 {
+    use ServerTrait;
+
     /**
      * @var Application
      */
@@ -151,23 +154,10 @@ class Server implements ServerInterface
             return ['name' => $process->getName(), 'count' => $process->getCount()];
         }, $this->processes);
 
-        return [
-            'hostname'       => gethostname(),
-            'currentWorkPid' => getmypid(),
-            'phpVersion'     => PHP_VERSION,
-            'swooleVersion'  => constant('SWOOLE_VERSION'),
-            'startTime'      => $this->startTime,
-
-            'workers' => $workerStats,
-
-            'memory' => [
-                'usage'         => memory_get_usage(),
-                'realUsage'     => memory_get_usage(true),
-                'peakUsage'     => memory_get_peak_usage(),
-                'peakRealUsage' => memory_get_peak_usage(true),
-            ],
-
-            'coroutine' => [
+        return $this->generateStats([
+            'swooleVersion' => constant('SWOOLE_VERSION'),
+            'workers'       => $workerStats,
+            'coroutine'     => [
                 'eventNum'          => $coroutineStats['event_num'] ?? null,
                 'signalListenerNum' => $coroutineStats['signal_listener_num'] ?? null,
                 'aioTaskNum'        => $coroutineStats['aio_task_num'] ?? null,
@@ -177,7 +167,7 @@ class Server implements ServerInterface
                 'coroutinePeakNum'  => $coroutineStats['coroutine_peak_num'] ?? null,
                 'coroutineLastCid'  => $coroutineStats['coroutine_last_cid'] ?? null,
             ],
-        ];
+        ]);
     }
 
     protected function addSwooleProcess(SwooleProcessInterface $process): void
