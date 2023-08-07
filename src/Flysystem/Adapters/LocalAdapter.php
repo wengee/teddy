@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 15:52:07 +0800
+ * @version  2023-08-07 22:26:10 +0800
  */
 
 namespace Teddy\Flysystem\Adapters;
@@ -16,6 +16,7 @@ use League\Flysystem\PathPrefixer;
 use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 use League\Flysystem\UnixVisibility\VisibilityConverter;
+use League\Flysystem\Visibility;
 use Teddy\Interfaces\FilesystemAdapter;
 
 class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
@@ -28,11 +29,14 @@ class LocalAdapter extends LocalFilesystemAdapter implements FilesystemAdapter
 
     public function __construct(array $config)
     {
-        $this->urlPrefix  = rtrim($config['url'] ?? '', '/');
-        $location         = $config['location'] ?? ($config['root'] ?? '');
-        $visibility       = new PortableVisibilityConverter();
-        $this->prefixer   = new PathPrefixer($location, DIRECTORY_SEPARATOR);
-        $this->visibility = $visibility;
+        $this->urlPrefix = rtrim($config['url'] ?? '', '/');
+
+        $location       = $config['location'] ?? ($config['root'] ?? '');
+        $this->prefixer = new PathPrefixer($location, DIRECTORY_SEPARATOR);
+
+        $directoryVisibility = $config['directoryVisibility'] ?? $config['directory_visibility'] ?? Visibility::PUBLIC;
+        $visibility          = new PortableVisibilityConverter(0644, 0600, 0755, 0700, $directoryVisibility);
+        $this->visibility    = $visibility;
 
         parent::__construct($location, $visibility);
     }
