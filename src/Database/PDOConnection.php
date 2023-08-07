@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-06 22:03:06 +0800
+ * @version  2023-07-18 22:09:13 +0800
  */
 
 namespace Teddy\Database;
@@ -22,11 +22,15 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Teddy\Abstracts\AbstractConnection;
 use Teddy\Database\DBAL\MysqlDriver;
+use Teddy\Database\DBAL\PgsqlDriver;
 use Teddy\Database\DBAL\SqliteDriver;
 use Teddy\Database\Schema\Builder;
 use Teddy\Database\Schema\Grammars\MysqlGrammar;
+use Teddy\Database\Schema\Grammars\PgsqlGrammar;
 use Teddy\Database\Schema\Grammars\SqliteGrammar;
 use Teddy\Database\Schema\MysqlBuilder;
+use Teddy\Database\Schema\PgsqlBuilder;
+use Teddy\Database\Schema\SqliteBuilder;
 
 class PDOConnection extends AbstractConnection implements DbConnectionInterface, LoggerAwareInterface
 {
@@ -250,8 +254,14 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
     public function getSchemaBuilder(): Builder
     {
         if (!$this->schemeBuilder) {
-            if ('mysql' === $this->config['driver']) {
+            $driver = $this->getDriver();
+
+            if ('mysql' === $driver) {
                 $this->schemeBuilder = new MysqlBuilder($this);
+            } elseif ('sqlite' === $driver) {
+                $this->schemeBuilder = new SqliteBuilder($this);
+            } elseif ('pgsql' === $driver) {
+                $this->schemeBuilder = new PgsqlBuilder($this);
             } else {
                 $this->schemeBuilder = new Builder($this);
             }
@@ -263,10 +273,14 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
     public function getSchemaGrammar(): Grammar
     {
         if (!$this->schemeGrammar) {
-            if ('mysql' === $this->config['driver']) {
+            $driver = $this->getDriver();
+
+            if ('mysql' === $driver) {
                 $this->schemeGrammar = new MysqlGrammar();
-            } elseif ('sqlite' === $this->config['driver']) {
+            } elseif ('sqlite' === $driver) {
                 $this->schemeGrammar = new SqliteGrammar();
+            } elseif ('pgsql' === $driver) {
+                $this->schemeGrammar = new PgsqlGrammar();
             } else {
                 $this->schemeGrammar = new Grammar();
             }
@@ -314,9 +328,14 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 
     protected function getDoctrineDriver(): DoctrineDriver
     {
-        $driver = $this->getConfig('driver');
+        $driver = $this->getDriver();
+
         if ('sqlite' === $driver) {
             return new SqliteDriver();
+        }
+
+        if ('pgsql' === $driver) {
+            return new PgsqlDriver();
         }
 
         return new MysqlDriver();
@@ -331,7 +350,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
             $this->config['options']
         );
 
-        if ($this->idleTimeout > 0 && 'mysql' === $this->config['driver']) {
+        if ($this->idleTimeout > 0 && 'mysql' === $this->getDriver()) {
             $pdo->query("SET SESSION interactive_timeout = {$this->idleTimeout};");
             $pdo->query("SET SESSION wait_timeout = {$this->idleTimeout};");
         }
