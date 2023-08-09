@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-04-05 09:32:18 +0800
+ * @version  2023-08-09 08:38:14 +0800
  */
 
 namespace Teddy\Database\Schema\Grammars;
@@ -15,6 +15,11 @@ use Teddy\Database\Schema\Blueprint;
 
 class MysqlGrammar extends Grammar
 {
+    /**
+     * The quote symbol.
+     */
+    protected string $quoteSymbol = '`';
+
     /**
      * The possible column modifiers.
      */

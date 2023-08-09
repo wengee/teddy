@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:43:01 +0800
+ * @version  2023-08-09 08:36:30 +0800
  */
 
 namespace Teddy\Database;
@@ -19,6 +19,11 @@ abstract class Grammar
      * The grammar table prefix.
      */
     protected string $tablePrefix = '';
+
+    /**
+     * The quote symbol.
+     */
+    protected string $quoteSymbol = '"';
 
     /**
      * Wrap an array of values.
@@ -65,7 +70,7 @@ abstract class Grammar
             return implode(', ', array_map([$this, __FUNCTION__], $value));
         }
 
-        return "'{$value}'";
+        return $this->quoteSymbol.$value.$this->quoteSymbol;
     }
 
     public function getTablePrefix(): ?string
