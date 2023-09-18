@@ -4,7 +4,7 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-07-18 22:09:13 +0800
+ * @version  2023-09-18 17:17:33 +0800
  */
 
 namespace Teddy\Database;
@@ -13,11 +13,7 @@ use Doctrine\DBAL\Connection as DoctrineConnection;
 use Doctrine\DBAL\Driver as DoctrineDriver;
 use Doctrine\DBAL\Schema\AbstractSchemaManager as DoctrineAbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column as DoctrineColumn;
-use Exception;
 use Illuminate\Support\Str;
-use PDO;
-use PDOException;
-use PDOStatement;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Teddy\Abstracts\AbstractConnection;
@@ -36,7 +32,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 {
     use LoggerAwareTrait;
 
-    protected ?PDO $pdo = null;
+    protected ?\PDO $pdo = null;
 
     protected array $config = [];
 
@@ -138,14 +134,16 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
             return false;
         }
 
+        $sql = 'SELECT 1';
+
         try {
-            $this->pdo->query('SELECT 1');
-        } catch (PDOException $e) {
-            log_exception($e);
+            $this->pdo->query($sql);
+        } catch (\PDOException $e) {
+            $this->writeLog($sql, 0, $e->getMessage());
 
             return !$this->isDisconnected($e);
-        } catch (Exception $e) {
-            log_exception($e);
+        } catch (\Exception $e) {
+            $this->writeLog($sql, 0, $e->getMessage());
 
             return false;
         }
@@ -192,10 +190,11 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
 
         try {
             $stmt = $pdo->prepare($sql);
-            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            $stmt->setFetchMode(\PDO::FETCH_ASSOC);
             $this->bindValues($stmt, $data);
             $stmt->execute();
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
+            $this->writeLog($sql, $startTime, $e->getMessage());
             if (!$this->stick && $retryTotal < $maxRetries && $this->isDisconnected($e)) {
                 $pdo = $this->reconnect();
                 ++$retryTotal;
@@ -204,13 +203,13 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
             }
 
             $error = $e;
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
+            $this->writeLog($sql, $startTime, $e->getMessage());
             $error = $e;
         }
 
         if ($error) {
             $stmt && $stmt->closeCursor();
-            $this->writeLog($sql, $startTime, $error->getMessage());
 
             throw $error;
         }
@@ -341,9 +340,9 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         return new MysqlDriver();
     }
 
-    protected function createPDOConnection(): PDO
+    protected function createPDOConnection(): \PDO
     {
-        $pdo = new PDO(
+        $pdo = new \PDO(
             $this->config['dsn'],
             $this->config['user'],
             $this->config['password'],
@@ -361,29 +360,29 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
     protected function getDefaultOptions(bool $persistent = false): array
     {
         $options = [
-            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
-            PDO::ATTR_STRINGIFY_FETCHES  => false,
+            \PDO::ATTR_ERRMODE            => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
+            \PDO::ATTR_EMULATE_PREPARES   => false,
+            \PDO::ATTR_STRINGIFY_FETCHES  => false,
         ];
 
         if ($persistent) {
-            $options[PDO::ATTR_PERSISTENT] = true;
+            $options[\PDO::ATTR_PERSISTENT] = true;
         }
 
         return $options;
     }
 
-    protected function bindValues(PDOStatement $statement, array $bindings): void
+    protected function bindValues(\PDOStatement $statement, array $bindings): void
     {
         foreach ($bindings as $key => $value) {
-            $dataType = PDO::PARAM_STR;
+            $dataType = \PDO::PARAM_STR;
             if (is_int($value)) {
-                $dataType = PDO::PARAM_INT;
+                $dataType = \PDO::PARAM_INT;
             } elseif (is_bool($value)) {
-                $dataType = PDO::PARAM_BOOL;
+                $dataType = \PDO::PARAM_BOOL;
             } elseif (is_null($value)) {
-                $dataType = PDO::PARAM_NULL;
+                $dataType = \PDO::PARAM_NULL;
             }
 
             $statement->bindValue(
@@ -394,7 +393,7 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
         }
     }
 
-    protected function isDisconnected(PDOException $e)
+    protected function isDisconnected(\PDOException $e)
     {
         $errorInfo = (array) $e->errorInfo;
         if (isset($errorInfo[1]) && (1461 === $errorInfo[1] || 2006 === $errorInfo[1])) {
@@ -411,16 +410,19 @@ class PDOConnection extends AbstractConnection implements DbConnectionInterface,
             'Error while sending',
             'decryption failed or bad record mac',
             'SSL connection has been closed unexpectedly',
+            'Broken pipe',
         ]);
     }
 
-    protected function writeLog(string $sql, float $start, ?string $extra = null): void
+    protected function writeLog(string $sql, float $start = 0, ?string $extra = null): void
     {
         if ($this->logger) {
-            $data = [
-                'SQL: '.$sql,
-                sprintf('Elapsed time: %.2fms', (microtime(true) - $start) * 1000),
-            ];
+            $data = ['SQL: '.$sql];
+
+            if ($start > 0) {
+                $data[] = sprintf('Elapsed time: %.2fms', (microtime(true) - $start) * 1000);
+            }
+
             if ($extra) {
                 $data[] = 'Message: '.$extra;
             }
