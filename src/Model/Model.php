@@ -4,24 +4,21 @@ declare(strict_types=1);
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-08-19 14:41:24 +0800
+ * @version  2024-03-20 15:02:21 +0800
  */
 
 namespace Teddy\Model;
 
-use ArrayAccess;
-use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Traits\Macroable;
-use JsonSerializable;
 use Teddy\Database\DatabaseInterface;
 use Teddy\Database\DbException;
 use Teddy\Database\QueryBuilder;
 use Teddy\Interfaces\ArrayableInterface;
 use Teddy\Interfaces\JsonableInterface;
 
-abstract class Model implements ArrayAccess, JsonSerializable
+abstract class Model implements \ArrayAccess, \JsonSerializable
 {
     use Macroable;
 
@@ -122,7 +119,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
                 return $value->toArray();
             }
 
-            if ($value instanceof JsonSerializable) {
+            if ($value instanceof \JsonSerializable) {
                 return $value->jsonSerialize();
             }
 
@@ -136,6 +133,14 @@ abstract class Model implements ArrayAccess, JsonSerializable
         }, ARRAY_FILTER_USE_KEY));
 
         if ($keys) {
+            if (isset($keys['only'])) {
+                $except = false;
+                $keys   = $keys['only'] ?: [];
+            } elseif (isset($keys['except'])) {
+                $except = true;
+                $keys   = $keys['except'] ?: [];
+            }
+
             $values = $except ? Arr::except($values, $keys) : Arr::only($values, $keys);
         }
 
@@ -162,7 +167,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * @throws DbException|Exception
+     * @throws DbException|\Exception
      */
     public function saveOrError(?DatabaseInterface $db = null): void
     {
@@ -210,7 +215,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     {
         try {
             $this->saveOrError($db);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             log_exception($e);
 
             return false;
@@ -220,7 +225,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     }
 
     /**
-     * @throws DbException|Exception
+     * @throws DbException|\Exception
      */
     public function deleteOrError(?DatabaseInterface $db = null): void
     {
@@ -250,7 +255,7 @@ abstract class Model implements ArrayAccess, JsonSerializable
     {
         try {
             $this->deleteOrError($db);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             log_exception($e);
 
             return false;
