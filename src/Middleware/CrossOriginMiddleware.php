@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-03-22 16:11:35 +0800
+ * @version  2024-10-18 16:30:23 +0800
  */
 
 namespace Teddy\Middleware;
@@ -68,6 +69,8 @@ class CrossOriginMiddleware implements MiddlewareInterface
             return true;
         }
 
-        return Str::is($this->config['origin'], $origin);
+        $host = parse_url($origin, PHP_URL_HOST) ?: '';
+
+        return Str::is($this->config['origin'], $host);
     }
 }
