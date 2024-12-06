@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-08-04 17:27:19 +0800
+ * @version  2024-12-06 09:44:31 +0800
  */
 
 namespace Teddy\Workerman;
@@ -176,13 +177,17 @@ class Server implements ServerInterface
 
             $args    = is_array($args) ? $args : [$args];
             $process = new $className(...$args);
-            if (!($process instanceof ProcessInterface)) {
+            if ($process instanceof ProcessInterface) {
+                $process = new CustomProcess($process);
+            }
+
+            if (!$process instanceof WorkermanProcessInterface) {
                 continue;
             }
 
             $count = $process->getCount();
             if ($count > 0) {
-                $this->addProcess($process);
+                $this->addWorkermanProcess($process);
             }
         }
     }

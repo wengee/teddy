@@ -1,9 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2022-11-17 20:12:39 +0800
+ * @version  2024-12-06 09:48:34 +0800
  */
 
 namespace Teddy\Swoole\Processes;
@@ -43,6 +45,11 @@ class TaskProcess extends AbstractProcess implements SwooleProcessInterface
      * @var array
      */
     protected $channels = [];
+
+    /**
+     * @var int
+     */
+    protected $timerId;
 
     public function __construct(Application $app, array $options = [], array $extra = [])
     {

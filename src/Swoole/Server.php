@@ -1,14 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /**
  * This file is part of Teddy Framework.
  *
  * @author   Fung Wing Kit <wengee@gmail.com>
- * @version  2023-08-04 17:26:29 +0800
+ * @version  2024-12-06 09:46:19 +0800
  */
 
 namespace Teddy\Swoole;
 
-use function Swoole\Coroutine\run;
 use Swoole\Process\Manager as ProcessManager;
 use Swoole\Process\Pool;
 use Swoole\Runtime;
@@ -26,6 +27,8 @@ use Teddy\Swoole\Processes\WebsocketProcess;
 use Teddy\Swoole\ProcessInterface as SwooleProcessInterface;
 use Teddy\Traits\ServerTrait;
 use Teddy\Utils\Process;
+
+use function Swoole\Coroutine\run;
 
 class Server implements ServerInterface
 {
@@ -236,13 +239,17 @@ class Server implements ServerInterface
 
             $args    = is_array($args) ? $args : [$args];
             $process = new $className(...$args);
-            if (!($process instanceof ProcessInterface)) {
+            if ($process instanceof ProcessInterface) {
+                $process = new CustomProcess($process);
+            }
+
+            if (!$process instanceof SwooleProcessInterface) {
                 continue;
             }
 
             $count = $process->getCount();
             if ($count > 0) {
-                $this->addProcess($process);
+                $this->addSwooleProcess($process);
             }
         }
     }
